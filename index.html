@@ -435,7 +435,7 @@ async function processImages(){
       const resp=await fetch("https://wispy-heart-6002.ptgwos.workers.dev/",{
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
-        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[
+        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
           {type:"image",source:{type:"base64",media_type:img.type,data:img.b64}},
           {type:"text",text:`Whiteout Survival leaderboard screenshot. Extract all player rows.\nReturn ONLY a valid JSON array, no markdown:\n[{"rank":1,"name":"exact name with all Unicode","value":2700133298},...]\nThe value is the large score number shown.`}
         ]}]})
