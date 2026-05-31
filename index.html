@@ -10,13 +10,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 a{color:#58a6ff}
 .header{background:#161f2b;border-bottom:1px solid #1e3048;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .header h1{font-size:16px;font-weight:600;color:#e6edf3;display:flex;align-items:center;gap:8px}
-.header h1 span{font-size:20px}
 .status-badge{font-size:12px;padding:4px 12px;border-radius:20px;background:#1e3048;color:#8b949e;white-space:nowrap}
 .status-badge.ok{background:#1a3a2a;color:#3fb950}
 .status-badge.err{background:#3a1a1a;color:#f85149}
 .status-badge.info{background:#1a2a3a;color:#58a6ff}
 .container{max-width:1000px;margin:0 auto;padding:24px}
-.tabs{display:flex;gap:0;border-bottom:1px solid #1e3048;margin-bottom:24px}
+.tabs{display:flex;border-bottom:1px solid #1e3048;margin-bottom:24px}
 .tab-btn{padding:10px 18px;font-size:13px;border:none;border-bottom:2px solid transparent;background:none;color:#8b949e;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
 .tab-btn.active{color:#58a6ff;border-bottom-color:#58a6ff;font-weight:500}
 .tab-btn:hover:not(.active){color:#c9d1d9}
@@ -24,8 +23,8 @@ a{color:#58a6ff}
 .card{background:#161f2b;border:1px solid #1e3048;border-radius:10px;padding:18px 20px;margin-bottom:16px}
 .card h3{font-size:13px;font-weight:600;color:#e6edf3;margin-bottom:14px}
 label{font-size:11px;color:#8b949e;display:block;margin-bottom:4px}
-input[type=text],input[type=password],input[type=date],select,textarea{width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:6px;padding:7px 10px;color:#c9d1d9;font-size:13px;outline:none;transition:border .15s}
-input:focus,select:focus,textarea:focus{border-color:#58a6ff}
+input[type=text],input[type=password],input[type=date],select{width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:6px;padding:7px 10px;color:#c9d1d9;font-size:13px;outline:none;transition:border .15s}
+input:focus,select:focus{border-color:#58a6ff}
 input[type=file]{display:none}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:6px;font-size:13px;cursor:pointer;border:1px solid #1e3048;background:#1e3048;color:#c9d1d9;transition:all .15s;white-space:nowrap}
 .btn:hover:not(:disabled){background:#263549;border-color:#30455e}
@@ -34,57 +33,42 @@ input[type=file]{display:none}
 .btn-primary:hover:not(:disabled){background:#1f4a75}
 .btn-success{background:#1a3a2a;border-color:#2d6a3f;color:#56d364}
 .btn-success:hover:not(:disabled){background:#1f4a35}
-.btn-danger{background:#3a1a1a;border-color:#6a2d2d;color:#f85149}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid-4{display:grid;grid-template-columns:1fr 56px 1fr 160px;gap:10px;align-items:end}
-.mode-btns{display:flex;gap:6px;margin-bottom:14px}
 .mode-btn{padding:5px 14px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid #1e3048;background:#1e3048;color:#8b949e}
 .mode-btn.active{background:#1a2a3a;border-color:#2d6a9f;color:#58a6ff}
 .drop-zone{border:2px dashed #1e3048;border-radius:10px;padding:28px;text-align:center;cursor:pointer;background:#0f1923;transition:border .15s;margin-bottom:14px}
 .drop-zone:hover{border-color:#30455e}
-.drop-zone .icon{font-size:32px;margin-bottom:8px;display:block}
-.drop-zone p{color:#8b949e;font-size:13px}
-.drop-zone p.sub{font-size:11px;margin-top:4px;color:#4a5568}
 .img-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .img-thumb{position:relative;display:inline-block}
 .img-thumb img{height:80px;border-radius:6px;border:1px solid #1e3048;object-fit:cover;display:block}
-.img-remove{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:#6a2d2d;color:#f85149;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;line-height:1}
+.img-remove{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:#6a2d2d;color:#f85149;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{padding:7px 10px;text-align:left;font-weight:500;font-size:11px;color:#8b949e;border-bottom:1px solid #1e3048}
-td{padding:7px 10px;border-bottom:1px solid #1e2a38}
+td{padding:7px 10px;border-bottom:1px solid #1e2a38;vertical-align:top}
 tr:hover td{background:#161f2b}
 .pill{font-size:10px;padding:2px 8px;border-radius:20px;font-family:monospace}
 .pill.ok{background:#1a3a2a;color:#3fb950}
 .pill.warn{background:#3a2a0a;color:#e3b341}
 .pill.err{background:#3a1a1a;color:#f85149}
-.match-cell{cursor:pointer;padding:3px 6px;border-radius:4px;display:inline-block}
-.match-cell:hover{background:#1e3048}
-.edit-dropdown{background:#161f2b;border:1px solid #1e3048;border-radius:6px;max-height:160px;overflow-y:auto;margin-top:4px}
-.edit-dropdown div{padding:6px 10px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;border-bottom:1px solid #1e2a38}
-.edit-dropdown div:hover{background:#1e3048}
-.edit-dropdown div:last-child{border-bottom:none}
+.match-name{cursor:pointer;padding:3px 6px;border-radius:4px;display:inline-flex;align-items:center;gap:4px}
+.match-name:hover{background:#1e3048}
+.assign-box{margin-top:6px;background:#0a1520;border:1px solid #1e3048;border-radius:8px;padding:10px;display:none}
+.assign-box label{margin-bottom:3px;font-size:11px;color:#8b949e}
+.assign-box select{margin-bottom:8px;font-size:12px}
+.assign-row{display:flex;gap:6px;margin-top:6px}
 .code-block{background:#0a1118;border:1px solid #1e3048;border-radius:6px;padding:14px;font-family:monospace;font-size:11px;color:#8b949e;white-space:pre;overflow-x:auto;line-height:1.6}
 .code-preview{font-size:12px;font-family:monospace;color:#58a6ff;margin-top:8px}
 .alliance-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
 .alliance-card{background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:14px;text-align:center}
-.alliance-card .count{font-size:26px;font-weight:600;color:#e6edf3}
-.alliance-card .name{font-size:12px;color:#8b949e;margin-top:2px}
-.api-key-section{background:#1a2a0a;border:1px solid #2a4a1a;border-radius:8px;padding:14px;margin-bottom:16px}
-.api-key-section p{font-size:12px;color:#8b949e;margin-top:6px}
 .events-list{display:flex;flex-direction:column;gap:6px}
 .event-row{background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
 .pane{display:none}
 .pane.active{display:block}
 .flex-between{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.flex-row{display:flex;gap:8px;align-items:center}
-.text-muted{color:#8b949e}
-.text-sm{font-size:12px}
-.text-xs{font-size:11px}
-.mono{font-family:monospace}
-.mt-1{margin-top:8px}
-.mt-2{margin-top:14px}
-.mb-1{margin-bottom:8px}
-.scroll-x{overflow-x:auto}
+.flex-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.info-box{background:#1a2a0a;border:1px solid #2a4a1a;border-radius:8px;padding:14px;margin-bottom:16px}
+.info-box p{font-size:12px;color:#8b949e;margin-top:6px}
 </style>
 </head>
 <body>
@@ -95,19 +79,6 @@ tr:hover td{background:#161f2b}
 </div>
 
 <div class="container">
-
-  <!-- API Key Banner -->
-  <div class="api-key-section" id="api-key-banner" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px">
-      <div style="flex:1">
-        <label>Anthropic API-Key (einmalig – wird lokal gespeichert)</label>
-        <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off">
-      </div>
-      <button class="btn btn-primary" onclick="saveApiKey()" style="margin-top:18px">Speichern</button>
-      <button class="btn" onclick="document.getElementById('api-key-banner').style.display='none'" style="margin-top:18px">✕</button>
-    </div>
-    <p>Holen: <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> → API Keys → Create Key. Wird nur in deinem Browser gespeichert.</p>
-  </div>
 
   <div class="tabs">
     <button class="tab-btn active" id="tab-setup" onclick="switchTab('setup')">⚙️ Setup</button>
@@ -121,42 +92,49 @@ tr:hover td{background:#161f2b}
 
     <div class="card">
       <div class="flex-between">
-        <h3>🔑 Anthropic API-Key</h3>
+        <h3>🔑 API-Key verwalten (nur Admin)</h3>
         <div class="flex-row">
-          <span id="apikey-status" class="text-sm text-muted">Nicht gespeichert</span>
-          <button class="btn btn-primary text-sm" onclick="showApiKeyBanner()">Eingeben</button>
-          <button class="btn text-sm" id="apikey-clear-btn" onclick="clearApiKey()" style="display:none">Löschen</button>
+          <span id="apikey-status" style="font-size:12px;color:#8b949e">Prüfe...</span>
+          <button class="btn btn-primary" onclick="showKeyEditor()">✏️ Eingeben / Ändern</button>
         </div>
       </div>
-      <p class="text-sm text-muted">Wird für das OCR (Screenshot lesen) benötigt. Holen unter <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a></p>
+      <p style="font-size:12px;color:#8b949e">Der Anthropic API-Key wird in Supabase gespeichert – alle Nutzer der App verwenden ihn automatisch. Nur einmal nötig.</p>
+      <div id="key-editor" style="display:none;margin-top:14px">
+        <label>Anthropic API-Key</label>
+        <div class="flex-row" style="margin-top:4px">
+          <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" style="flex:1">
+          <button class="btn btn-primary" onclick="saveApiKeyToSupabase()">💾 In Supabase speichern</button>
+          <button class="btn" onclick="document.getElementById('key-editor').style.display='none'">✕</button>
+        </div>
+        <p style="font-size:11px;color:#8b949e;margin-top:6px">Holen: <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> → API Keys → Create Key</p>
+      </div>
     </div>
 
     <div class="card">
       <div class="flex-between">
-        <h3>🗄️ Schritt 1 – Supabase SQL ausführen</h3>
+        <h3>🗄️ Supabase SQL (einmalig ausführen)</h3>
         <div class="flex-row">
           <button class="btn" onclick="copySQL()">📋 Kopieren</button>
           <button class="btn btn-primary" onclick="initApp()">🔄 Verbindung prüfen</button>
         </div>
       </div>
-      <p class="text-sm text-muted mb-1">Supabase Dashboard → SQL Editor → einfügen → Run (einmalig!)</p>
+      <p style="font-size:12px;color:#8b949e;margin-bottom:10px">Supabase → SQL Editor → einfügen → Run</p>
       <div class="code-block" id="sql-display"></div>
     </div>
 
     <div class="card">
       <h3>🔌 Verbindungsstatus</h3>
-      <div id="db-status-detail" class="text-sm text-muted">Noch nicht geprüft.</div>
-      <div class="mt-2"><button class="btn btn-primary" onclick="initApp()">🔄 Jetzt prüfen</button></div>
+      <div id="db-status-detail" style="font-size:13px;color:#8b949e">Noch nicht geprüft.</div>
+      <div style="margin-top:12px"><button class="btn btn-primary" onclick="initApp()">🔄 Jetzt prüfen</button></div>
     </div>
 
     <div class="card">
       <h3>📖 Workflow</h3>
       <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.8;color:#8b949e">
-        <div>1. API-Key eingeben → SQL ausführen → Verbindung prüfen</div>
-        <div>2. <b style="color:#c9d1d9">Spieler-Tab</b>: UTF-8 CSV hochladen pro Allianz (TBR, 646, …)</div>
-        <div>3. <b style="color:#c9d1d9">Scanner-Tab</b>: Event definieren → Screenshot(s) hochladen → Scannen → prüfen → Speichern</div>
-        <div>4. <b style="color:#c9d1d9">Events-Tab</b>: Gespeicherte Events anzeigen</div>
-        <div>5. Supabase → Table Editor → wos_lb_entries → Export → CSV</div>
+        <div>1. SQL ausführen → API-Key eingeben → Verbindung prüfen</div>
+        <div>2. <b style="color:#c9d1d9">Spieler-Tab</b>: UTF-8 CSV hochladen pro Allianz</div>
+        <div>3. <b style="color:#c9d1d9">Scanner-Tab</b>: Event → Screenshot(s) → Scannen → Prüfen → Speichern</div>
+        <div>4. Supabase → Table Editor → wos_lb_entries → Export → CSV</div>
       </div>
     </div>
   </div>
@@ -166,7 +144,7 @@ tr:hover td{background:#161f2b}
 
     <div class="card">
       <h3>📅 Event</h3>
-      <div class="mode-btns">
+      <div style="display:flex;gap:6px;margin-bottom:12px">
         <button class="mode-btn active" id="evmode-new" onclick="setEvMode('new')">Neues Event</button>
         <button class="mode-btn" id="evmode-existing" onclick="setEvMode('existing')">Bestehendes Event</button>
       </div>
@@ -176,10 +154,8 @@ tr:hover td{background:#161f2b}
           <div><label>Nr.</label><input type="text" id="ev-num" value="1" oninput="updateCode()"></div>
           <div><label>Typ</label>
             <select id="ev-type">
-              <option value="power">Power</option>
-              <option value="kills">Kills</option>
-              <option value="troops">Troops</option>
-              <option value="hunting">Hunting</option>
+              <option value="power">Power</option><option value="kills">Kills</option>
+              <option value="troops">Troops</option><option value="hunting">Hunting</option>
               <option value="other">Sonstiges</option>
             </select>
           </div>
@@ -192,30 +168,30 @@ tr:hover td{background:#161f2b}
       </div>
     </div>
 
-    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('img-input').click()"
+    <div class="drop-zone" onclick="document.getElementById('img-input').click()"
       ondragover="event.preventDefault()" ondrop="handleDrop(event)">
-      <span class="icon">🖼️</span>
-      <p>Screenshots hierher ziehen oder klicken</p>
-      <p class="sub">Mehrere Bilder möglich (mehrere Leaderboard-Seiten)</p>
+      <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+      <p style="color:#8b949e;font-size:13px;margin:0">Screenshots hierher ziehen oder klicken</p>
+      <p style="color:#4a5568;font-size:11px;margin:4px 0 0">Mehrere Bilder möglich (mehrere Leaderboard-Seiten)</p>
       <input type="file" id="img-input" accept="image/*" multiple onchange="handleImageFiles(this.files)">
     </div>
     <div class="img-grid" id="image-preview"></div>
 
-    <button class="btn btn-primary" id="scan-btn" onclick="processImages()">
+    <button class="btn btn-primary" id="scan-btn" onclick="processImages()" style="margin-bottom:20px">
       🔍 Leaderboard scannen
     </button>
 
-    <div id="results-section" style="display:none;margin-top:20px">
+    <div id="results-section" style="display:none">
       <div class="flex-between">
-        <h3>Ergebnisse</h3>
+        <span style="font-weight:600;font-size:14px">Ergebnisse</span>
         <button class="btn btn-success" id="save-btn" onclick="saveResults()">💾 In Supabase speichern</button>
       </div>
-      <div class="scroll-x">
+      <div style="overflow-x:auto;margin-top:10px">
         <table>
           <thead><tr>
             <th style="width:50px">Rang</th>
             <th>OCR-Name</th>
-            <th>Gematchter Spieler</th>
+            <th>Zugeordneter Spieler</th>
             <th style="width:80px">Allianz</th>
             <th style="width:120px;text-align:right">Wert</th>
             <th style="width:70px;text-align:center">Score</th>
@@ -234,27 +210,22 @@ tr:hover td{background:#161f2b}
         <div><label>Allianz-Name</label><input type="text" id="alliance-input" value="TBR"></div>
         <div>
           <label>CSV-Datei (UTF-8, Semikolon-getrennt)</label>
-          <div class="flex-row">
+          <div class="flex-row" style="margin-top:4px">
             <button class="btn" onclick="document.getElementById('csv-input').click()">📂 Datei wählen</button>
-            <span id="csv-status" class="text-sm text-muted">Keine Datei</span>
+            <span id="csv-status" style="font-size:12px;color:#8b949e">Keine Datei</span>
             <input type="file" id="csv-input" accept=".csv" onchange="handleCSV(this.files[0])">
           </div>
         </div>
       </div>
-      <div id="csv-preview" style="display:none;margin-bottom:12px">
-        <p class="text-xs text-muted mb-1">Vorschau:</p>
-        <div id="csv-preview-rows" class="text-xs mono" style="line-height:1.8;color:#8b949e"></div>
-      </div>
-      <button class="btn btn-primary" id="import-btn" onclick="importPlayers()" disabled>
-        📥 Importieren
-      </button>
+      <div id="csv-preview" style="display:none;margin-bottom:12px;font-size:11px;font-family:monospace;color:#8b949e;line-height:1.8"></div>
+      <button class="btn btn-primary" id="import-btn" onclick="importPlayers()" disabled>📥 Importieren</button>
     </div>
     <div id="alliance-stats"></div>
   </div>
 
   <!-- EVENTS -->
   <div class="pane" id="pane-events">
-    <div id="events-list"><p class="text-muted text-sm">Noch keine Events gespeichert.</p></div>
+    <div id="events-list"><p style="color:#8b949e;font-size:13px">Noch keine Events gespeichert.</p></div>
   </div>
 
 </div>
@@ -262,13 +233,15 @@ tr:hover td{background:#161f2b}
 <script>
 const SUPA_URL="https://oyjmbdlruuqldwqkrpjl.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1iZGxydXVxbGR3cWtycGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTU1ODYsImV4cCI6MjA5NTQzMTU4Nn0.JUWcpH3cx8smQmdWXfVp8pD3cWSm7zd2eNYm_FlY6Y8";
-const SETUP_SQL=`create table if not exists wos_players (
+const PROXY="https://wispy-heart-6002.ptgwos.workers.dev/";
+
+const SETUP_SQL=`-- WOS Leaderboard Scanner Setup
+create table if not exists wos_players (
   player_id bigint primary key,
   player_name text not null,
   alliance text default '',
   updated_at timestamptz default now()
 );
-
 create table if not exists wos_events (
   id serial primary key,
   event_code text unique not null,
@@ -277,7 +250,6 @@ create table if not exists wos_events (
   event_date date default current_date,
   created_at timestamptz default now()
 );
-
 create table if not exists wos_lb_entries (
   id serial primary key,
   event_id integer references wos_events(id) on delete cascade,
@@ -290,80 +262,82 @@ create table if not exists wos_lb_entries (
   match_score numeric,
   created_at timestamptz default now(),
   unique(event_id, rank)
+);
+create table if not exists wos_settings (
+  key text primary key,
+  value text not null
 );`;
 
 document.getElementById("sql-display").textContent=SETUP_SQL;
 document.getElementById("ev-date").value=new Date().toISOString().slice(0,10);
 
-let players=[],events=[],images=[],scanResults=[],parsedCSV=[];
+let players=[], events=[], images=[], scanResults=[], parsedCSV=[], apiKey="";
 
-// API Key management
-function getApiKey(){return localStorage.getItem("wos_anthropic_key")||"";}
-function saveApiKey(){
-  const k=document.getElementById("api-key-input").value.trim();
-  if(!k)return alert("Bitte API-Key eingeben");
-  localStorage.setItem("wos_anthropic_key",k);
-  document.getElementById("api-key-banner").style.display="none";
-  updateApiKeyStatus();
-  setStatus("API-Key gespeichert ✓","ok");
-}
-function clearApiKey(){
-  if(!confirm("API-Key wirklich löschen?"))return;
-  localStorage.removeItem("wos_anthropic_key");
-  updateApiKeyStatus();
-}
-function showApiKeyBanner(){
-  const banner=document.getElementById("api-key-banner");
-  banner.style.display="block";
-  document.getElementById("api-key-input").value=getApiKey();
-  banner.scrollIntoView({behavior:"smooth"});
-}
-function updateApiKeyStatus(){
-  const k=getApiKey();
-  const st=document.getElementById("apikey-status");
-  const cb=document.getElementById("apikey-clear-btn");
-  if(k){st.textContent="✓ Gespeichert ("+k.slice(0,12)+"...)";st.style.color="#3fb950";cb.style.display="";}
-  else{st.textContent="Nicht gespeichert";st.style.color="#8b949e";cb.style.display="none";}
-}
-
-// Supabase
+// ── Supabase helper ──────────────────────────────────────────────
 const sb=async(table,method="GET",body=null,params="",prefer="")=>{
   const h={apikey:SUPA_KEY,Authorization:`Bearer ${SUPA_KEY}`,"Content-Type":"application/json"};
   if(prefer)h.Prefer=prefer;
   const r=await fetch(`${SUPA_URL}/rest/v1/${table}${params}`,{method,headers:h,...(body!==null?{body:JSON.stringify(body)}:{})});
-  const t=await r.text();
-  if(!r.ok)throw new Error(t);
-  return t?JSON.parse(t):null;
+  const t=await r.text();if(!r.ok)throw new Error(t);return t?JSON.parse(t):null;
 };
 
-const setStatus=(txt,type="info")=>{
+const setStatus=(txt,type="")=>{
   const el=document.getElementById("status-badge");
-  el.textContent=txt;el.className="status-badge "+type;
+  el.textContent=txt;el.className="status-badge"+(type?" "+type:"");
 };
 
+// ── API Key (Supabase-backed) ────────────────────────────────────
+async function loadApiKey(){
+  try{
+    const rows=await sb("wos_settings","GET",null,"?key=eq.anthropic_api_key&select=value");
+    if(rows&&rows.length){apiKey=rows[0].value;updateApiKeyStatus(true);}
+    else{updateApiKeyStatus(false);}
+  }catch{updateApiKeyStatus(false);}
+}
+function updateApiKeyStatus(found){
+  const el=document.getElementById("apikey-status");
+  if(found){el.textContent="✓ API-Key gespeichert";el.style.color="#3fb950";}
+  else{el.textContent="⚠️ Kein API-Key – bitte eingeben";el.style.color="#e3b341";}
+}
+function showKeyEditor(){
+  const ed=document.getElementById("key-editor");
+  ed.style.display=ed.style.display==="none"?"block":"none";
+  if(ed.style.display==="block")document.getElementById("api-key-input").focus();
+}
+async function saveApiKeyToSupabase(){
+  const k=document.getElementById("api-key-input").value.trim();
+  if(!k)return alert("Bitte API-Key eingeben");
+  try{
+    await sb("wos_settings","POST",{key:"anthropic_api_key",value:k},"","resolution=merge-duplicates,return=minimal");
+    apiKey=k;updateApiKeyStatus(true);
+    document.getElementById("key-editor").style.display="none";
+    document.getElementById("api-key-input").value="";
+    setStatus("API-Key gespeichert ✓","ok");
+  }catch(e){alert("Fehler: "+e.message);}
+}
+
+// ── Init ─────────────────────────────────────────────────────────
 async function initApp(){
   setStatus("Verbinde...","info");
-  const det=document.getElementById("db-status-detail");
   try{
     const[p,e]=await Promise.all([
       sb("wos_players","GET",null,"?select=player_id,player_name,alliance&order=player_name"),
       sb("wos_events","GET",null,"?select=*&order=created_at.desc")
     ]);
     players=p||[];events=e||[];
-    det.innerHTML=`<span style="color:#3fb950">✓ Verbunden! ${players.length} Spieler, ${events.length} Events gespeichert.</span>`;
+    await loadApiKey();
+    document.getElementById("db-status-detail").innerHTML=`<span style="color:#3fb950">✓ Verbunden! ${players.length} Spieler, ${events.length} Events.</span>`;
     renderPlayerBadge();renderEventSelect();renderAllianceStats();renderEventsList();
     setStatus(players.length?`${players.length} Spieler geladen`:"Spieler importieren",players.length?"ok":"info");
-    if(players.length)switchTab("scanner");
+    if(players.length&&apiKey)switchTab("scanner");
   }catch(e){
-    det.innerHTML=`<span style="color:#f85149">✗ Verbindung fehlgeschlagen – Tabellen nicht gefunden.<br><span style="font-size:11px;color:#8b949e">SQL oben kopieren → Supabase SQL Editor → ausführen → erneut prüfen.</span></span>`;
+    document.getElementById("db-status-detail").innerHTML=`<span style="color:#f85149">✗ Tabellen nicht gefunden – SQL ausführen!</span>`;
     setStatus("SQL ausführen!","err");
   }
 }
 
-function renderPlayerBadge(){
-  const b=document.getElementById("player-count-badge");
-  if(players.length){b.textContent=players.length;b.style.display="";}
-}
+// ── Render helpers ────────────────────────────────────────────────
+function renderPlayerBadge(){const b=document.getElementById("player-count-badge");if(players.length){b.textContent=players.length;b.style.display="";}}
 function renderEventSelect(){
   const sel=document.getElementById("ev-select");
   sel.innerHTML='<option value="">– Event wählen –</option>';
@@ -373,14 +347,15 @@ function renderAllianceStats(){
   const counts=players.reduce((a,p)=>{a[p.alliance||"–"]=(a[p.alliance||"–"]||0)+1;return a;},{});
   const el=document.getElementById("alliance-stats");
   if(!Object.keys(counts).length){el.innerHTML="";return;}
-  el.innerHTML=`<div class="card"><h3>Allianzen</h3><div class="alliance-grid">${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="alliance-card"><div class="count">${c}</div><div class="name">${n}</div></div>`).join("")}</div></div>`;
+  el.innerHTML=`<div class="card"><h3>Allianzen</h3><div class="alliance-grid">${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="alliance-card"><div style="font-size:24px;font-weight:600;color:#e6edf3">${c}</div><div style="font-size:12px;color:#8b949e;margin-top:2px">${n}</div></div>`).join("")}</div></div>`;
 }
 function renderEventsList(){
   const el=document.getElementById("events-list");
-  if(!events.length){el.innerHTML=`<p class="text-muted text-sm">Noch keine Events gespeichert.</p>`;return;}
-  el.innerHTML=`<p style="font-weight:600;margin-bottom:12px">${events.length} Events</p><div class="events-list">${events.map(e=>`<div class="event-row"><div><span style="font-weight:500">${e.event_name}</span><code style="margin-left:10px;font-size:11px;color:#8b949e">${e.event_code}</code></div><div class="flex-row"><span class="pill ok" style="font-size:11px;padding:2px 8px">${e.event_type}</span><span class="text-xs text-muted">${new Date(e.event_date+"T12:00:00").toLocaleDateString("de-AT")}</span></div></div>`).join("")}</div>`;
+  if(!events.length){el.innerHTML=`<p style="color:#8b949e;font-size:13px">Noch keine Events.</p>`;return;}
+  el.innerHTML=`<p style="font-weight:600;margin-bottom:12px">${events.length} Events</p><div class="events-list">${events.map(e=>`<div class="event-row"><div><span style="font-weight:500;font-size:13px">${e.event_name}</span><code style="margin-left:8px;font-size:11px;color:#8b949e">${e.event_code}</code></div><div class="flex-row"><span class="pill ok" style="padding:2px 8px">${e.event_type}</span><span style="font-size:11px;color:#8b949e">${new Date(e.event_date+"T12:00:00").toLocaleDateString("de-AT")}</span></div></div>`).join("")}</div>`;
 }
 
+// ── Tabs & modes ──────────────────────────────────────────────────
 function switchTab(name){
   ["setup","scanner","spieler","events"].forEach(t=>{
     document.getElementById(`pane-${t}`).classList.toggle("active",t===name);
@@ -396,13 +371,12 @@ function setEvMode(mode){
 function genCode(name,num,date){
   const i=(name||"EV").replace(/[^a-zA-Z\s]/g,"").trim().split(/\s+/).map(w=>(w[0]||"").toUpperCase()).join("");
   const d=new Date(date+"T12:00:00");
-  return `${i||"EV"}${num}_${String(d.getMonth()+1).padStart(2,"0")}_${String(d.getDate()).padStart(2,"0")}_${d.getFullYear()}`;
+  return`${i||"EV"}${num}_${String(d.getMonth()+1).padStart(2,"0")}_${String(d.getDate()).padStart(2,"0")}_${d.getFullYear()}`;
 }
-function updateCode(){
-  document.getElementById("ev-code-preview").textContent=genCode(document.getElementById("ev-name").value,document.getElementById("ev-num").value,document.getElementById("ev-date").value);
-}
+function updateCode(){document.getElementById("ev-code-preview").textContent=genCode(document.getElementById("ev-name").value,document.getElementById("ev-num").value,document.getElementById("ev-date").value);}
 updateCode();
 
+// ── Image handling ────────────────────────────────────────────────
 function handleDrop(e){e.preventDefault();handleImageFiles(e.dataTransfer.files);}
 function handleImageFiles(files){
   Array.from(files).forEach(f=>{
@@ -413,18 +387,19 @@ function handleImageFiles(files){
 }
 function renderPreviews(){
   document.getElementById("image-preview").innerHTML=images.map(img=>`<div class="img-thumb"><img src="${img.preview}" alt=""><button class="img-remove" onclick="removeImg('${img.id}')">✕</button></div>`).join("");
-  document.getElementById("scan-btn").textContent=`🔍 Leaderboard scannen${images.length?` (${images.length} Bild${images.length!==1?"er":""})` :""}`;
+  document.getElementById("scan-btn").textContent=`🔍 Leaderboard scannen${images.length?` (${images.length} Bild${images.length!==1?"er":""})`:""}`;
 }
 function removeImg(id){images=images.filter(i=>i.id!==id);renderPreviews();}
 
+// ── Fuzzy matching ────────────────────────────────────────────────
 const normStr=s=>(s||"").replace(/[^\p{L}\p{N}\s]/gu,"").toLowerCase().replace(/\s+/g," ").trim();
 function lev(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[m][n];}
 function sim(a,b){const na=normStr(a),nb=normStr(b);if(!na&&!nb)return 1;if(!na||!nb)return 0;if(na===nb)return 1;return Math.round((1-lev(na,nb)/Math.max(na.length,nb.length))*100)/100;}
 function findTop(name,pool,n=8){return pool.map(p=>({...p,score:sim(name,p.player_name)})).sort((a,b)=>b.score-a.score).slice(0,n);}
 
+// ── Scan ──────────────────────────────────────────────────────────
 async function processImages(){
-  const apiKey=getApiKey();
-  if(!apiKey){showApiKeyBanner();return setStatus("API-Key fehlt!","err");}
+  if(!apiKey)return alert("Kein API-Key gespeichert. Bitte im Setup-Tab eingeben.");
   if(!images.length)return setStatus("Kein Screenshot!","err");
   if(!players.length)return setStatus("Spieler importieren!","err");
   setStatus("Claude liest Screenshots...","info");
@@ -432,7 +407,7 @@ async function processImages(){
   try{
     const all=[];
     for(const img of images){
-      const resp=await fetch("https://wispy-heart-6002.ptgwos.workers.dev/",{
+      const resp=await fetch(PROXY,{
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
         body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
@@ -445,56 +420,108 @@ async function processImages(){
       const txt=data.content?.find(b=>b.type==="text")?.text||"[]";
       all.push(...JSON.parse(txt.replace(/```json|```/g,"").trim()));
     }
-    setStatus("Gleiche Spieler ab...","info");
-    scanResults=all.map(e=>{const top=findTop(e.name,players);const best=top[0];return{rank:e.rank,name_raw:e.name,value:e.value,player_id:best?.score>=0.5?best.player_id:null,player_name:best?.score>=0.5?best.player_name:null,alliance:best?.score>=0.5?best.alliance:"",score:best?.score||0,top};}).sort((a,b)=>a.rank-b.rank);
+    setStatus("Matche Spieler...","info");
+    scanResults=all.map(e=>{
+      const top=findTop(e.name,players);
+      const best=top[0];
+      return{rank:e.rank,name_raw:e.name,value:e.value,
+        player_id:best?.score>=0.5?best.player_id:null,
+        player_name:best?.score>=0.5?best.player_name:null,
+        alliance:best?.score>=0.5?best.alliance:"",
+        score:best?.score||0,top};
+    }).sort((a,b)=>a.rank-b.rank);
     renderResults();
     const auto=scanResults.filter(r=>r.score>=0.85).length;
-    setStatus(`${scanResults.length} Einträge – ${auto} auto OK, ${scanResults.length-auto} prüfen`,"ok");
+    setStatus(`${scanResults.length} Einträge – ${auto} OK, ${scanResults.length-auto} prüfen`,"ok");
   }catch(e){setStatus("Fehler: "+e.message,"err");alert("Fehler beim Scannen:\n"+e.message);}
   document.getElementById("scan-btn").disabled=false;
 }
 
+// ── Results & manual assignment ───────────────────────────────────
 const pillClass=s=>s>=0.85?"ok":s>=0.6?"warn":"err";
+
 function renderResults(){
   document.getElementById("results-section").style.display="block";
+  // Build list of unique alliances for dropdown
+  const alliances=[...new Set(players.map(p=>p.alliance||"–").filter(Boolean))].sort();
+
   document.getElementById("results-body").innerHTML=scanResults.map(r=>`
-    <tr>
-      <td class="mono text-muted">${r.rank}</td>
-      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.name_raw||"").replace(/"/g,"&quot;")}">${r.name_raw||""}</td>
+    <tr id="row-${r.rank}">
+      <td style="font-family:monospace;color:#8b949e">${r.rank}</td>
+      <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.name_raw||"").replace(/"/g,"&quot;")}">${r.name_raw||""}</td>
       <td>
-        <div class="match-cell" onclick="openEdit(${r.rank})" title="Klicken zum Bearbeiten">
-          ${r.player_name||`<span style="color:#f85149;font-style:italic">unbekannt</span>`}
-          ${r.score<0.85?` ✏️`:""}
+        <div class="match-name" onclick="toggleAssign(${r.rank})" title="Klicken zum manuellen Zuordnen">
+          ${r.player_name
+            ? `<span>${r.player_name}</span>${r.score<0.85?`<span style="font-size:11px;color:#8b949e">✏️</span>`:""}`
+            : `<span style="color:#f85149;font-style:italic">unbekannt</span> <span style="font-size:11px;color:#8b949e">✏️</span>`
+          }
         </div>
-        <div id="edit-${r.rank}" style="display:none;margin-top:4px">
-          <input type="text" placeholder="Suchen..." oninput="filterEdit(${r.rank},this.value)" style="margin-bottom:4px;font-size:12px" autocomplete="off">
-          <div class="edit-dropdown" id="cands-${r.rank}"></div>
+        <div class="assign-box" id="assign-${r.rank}">
+          <label>1. Allianz wählen</label>
+          <select id="ali-sel-${r.rank}" onchange="updatePlayerDropdown(${r.rank})">
+            <option value="">– Allianz –</option>
+            ${alliances.map(a=>`<option value="${a}"${r.alliance===a?" selected":""}>${a}</option>`).join("")}
+          </select>
+          <label>2. Spieler wählen</label>
+          <select id="pl-sel-${r.rank}">
+            <option value="">– erst Allianz wählen –</option>
+          </select>
+          <div class="assign-row">
+            <button class="btn btn-primary" style="font-size:12px" onclick="applyAssign(${r.rank})">✓ Zuordnen</button>
+            <button class="btn" style="font-size:12px" onclick="toggleAssign(${r.rank})">Abbrechen</button>
+          </div>
         </div>
       </td>
-      <td class="text-muted text-sm">${r.alliance||""}</td>
-      <td class="mono text-sm" style="text-align:right">${(r.value||0).toLocaleString("de-AT")}</td>
+      <td style="color:#8b949e;font-size:11px">${r.alliance||""}</td>
+      <td style="font-family:monospace;font-size:11px;text-align:right">${(r.value||0).toLocaleString("de-AT")}</td>
       <td style="text-align:center"><span class="pill ${pillClass(r.score)}">${Math.round(r.score*100)}%</span></td>
     </tr>`).join("");
+
+  // Pre-fill player dropdown for rows where alliance is already known
+  scanResults.forEach(r=>{
+    if(r.alliance) updatePlayerDropdown(r.rank, r.player_id);
+  });
 }
 
-function openEdit(rank){
-  const el=document.getElementById(`edit-${rank}`);
-  const open=el.style.display==="none";
-  el.style.display=open?"block":"none";
-  if(open){filterEdit(rank,"");setTimeout(()=>el.querySelector("input").focus(),50);}
+function toggleAssign(rank){
+  const box=document.getElementById(`assign-${rank}`);
+  const open=box.style.display==="block";
+  // Close all others first
+  document.querySelectorAll(".assign-box").forEach(el=>el.style.display="none");
+  if(!open){
+    box.style.display="block";
+    // Pre-select alliance if known
+    const r=scanResults.find(x=>x.rank===rank);
+    if(r?.alliance){
+      const sel=document.getElementById(`ali-sel-${rank}`);
+      sel.value=r.alliance;
+      updatePlayerDropdown(rank, r.player_id);
+    }
+  }
 }
-function filterEdit(rank,search){
-  const r=scanResults.find(x=>x.rank===rank);
-  const cands=search?findTop(search,players,8):r.top;
-  const scoreColor=s=>s>=0.85?"#3fb950":s>=0.6?"#e3b341":"#f85149";
-  document.getElementById(`cands-${rank}`).innerHTML=cands.map(c=>`<div onclick="applyMatch(${rank},${c.player_id},'${(c.player_name||"").replace(/'/g,"\\'")}','${(c.alliance||"").replace(/'/g,"\\'")}')"><span>${c.player_name}</span><span class="mono" style="color:${scoreColor(c.score)}">${Math.round(c.score*100)}%</span></div>`).join("")+`<div onclick="openEdit(${rank})" style="color:#8b949e">Abbrechen</div>`;
+
+function updatePlayerDropdown(rank, preselectId=null){
+  const aliSel=document.getElementById(`ali-sel-${rank}`);
+  const plSel=document.getElementById(`pl-sel-${rank}`);
+  const selectedAli=aliSel.value;
+  if(!selectedAli){plSel.innerHTML='<option value="">– erst Allianz wählen –</option>';return;}
+  const filtered=players.filter(p=>(p.alliance||"–")===selectedAli).sort((a,b)=>a.player_name.localeCompare(b.player_name));
+  plSel.innerHTML='<option value="">– Spieler wählen –</option>'+filtered.map(p=>`<option value="${p.player_id}"${p.player_id==preselectId?" selected":""}>${p.player_name}</option>`).join("");
 }
-function applyMatch(rank,pid,pname,alliance){
+
+function applyAssign(rank){
+  const aliSel=document.getElementById(`ali-sel-${rank}`);
+  const plSel=document.getElementById(`pl-sel-${rank}`);
+  const pid=parseInt(plSel.value);
+  if(!pid)return alert("Bitte Spieler wählen");
+  const player=players.find(p=>p.player_id===pid);
+  if(!player)return;
   const i=scanResults.findIndex(r=>r.rank===rank);
-  if(i>-1)scanResults[i]={...scanResults[i],player_id:pid,player_name:pname,alliance,score:1.0};
+  if(i>-1)scanResults[i]={...scanResults[i],player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,score:1.0};
   renderResults();
 }
 
+// ── Save ──────────────────────────────────────────────────────────
 async function saveResults(){
   if(!scanResults.length)return;
   document.getElementById("save-btn").disabled=true;
@@ -506,11 +533,14 @@ async function saveResults(){
       evId=parseInt(document.getElementById("ev-select").value);
       if(!evId)throw new Error("Kein Event gewählt");
     }else{
-      const n=document.getElementById("ev-name").value,num=document.getElementById("ev-num").value,type=document.getElementById("ev-type").value,date=document.getElementById("ev-date").value;
+      const n=document.getElementById("ev-name").value,num=document.getElementById("ev-num").value;
+      const type=document.getElementById("ev-type").value,date=document.getElementById("ev-date").value;
       const[ev]=await sb("wos_events","POST",{event_code:genCode(n,num,date),event_name:`${n} ${num}`,event_type:type,event_date:date},"","return=representation");
       evId=ev.id;events.unshift(ev);renderEventSelect();renderEventsList();
     }
-    await sb("wos_lb_entries","POST",scanResults.map(r=>({event_id:evId,player_id:r.player_id,player_name_raw:r.name_raw,player_name_matched:r.player_name,alliance:r.alliance,rank:r.rank,value:r.value,match_score:r.score})),"","resolution=merge-duplicates,return=minimal");
+    await sb("wos_lb_entries","POST",
+      scanResults.map(r=>({event_id:evId,player_id:r.player_id,player_name_raw:r.name_raw,player_name_matched:r.player_name,alliance:r.alliance,rank:r.rank,value:r.value,match_score:r.score})),
+      "","resolution=merge-duplicates,return=minimal");
     setStatus(`✅ ${scanResults.length} Einträge gespeichert!`,"ok");
     scanResults=[];images=[];
     document.getElementById("results-section").style.display="none";
@@ -520,10 +550,14 @@ async function saveResults(){
   document.getElementById("save-btn").disabled=false;
 }
 
+// ── CSV Import ────────────────────────────────────────────────────
 function parseCSV(text){
   const lines=text.replace(/^\uFEFF/,"").trim().split(/\r?\n/);
   const sep=lines[0].includes(";")?";":",";
-  return lines.slice(1).map(l=>{const p=l.split(sep);const id=parseInt(p[0]?.trim());const name=p.slice(1).join(sep).trim().replace(/^"|"$/g,"");return!isNaN(id)&&name?{player_id:id,player_name:name}:null;}).filter(Boolean);
+  return lines.slice(1).map(l=>{
+    const p=l.split(sep);const id=parseInt(p[0]?.trim());const name=p.slice(1).join(sep).trim().replace(/^"|"$/g,"");
+    return!isNaN(id)&&name?{player_id:id,player_name:name}:null;
+  }).filter(Boolean);
 }
 function handleCSV(file){
   const rd=new FileReader();
@@ -533,7 +567,7 @@ function handleCSV(file){
     const btn=document.getElementById("import-btn");
     btn.disabled=false;btn.textContent=`📥 Importieren (${parsedCSV.length} Spieler)`;
     document.getElementById("csv-preview").style.display="block";
-    document.getElementById("csv-preview-rows").innerHTML=parsedCSV.slice(0,3).map(p=>`<div>${p.player_id} → ${p.player_name}</div>`).join("");
+    document.getElementById("csv-preview").innerHTML=parsedCSV.slice(0,3).map(p=>`<div>${p.player_id} → ${p.player_name}</div>`).join("");
   };
   rd.readAsText(file,"utf-8");
 }
@@ -553,14 +587,14 @@ async function importPlayers(){
   document.getElementById("import-btn").disabled=false;
 }
 
+// ── SQL copy ──────────────────────────────────────────────────────
 function copySQL(){
   navigator.clipboard.writeText(SETUP_SQL).then(()=>setStatus("SQL kopiert! ✓","ok")).catch(()=>{
     const ta=document.createElement("textarea");ta.value=SETUP_SQL;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);setStatus("SQL kopiert! ✓","ok");
   });
 }
 
-// Init
-updateApiKeyStatus();
+// ── Start ─────────────────────────────────────────────────────────
 initApp();
 </script>
 </body>
