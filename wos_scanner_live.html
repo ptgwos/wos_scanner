@@ -1,0 +1,321 @@
+
+<style>
+*{box-sizing:border-box}
+.tb{padding:8px 14px;font-size:13px;border:none;border-bottom:2px solid transparent;background:none;color:var(--color-text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.tb.on{font-weight:500;border-bottom-color:var(--color-text-info);color:var(--color-text-info)}
+.tb:hover:not(.on){color:var(--color-text-primary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 18px;margin-bottom:14px}
+.card h3{font-size:13px;font-weight:500;margin-bottom:12px}
+label{font-size:11px;color:var(--color-text-secondary);display:block;margin-bottom:3px}
+input,select{width:100%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 10px;color:var(--color-text-primary);font-size:13px;outline:none}
+input:focus,select:focus{border-color:var(--color-border-info)}
+input[type=file]{display:none}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-primary);white-space:nowrap}
+.btn:hover:not(:disabled){background:var(--color-background-primary)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-ok{background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success)}
+.btn-info{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
+.mbtn{padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.mbtn.on{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
+.dz{border:1.5px dashed var(--color-border-secondary);border-radius:10px;padding:24px;text-align:center;cursor:pointer;background:var(--color-background-secondary);margin-bottom:12px}
+.dz:hover{border-color:var(--color-border-primary)}
+.pill{font-size:10px;padding:2px 7px;border-radius:20px;font-family:var(--font-mono)}
+.mc:hover{background:var(--color-background-secondary);border-radius:4px}
+.dr:hover{background:var(--color-background-secondary)}
+th{padding:6px 8px;text-align:left;font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:5px 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+</style>
+
+<div style="font-family:var(--font-sans);padding-bottom:1rem">
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:12px;border-bottom:0.5px solid var(--color-border-tertiary)">
+  <span style="font-size:16px;font-weight:500">❄️ WOS Leaderboard Scanner</span>
+  <span id="st" style="font-size:12px;padding:3px 10px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary)">Verbinde...</span>
+</div>
+
+<div style="display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.25rem">
+  <button class="tb on" id="t-setup" onclick="sw('setup')">⚙️ Setup</button>
+  <button class="tb" id="t-scan" onclick="sw('scan')">📷 Scanner</button>
+  <button class="tb" id="t-play" onclick="sw('play')">👥 Spieler <span id="pb" style="display:none;background:var(--color-background-secondary);font-size:10px;padding:1px 6px;border-radius:10px"></span></button>
+  <button class="tb" id="t-ev" onclick="sw('ev')">📅 Events</button>
+</div>
+
+<!-- SETUP -->
+<div id="p-setup">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <h3 style="margin:0">Schritt 1 – SQL einmalig ausführen</h3>
+      <div style="display:flex;gap:6px">
+        <button class="btn" onclick="copySQL()">📋 SQL kopieren</button>
+        <button class="btn btn-info" onclick="init()">🔄 Verbindung prüfen</button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Supabase → SQL Editor → einfügen → Run (einmalig)</p>
+    <pre id="sqldiv" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:12px;font-size:11px;font-family:var(--font-mono);overflow-x:auto;color:var(--color-text-primary);white-space:pre;line-height:1.55;margin:0"></pre>
+  </div>
+  <div class="card">
+    <h3>Verbindungsstatus</h3>
+    <div id="dbst" style="font-size:13px;color:var(--color-text-secondary)">Noch nicht geprüft.</div>
+    <div style="margin-top:12px"><button class="btn btn-info" onclick="init()">🔄 Jetzt prüfen</button></div>
+  </div>
+</div>
+
+<!-- SCANNER -->
+<div id="p-scan" style="display:none">
+  <div class="card">
+    <h3>Event</h3>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button class="mbtn on" id="em-new" onclick="setEM('new')">Neues Event</button>
+      <button class="mbtn" id="em-ex" onclick="setEM('ex')">Bestehendes Event</button>
+    </div>
+    <div id="ev-new">
+      <div style="display:grid;grid-template-columns:1fr 54px 1fr 150px;gap:8px;align-items:end">
+        <div><label>Event-Name</label><input id="en" value="Bear Trap" oninput="uc()"></div>
+        <div><label>Nr.</label><input id="enu" value="1" oninput="uc()"></div>
+        <div><label>Typ</label><select id="et"><option value="power">Power</option><option value="kills">Kills</option><option value="troops">Troops</option><option value="hunting">Hunting</option><option value="other">Sonstiges</option></select></div>
+        <div><label>Datum</label><input type="date" id="ed" oninput="uc()"></div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--color-text-tertiary)">Code: <code id="ecp" style="font-family:var(--font-mono);color:var(--color-text-info)"></code></div>
+    </div>
+    <div id="ev-ex" style="display:none"><select id="esel"><option value="">– Event wählen –</option></select></div>
+  </div>
+
+  <div class="dz" onclick="document.getElementById('ii').click()" ondragover="event.preventDefault()" ondrop="doDrop(event)">
+    <div style="font-size:28px;margin-bottom:8px">🖼️</div>
+    <p style="color:var(--color-text-secondary);font-size:13px;margin:0">Screenshots hierher ziehen oder klicken</p>
+    <p style="color:var(--color-text-tertiary);font-size:11px;margin:4px 0 0">Mehrere Bilder möglich</p>
+    <input type="file" id="ii" accept="image/*" multiple onchange="addImgs(this.files)">
+  </div>
+  <div id="ip" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
+
+  <button class="btn btn-info" id="scanbtn" onclick="doScan()">🔍 Leaderboard scannen</button>
+
+  <div id="res" style="display:none;margin-top:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-weight:500;font-size:14px">Ergebnisse</span>
+      <button class="btn btn-ok" id="savebtn" onclick="doSave()">💾 In Supabase speichern</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="width:46px">Rang</th><th>OCR-Name</th><th>Gematchter Spieler</th>
+          <th style="width:72px">Allianz</th><th style="width:110px;text-align:right">Wert</th>
+          <th style="width:62px;text-align:center">Score</th>
+        </tr></thead>
+        <tbody id="rb"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SPIELER -->
+<div id="p-play" style="display:none">
+  <div class="card">
+    <h3>CSV importieren</h3>
+    <div style="display:grid;grid-template-columns:170px 1fr;gap:12px;align-items:end;margin-bottom:12px">
+      <div><label>Allianz-Name</label><input id="ali" value="TBR"></div>
+      <div>
+        <label>CSV-Datei (UTF-8)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" onclick="document.getElementById('ci').click()">📂 Datei wählen</button>
+          <span id="cst" style="font-size:12px;color:var(--color-text-tertiary)">Keine Datei</span>
+          <input type="file" id="ci" accept=".csv" onchange="loadCSV(this.files[0])">
+        </div>
+      </div>
+    </div>
+    <div id="cprev" style="display:none;margin-bottom:12px;font-size:11px;font-family:var(--font-mono);color:var(--color-text-secondary);line-height:1.8"></div>
+    <button class="btn btn-info" id="impbtn" onclick="doImport()" disabled>📥 Importieren</button>
+  </div>
+  <div id="astats"></div>
+</div>
+
+<!-- EVENTS -->
+<div id="p-ev" style="display:none">
+  <div id="evlist"><p style="color:var(--color-text-tertiary);font-size:13px">Noch keine Events.</p></div>
+</div>
+
+</div>
+
+<script>
+const SU="https://oyjmbdlruuqldwqkrpjl.supabase.co";
+const SK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1iZGxydXVxbGR3cWtycGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTU1ODYsImV4cCI6MjA5NTQzMTU4Nn0.JUWcpH3cx8smQmdWXfVp8pD3cWSm7zd2eNYm_FlY6Y8";
+const SQL=`create table if not exists wos_players (
+  player_id bigint primary key,
+  player_name text not null,
+  alliance text default '',
+  updated_at timestamptz default now()
+);
+create table if not exists wos_events (
+  id serial primary key,
+  event_code text unique not null,
+  event_name text not null,
+  event_type text default 'power',
+  event_date date default current_date,
+  created_at timestamptz default now()
+);
+create table if not exists wos_lb_entries (
+  id serial primary key,
+  event_id integer references wos_events(id) on delete cascade,
+  player_id bigint,
+  player_name_raw text,
+  player_name_matched text,
+  alliance text,
+  rank integer,
+  value bigint,
+  match_score numeric,
+  created_at timestamptz default now(),
+  unique(event_id, rank)
+);`;
+document.getElementById("sqldiv").textContent=SQL;
+document.getElementById("ed").value=new Date().toISOString().slice(0,10);
+
+let PL=[],EV=[],imgs=[],res=[],csv=[];
+
+const sb=async(t,m="GET",b=null,p="",pr="")=>{
+  const h={apikey:SK,Authorization:`Bearer ${SK}`,"Content-Type":"application/json"};
+  if(pr)h.Prefer=pr;
+  const r=await fetch(`${SU}/rest/v1/${t}${p}`,{method:m,headers:h,...(b!==null?{body:JSON.stringify(b)}:{})});
+  const tx=await r.text();if(!r.ok)throw new Error(tx);return tx?JSON.parse(tx):null;
+};
+const setSt=(t,tp="")=>{const e=document.getElementById("st");e.textContent=t;e.style.background=tp==="ok"?"var(--color-background-success)":tp==="err"?"var(--color-background-danger)":tp==="info"?"var(--color-background-info)":"var(--color-background-secondary)";e.style.color=tp==="ok"?"var(--color-text-success)":tp==="err"?"var(--color-text-danger)":tp==="info"?"var(--color-text-info)":"var(--color-text-secondary)";};
+
+async function init(){
+  setSt("Verbinde...","info");
+  try{
+    const[p,e]=await Promise.all([sb("wos_players","GET",null,"?select=player_id,player_name,alliance&order=player_name"),sb("wos_events","GET",null,"?select=*&order=created_at.desc")]);
+    PL=p||[];EV=e||[];
+    document.getElementById("dbst").innerHTML=`<span style="color:var(--color-text-success)">✓ Verbunden! ${PL.length} Spieler, ${EV.length} Events.</span>`;
+    rPB();rES();rAS();rEL();
+    setSt(PL.length?`${PL.length} Spieler geladen`:"Spieler importieren",PL.length?"ok":"info");
+    if(PL.length)sw("scan");
+  }catch{
+    document.getElementById("dbst").innerHTML=`<span style="color:var(--color-text-danger)">✗ Tabellen nicht gefunden – SQL ausführen!</span>`;
+    setSt("SQL ausführen!","err");
+  }
+}
+
+function rPB(){const b=document.getElementById("pb");if(PL.length){b.textContent=PL.length;b.style.display="";}}
+function rES(){const s=document.getElementById("esel");s.innerHTML='<option value="">– Event wählen –</option>';EV.forEach(e=>{const o=document.createElement("option");o.value=e.id;o.textContent=`${e.event_name} (${e.event_code})`;s.appendChild(o);});}
+function rAS(){
+  const c=PL.reduce((a,p)=>{a[p.alliance||"–"]=(a[p.alliance||"–"]||0)+1;return a;},{});
+  const el=document.getElementById("astats");
+  if(!Object.keys(c).length){el.innerHTML="";return;}
+  el.innerHTML=`<div class="card"><h3>Allianzen</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">${Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<div style="background:var(--color-background-secondary);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:500">${v}</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">${n}</div></div>`).join("")}</div></div>`;
+}
+function rEL(){
+  const el=document.getElementById("evlist");
+  if(!EV.length){el.innerHTML=`<p style="color:var(--color-text-tertiary);font-size:13px">Noch keine Events.</p>`;return;}
+  el.innerHTML=`<p style="font-weight:500;margin-bottom:10px">${EV.length} Events</p><div style="display:flex;flex-direction:column;gap:6px">${EV.map(e=>`<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between"><div><span style="font-weight:500;font-size:13px">${e.event_name}</span><code style="margin-left:8px;font-size:11px;font-family:var(--font-mono);color:var(--color-text-tertiary)">${e.event_code}</code></div><div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary)">${e.event_type}</span><span style="font-size:11px;color:var(--color-text-tertiary)">${new Date(e.event_date+"T12:00:00").toLocaleDateString("de-AT")}</span></div></div>`).join("")}</div>`;
+}
+
+function sw(n){["setup","scan","play","ev"].forEach(t=>{document.getElementById(`p-${t}`).style.display=t===n?"block":"none";document.getElementById(`t-${t}`).classList.toggle("on",t===n);});}
+function setEM(m){document.getElementById("ev-new").style.display=m==="new"?"block":"none";document.getElementById("ev-ex").style.display=m==="ex"?"block":"none";document.getElementById("em-new").classList.toggle("on",m==="new");document.getElementById("em-ex").classList.toggle("on",m==="ex");}
+function gc(n,u,d){const i=(n||"EV").replace(/[^a-zA-Z\s]/g,"").trim().split(/\s+/).map(w=>(w[0]||"").toUpperCase()).join(""),dt=new Date(d+"T12:00:00");return`${i||"EV"}${u}_${String(dt.getMonth()+1).padStart(2,"0")}_${String(dt.getDate()).padStart(2,"0")}_${dt.getFullYear()}`;}
+function uc(){document.getElementById("ecp").textContent=gc(document.getElementById("en").value,document.getElementById("enu").value,document.getElementById("ed").value);}
+uc();
+
+function doDrop(e){e.preventDefault();addImgs(e.dataTransfer.files);}
+function addImgs(files){Array.from(files).forEach(f=>{const rd=new FileReader();rd.onload=ev=>{imgs.push({id:Math.random().toString(36).slice(2),b64:ev.target.result.split(",")[1],type:f.type||"image/jpeg",prev:ev.target.result});rIP();};rd.readAsDataURL(f);});}
+function rIP(){document.getElementById("ip").innerHTML=imgs.map(m=>`<div style="position:relative;display:inline-block"><img src="${m.prev}" style="height:76px;border-radius:6px;border:0.5px solid var(--color-border-tertiary);object-fit:cover;display:block"><button onclick="rmImg('${m.id}')" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--color-background-danger);color:var(--color-text-danger);border:none;cursor:pointer;font-size:10px;line-height:1;padding:0">✕</button></div>`).join("");document.getElementById("scanbtn").textContent=`🔍 Leaderboard scannen${imgs.length?` (${imgs.length} Bild${imgs.length!==1?"er":""})`:""}`;
+}
+function rmImg(id){imgs=imgs.filter(i=>i.id!==id);rIP();}
+
+const ns=s=>(s||"").replace(/[^\p{L}\p{N}\s]/gu,"").toLowerCase().replace(/\s+/g," ").trim();
+function lv(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[m][n];}
+function sm(a,b){const na=ns(a),nb=ns(b);if(!na&&!nb)return 1;if(!na||!nb)return 0;if(na===nb)return 1;return Math.round((1-lv(na,nb)/Math.max(na.length,nb.length))*100)/100;}
+function ft(name,pool,n=8){return pool.map(p=>({...p,score:sm(name,p.player_name)})).sort((a,b)=>b.score-a.score).slice(0,n);}
+
+async function doScan(){
+  if(!imgs.length)return setSt("Kein Screenshot!","err");
+  if(!PL.length)return setSt("Spieler importieren!","err");
+  setSt("Claude liest...","info");
+  document.getElementById("scanbtn").disabled=true;
+  try{
+    const all=[];
+    for(const img of imgs){
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:img.type,data:img.b64}},{type:"text",text:`Whiteout Survival leaderboard screenshot. Extract all player rows.\nReturn ONLY a valid JSON array, no markdown:\n[{"rank":1,"name":"exact name with all Unicode","value":2700133298},...]\nThe value is the large score number shown.`}]}]})});
+      const d=await r.json();
+      const t=d.content?.find(b=>b.type==="text")?.text||"[]";
+      all.push(...JSON.parse(t.replace(/```json|```/g,"").trim()));
+    }
+    setSt("Matche Spieler...","info");
+    res=all.map(e=>{const top=ft(e.name,PL);const best=top[0];return{rank:e.rank,name_raw:e.name,value:e.value,player_id:best?.score>=0.5?best.player_id:null,player_name:best?.score>=0.5?best.player_name:null,alliance:best?.score>=0.5?best.alliance:"",score:best?.score||0,top};}).sort((a,b)=>a.rank-b.rank);
+    rRes();
+    const ok=res.filter(r=>r.score>=0.85).length;
+    setSt(`${res.length} Einträge – ${ok} OK, ${res.length-ok} prüfen`,"ok");
+  }catch(e){setSt("Fehler: "+e.message,"err");}
+  document.getElementById("scanbtn").disabled=false;
+}
+
+const sc=s=>s>=0.85?"var(--color-text-success)":s>=0.6?"var(--color-text-warning)":"var(--color-text-danger)";
+const sb2=s=>s>=0.85?"var(--color-background-success)":s>=0.6?"var(--color-background-warning)":"var(--color-background-danger)";
+
+function rRes(){
+  document.getElementById("res").style.display="block";
+  document.getElementById("rb").innerHTML=res.map(r=>`
+    <tr>
+      <td style="font-family:var(--font-mono);color:var(--color-text-secondary)">${r.rank}</td>
+      <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.name_raw||"").replace(/"/g,"&quot;")}">${r.name_raw||""}</td>
+      <td>
+        <div class="mc" style="cursor:pointer;padding:2px 5px;border-radius:4px;display:inline-block" onclick="oe(${r.rank})" title="Klicken zum Bearbeiten">
+          ${r.player_name||`<span style="color:var(--color-text-danger);font-style:italic">unbekannt</span>`}${r.score<0.85?" ✏️":""}
+        </div>
+        <div id="ed-${r.rank}" style="display:none;margin-top:4px">
+          <input placeholder="Suchen..." oninput="fe(${r.rank},this.value)" style="margin-bottom:3px;font-size:12px" autocomplete="off">
+          <div id="cd-${r.rank}" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:6px;max-height:150px;overflow-y:auto"></div>
+        </div>
+      </td>
+      <td style="color:var(--color-text-secondary);font-size:11px">${r.alliance||""}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;text-align:right">${(r.value||0).toLocaleString()}</td>
+      <td style="text-align:center"><span class="pill" style="background:${sb2(r.score)};color:${sc(r.score)}">${Math.round(r.score*100)}%</span></td>
+    </tr>`).join("");
+}
+
+function oe(rank){const el=document.getElementById(`ed-${rank}`),open=el.style.display==="none";el.style.display=open?"block":"none";if(open){fe(rank,"");setTimeout(()=>el.querySelector("input").focus(),30);}}
+function fe(rank,search){
+  const r=res.find(x=>x.rank===rank);
+  const cands=search?ft(search,PL,8):r.top;
+  document.getElementById(`cd-${rank}`).innerHTML=cands.map(c=>`<div class="dr" style="padding:5px 8px;cursor:pointer;font-size:11px;display:flex;justify-content:space-between;border-bottom:0.5px solid var(--color-border-tertiary)" onclick="am(${rank},${c.player_id},'${(c.player_name||"").replace(/'/g,"\\'")}','${(c.alliance||"").replace(/'/g,"\\'")}')"><span>${c.player_name}</span><span style="font-family:var(--font-mono);color:${sc(c.score)}">${Math.round(c.score*100)}%</span></div>`).join("")+`<div class="dr" style="padding:5px 8px;cursor:pointer;font-size:11px;color:var(--color-text-tertiary)" onclick="oe(${rank})">Abbrechen</div>`;
+}
+function am(rank,pid,pname,alliance){const i=res.findIndex(r=>r.rank===rank);if(i>-1)res[i]={...res[i],player_id:pid,player_name:pname,alliance,score:1.0};rRes();}
+
+async function doSave(){
+  if(!res.length)return;
+  document.getElementById("savebtn").disabled=true;
+  setSt("Speichere...","info");
+  try{
+    let evId;
+    const isNew=document.getElementById("em-new").classList.contains("on");
+    if(!isNew){evId=parseInt(document.getElementById("esel").value);if(!evId)throw new Error("Kein Event gewählt");}
+    else{
+      const n=document.getElementById("en").value,u=document.getElementById("enu").value,t=document.getElementById("et").value,d=document.getElementById("ed").value;
+      const[ev]=await sb("wos_events","POST",{event_code:gc(n,u,d),event_name:`${n} ${u}`,event_type:t,event_date:d},"","return=representation");
+      evId=ev.id;EV.unshift(ev);rES();rEL();
+    }
+    await sb("wos_lb_entries","POST",res.map(r=>({event_id:evId,player_id:r.player_id,player_name_raw:r.name_raw,player_name_matched:r.player_name,alliance:r.alliance,rank:r.rank,value:r.value,match_score:r.score})),"","resolution=merge-duplicates,return=minimal");
+    setSt(`✅ ${res.length} Einträge gespeichert!`,"ok");
+    res=[];imgs=[];document.getElementById("res").style.display="none";document.getElementById("ip").innerHTML="";rIP();
+  }catch(e){setSt("Fehler: "+e.message,"err");}
+  document.getElementById("savebtn").disabled=false;
+}
+
+function parseCSV(text){const lines=text.replace(/^\uFEFF/,"").trim().split(/\r?\n/);const sep=lines[0].includes(";")?";":",";return lines.slice(1).map(l=>{const p=l.split(sep);const id=parseInt(p[0]?.trim());const name=p.slice(1).join(sep).trim().replace(/^"|"$/g,"");return!isNaN(id)&&name?{player_id:id,player_name:name}:null;}).filter(Boolean);}
+function loadCSV(f){const rd=new FileReader();rd.onload=ev=>{csv=parseCSV(ev.target.result);document.getElementById("cst").textContent=`${csv.length} Spieler bereit`;const b=document.getElementById("impbtn");b.disabled=false;b.textContent=`📥 Importieren (${csv.length} Spieler)`;document.getElementById("cprev").style.display="block";document.getElementById("cprev").innerHTML=csv.slice(0,3).map(p=>`<div>${p.player_id} → ${p.player_name}</div>`).join("");};rd.readAsText(f,"utf-8");}
+async function doImport(){
+  if(!csv.length)return;
+  const al=document.getElementById("ali").value.trim();
+  if(!al)return setSt("Allianz-Name fehlt","err");
+  document.getElementById("impbtn").disabled=true;
+  setSt("Importiere...","info");
+  try{
+    await sb("wos_players","POST",csv.map(p=>({...p,alliance:al})),"","resolution=merge-duplicates,return=minimal");
+    const p=await sb("wos_players","GET",null,"?select=player_id,player_name,alliance&order=player_name");
+    PL=p||[];rPB();rAS();setSt(`✅ ${csv.length} Spieler importiert (${al})`,"ok");
+    csv=[];document.getElementById("cprev").style.display="none";document.getElementById("cst").textContent="Keine Datei";
+  }catch(e){setSt("Fehler: "+e.message,"err");}
+  document.getElementById("impbtn").disabled=false;
+}
+
+function copySQL(){navigator.clipboard.writeText(SQL).then(()=>setSt("SQL kopiert! ✓","ok"));}
+init();
+</script>
