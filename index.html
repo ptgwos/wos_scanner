@@ -432,7 +432,7 @@ async function processImages(){
   try{
     const all=[];
     for(const img of images){
-      const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      const resp=await fetch("https://wispy-heart-6002.ptgwos.workers.dev/",{
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
         body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[
