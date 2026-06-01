@@ -237,6 +237,7 @@ tr:hover td{background:#161f2b}
               <th style="width:80px">Alliance</th>
               <th style="width:125px;text-align:right">Value</th>
               <th style="width:72px;text-align:center">Score</th>
+            <th style="width:40px"></th>
             </tr></thead>
             <tbody id="results-body"></tbody>
           </table>
@@ -598,14 +599,29 @@ function renderResults(){
             :`<span style="color:#f85149;font-style:italic">unknown</span><span style="font-size:11px;color:#8b949e"> ✏️</span>`}
         </div>
         <div class="assign-box" id="assign-${r.rank}">
-          <label>1. Select Alliance</label>
-          <select id="ali-sel-${r.rank}" onchange="updatePlayerDropdown(${r.rank})">
-            <option value="">– Alliance –</option>
-            ${alliances.map(a=>`<option value="${a}"${r.alliance===a?" selected":""}>${a}</option>`).join("")}
-          </select>
-          <label>2. Select Player</label>
-          <select id="pl-sel-${r.rank}"><option value="">– select alliance first –</option></select>
-          <div class="assign-row">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:12px;color:#8b949e">Assign player</span>
+            <button class="btn" style="font-size:11px;padding:3px 8px" onclick="toggleManual(${r.rank})" id="manual-toggle-${r.rank}">✍️ Enter manually</button>
+          </div>
+          <!-- Dropdown mode -->
+          <div id="dropdown-mode-${r.rank}">
+            <label>1. Select Alliance</label>
+            <select id="ali-sel-${r.rank}" onchange="updatePlayerDropdown(${r.rank})">
+              <option value="">– Alliance –</option>
+              ${alliances.map(a=>`<option value="${a}"${r.alliance===a?" selected":""}>${a}</option>`).join("")}
+            </select>
+            <label>2. Select Player</label>
+            <select id="pl-sel-${r.rank}"><option value="">– select alliance first –</option></select>
+          </div>
+          <!-- Manual mode -->
+          <div id="manual-mode-${r.rank}" style="display:none">
+            <label>Alliance Name</label>
+            <input type="text" id="man-ali-${r.rank}" placeholder="e.g. TBR" style="margin-bottom:8px;font-size:13px">
+            <label>Player Name</label>
+            <input type="text" id="man-name-${r.rank}" placeholder="e.g. Kleiner Wicht" style="font-size:13px">
+            <p style="font-size:11px;color:#e3b341;margin-top:6px">⚠️ Player will be saved to corrections DB but not added to the player list.</p>
+          </div>
+          <div class="assign-row" style="margin-top:8px">
             <button class="btn btn-primary" style="font-size:13px;padding:5px 12px" onclick="applyAssign(${r.rank})">✓ Assign</button>
             <button class="btn" style="font-size:13px;padding:5px 12px" onclick="toggleAssign(${r.rank})">Cancel</button>
           </div>
@@ -614,8 +630,25 @@ function renderResults(){
       <td style="color:#8b949e;font-size:12px">${r.alliance||""}</td>
       <td style="font-family:monospace;font-size:12px;text-align:right">${(r.value||0).toLocaleString("en-US")}</td>
       <td style="text-align:center">${r.fromCorrection?`<span class="pill ok" title="Learned match">🎯 DB</span>`:`<span class="pill ${pillClass(r.score)}">${Math.round(r.score*100)}%</span>`}</td>
+      <td style="text-align:center"><button onclick="removeResult(${r.rank})" title="Remove from results" style="background:none;border:none;cursor:pointer;font-size:15px;color:#6a3a3a;padding:2px 4px;border-radius:4px;transition:color .15s" onmouseover="this.style.color='#f85149'" onmouseout="this.style.color='#6a3a3a'">✕</button></td>
     </tr>`).join("");
   scanResults.forEach(r=>{if(r.alliance)updatePlayerDropdown(r.rank,r.player_id);});
+}
+
+function removeResult(rank){
+  scanResults=scanResults.filter(r=>r.rank!==rank);
+  if(!scanResults.length){
+    document.getElementById("results-section").style.display="none";
+    document.getElementById("clear-btn").style.display="none";
+    setStatus("All entries removed","info");
+    return;
+  }
+  // Update summary
+  const fromCorr=scanResults.filter(r=>r.fromCorrection).length;
+  const auto=scanResults.filter(r=>!r.fromCorrection&&r.score>=0.85).length;
+  const manual=scanResults.filter(r=>!r.fromCorrection&&r.score<0.85).length;
+  document.getElementById("results-summary").textContent=`– 🎯 ${fromCorr} from DB, ${auto} matched, ${manual} to review`;
+  renderResults();
 }
 
 function toggleAssign(rank){
@@ -624,9 +657,24 @@ function toggleAssign(rank){
   document.querySelectorAll(".assign-box").forEach(el=>el.style.display="none");
   if(!open){
     box.style.display="block";
+    // reset to dropdown mode
+    document.getElementById(`dropdown-mode-${rank}`).style.display="block";
+    document.getElementById(`manual-mode-${rank}`).style.display="none";
+    document.getElementById(`manual-toggle-${rank}`).textContent="✍️ Enter manually";
     const r=scanResults.find(x=>x.rank===rank);
     if(r?.alliance){document.getElementById(`ali-sel-${rank}`).value=r.alliance;updatePlayerDropdown(rank,r.player_id);}
   }
+}
+
+function toggleManual(rank){
+  const dd=document.getElementById(`dropdown-mode-${rank}`);
+  const man=document.getElementById(`manual-mode-${rank}`);
+  const btn=document.getElementById(`manual-toggle-${rank}`);
+  const isManual=man.style.display==="block";
+  dd.style.display=isManual?"block":"none";
+  man.style.display=isManual?"none":"block";
+  btn.textContent=isManual?"✍️ Enter manually":"📋 Use dropdown";
+  if(!isManual) setTimeout(()=>document.getElementById(`man-ali-${rank}`).focus(),50);
 }
 function updatePlayerDropdown(rank,preselectId=null){
   const ali=document.getElementById(`ali-sel-${rank}`).value;
@@ -636,15 +684,25 @@ function updatePlayerDropdown(rank,preselectId=null){
   sel.innerHTML='<option value="">– select player –</option>'+filtered.map(p=>`<option value="${p.player_id}"${p.player_id==preselectId?" selected":""}>${p.player_name}</option>`).join("");
 }
 function applyAssign(rank){
-  const pid=parseInt(document.getElementById(`pl-sel-${rank}`).value);
-  if(!pid)return alert("Please select a player");
-  const player=players.find(p=>p.player_id===pid);
-  if(!player)return;
+  const isManual=document.getElementById(`manual-mode-${rank}`).style.display==="block";
   const i=scanResults.findIndex(r=>r.rank===rank);
-  if(i>-1){
-    const ocrName=scanResults[i].name_raw;
+  if(i<0)return;
+  const ocrName=scanResults[i].name_raw;
+
+  if(isManual){
+    const manAli=(document.getElementById(`man-ali-${rank}`).value||"").trim();
+    const manName=(document.getElementById(`man-name-${rank}`).value||"").trim();
+    if(!manName)return alert("Please enter a player name");
+    const manPlayer={player_id:null,player_name:manName,alliance:manAli};
+    scanResults[i]={...scanResults[i],player_id:null,player_name:manName,alliance:manAli,score:1.0,fromCorrection:false};
+    saveCorrection(ocrName,manPlayer);
+  } else {
+    const pid=parseInt(document.getElementById(`pl-sel-${rank}`).value);
+    if(!pid)return alert("Please select a player");
+    const player=players.find(p=>p.player_id===pid);
+    if(!player)return;
     scanResults[i]={...scanResults[i],player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,score:1.0,fromCorrection:false};
-    saveCorrection(ocrName,player);  // save to DB for future scans
+    saveCorrection(ocrName,player);
   }
   renderResults();
 }
