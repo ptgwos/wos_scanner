@@ -6,27 +6,44 @@
 <title>WOS Leaderboard Scanner</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1923;color:#d0dce8;min-height:100vh;font-size:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1923;color:#d0dce8;min-height:100vh;font-size:15px}
 a{color:#58a6ff}
+/* Password modal */
+#pw-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:flex;align-items:center;justify-content:center}
+.pw-box{background:#161f2b;border:1px solid #1e3048;border-radius:14px;padding:32px;width:340px;text-align:center}
+.pw-box h2{font-size:18px;font-weight:600;color:#e6edf3;margin-bottom:6px}
+.pw-box p{font-size:13px;color:#8b949e;margin-bottom:20px}
+.pw-box input{width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:10px 14px;color:#c9d1d9;font-size:15px;outline:none;text-align:center;letter-spacing:2px;margin-bottom:12px}
+.pw-box input:focus{border-color:#58a6ff}
+.pw-error{color:#f85149;font-size:12px;margin-top:6px;min-height:18px}
+/* Header */
 .header{background:#161f2b;border-bottom:1px solid #1e3048;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.header h1{font-size:16px;font-weight:600;color:#e6edf3;display:flex;align-items:center;gap:8px}
-.status-badge{font-size:12px;padding:4px 12px;border-radius:20px;background:#1e3048;color:#8b949e;white-space:nowrap}
+.header h1{font-size:17px;font-weight:600;color:#e6edf3;display:flex;align-items:center;gap:8px}
+.status-badge{font-size:13px;padding:4px 12px;border-radius:20px;background:#1e3048;color:#8b949e;white-space:nowrap}
 .status-badge.ok{background:#1a3a2a;color:#3fb950}
 .status-badge.err{background:#3a1a1a;color:#f85149}
 .status-badge.info{background:#1a2a3a;color:#58a6ff}
+/* Layout */
 .container{max-width:1000px;margin:0 auto;padding:24px}
 .tabs{display:flex;border-bottom:1px solid #1e3048;margin-bottom:24px}
-.tab-btn{padding:10px 18px;font-size:13px;border:none;border-bottom:2px solid transparent;background:none;color:#8b949e;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
+.tab-btn{padding:11px 18px;font-size:14px;border:none;border-bottom:2px solid transparent;background:none;color:#8b949e;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
 .tab-btn.active{color:#58a6ff;border-bottom-color:#58a6ff;font-weight:500}
 .tab-btn:hover:not(.active){color:#c9d1d9}
-.badge{background:#1e3048;color:#8b949e;font-size:10px;padding:1px 6px;border-radius:10px}
+.badge{background:#1e3048;color:#8b949e;font-size:11px;padding:1px 7px;border-radius:10px}
+/* Cards */
 .card{background:#161f2b;border:1px solid #1e3048;border-radius:10px;padding:18px 20px;margin-bottom:16px}
-.card h3{font-size:13px;font-weight:600;color:#e6edf3;margin-bottom:14px}
-label{font-size:11px;color:#8b949e;display:block;margin-bottom:4px}
-input[type=text],input[type=password],input[type=date],select{width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:6px;padding:7px 10px;color:#c9d1d9;font-size:13px;outline:none;transition:border .15s}
+.card h3{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:14px}
+label{font-size:12px;color:#8b949e;display:block;margin-bottom:4px}
+input[type=text],input[type=password],input[type=date],select{width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:6px;padding:8px 11px;color:#c9d1d9;font-size:14px;outline:none;transition:border .15s}
 input:focus,select:focus{border-color:#58a6ff}
-input[type=file]{display:none}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:6px;font-size:13px;cursor:pointer;border:1px solid #1e3048;background:#1e3048;color:#c9d1d9;transition:all .15s;white-space:nowrap}
+input[type=file],input[type=checkbox]{display:none}
+/* Checkbox custom */
+.check-row{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.check-box{width:20px;height:20px;border:2px solid #1e3048;border-radius:5px;background:#0f1923;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.check-box.checked{background:#1a3a5c;border-color:#2d6a9f}
+.check-box.checked::after{content:"✓";color:#79c0ff;font-size:13px;font-weight:600}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:14px;cursor:pointer;border:1px solid #1e3048;background:#1e3048;color:#c9d1d9;transition:all .15s;white-space:nowrap}
 .btn:hover:not(:disabled){background:#263549;border-color:#30455e}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn-primary{background:#1a3a5c;border-color:#2d6a9f;color:#79c0ff}
@@ -35,18 +52,23 @@ input[type=file]{display:none}
 .btn-success:hover:not(:disabled){background:#1f4a35}
 .btn-dl{background:#2a1a5c;border-color:#5a3a9f;color:#c0a0ff}
 .btn-dl:hover:not(:disabled){background:#3a2a70}
+.btn-warn{background:#3a2a0a;border-color:#6a5a1a;color:#e3b341}
+.btn-warn:hover:not(:disabled){background:#4a3a15}
+/* Grid */
 .grid-3{display:grid;grid-template-columns:1fr 1fr 160px;gap:12px;align-items:end}
-.drop-zone{border:2px dashed #1e3048;border-radius:10px;padding:28px;text-align:center;cursor:pointer;background:#0f1923;transition:border .15s;margin-bottom:14px}
+/* Drop zone */
+.drop-zone{border:2px dashed #1e3048;border-radius:10px;padding:28px;text-align:center;cursor:pointer;background:#0f1923;transition:all .15s;margin-bottom:14px}
 .drop-zone:hover,.drop-zone.drag-over{border-color:#58a6ff;background:#0a1520}
 .img-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .img-thumb{position:relative;display:inline-block}
 .img-thumb img{height:72px;border-radius:6px;border:1px solid #1e3048;object-fit:cover;display:block}
 .img-remove{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#6a2d2d;color:#f85149;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{padding:7px 10px;text-align:left;font-weight:500;font-size:11px;color:#8b949e;border-bottom:1px solid #1e3048}
-td{padding:6px 10px;border-bottom:1px solid #1e2a38;vertical-align:top}
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:8px 10px;text-align:left;font-weight:500;font-size:12px;color:#8b949e;border-bottom:1px solid #1e3048}
+td{padding:7px 10px;border-bottom:1px solid #1e2a38;vertical-align:top}
 tr:hover td{background:#161f2b}
-.pill{font-size:10px;padding:2px 8px;border-radius:20px;font-family:monospace}
+.pill{font-size:11px;padding:2px 8px;border-radius:20px;font-family:monospace}
 .pill.ok{background:#1a3a2a;color:#3fb950}
 .pill.warn{background:#3a2a0a;color:#e3b341}
 .pill.err{background:#3a1a1a;color:#f85149}
@@ -54,186 +76,227 @@ tr:hover td{background:#161f2b}
 .match-name:hover{background:#1e3048}
 .assign-box{margin-top:6px;background:#0a1520;border:1px solid #1e3048;border-radius:8px;padding:10px;display:none}
 .assign-box label{margin-bottom:3px}
-.assign-box select{margin-bottom:8px;font-size:12px}
+.assign-box select{margin-bottom:8px;font-size:13px}
 .assign-row{display:flex;gap:6px;margin-top:4px}
-.code-block{background:#0a1118;border:1px solid #1e3048;border-radius:6px;padding:14px;font-family:monospace;font-size:11px;color:#8b949e;white-space:pre;overflow-x:auto;line-height:1.6}
+/* Other */
+.code-block{background:#0a1118;border:1px solid #1e3048;border-radius:6px;padding:14px;font-family:monospace;font-size:12px;color:#8b949e;white-space:pre;overflow-x:auto;line-height:1.6}
 .alliance-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
 .alliance-card{background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:14px;text-align:center}
 .events-list{display:flex;flex-direction:column;gap:6px}
 .event-row{background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
 .pane{display:none}
 .pane.active{display:block}
-.flex-between{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.flex-between{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
 .flex-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.progress-bar{height:6px;background:#1e3048;border-radius:3px;overflow:hidden;margin-top:8px;display:none}
+.progress-bar{height:6px;background:#1e3048;border-radius:3px;overflow:hidden;margin-top:10px;margin-bottom:14px;display:none}
 .progress-fill{height:100%;background:#58a6ff;border-radius:3px;transition:width .3s}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1><span>❄️</span> WOS Leaderboard Scanner</h1>
-  <span class="status-badge" id="status-badge">Initializing...</span>
+<!-- PASSWORD MODAL -->
+<div id="pw-modal">
+  <div class="pw-box">
+    <div style="font-size:36px;margin-bottom:10px">❄️</div>
+    <h2>WOS Leaderboard Scanner</h2>
+    <p>Enter your password to continue</p>
+    <input type="password" id="pw-input" placeholder="Password" autocomplete="off"
+      onkeydown="if(event.key==='Enter')checkPassword()">
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="checkPassword()">Login</button>
+    <div class="pw-error" id="pw-error"></div>
+  </div>
 </div>
 
-<div class="container">
-  <div class="tabs">
-    <button class="tab-btn active" id="tab-setup" onclick="switchTab('setup')">⚙️ Setup</button>
-    <button class="tab-btn" id="tab-scanner" onclick="switchTab('scanner')">📷 Scanner</button>
-    <button class="tab-btn" id="tab-players" onclick="switchTab('players')">👥 Players <span class="badge" id="player-count-badge" style="display:none"></span></button>
-    <button class="tab-btn" id="tab-events" onclick="switchTab('events')">📅 Events</button>
+<!-- MAIN APP (hidden until login) -->
+<div id="main-app" style="display:none">
+  <div class="header">
+    <h1><span>❄️</span> WOS Leaderboard Scanner</h1>
+    <div class="flex-row">
+      <span id="user-role" style="font-size:12px;color:#8b949e"></span>
+      <span class="status-badge" id="status-badge">Initializing...</span>
+    </div>
   </div>
 
-  <!-- SETUP -->
-  <div class="pane active" id="pane-setup">
-    <div class="card">
-      <div class="flex-between">
-        <h3>🔑 API Key (Admin only)</h3>
+  <div class="container">
+    <div class="tabs" id="tab-bar">
+      <button class="tab-btn" id="tab-setup" onclick="switchTab('setup')" style="display:none">⚙️ Setup</button>
+      <button class="tab-btn active" id="tab-scanner" onclick="switchTab('scanner')">📷 Scanner</button>
+      <button class="tab-btn" id="tab-players" onclick="switchTab('players')">👥 Players <span class="badge" id="player-count-badge" style="display:none"></span></button>
+      <button class="tab-btn" id="tab-events" onclick="switchTab('events')">📅 Events</button>
+    </div>
+
+    <!-- SETUP (admin only) -->
+    <div class="pane" id="pane-setup">
+      <div class="card">
+        <div class="flex-between">
+          <h3>🔑 API Key (Admin only)</h3>
+          <div class="flex-row">
+            <span id="apikey-status" style="font-size:13px;color:#8b949e">Checking...</span>
+            <button class="btn btn-primary" onclick="showKeyEditor()">✏️ Set / Change</button>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#8b949e">Stored in Supabase – shared automatically with all users. Set once.</p>
+        <div id="key-editor" style="display:none;margin-top:14px">
+          <label>Anthropic API Key</label>
+          <div class="flex-row" style="margin-top:4px">
+            <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" style="flex:1">
+            <button class="btn btn-primary" onclick="saveApiKeyToSupabase()">💾 Save to Supabase</button>
+            <button class="btn" onclick="document.getElementById('key-editor').style.display='none'">✕</button>
+          </div>
+          <p style="font-size:12px;color:#8b949e;margin-top:6px">Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a></p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="flex-between">
+          <h3>🗄️ Supabase SQL (run once)</h3>
+          <div class="flex-row">
+            <button class="btn" onclick="copySQL()">📋 Copy SQL</button>
+            <button class="btn btn-primary" onclick="initApp()">🔄 Test Connection</button>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#8b949e;margin-bottom:10px">Supabase → SQL Editor → paste → Run</p>
+        <div class="code-block" id="sql-display"></div>
+      </div>
+      <div class="card">
+        <h3>🔌 Connection Status</h3>
+        <div id="db-status-detail" style="font-size:14px;color:#8b949e">Not checked yet.</div>
+        <div style="margin-top:12px"><button class="btn btn-primary" onclick="initApp()">🔄 Check Now</button></div>
+      </div>
+      <div class="card">
+        <h3>📖 How to use</h3>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.9;color:#8b949e">
+          <div>1. Run SQL → set API key → test connection</div>
+          <div>2. <b style="color:#c9d1d9">Players tab</b>: upload UTF-8 CSV (Player ID;Alliance Name;Player Name)</div>
+          <div>3. <b style="color:#c9d1d9">Scanner tab</b>: name the event → upload screenshot(s) → scan → review → download CSV &amp; save</div>
+          <div>4. Supabase → Table Editor → wos_lb_entries → Export CSV for analysis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCANNER -->
+    <div class="pane active" id="pane-scanner">
+      <div class="card">
+        <h3>📅 Event Details</h3>
+        <div class="grid-3">
+          <div><label>Event Name</label><input type="text" id="ev-name" value="Bear Trap 1" oninput="updateColName()"></div>
+          <div><label>Date</label><input type="date" id="ev-date" oninput="updateColName()"></div>
+          <div><label>Score Type</label>
+            <select id="ev-type" onchange="updateColName()">
+              <option value="Power">Power</option>
+              <option value="Points">Points</option>
+              <option value="Kills">Kills</option>
+              <option value="Troops">Troops</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+          <div>
+            <span style="font-size:12px;color:#8b949e">CSV column: </span>
+            <code id="col-name-preview" style="font-family:monospace;color:#58a6ff;font-size:13px"></code>
+          </div>
+          <label class="check-row" onclick="toggleRank()">
+            <div class="check-box" id="rank-check"></div>
+            <span style="font-size:13px;color:#c9d1d9">Include Rank column in CSV</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="drop-zone" id="drop-zone"
+        onclick="document.getElementById('img-input').click()"
+        ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+        <p style="color:#8b949e;font-size:14px;margin:0">Drag screenshots here or click to select</p>
+        <p style="color:#4a5568;font-size:12px;margin:6px 0 0">Multiple images supported (30+ pages at once)</p>
+        <input type="file" id="img-input" accept="image/*" multiple onchange="handleImageFiles(this.files)">
+      </div>
+      <div class="img-grid" id="image-preview"></div>
+
+      <div class="progress-bar" id="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+
+      <div class="flex-row" style="margin-bottom:20px">
+        <button class="btn btn-primary" id="scan-btn" onclick="processImages()">🔍 Scan Leaderboard</button>
+        <button class="btn btn-warn" id="clear-btn" onclick="clearAll()" style="display:none">🗑️ Clear All</button>
+      </div>
+
+      <div id="results-section" style="display:none">
+        <div class="flex-between">
+          <span style="font-weight:600;font-size:15px">Results <span id="results-summary" style="font-size:13px;font-weight:400;color:#8b949e"></span></span>
+          <div class="flex-row">
+            <button class="btn btn-dl" onclick="downloadCSV()">⬇️ Download CSV</button>
+            <button class="btn btn-success" id="save-btn" onclick="saveResults()">💾 Save to Supabase</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;margin-top:12px">
+          <table>
+            <thead><tr>
+              <th style="width:50px">Rank</th>
+              <th>OCR Name</th>
+              <th>Matched Player</th>
+              <th style="width:80px">Alliance</th>
+              <th style="width:125px;text-align:right">Value</th>
+              <th style="width:72px;text-align:center">Score</th>
+            </tr></thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYERS -->
+    <div class="pane" id="pane-players">
+      <div class="card">
+        <h3>📥 Import Players from CSV</h3>
+        <p style="font-size:13px;color:#8b949e;margin-bottom:14px">
+          Expected format: <code style="font-family:monospace;color:#58a6ff;font-size:13px">Player ID;Alliance Name;Player Name</code><br>
+          Alliance is read automatically from the CSV column.
+        </p>
         <div class="flex-row">
-          <span id="apikey-status" style="font-size:12px;color:#8b949e">Checking...</span>
-          <button class="btn btn-primary" onclick="showKeyEditor()">✏️ Set / Change</button>
+          <button class="btn" onclick="document.getElementById('csv-input').click()">📂 Choose File</button>
+          <span id="csv-status" style="font-size:13px;color:#8b949e">No file selected</span>
+          <input type="file" id="csv-input" accept=".csv" onchange="handleCSV(this.files[0])">
+        </div>
+        <div id="csv-preview" style="display:none;margin-top:12px;font-size:12px;font-family:monospace;color:#8b949e;line-height:1.8;background:#0a1118;border-radius:6px;padding:10px"></div>
+        <div style="margin-top:12px">
+          <button class="btn btn-primary" id="import-btn" onclick="importPlayers()" disabled>📥 Import</button>
+          <span id="import-note" style="font-size:12px;color:#8b949e;margin-left:10px"></span>
         </div>
       </div>
-      <p style="font-size:12px;color:#8b949e">The Anthropic API key is stored in Supabase – all users share it automatically. Only needs to be set once.</p>
-      <div id="key-editor" style="display:none;margin-top:14px">
-        <label>Anthropic API Key</label>
-        <div class="flex-row" style="margin-top:4px">
-          <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" style="flex:1">
-          <button class="btn btn-primary" onclick="saveApiKeyToSupabase()">💾 Save to Supabase</button>
-          <button class="btn" onclick="document.getElementById('key-editor').style.display='none'">✕</button>
-        </div>
-        <p style="font-size:11px;color:#8b949e;margin-top:6px">Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> → API Keys → Create Key</p>
-      </div>
+      <div id="alliance-stats"></div>
     </div>
 
-    <div class="card">
-      <div class="flex-between">
-        <h3>🗄️ Supabase SQL (run once)</h3>
-        <div class="flex-row">
-          <button class="btn" onclick="copySQL()">📋 Copy SQL</button>
-          <button class="btn btn-primary" onclick="initApp()">🔄 Test Connection</button>
-        </div>
-      </div>
-      <p style="font-size:12px;color:#8b949e;margin-bottom:10px">Supabase → SQL Editor → paste → Run</p>
-      <div class="code-block" id="sql-display"></div>
+    <!-- EVENTS -->
+    <div class="pane" id="pane-events">
+      <div id="events-list"><p style="color:#8b949e;font-size:14px">No events saved yet.</p></div>
     </div>
-
-    <div class="card">
-      <h3>🔌 Connection Status</h3>
-      <div id="db-status-detail" style="font-size:13px;color:#8b949e">Not checked yet.</div>
-      <div style="margin-top:12px"><button class="btn btn-primary" onclick="initApp()">🔄 Check Now</button></div>
-    </div>
-
-    <div class="card">
-      <h3>📖 How to use</h3>
-      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.9;color:#8b949e">
-        <div>1. Run SQL → set API key → test connection</div>
-        <div>2. <b style="color:#c9d1d9">Players tab</b>: upload UTF-8 CSV (Player ID;Alliance Name;Player Name)</div>
-        <div>3. <b style="color:#c9d1d9">Scanner tab</b>: name the event → upload screenshot(s) → scan → review → download CSV &amp; save</div>
-        <div>4. Supabase → Table Editor → wos_lb_entries → Export CSV for further analysis</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCANNER -->
-  <div class="pane" id="pane-scanner">
-    <div class="card">
-      <h3>📅 Event Details</h3>
-      <div class="grid-3">
-        <div>
-          <label>Event Name</label>
-          <input type="text" id="ev-name" value="Bear Trap 1" oninput="updateColName()">
-        </div>
-        <div>
-          <label>Date</label>
-          <input type="date" id="ev-date" oninput="updateColName()">
-        </div>
-        <div>
-          <label>Score Type</label>
-          <select id="ev-type" onchange="updateColName()">
-            <option value="Power">Power</option>
-            <option value="Points">Points</option>
-            <option value="Kills">Kills</option>
-            <option value="Troops">Troops</option>
-          </select>
-        </div>
-      </div>
-      <div style="margin-top:10px;font-size:12px;color:#8b949e">
-        CSV column name: <code id="col-name-preview" style="font-family:monospace;color:#58a6ff;font-size:12px"></code>
-      </div>
-    </div>
-
-    <div class="drop-zone" id="drop-zone"
-      onclick="document.getElementById('img-input').click()"
-      ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-      <div style="font-size:32px;margin-bottom:8px">🖼️</div>
-      <p style="color:#8b949e;font-size:13px;margin:0">Drag screenshots here or click to select</p>
-      <p style="color:#4a5568;font-size:11px;margin:6px 0 0">Multiple images supported (e.g. 30+ pages of a leaderboard)</p>
-      <input type="file" id="img-input" accept="image/*" multiple onchange="handleImageFiles(this.files)">
-    </div>
-    <div class="img-grid" id="image-preview"></div>
-
-    <div class="progress-bar" id="progress-bar">
-      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-    </div>
-
-    <button class="btn btn-primary" id="scan-btn" onclick="processImages()" style="margin-bottom:20px">
-      🔍 Scan Leaderboard
-    </button>
-
-    <div id="results-section" style="display:none">
-      <div class="flex-between" style="flex-wrap:wrap;gap:8px">
-        <span style="font-weight:600;font-size:14px">Results</span>
-        <div class="flex-row">
-          <button class="btn btn-dl" id="dl-btn" onclick="downloadCSV()">⬇️ Download CSV</button>
-          <button class="btn btn-success" id="save-btn" onclick="saveResults()">💾 Save to Supabase</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto;margin-top:12px">
-        <table>
-          <thead><tr>
-            <th style="width:50px">Rank</th>
-            <th>OCR Name</th>
-            <th>Matched Player</th>
-            <th style="width:80px">Alliance</th>
-            <th style="width:120px;text-align:right">Value</th>
-            <th style="width:70px;text-align:center">Score</th>
-          </tr></thead>
-          <tbody id="results-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- PLAYERS -->
-  <div class="pane" id="pane-players">
-    <div class="card">
-      <h3>📥 Import Players from CSV</h3>
-      <p style="font-size:12px;color:#8b949e;margin-bottom:14px">
-        Expected format: <code style="font-family:monospace;color:#58a6ff">Player ID;Alliance Name;Player Name</code><br>
-        Alliance is read automatically from the CSV – no manual entry needed.
-      </p>
-      <div class="flex-row">
-        <button class="btn" onclick="document.getElementById('csv-input').click()">📂 Choose File</button>
-        <span id="csv-status" style="font-size:12px;color:#8b949e">No file selected</span>
-        <input type="file" id="csv-input" accept=".csv" onchange="handleCSV(this.files[0])">
-      </div>
-      <div id="csv-preview" style="display:none;margin-top:12px;font-size:11px;font-family:monospace;color:#8b949e;line-height:1.8;background:#0a1118;border-radius:6px;padding:10px"></div>
-      <div style="margin-top:12px">
-        <button class="btn btn-primary" id="import-btn" onclick="importPlayers()" disabled>📥 Import</button>
-        <span id="import-note" style="font-size:11px;color:#8b949e;margin-left:10px"></span>
-      </div>
-    </div>
-    <div id="alliance-stats"></div>
-  </div>
-
-  <!-- EVENTS -->
-  <div class="pane" id="pane-events">
-    <div id="events-list"><p style="color:#8b949e;font-size:13px">No events saved yet.</p></div>
   </div>
 </div>
 
 <script>
+// ── Passwords ─────────────────────────────────────────────────────
+const PASS_ADMIN="646!rules";
+const PASS_USER="frostbite";
+let isAdmin=false;
+
+function checkPassword(){
+  const pw=document.getElementById("pw-input").value;
+  const err=document.getElementById("pw-error");
+  if(pw===PASS_ADMIN){isAdmin=true;startApp();}
+  else if(pw===PASS_USER){isAdmin=false;startApp();}
+  else{err.textContent="Incorrect password. Please try again.";document.getElementById("pw-input").value="";}
+}
+function startApp(){
+  document.getElementById("pw-modal").style.display="none";
+  document.getElementById("main-app").style.display="block";
+  document.getElementById("user-role").textContent=isAdmin?"👑 Admin":"👤 User";
+  if(isAdmin){
+    document.getElementById("tab-setup").style.display="flex";
+  }
+  initApp();
+}
+
+// ── Config ────────────────────────────────────────────────────────
 const SUPA_URL="https://oyjmbdlruuqldwqkrpjl.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1iZGxydXVxbGR3cWtycGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTU1ODYsImV4cCI6MjA5NTQzMTU4Nn0.JUWcpH3cx8smQmdWXfVp8pD3cWSm7zd2eNYm_FlY6Y8";
 const PROXY="https://wispy-heart-6002.ptgwos.workers.dev/";
@@ -275,18 +338,24 @@ document.getElementById("sql-display").textContent=SETUP_SQL;
 document.getElementById("ev-date").value=new Date().toISOString().slice(0,10);
 
 let players=[], events=[], images=[], scanResults=[], parsedCSV=[], apiKey="";
+let includeRank=false;
 
-// ── Supabase ─────────────────────────────────────────────────────
+// ── Checkbox ──────────────────────────────────────────────────────
+function toggleRank(){
+  includeRank=!includeRank;
+  document.getElementById("rank-check").classList.toggle("checked",includeRank);
+}
+
+// ── Supabase ──────────────────────────────────────────────────────
 const sb=async(table,method="GET",body=null,params="",prefer="")=>{
   const h={apikey:SUPA_KEY,Authorization:`Bearer ${SUPA_KEY}`,"Content-Type":"application/json"};
   if(prefer)h.Prefer=prefer;
   const r=await fetch(`${SUPA_URL}/rest/v1/${table}${params}`,{method,headers:h,...(body!==null?{body:JSON.stringify(body)}:{})});
   const t=await r.text();if(!r.ok)throw new Error(t);return t?JSON.parse(t):null;
 };
-
 const setStatus=(txt,type="")=>{const el=document.getElementById("status-badge");el.textContent=txt;el.className="status-badge"+(type?" "+type:"");};
 
-// ── API Key ──────────────────────────────────────────────────────
+// ── API Key ───────────────────────────────────────────────────────
 async function loadApiKey(){
   try{
     const rows=await sb("wos_settings","GET",null,"?key=eq.anthropic_api_key&select=value");
@@ -296,6 +365,7 @@ async function loadApiKey(){
 }
 function updateApiKeyStatus(found){
   const el=document.getElementById("apikey-status");
+  if(!el)return;
   el.textContent=found?"✓ API Key saved":"⚠️ No API key – please set one";
   el.style.color=found?"#3fb950":"#e3b341";
 }
@@ -316,7 +386,7 @@ async function saveApiKeyToSupabase(){
   }catch(e){alert("Error: "+e.message);}
 }
 
-// ── Init ─────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────
 async function initApp(){
   setStatus("Connecting...","info");
   try{
@@ -326,12 +396,14 @@ async function initApp(){
     ]);
     players=p||[];events=e||[];
     await loadApiKey();
-    document.getElementById("db-status-detail").innerHTML=`<span style="color:#3fb950">✓ Connected! ${players.length} players, ${events.length} events.</span>`;
+    const det=document.getElementById("db-status-detail");
+    if(det)det.innerHTML=`<span style="color:#3fb950">✓ Connected! ${players.length} players, ${events.length} events.</span>`;
     renderPlayerBadge();renderAllianceStats();renderEventsList();
     setStatus(players.length?`${players.length} players loaded`:"Import players first",players.length?"ok":"info");
     if(players.length&&apiKey)switchTab("scanner");
-  }catch(e){
-    document.getElementById("db-status-detail").innerHTML=`<span style="color:#f85149">✗ Tables not found – please run the SQL first.</span>`;
+  }catch{
+    const det=document.getElementById("db-status-detail");
+    if(det)det.innerHTML=`<span style="color:#f85149">✗ Tables not found – please run the SQL first.</span>`;
     setStatus("Run SQL first!","err");
   }
 }
@@ -342,22 +414,24 @@ function renderAllianceStats(){
   const counts=players.reduce((a,p)=>{a[p.alliance||"–"]=(a[p.alliance||"–"]||0)+1;return a;},{});
   const el=document.getElementById("alliance-stats");
   if(!Object.keys(counts).length){el.innerHTML="";return;}
-  el.innerHTML=`<div class="card"><h3>Alliances in database</h3><div class="alliance-grid">${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="alliance-card"><div style="font-size:24px;font-weight:600;color:#e6edf3">${c}</div><div style="font-size:12px;color:#8b949e;margin-top:2px">${n}</div></div>`).join("")}</div></div>`;
+  el.innerHTML=`<div class="card"><h3>Alliances in database</h3><div class="alliance-grid">${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="alliance-card"><div style="font-size:24px;font-weight:600;color:#e6edf3">${c}</div><div style="font-size:13px;color:#8b949e;margin-top:2px">${n}</div></div>`).join("")}</div></div>`;
 }
 function renderEventsList(){
   const el=document.getElementById("events-list");
-  if(!events.length){el.innerHTML=`<p style="color:#8b949e;font-size:13px">No events saved yet.</p>`;return;}
-  el.innerHTML=`<p style="font-weight:600;margin-bottom:12px">${events.length} Events</p><div class="events-list">${events.map(e=>`<div class="event-row"><div><span style="font-weight:500;font-size:13px">${e.event_name}</span><code style="margin-left:8px;font-size:11px;color:#8b949e">${e.event_code}</code></div><div class="flex-row"><span class="pill ok" style="padding:2px 8px">${e.event_type}</span><span style="font-size:11px;color:#8b949e">${new Date(e.event_date+"T12:00:00").toLocaleDateString("en-GB")}</span></div></div>`).join("")}</div>`;
+  if(!events.length){el.innerHTML=`<p style="color:#8b949e;font-size:14px">No events saved yet.</p>`;return;}
+  el.innerHTML=`<p style="font-weight:600;margin-bottom:12px">${events.length} Events</p><div class="events-list">${events.map(e=>`<div class="event-row"><div><span style="font-weight:500;font-size:14px">${e.event_name}</span><code style="margin-left:8px;font-size:12px;color:#8b949e">${e.event_code}</code></div><div class="flex-row"><span class="pill ok" style="padding:2px 8px">${e.event_type}</span><span style="font-size:12px;color:#8b949e">${new Date(e.event_date+"T12:00:00").toLocaleDateString("en-GB")}</span></div></div>`).join("")}</div>`;
 }
 
-// ── Tab & event helpers ───────────────────────────────────────────
+// ── Tabs ──────────────────────────────────────────────────────────
 function switchTab(name){
   ["setup","scanner","players","events"].forEach(t=>{
     document.getElementById(`pane-${t}`).classList.toggle("active",t===name);
-    document.getElementById(`tab-${t}`).classList.toggle("active",t===name);
+    const btn=document.getElementById(`tab-${t}`);
+    if(btn)btn.classList.toggle("active",t===name);
   });
 }
 
+// ── Event / column name ───────────────────────────────────────────
 function getColName(){
   const name=(document.getElementById("ev-name").value||"Event").trim();
   const date=document.getElementById("ev-date").value;
@@ -369,9 +443,22 @@ function getColName(){
 function updateColName(){document.getElementById("col-name-preview").textContent=getColName();}
 updateColName();
 
+// ── Clear All ─────────────────────────────────────────────────────
+function clearAll(){
+  if(scanResults.length&&!confirm("Clear all results and images?"))return;
+  scanResults=[];images=[];
+  document.getElementById("results-section").style.display="none";
+  document.getElementById("image-preview").innerHTML="";
+  document.getElementById("scan-btn").textContent="🔍 Scan Leaderboard";
+  document.getElementById("clear-btn").style.display="none";
+  document.getElementById("results-summary").textContent="";
+  setProgress(0,0);
+  setStatus(players.length?`${players.length} players loaded`:"Ready","ok");
+}
+
 // ── Drag & drop ───────────────────────────────────────────────────
 function handleDragOver(e){e.preventDefault();document.getElementById("drop-zone").classList.add("drag-over");}
-function handleDragLeave(e){document.getElementById("drop-zone").classList.remove("drag-over");}
+function handleDragLeave(){document.getElementById("drop-zone").classList.remove("drag-over");}
 function handleDrop(e){e.preventDefault();document.getElementById("drop-zone").classList.remove("drag-over");handleImageFiles(e.dataTransfer.files);}
 function handleImageFiles(files){
   Array.from(files).forEach(f=>{
@@ -381,11 +468,18 @@ function handleImageFiles(files){
   });
 }
 function renderPreviews(){
-  document.getElementById("image-preview").innerHTML=images.map(img=>`<div class="img-thumb" title="${img.name}"><img src="${img.preview}" alt="${img.name}"><button class="img-remove" onclick="removeImg('${img.id}')">✕</button></div>`).join("");
+  document.getElementById("image-preview").innerHTML=images.map(img=>`<div class="img-thumb" title="${img.name}"><img src="${img.preview}" alt=""><button class="img-remove" onclick="removeImg('${img.id}')">✕</button></div>`).join("");
   const n=images.length;
   document.getElementById("scan-btn").textContent=`🔍 Scan Leaderboard${n?` (${n} image${n!==1?"s":""})`:""}`;
 }
 function removeImg(id){images=images.filter(i=>i.id!==id);renderPreviews();}
+
+// ── Progress ──────────────────────────────────────────────────────
+function setProgress(val,max){
+  const bar=document.getElementById("progress-bar"),fill=document.getElementById("progress-fill");
+  if(max===0){bar.style.display="none";return;}
+  bar.style.display="block";fill.style.width=`${Math.round(val/max*100)}%`;
+}
 
 // ── Fuzzy match ───────────────────────────────────────────────────
 const normStr=s=>(s||"").replace(/[^\p{L}\p{N}\s]/gu,"").toLowerCase().replace(/\s+/g," ").trim();
@@ -394,14 +488,8 @@ function sim(a,b){const na=normStr(a),nb=normStr(b);if(!na&&!nb)return 1;if(!na|
 function findTop(name,pool,n=8){return pool.map(p=>({...p,score:sim(name,p.player_name)})).sort((a,b)=>b.score-a.score).slice(0,n);}
 
 // ── Scan ──────────────────────────────────────────────────────────
-function setProgress(val,max){
-  const bar=document.getElementById("progress-bar"),fill=document.getElementById("progress-fill");
-  if(max===0){bar.style.display="none";return;}
-  bar.style.display="block";fill.style.width=`${Math.round(val/max*100)}%`;
-}
-
 async function processImages(){
-  if(!apiKey)return alert("No API key set. Please go to the Setup tab.");
+  if(!apiKey)return alert("No API key set. Please go to the Setup tab (admin only).");
   if(!images.length)return setStatus("No screenshots uploaded!","err");
   if(!players.length)return setStatus("Import players first!","err");
   setStatus(`Scanning 0/${images.length}...`,"info");
@@ -410,27 +498,29 @@ async function processImages(){
   const all=[];
   try{
     for(let i=0;i<images.length;i++){
-      const img=images[i];
       setStatus(`Scanning image ${i+1}/${images.length}...`,"info");
       setProgress(i+1,images.length);
+      const img=images[i];
       const resp=await fetch(PROXY,{
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
         body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
           {type:"image",source:{type:"base64",media_type:img.type,data:img.b64}},
-          {type:"text",text:`Whiteout Survival leaderboard screenshot. Extract all visible player rows.\nReturn ONLY a valid JSON array, no markdown, no explanation:\n[{"rank":1,"name":"exact player name preserving all Unicode characters","value":2700133298},...]\n"value" is the large number shown next to each player name.`}
+          {type:"text",text:`Whiteout Survival leaderboard screenshot. Extract all visible player rows.\nReturn ONLY a valid JSON array, no markdown, no explanation:\n[{"rank":1,"name":"exact player name preserving all Unicode characters and alliance tags like [TBR] or [AIR]","value":2700133298},...]\n"value" is the large number shown next to each player.`}
         ]}]})
       });
       if(!resp.ok){const t=await resp.text();throw new Error(`API ${resp.status}: ${t}`);}
       const data=await resp.json();
       const txt=data.content?.find(b=>b.type==="text")?.text||"[]";
-      const parsed=JSON.parse(txt.replace(/```json|```/g,"").trim());
-      all.push(...parsed);
+      all.push(...JSON.parse(txt.replace(/```json|```/g,"").trim()));
     }
     setProgress(images.length,images.length);
     setStatus("Matching players...","info");
+
     scanResults=all.map(e=>{
-      const top=findTop(e.name,players);
+      // Strip alliance prefix like [TBR] from OCR name for better matching
+      const nameForMatch=e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim();
+      const top=findTop(nameForMatch,players);
       const best=top[0];
       return{rank:e.rank,name_raw:e.name,value:e.value,
         player_id:best?.score>=0.5?best.player_id:null,
@@ -438,10 +528,13 @@ async function processImages(){
         alliance:best?.score>=0.5?best.alliance:"",
         score:best?.score||0,top};
     }).sort((a,b)=>a.rank-b.rank);
+
     renderResults();
     const auto=scanResults.filter(r=>r.score>=0.85).length;
     const manual=scanResults.length-auto;
-    setStatus(`${scanResults.length} entries – ${auto} matched, ${manual} need review`,"ok");
+    document.getElementById("results-summary").textContent=`– ${auto} matched, ${manual} need review`;
+    document.getElementById("clear-btn").style.display="";
+    setStatus(`${scanResults.length} entries – ${auto} OK, ${manual} to review`,"ok");
     setProgress(0,0);
   }catch(e){
     setStatus("Error: "+e.message,"err");
@@ -460,12 +553,12 @@ function renderResults(){
   document.getElementById("results-body").innerHTML=scanResults.map(r=>`
     <tr id="row-${r.rank}">
       <td style="font-family:monospace;color:#8b949e">${r.rank}</td>
-      <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.name_raw||"").replace(/"/g,"&quot;")}">${r.name_raw||""}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.name_raw||"").replace(/"/g,"&quot;")}">${r.name_raw||""}</td>
       <td>
         <div class="match-name" onclick="toggleAssign(${r.rank})" title="Click to manually assign">
           ${r.player_name
-            ?`<span>${r.player_name}</span>${r.score<0.85?`<span style="font-size:10px;color:#8b949e"> ✏️</span>`:""}`
-            :`<span style="color:#f85149;font-style:italic">unknown</span> <span style="font-size:10px;color:#8b949e">✏️</span>`}
+            ?`<span>${r.player_name}</span>${r.score<0.85?`<span style="font-size:11px;color:#8b949e"> ✏️</span>`:""}`
+            :`<span style="color:#f85149;font-style:italic">unknown</span><span style="font-size:11px;color:#8b949e"> ✏️</span>`}
         </div>
         <div class="assign-box" id="assign-${r.rank}">
           <label>1. Select Alliance</label>
@@ -474,21 +567,17 @@ function renderResults(){
             ${alliances.map(a=>`<option value="${a}"${r.alliance===a?" selected":""}>${a}</option>`).join("")}
           </select>
           <label>2. Select Player</label>
-          <select id="pl-sel-${r.rank}">
-            <option value="">– select alliance first –</option>
-          </select>
+          <select id="pl-sel-${r.rank}"><option value="">– select alliance first –</option></select>
           <div class="assign-row">
-            <button class="btn btn-primary" style="font-size:12px;padding:5px 12px" onclick="applyAssign(${r.rank})">✓ Assign</button>
-            <button class="btn" style="font-size:12px;padding:5px 12px" onclick="toggleAssign(${r.rank})">Cancel</button>
+            <button class="btn btn-primary" style="font-size:13px;padding:5px 12px" onclick="applyAssign(${r.rank})">✓ Assign</button>
+            <button class="btn" style="font-size:13px;padding:5px 12px" onclick="toggleAssign(${r.rank})">Cancel</button>
           </div>
         </div>
       </td>
-      <td style="color:#8b949e;font-size:11px">${r.alliance||""}</td>
-      <td style="font-family:monospace;font-size:11px;text-align:right">${(r.value||0).toLocaleString("en-US")}</td>
+      <td style="color:#8b949e;font-size:12px">${r.alliance||""}</td>
+      <td style="font-family:monospace;font-size:12px;text-align:right">${(r.value||0).toLocaleString("en-US")}</td>
       <td style="text-align:center"><span class="pill ${pillClass(r.score)}">${Math.round(r.score*100)}%</span></td>
     </tr>`).join("");
-
-  // Pre-fill player dropdowns where alliance is already known
   scanResults.forEach(r=>{if(r.alliance)updatePlayerDropdown(r.rank,r.player_id);});
 }
 
@@ -499,10 +588,7 @@ function toggleAssign(rank){
   if(!open){
     box.style.display="block";
     const r=scanResults.find(x=>x.rank===rank);
-    if(r?.alliance){
-      document.getElementById(`ali-sel-${rank}`).value=r.alliance;
-      updatePlayerDropdown(rank,r.player_id);
-    }
+    if(r?.alliance){document.getElementById(`ali-sel-${rank}`).value=r.alliance;updatePlayerDropdown(rank,r.player_id);}
   }
 }
 function updatePlayerDropdown(rank,preselectId=null){
@@ -526,15 +612,21 @@ function applyAssign(rank){
 function downloadCSV(){
   if(!scanResults.length)return;
   const colName=getColName();
-  const header=`Player ID;Alliance Name;Player Name;${colName}`;
-  const rows=scanResults.map(r=>`${r.player_id||""};${r.alliance||""};${r.player_name||r.name_raw||""};${r.value||""}`);
-  const csv="\uFEFF"+[header,...rows].join("\r\n");
+  const headerCols=["Player ID","Alliance Name","Player Name"];
+  if(includeRank)headerCols.push("Rank");
+  headerCols.push(colName);
+  const rows=scanResults.map(r=>{
+    const cols=[r.player_id||"",r.alliance||"",r.player_name||r.name_raw||""];
+    if(includeRank)cols.push(r.rank||"");
+    cols.push(r.value||"");
+    return cols.join(";");
+  });
+  const csv="\uFEFF"+[headerCols.join(";"),...rows].join("\r\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
   a.href=url;
-  const safeName=colName.replace(/[^a-zA-Z0-9_\-\.]/g,"_");
-  a.download=`WOS_${safeName}.csv`;
+  a.download=`WOS_${colName.replace(/[^a-zA-Z0-9_\-\.]/g,"_")}.csv`;
   a.click();URL.revokeObjectURL(url);
 }
 
@@ -553,7 +645,6 @@ async function saveResults(){
       const[ev]=await sb("wos_events","POST",{event_code:code,event_name:n,event_type:type,event_date:date},"","return=representation");
       evId=ev.id;events.unshift(ev);renderEventsList();
     }catch{
-      // Event may already exist – look it up
       const existing=await sb("wos_events","GET",null,`?event_code=eq.${encodeURIComponent(code)}&select=id`);
       if(existing&&existing.length)evId=existing[0].id;
       else throw new Error("Could not create or find event");
@@ -572,7 +663,6 @@ function parseCSV(text){
   if(lines.length<2)return[];
   const sep=lines[0].includes(";")?";":",";
   const headers=lines[0].split(sep).map(h=>h.trim().toLowerCase());
-  // Find column indices
   const idIdx=headers.findIndex(h=>h.includes("player id")||h==="id");
   const aliIdx=headers.findIndex(h=>h.includes("alliance"));
   const nameIdx=headers.findIndex(h=>h.includes("player name")||h==="name");
@@ -588,7 +678,6 @@ function parseCSV(text){
     return!isNaN(id)&&name?{player_id:id,player_name:name,alliance}:null;
   }).filter(Boolean);
 }
-
 function handleCSV(file){
   const rd=new FileReader();
   rd.onload=ev=>{
@@ -596,7 +685,7 @@ function handleCSV(file){
     if(!parsedCSV.length)return;
     const alliances=[...new Set(parsedCSV.map(p=>p.alliance).filter(Boolean))];
     document.getElementById("csv-status").textContent=`${parsedCSV.length} players ready`;
-    document.getElementById("import-note").textContent=`Alliances detected: ${alliances.join(", ")}`;
+    document.getElementById("import-note").textContent=`Alliances: ${alliances.join(", ")}`;
     const btn=document.getElementById("import-btn");
     btn.disabled=false;btn.textContent=`📥 Import (${parsedCSV.length} players)`;
     document.getElementById("csv-preview").style.display="block";
@@ -604,7 +693,6 @@ function handleCSV(file){
   };
   rd.readAsText(file,"utf-8");
 }
-
 async function importPlayers(){
   if(!parsedCSV.length)return;
   document.getElementById("import-btn").disabled=true;
@@ -628,8 +716,6 @@ function copySQL(){
     const ta=document.createElement("textarea");ta.value=SETUP_SQL;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);setStatus("SQL copied! ✓","ok");
   });
 }
-
-initApp();
 </script>
 </body>
 </html>
