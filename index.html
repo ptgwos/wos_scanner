@@ -34,7 +34,7 @@ a{color:#58a6ff}
 .card{background:#161f2b;border:1px solid #1e3048;border-radius:10px;padding:18px 20px;margin-bottom:16px}
 .card h3{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:14px}
 label{font-size:12px;color:#8b949e;display:block;margin-bottom:4px}
-input[type=text],input[type=password],input[type=date],select{width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:6px;padding:8px 11px;color:#c9d1d9;font-size:14px;outline:none;transition:border .15s}
+input[type=text],input[type=password],input[type=date],select{color-scheme:dark;width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:6px;padding:8px 11px;color:#c9d1d9;font-size:14px;outline:none;transition:border .15s}
 input:focus,select:focus{border-color:#58a6ff}
 input[type=file],input[type=checkbox]{display:none}
 /* Checkbox custom */
@@ -332,6 +332,14 @@ create table if not exists wos_lb_entries (
 create table if not exists wos_settings (
   key text primary key,
   value text not null
+);
+create table if not exists wos_corrections (
+  ocr_name text primary key,
+  player_id bigint references wos_players(player_id) on delete cascade,
+  player_name text,
+  alliance text,
+  confirmed_count integer default 1,
+  last_confirmed timestamptz default now()
 );`;
 
 document.getElementById("sql-display").textContent=SETUP_SQL;
@@ -339,6 +347,26 @@ document.getElementById("ev-date").value=new Date().toISOString().slice(0,10);
 
 let players=[], events=[], images=[], scanResults=[], parsedCSV=[], apiKey="";
 let includeRank=false;
+let corrections={};  // ocr_name -> {player_id, player_name, alliance, confirmed_count}
+
+async function loadCorrections(){
+  try{
+    const rows=await sb("wos_corrections","GET",null,"?select=ocr_name,player_id,player_name,alliance,confirmed_count");
+    corrections={};
+    (rows||[]).forEach(r=>{corrections[r.ocr_name]={player_id:r.player_id,player_name:r.player_name,alliance:r.alliance,confirmed_count:r.confirmed_count};});
+  }catch{corrections={};}
+}
+
+async function saveCorrection(ocrName, player){
+  try{
+    const existing=corrections[ocrName];
+    const count=(existing?.confirmed_count||0)+1;
+    await sb("wos_corrections","POST",
+      {ocr_name:ocrName,player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,confirmed_count:count,last_confirmed:new Date().toISOString()},
+      "","resolution=merge-duplicates,return=minimal");
+    corrections[ocrName]={player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,confirmed_count:count};
+  }catch(e){console.warn("Could not save correction:",e);}
+}
 
 // ── Checkbox ──────────────────────────────────────────────────────
 function toggleRank(){
@@ -394,8 +422,8 @@ async function initApp(){
       sb("wos_players","GET",null,"?select=player_id,player_name,alliance&order=player_name"),
       sb("wos_events","GET",null,"?select=*&order=created_at.desc")
     ]);
+    await Promise.all([loadApiKey(),loadCorrections()]);
     players=p||[];events=e||[];
-    await loadApiKey();
     const det=document.getElementById("db-status-detail");
     if(det)det.innerHTML=`<span style="color:#3fb950">✓ Connected! ${players.length} players, ${events.length} events.</span>`;
     renderPlayerBadge();renderAllianceStats();renderEventsList();
@@ -518,6 +546,14 @@ async function processImages(){
     setStatus("Matching players...","info");
 
     scanResults=all.map(e=>{
+      // Check correction DB first
+      const corr=corrections[e.name];
+      if(corr){
+        const top=findTop(e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim(),players);
+        return{rank:e.rank,name_raw:e.name,value:e.value,
+          player_id:corr.player_id,player_name:corr.player_name,alliance:corr.alliance,
+          score:1.0,fromCorrection:true,top};
+      }
       // Strip alliance prefix like [TBR] from OCR name for better matching
       const nameForMatch=e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim();
       const top=findTop(nameForMatch,players);
@@ -526,13 +562,14 @@ async function processImages(){
         player_id:best?.score>=0.5?best.player_id:null,
         player_name:best?.score>=0.5?best.player_name:null,
         alliance:best?.score>=0.5?best.alliance:"",
-        score:best?.score||0,top};
+        score:best?.score||0,fromCorrection:false,top};
     }).sort((a,b)=>a.rank-b.rank);
 
     renderResults();
-    const auto=scanResults.filter(r=>r.score>=0.85).length;
-    const manual=scanResults.length-auto;
-    document.getElementById("results-summary").textContent=`– ${auto} matched, ${manual} need review`;
+    const fromCorr=scanResults.filter(r=>r.fromCorrection).length;
+    const auto=scanResults.filter(r=>!r.fromCorrection&&r.score>=0.85).length;
+    const manual=scanResults.filter(r=>!r.fromCorrection&&r.score<0.85).length;
+    document.getElementById("results-summary").textContent=`– 🎯 ${fromCorr} from DB, ${auto} matched, ${manual} to review`;
     document.getElementById("clear-btn").style.display="";
     setStatus(`${scanResults.length} entries – ${auto} OK, ${manual} to review`,"ok");
     setProgress(0,0);
@@ -557,7 +594,7 @@ function renderResults(){
       <td>
         <div class="match-name" onclick="toggleAssign(${r.rank})" title="Click to manually assign">
           ${r.player_name
-            ?`<span>${r.player_name}</span>${r.score<0.85?`<span style="font-size:11px;color:#8b949e"> ✏️</span>`:""}`
+            ?`<span>${r.player_name}</span>${r.fromCorrection?`<span title="From correction database (confirmed ${corrections[r.name_raw]?.confirmed_count||1}x)" style="font-size:11px;color:#58a6ff"> 🎯</span>`:r.score<0.85?`<span style="font-size:11px;color:#8b949e"> ✏️</span>`:""}`
             :`<span style="color:#f85149;font-style:italic">unknown</span><span style="font-size:11px;color:#8b949e"> ✏️</span>`}
         </div>
         <div class="assign-box" id="assign-${r.rank}">
@@ -576,7 +613,7 @@ function renderResults(){
       </td>
       <td style="color:#8b949e;font-size:12px">${r.alliance||""}</td>
       <td style="font-family:monospace;font-size:12px;text-align:right">${(r.value||0).toLocaleString("en-US")}</td>
-      <td style="text-align:center"><span class="pill ${pillClass(r.score)}">${Math.round(r.score*100)}%</span></td>
+      <td style="text-align:center">${r.fromCorrection?`<span class="pill ok" title="Learned match">🎯 DB</span>`:`<span class="pill ${pillClass(r.score)}">${Math.round(r.score*100)}%</span>`}</td>
     </tr>`).join("");
   scanResults.forEach(r=>{if(r.alliance)updatePlayerDropdown(r.rank,r.player_id);});
 }
@@ -604,7 +641,11 @@ function applyAssign(rank){
   const player=players.find(p=>p.player_id===pid);
   if(!player)return;
   const i=scanResults.findIndex(r=>r.rank===rank);
-  if(i>-1)scanResults[i]={...scanResults[i],player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,score:1.0};
+  if(i>-1){
+    const ocrName=scanResults[i].name_raw;
+    scanResults[i]={...scanResults[i],player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,score:1.0,fromCorrection:false};
+    saveCorrection(ocrName,player);  // save to DB for future scans
+  }
   renderResults();
 }
 
