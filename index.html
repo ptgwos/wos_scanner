@@ -8,43 +8,26 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1923;color:#d0dce8;min-height:100vh;font-size:15px}
 a{color:#58a6ff}
-/* Password modal */
-#pw-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:flex;align-items:center;justify-content:center}
-.pw-box{background:#161f2b;border:1px solid #1e3048;border-radius:14px;padding:32px;width:340px;text-align:center}
-.pw-box h2{font-size:18px;font-weight:600;color:#e6edf3;margin-bottom:6px}
-.pw-box p{font-size:13px;color:#8b949e;margin-bottom:20px}
-.pw-box input{width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:10px 14px;color:#c9d1d9;font-size:15px;outline:none;text-align:center;letter-spacing:2px;margin-bottom:12px}
-.pw-box input:focus{border-color:#58a6ff}
-.pw-error{color:#f85149;font-size:12px;margin-top:6px;min-height:18px}
-/* Header */
 .header{background:#161f2b;border-bottom:1px solid #1e3048;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .header h1{font-size:17px;font-weight:600;color:#e6edf3;display:flex;align-items:center;gap:8px}
 .status-badge{font-size:13px;padding:4px 12px;border-radius:20px;background:#1e3048;color:#8b949e;white-space:nowrap}
 .status-badge.ok{background:#1a3a2a;color:#3fb950}
 .status-badge.err{background:#3a1a1a;color:#f85149}
 .status-badge.info{background:#1a2a3a;color:#58a6ff}
-/* Layout */
 .container{max-width:1000px;margin:0 auto;padding:24px}
 .tabs{display:flex;border-bottom:1px solid #1e3048;margin-bottom:24px}
 .tab-btn{padding:11px 18px;font-size:14px;border:none;border-bottom:2px solid transparent;background:none;color:#8b949e;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
 .tab-btn.active{color:#58a6ff;border-bottom-color:#58a6ff;font-weight:500}
 .tab-btn:hover:not(.active){color:#c9d1d9}
 .badge{background:#1e3048;color:#8b949e;font-size:11px;padding:1px 7px;border-radius:10px}
-/* Cards */
 .card{background:#161f2b;border:1px solid #1e3048;border-radius:10px;padding:18px 20px;margin-bottom:16px}
 .card h3{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:14px}
 label{font-size:12px;color:#8b949e;display:block;margin-bottom:4px}
 input[type=text],input[type=password],input[type=date],select{color-scheme:dark;width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:6px;padding:8px 11px;color:#c9d1d9;font-size:14px;outline:none;transition:border .15s}
 input:focus,select:focus{border-color:#58a6ff}
-input[type=file],input[type=checkbox]{display:none}
-/* Checkbox custom */
-.check-row{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
-.check-box{width:20px;height:20px;border:2px solid #1e3048;border-radius:5px;background:#0f1923;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.check-box.checked{background:#1a3a5c;border-color:#2d6a9f}
-.check-box.checked::after{content:"✓";color:#79c0ff;font-size:13px;font-weight:600}
-/* Buttons */
+input[type=file]{display:none}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:14px;cursor:pointer;border:1px solid #1e3048;background:#1e3048;color:#c9d1d9;transition:all .15s;white-space:nowrap}
-.btn:hover:not(:disabled){background:#263549;border-color:#30455e}
+.btn:hover:not(:disabled){background:#263549}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn-primary{background:#1a3a5c;border-color:#2d6a9f;color:#79c0ff}
 .btn-primary:hover:not(:disabled){background:#1f4a75}
@@ -54,16 +37,13 @@ input[type=file],input[type=checkbox]{display:none}
 .btn-dl:hover:not(:disabled){background:#3a2a70}
 .btn-warn{background:#3a2a0a;border-color:#6a5a1a;color:#e3b341}
 .btn-warn:hover:not(:disabled){background:#4a3a15}
-/* Grid */
 .grid-3{display:grid;grid-template-columns:1fr 1fr 160px;gap:12px;align-items:end}
-/* Drop zone */
 .drop-zone{border:2px dashed #1e3048;border-radius:10px;padding:28px;text-align:center;cursor:pointer;background:#0f1923;transition:all .15s;margin-bottom:14px}
 .drop-zone:hover,.drop-zone.drag-over{border-color:#58a6ff;background:#0a1520}
 .img-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .img-thumb{position:relative;display:inline-block}
 .img-thumb img{height:72px;border-radius:6px;border:1px solid #1e3048;object-fit:cover;display:block}
 .img-remove{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#6a2d2d;color:#f85149;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center}
-/* Table */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{padding:8px 10px;text-align:left;font-weight:500;font-size:12px;color:#8b949e;border-bottom:1px solid #1e3048}
 td{padding:7px 10px;border-bottom:1px solid #1e2a38;vertical-align:top}
@@ -76,41 +56,45 @@ tr:hover td{background:#161f2b}
 .match-name:hover{background:#1e3048}
 .assign-box{margin-top:6px;background:#0a1520;border:1px solid #1e3048;border-radius:8px;padding:10px;display:none}
 .assign-box label{margin-bottom:3px}
-.assign-box select{margin-bottom:8px;font-size:13px}
-.assign-row{display:flex;gap:6px;margin-top:4px}
-/* Other */
+.assign-box select,.assign-box input[type=text]{margin-bottom:8px;font-size:13px}
+.assign-row{display:flex;gap:6px;margin-top:6px}
 .code-block{background:#0a1118;border:1px solid #1e3048;border-radius:6px;padding:14px;font-family:monospace;font-size:12px;color:#8b949e;white-space:pre;overflow-x:auto;line-height:1.6}
 .alliance-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
 .alliance-card{background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:14px;text-align:center}
-.events-list{display:flex;flex-direction:column;gap:6px}
-.event-row{background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
 .pane{display:none}
 .pane.active{display:block}
 .flex-between{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
 .flex-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .progress-bar{height:6px;background:#1e3048;border-radius:3px;overflow:hidden;margin-top:10px;margin-bottom:14px;display:none}
 .progress-fill{height:100%;background:#58a6ff;border-radius:3px;transition:width .3s}
+.check-row{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.check-box{width:20px;height:20px;border:2px solid #1e3048;border-radius:5px;background:#0f1923;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-box.checked{background:#1a3a5c;border-color:#2d6a9f}
+.check-box.checked::after{content:"✓";color:#79c0ff;font-size:13px;font-weight:600}
+.events-list{display:flex;flex-direction:column;gap:6px}
+.event-row{background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
 </style>
 </head>
 <body>
 
 <!-- PASSWORD MODAL -->
-<div id="pw-modal">
-  <div class="pw-box">
+<div id="pw-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:flex;align-items:center;justify-content:center">
+  <div style="background:#161f2b;border:1px solid #1e3048;border-radius:14px;padding:32px;width:340px;text-align:center">
     <div style="font-size:36px;margin-bottom:10px">❄️</div>
-    <h2>WOS Leaderboard Scanner</h2>
-    <p>Enter your password to continue</p>
+    <h2 style="font-size:18px;font-weight:600;color:#e6edf3;margin-bottom:6px">WOS Leaderboard Scanner</h2>
+    <p style="font-size:13px;color:#8b949e;margin-bottom:20px">Enter your password to continue</p>
     <input type="password" id="pw-input" placeholder="Password" autocomplete="off"
+      style="width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:10px 14px;color:#c9d1d9;font-size:15px;outline:none;text-align:center;letter-spacing:2px;margin-bottom:12px;color-scheme:dark"
       onkeydown="if(event.key==='Enter')checkPassword()">
-    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="checkPassword()">Login</button>
-    <div class="pw-error" id="pw-error"></div>
+    <button onclick="checkPassword()" style="width:100%;justify-content:center;display:flex;padding:10px;border-radius:6px;font-size:14px;cursor:pointer;border:1px solid #2d6a9f;background:#1a3a5c;color:#79c0ff">Login</button>
+    <div id="pw-error" style="color:#f85149;font-size:12px;margin-top:8px;min-height:18px"></div>
   </div>
 </div>
 
-<!-- MAIN APP (hidden until login) -->
+<!-- MAIN APP -->
 <div id="main-app" style="display:none">
   <div class="header">
-    <h1><span>❄️</span> WOS Leaderboard Scanner</h1>
+    <h1>❄️ WOS Leaderboard Scanner</h1>
     <div class="flex-row">
       <span id="user-role" style="font-size:12px;color:#8b949e"></span>
       <span class="status-badge" id="status-badge">Initializing...</span>
@@ -118,14 +102,14 @@ tr:hover td{background:#161f2b}
   </div>
 
   <div class="container">
-    <div class="tabs" id="tab-bar">
+    <div class="tabs">
       <button class="tab-btn" id="tab-setup" onclick="switchTab('setup')" style="display:none">⚙️ Setup</button>
       <button class="tab-btn active" id="tab-scanner" onclick="switchTab('scanner')">📷 Scanner</button>
       <button class="tab-btn" id="tab-players" onclick="switchTab('players')">👥 Players <span class="badge" id="player-count-badge" style="display:none"></span></button>
       <button class="tab-btn" id="tab-events" onclick="switchTab('events')">📅 Events</button>
     </div>
 
-    <!-- SETUP (admin only) -->
+    <!-- SETUP -->
     <div class="pane" id="pane-setup">
       <div class="card">
         <div class="flex-between">
@@ -135,15 +119,15 @@ tr:hover td{background:#161f2b}
             <button class="btn btn-primary" onclick="showKeyEditor()">✏️ Set / Change</button>
           </div>
         </div>
-        <p style="font-size:13px;color:#8b949e">Stored in Supabase – shared automatically with all users. Set once.</p>
+        <p style="font-size:13px;color:#8b949e">Stored in Supabase – shared with all users automatically.</p>
         <div id="key-editor" style="display:none;margin-top:14px">
           <label>Anthropic API Key</label>
           <div class="flex-row" style="margin-top:4px">
-            <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" style="flex:1">
-            <button class="btn btn-primary" onclick="saveApiKeyToSupabase()">💾 Save to Supabase</button>
+            <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." style="flex:1">
+            <button class="btn btn-primary" onclick="saveApiKeyToSupabase()">💾 Save</button>
             <button class="btn" onclick="document.getElementById('key-editor').style.display='none'">✕</button>
           </div>
-          <p style="font-size:12px;color:#8b949e;margin-top:6px">Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a></p>
+          <p style="font-size:12px;color:#8b949e;margin-top:6px">Get at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a></p>
         </div>
       </div>
       <div class="card">
@@ -163,13 +147,10 @@ tr:hover td{background:#161f2b}
         <div style="margin-top:12px"><button class="btn btn-primary" onclick="initApp()">🔄 Check Now</button></div>
       </div>
       <div class="card">
-        <h3>📖 How to use</h3>
-        <div style="display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.9;color:#8b949e">
-          <div>1. Run SQL → set API key → test connection</div>
-          <div>2. <b style="color:#c9d1d9">Players tab</b>: upload UTF-8 CSV (Player ID;Alliance Name;Player Name)</div>
-          <div>3. <b style="color:#c9d1d9">Scanner tab</b>: name the event → upload screenshot(s) → scan → review → download CSV &amp; save</div>
-          <div>4. Supabase → Table Editor → wos_lb_entries → Export CSV for analysis</div>
-        </div>
+        <h3>📖 Populate Correction DB from History</h3>
+        <p style="font-size:13px;color:#8b949e;margin-bottom:10px">Run this SQL once to learn from all past manual assignments:</p>
+        <div class="code-block" id="history-sql"></div>
+        <div style="margin-top:10px"><button class="btn" onclick="copyHistorySQL()">📋 Copy SQL</button></div>
       </div>
     </div>
 
@@ -190,19 +171,15 @@ tr:hover td{background:#161f2b}
           </div>
         </div>
         <div style="margin-top:12px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-          <div>
-            <span style="font-size:12px;color:#8b949e">CSV column: </span>
-            <code id="col-name-preview" style="font-family:monospace;color:#58a6ff;font-size:13px"></code>
-          </div>
-          <label class="check-row" onclick="toggleRank()">
+          <div><span style="font-size:12px;color:#8b949e">CSV column: </span><code id="col-name-preview" style="font-family:monospace;color:#58a6ff;font-size:13px"></code></div>
+          <div class="check-row" onclick="toggleRank()">
             <div class="check-box" id="rank-check"></div>
-            <span style="font-size:13px;color:#c9d1d9">Include Rank column in CSV</span>
-          </label>
+            <span style="font-size:13px;color:#c9d1d9">Include Rank column</span>
+          </div>
         </div>
       </div>
 
-      <div class="drop-zone" id="drop-zone"
-        onclick="document.getElementById('img-input').click()"
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('img-input').click()"
         ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
         <div style="font-size:32px;margin-bottom:8px">🖼️</div>
         <p style="color:#8b949e;font-size:14px;margin:0">Drag screenshots here or click to select</p>
@@ -210,10 +187,7 @@ tr:hover td{background:#161f2b}
         <input type="file" id="img-input" accept="image/*" multiple onchange="handleImageFiles(this.files)">
       </div>
       <div class="img-grid" id="image-preview"></div>
-
-      <div class="progress-bar" id="progress-bar">
-        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-      </div>
+      <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
 
       <div class="flex-row" style="margin-bottom:20px">
         <button class="btn btn-primary" id="scan-btn" onclick="processImages()">🔍 Scan Leaderboard</button>
@@ -235,9 +209,9 @@ tr:hover td{background:#161f2b}
               <th>OCR Name</th>
               <th>Matched Player</th>
               <th style="width:80px">Alliance</th>
-              <th style="width:125px;text-align:right">Value</th>
+              <th style="width:120px;text-align:right">Value</th>
               <th style="width:72px;text-align:center">Score</th>
-            <th style="width:40px"></th>
+              <th style="width:38px"></th>
             </tr></thead>
             <tbody id="results-body"></tbody>
           </table>
@@ -249,10 +223,7 @@ tr:hover td{background:#161f2b}
     <div class="pane" id="pane-players">
       <div class="card">
         <h3>📥 Import Players from CSV</h3>
-        <p style="font-size:13px;color:#8b949e;margin-bottom:14px">
-          Expected format: <code style="font-family:monospace;color:#58a6ff;font-size:13px">Player ID;Alliance Name;Player Name</code><br>
-          Alliance is read automatically from the CSV column.
-        </p>
+        <p style="font-size:13px;color:#8b949e;margin-bottom:14px">Expected: <code style="font-family:monospace;color:#58a6ff">Player ID;Alliance Name;Player Name</code></p>
         <div class="flex-row">
           <button class="btn" onclick="document.getElementById('csv-input').click()">📂 Choose File</button>
           <span id="csv-status" style="font-size:13px;color:#8b949e">No file selected</span>
@@ -275,583 +246,611 @@ tr:hover td{background:#161f2b}
 </div>
 
 <script>
-// ── Passwords ─────────────────────────────────────────────────────
-const PASS_ADMIN="646!rules";
-const PASS_USER="frostbite";
-let isAdmin=false;
+// ── Passwords ──────────────────────────────────────────────────────────────
+var PASS_ADMIN = "646!rules";
+var PASS_USER  = "frostbite";
+var isAdmin = false;
 
-function checkPassword(){
-  const pw=document.getElementById("pw-input").value;
-  const err=document.getElementById("pw-error");
-  if(pw===PASS_ADMIN){isAdmin=true;startApp();}
-  else if(pw===PASS_USER){isAdmin=false;startApp();}
-  else{err.textContent="Incorrect password. Please try again.";document.getElementById("pw-input").value="";}
-}
-function startApp(){
-  document.getElementById("pw-modal").style.display="none";
-  document.getElementById("main-app").style.display="block";
-  document.getElementById("user-role").textContent=isAdmin?"👑 Admin":"👤 User";
-  if(isAdmin){
-    document.getElementById("tab-setup").style.display="flex";
+function checkPassword() {
+  var pw = document.getElementById("pw-input").value;
+  if (pw === PASS_ADMIN) { isAdmin = true;  startApp(); }
+  else if (pw === PASS_USER) { isAdmin = false; startApp(); }
+  else {
+    document.getElementById("pw-error").textContent = "Incorrect password.";
+    document.getElementById("pw-input").value = "";
   }
+}
+function startApp() {
+  document.getElementById("pw-modal").style.display = "none";
+  document.getElementById("main-app").style.display = "block";
+  document.getElementById("user-role").textContent = isAdmin ? "👑 Admin " : "👤 User ";
+  if (isAdmin) document.getElementById("tab-setup").style.display = "flex";
   initApp();
 }
 
-// ── Config ────────────────────────────────────────────────────────
-const SUPA_URL="https://oyjmbdlruuqldwqkrpjl.supabase.co";
-const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1iZGxydXVxbGR3cWtycGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTU1ODYsImV4cCI6MjA5NTQzMTU4Nn0.JUWcpH3cx8smQmdWXfVp8pD3cWSm7zd2eNYm_FlY6Y8";
-const PROXY="https://wispy-heart-6002.ptgwos.workers.dev/";
+// ── Config ─────────────────────────────────────────────────────────────────
+var SUPA_URL = "https://oyjmbdlruuqldwqkrpjl.supabase.co";
+var SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1iZGxydXVxbGR3cWtycGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTU1ODYsImV4cCI6MjA5NTQzMTU4Nn0.JUWcpH3cx8smQmdWXfVp8pD3cWSm7zd2eNYm_FlY6Y8";
+var PROXY    = "https://wispy-heart-6002.ptgwos.workers.dev/";
 
-const SETUP_SQL=`-- WOS Leaderboard Scanner – run once
-create table if not exists wos_players (
-  player_id bigint primary key,
-  player_name text not null,
-  alliance text default '',
-  updated_at timestamptz default now()
-);
-create table if not exists wos_events (
-  id serial primary key,
-  event_code text unique not null,
-  event_name text not null,
-  event_type text default 'Power',
-  event_date date default current_date,
-  created_at timestamptz default now()
-);
-create table if not exists wos_lb_entries (
-  id serial primary key,
-  event_id integer references wos_events(id) on delete cascade,
-  player_id bigint,
-  player_name_raw text,
-  player_name_matched text,
-  alliance text,
-  rank integer,
-  value bigint,
-  match_score numeric,
-  created_at timestamptz default now(),
-  unique(event_id, rank)
-);
-create table if not exists wos_settings (
-  key text primary key,
-  value text not null
-);
-create table if not exists wos_corrections (
-  ocr_name text primary key,
-  player_id bigint references wos_players(player_id) on delete cascade,
-  player_name text,
-  alliance text,
-  confirmed_count integer default 1,
-  last_confirmed timestamptz default now()
-);`;
+var SETUP_SQL = [
+  "-- WOS Leaderboard Scanner – run once",
+  "create table if not exists wos_players (",
+  "  player_id bigint primary key,",
+  "  player_name text not null,",
+  "  alliance text default '',",
+  "  updated_at timestamptz default now()",
+  ");",
+  "create table if not exists wos_events (",
+  "  id serial primary key,",
+  "  event_code text unique not null,",
+  "  event_name text not null,",
+  "  event_type text default 'Power',",
+  "  event_date date default current_date,",
+  "  created_at timestamptz default now()",
+  ");",
+  "create table if not exists wos_lb_entries (",
+  "  id serial primary key,",
+  "  event_id integer references wos_events(id) on delete cascade,",
+  "  player_id bigint,",
+  "  player_name_raw text,",
+  "  player_name_matched text,",
+  "  alliance text,",
+  "  rank integer,",
+  "  value bigint,",
+  "  match_score numeric,",
+  "  created_at timestamptz default now(),",
+  "  unique(event_id, rank)",
+  ");",
+  "create table if not exists wos_settings (",
+  "  key text primary key,",
+  "  value text not null",
+  ");",
+  "create table if not exists wos_corrections (",
+  "  ocr_name text primary key,",
+  "  player_id bigint references wos_players(player_id) on delete cascade,",
+  "  player_name text,",
+  "  alliance text,",
+  "  confirmed_count integer default 1,",
+  "  last_confirmed timestamptz default now()",
+  ");"
+].join("\n");
 
-document.getElementById("sql-display").textContent=SETUP_SQL;
-document.getElementById("ev-date").value=new Date().toISOString().slice(0,10);
+var HISTORY_SQL = [
+  "insert into wos_corrections (ocr_name, player_id, player_name, alliance, confirmed_count)",
+  "select player_name_raw, player_id, player_name_matched, alliance, count(*)",
+  "from wos_lb_entries",
+  "where match_score = 1.0",
+  "  and player_name_raw is not null",
+  "  and player_id is not null",
+  "  and player_name_raw != player_name_matched",
+  "group by player_name_raw, player_id, player_name_matched, alliance",
+  "on conflict (ocr_name) do update set confirmed_count = excluded.confirmed_count;"
+].join("\n");
 
-let players=[], events=[], images=[], scanResults=[], parsedCSV=[], apiKey="";
-let includeRank=false;
-let corrections={};  // ocr_name -> {player_id, player_name, alliance, confirmed_count}
+document.getElementById("sql-display").textContent = SETUP_SQL;
+document.getElementById("history-sql").textContent = HISTORY_SQL;
+document.getElementById("ev-date").value = new Date().toISOString().slice(0,10);
 
-async function loadCorrections(){
-  try{
-    const rows=await sb("wos_corrections","GET",null,"?select=ocr_name,player_id,player_name,alliance,confirmed_count");
-    corrections={};
-    (rows||[]).forEach(r=>{corrections[r.ocr_name]={player_id:r.player_id,player_name:r.player_name,alliance:r.alliance,confirmed_count:r.confirmed_count};});
-  }catch{corrections={};}
+// ── State ──────────────────────────────────────────────────────────────────
+var players=[], events=[], images=[], scanResults=[], parsedCSV=[], apiKey="";
+var includeRank = false;
+var corrections = {};
+
+// ── Supabase ───────────────────────────────────────────────────────────────
+async function sb(table, method, body, params, prefer) {
+  method = method || "GET"; params = params || ""; prefer = prefer || "";
+  var h = {apikey:SUPA_KEY, Authorization:"Bearer "+SUPA_KEY, "Content-Type":"application/json"};
+  if (prefer) h.Prefer = prefer;
+  if (method === "DELETE") h.Prefer = "return=minimal";
+  var opts = {method:method, headers:h};
+  if (body !== null && body !== undefined) opts.body = JSON.stringify(body);
+  var r = await fetch(SUPA_URL+"/rest/v1/"+table+params, opts);
+  var t = await r.text();
+  if (!r.ok) throw new Error(t);
+  return t ? JSON.parse(t) : null;
 }
 
-async function saveCorrection(ocrName, player){
-  try{
-    const existing=corrections[ocrName];
-    const count=(existing?.confirmed_count||0)+1;
-    await sb("wos_corrections","POST",
-      {ocr_name:ocrName,player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,confirmed_count:count,last_confirmed:new Date().toISOString()},
-      "","resolution=merge-duplicates,return=minimal");
-    corrections[ocrName]={player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,confirmed_count:count};
-  }catch(e){console.warn("Could not save correction:",e);}
+function setStatus(txt, type) {
+  var el = document.getElementById("status-badge");
+  el.textContent = txt;
+  el.className = "status-badge" + (type ? " "+type : "");
 }
 
-// ── Checkbox ──────────────────────────────────────────────────────
-function toggleRank(){
-  includeRank=!includeRank;
-  document.getElementById("rank-check").classList.toggle("checked",includeRank);
-}
-
-// ── Supabase ──────────────────────────────────────────────────────
-const sb=async(table,method="GET",body=null,params="",prefer="")=>{
-  const h={apikey:SUPA_KEY,Authorization:`Bearer ${SUPA_KEY}`,"Content-Type":"application/json"};
-  if(prefer)h.Prefer=prefer;
-  if(method==="DELETE")h["Prefer"]="return=minimal";
-  const r=await fetch(`${SUPA_URL}/rest/v1/${table}${params}`,{method,headers:h,...(body!==null?{body:JSON.stringify(body)}:{})});
-  const t=await r.text();if(!r.ok)throw new Error(t);return t?JSON.parse(t):null;
-};
-const setStatus=(txt,type="")=>{const el=document.getElementById("status-badge");el.textContent=txt;el.className="status-badge"+(type?" "+type:"");};
-
-// ── API Key ───────────────────────────────────────────────────────
-async function loadApiKey(){
-  try{
-    const rows=await sb("wos_settings","GET",null,"?key=eq.anthropic_api_key&select=value");
-    if(rows&&rows.length){apiKey=rows[0].value;updateApiKeyStatus(true);}
+// ── API Key ────────────────────────────────────────────────────────────────
+async function loadApiKey() {
+  try {
+    var rows = await sb("wos_settings","GET",null,"?key=eq.anthropic_api_key&select=value");
+    if (rows && rows.length) { apiKey = rows[0].value; updateApiKeyStatus(true); }
     else updateApiKeyStatus(false);
-  }catch{updateApiKeyStatus(false);}
+  } catch(e) { updateApiKeyStatus(false); }
 }
-function updateApiKeyStatus(found){
-  const el=document.getElementById("apikey-status");
-  if(!el)return;
-  el.textContent=found?"✓ API Key saved":"⚠️ No API key – please set one";
-  el.style.color=found?"#3fb950":"#e3b341";
+function updateApiKeyStatus(found) {
+  var el = document.getElementById("apikey-status");
+  if (!el) return;
+  el.textContent = found ? "✓ API Key saved" : "⚠️ No API key";
+  el.style.color = found ? "#3fb950" : "#e3b341";
 }
-function showKeyEditor(){
-  const ed=document.getElementById("key-editor");
-  ed.style.display=ed.style.display==="none"?"block":"none";
-  if(ed.style.display==="block")document.getElementById("api-key-input").focus();
+function showKeyEditor() {
+  var ed = document.getElementById("key-editor");
+  ed.style.display = ed.style.display === "none" ? "block" : "none";
+  if (ed.style.display === "block") document.getElementById("api-key-input").focus();
 }
-async function saveApiKeyToSupabase(){
-  const k=document.getElementById("api-key-input").value.trim();
-  if(!k)return alert("Please enter an API key");
-  try{
+async function saveApiKeyToSupabase() {
+  var k = document.getElementById("api-key-input").value.trim();
+  if (!k) return alert("Please enter an API key");
+  try {
     await sb("wos_settings","POST",{key:"anthropic_api_key",value:k},"","resolution=merge-duplicates,return=minimal");
-    apiKey=k;updateApiKeyStatus(true);
-    document.getElementById("key-editor").style.display="none";
-    document.getElementById("api-key-input").value="";
-    setStatus("API key saved ✓","ok");
-  }catch(e){alert("Error: "+e.message);}
+    apiKey = k; updateApiKeyStatus(true);
+    document.getElementById("key-editor").style.display = "none";
+    document.getElementById("api-key-input").value = "";
+    setStatus("API key saved","ok");
+  } catch(e) { alert("Error: "+e.message); }
 }
 
-// ── Init ──────────────────────────────────────────────────────────
-async function initApp(){
+// ── Corrections ────────────────────────────────────────────────────────────
+async function loadCorrections() {
+  try {
+    var rows = await sb("wos_corrections","GET",null,"?select=ocr_name,player_id,player_name,alliance,confirmed_count");
+    corrections = {};
+    (rows||[]).forEach(function(r) {
+      corrections[r.ocr_name] = {player_id:r.player_id, player_name:r.player_name, alliance:r.alliance, confirmed_count:r.confirmed_count};
+    });
+  } catch(e) { corrections = {}; }
+}
+async function saveCorrection(ocrName, player) {
+  try {
+    var existing = corrections[ocrName];
+    var count = (existing ? existing.confirmed_count : 0) + 1;
+    await sb("wos_corrections","POST",
+      {ocr_name:ocrName, player_id:player.player_id||null, player_name:player.player_name, alliance:player.alliance||"", confirmed_count:count, last_confirmed:new Date().toISOString()},
+      "","resolution=merge-duplicates,return=minimal");
+    corrections[ocrName] = {player_id:player.player_id||null, player_name:player.player_name, alliance:player.alliance||"", confirmed_count:count};
+  } catch(e) { console.warn("saveCorrection failed:",e); }
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+async function initApp() {
   setStatus("Connecting...","info");
-  try{
-    const[p,e]=await Promise.all([
+  try {
+    var res = await Promise.all([
       sb("wos_players","GET",null,"?select=player_id,player_name,alliance&order=player_name"),
-      sb("wos_events","GET",null,"?select=*&order=created_at.desc")
+      sb("wos_events","GET",null,"?select=*&order=created_at.desc"),
+      loadApiKey(),
+      loadCorrections()
     ]);
-    await Promise.all([loadApiKey(),loadCorrections()]);
-    players=p||[];events=e||[];
-    const det=document.getElementById("db-status-detail");
-    if(det)det.innerHTML=`<span style="color:#3fb950">✓ Connected! ${players.length} players, ${events.length} events.</span>`;
-    renderPlayerBadge();renderAllianceStats();renderEventsList();
-    setStatus(players.length?`${players.length} players loaded`:"Import players first",players.length?"ok":"info");
-    if(players.length&&apiKey)switchTab("scanner");
-  }catch{
-    const det=document.getElementById("db-status-detail");
-    if(det)det.innerHTML=`<span style="color:#f85149">✗ Tables not found – please run the SQL first.</span>`;
+    players = res[0]||[]; events = res[1]||[];
+    var det = document.getElementById("db-status-detail");
+    if (det) det.innerHTML = '<span style="color:#3fb950">✓ Connected! '+players.length+' players, '+events.length+' events, '+Object.keys(corrections).length+' corrections.</span>';
+    renderPlayerBadge(); renderAllianceStats(); renderEventsList();
+    setStatus(players.length ? players.length+" players loaded" : "Import players first", players.length ? "ok" : "info");
+    if (players.length && apiKey) switchTab("scanner");
+  } catch(e) {
+    var det = document.getElementById("db-status-detail");
+    if (det) det.innerHTML = '<span style="color:#f85149">✗ Tables not found – please run the SQL first.</span>';
     setStatus("Run SQL first!","err");
   }
 }
 
-// ── Render ────────────────────────────────────────────────────────
-function renderPlayerBadge(){const b=document.getElementById("player-count-badge");if(players.length){b.textContent=players.length;b.style.display="";}}
-function renderAllianceStats(){
-  const counts=players.reduce((a,p)=>{a[p.alliance||"–"]=(a[p.alliance||"–"]||0)+1;return a;},{});
-  const el=document.getElementById("alliance-stats");
-  if(!Object.keys(counts).length){el.innerHTML="";return;}
-  el.innerHTML=`<div class="card"><h3>Alliances in database</h3><div class="alliance-grid">${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<div class="alliance-card"><div style="font-size:24px;font-weight:600;color:#e6edf3">${c}</div><div style="font-size:13px;color:#8b949e;margin-top:2px">${n}</div></div>`).join("")}</div></div>`;
+// ── Render helpers ─────────────────────────────────────────────────────────
+function renderPlayerBadge() {
+  var b = document.getElementById("player-count-badge");
+  if (players.length) { b.textContent = players.length; b.style.display = ""; }
 }
-function renderEventsList(){
-  const el=document.getElementById("events-list");
-  if(!events.length){el.innerHTML=`<p style="color:#8b949e;font-size:14px">No events saved yet.</p>`;return;}
-  el.innerHTML=`<p style="font-weight:600;margin-bottom:12px">${events.length} Events</p><div class="events-list">${events.map(e=>`<div class="event-row">
-    <div style="flex:1;min-width:0">
-      <span style="font-weight:500;font-size:14px">${e.event_name}</span>
-      <code style="margin-left:8px;font-size:12px;color:#8b949e">${e.event_code}</code>
-    </div>
-    <div class="flex-row">
-      <span class="pill ok" style="padding:2px 8px">${e.event_type}</span>
-      <span style="font-size:12px;color:#8b949e">${new Date(e.event_date+"T12:00:00").toLocaleDateString("en-GB")}</span>
-      ${isAdmin?`<button onclick="deleteEvent(${e.id},'${e.event_name.replace(/'/g,"\\'")}',this)" title="Delete event and all entries"
-        style="background:none;border:1px solid #3a1a1a;border-radius:5px;cursor:pointer;font-size:12px;color:#6a3a3a;padding:3px 8px;transition:all .15s"
-        onmouseover="this.style.color='#f85149';this.style.borderColor='#6a2d2d'"
-        onmouseout="this.style.color='#6a3a3a';this.style.borderColor='#3a1a1a'">🗑️ Delete</button>`:""}
-    </div>
-  </div>`).join("")}</div>`;
+function renderAllianceStats() {
+  var counts = players.reduce(function(a,p){ a[p.alliance||"–"]=(a[p.alliance||"–"]||0)+1; return a; }, {});
+  var el = document.getElementById("alliance-stats");
+  if (!Object.keys(counts).length) { el.innerHTML=""; return; }
+  var html = '<div class="card"><h3>Alliances in database</h3><div class="alliance-grid">';
+  Object.entries(counts).sort(function(a,b){return b[1]-a[1];}).forEach(function(e){
+    html += '<div class="alliance-card"><div style="font-size:24px;font-weight:600;color:#e6edf3">'+e[1]+'</div><div style="font-size:13px;color:#8b949e;margin-top:2px">'+e[0]+'</div></div>';
+  });
+  el.innerHTML = html + '</div></div>';
 }
-
-async function deleteEvent(id, name, btn){
-  // First count entries
-  let count=0;
-  try{
-    const rows=await sb("wos_lb_entries","GET",null,`?event_id=eq.${id}&select=id`);
-    count=(rows||[]).length;
-  }catch{}
-  const msg=`Delete "${name}" and all ${count} associated entries?
-
-This cannot be undone.`;
-  if(!confirm(msg))return;
-  btn.disabled=true;btn.textContent="Deleting...";
-  try{
-    await sb("wos_events","DELETE",null,`?id=eq.${id}`);
-    events=events.filter(e=>e.id!==id);
+function renderEventsList() {
+  var el = document.getElementById("events-list");
+  if (!events.length) { el.innerHTML = '<p style="color:#8b949e;font-size:14px">No events saved yet.</p>'; return; }
+  var html = '<p style="font-weight:600;margin-bottom:12px">'+events.length+' Events</p><div class="events-list">';
+  events.forEach(function(e) {
+    var dateStr = new Date(e.event_date+"T12:00:00").toLocaleDateString("en-GB");
+    var delBtn = isAdmin
+      ? '<button data-id="'+e.id+'" data-name="'+e.event_name.replace(/"/g,"&quot;")+'" onclick="deleteEvent(this)" '
+        +'style="background:none;border:1px solid #3a1a1a;border-radius:5px;cursor:pointer;font-size:12px;color:#6a3a3a;padding:3px 8px" '
+        +'onmouseover="this.style.color=\'#f85149\';this.style.borderColor=\'#6a2d2d\'" '
+        +'onmouseout="this.style.color=\'#6a3a3a\';this.style.borderColor=\'#3a1a1a\'">🗑️ Delete</button>'
+      : "";
+    html += '<div class="event-row">'
+      +'<div style="flex:1;min-width:0"><span style="font-weight:500;font-size:14px">'+e.event_name+'</span>'
+      +'<code style="margin-left:8px;font-size:12px;color:#8b949e">'+e.event_code+'</code></div>'
+      +'<div class="flex-row"><span class="pill ok" style="padding:2px 8px">'+e.event_type+'</span>'
+      +'<span style="font-size:12px;color:#8b949e">'+dateStr+'</span>'+delBtn+'</div></div>';
+  });
+  el.innerHTML = html + '</div>';
+}
+async function deleteEvent(btn) {
+  var id = parseInt(btn.getAttribute("data-id"));
+  var name = btn.getAttribute("data-name") || "this event";
+  var count = 0;
+  try { var rows = await sb("wos_lb_entries","GET",null,"?event_id=eq."+id+"&select=id"); count = (rows||[]).length; } catch(e) {}
+  if (!confirm('Delete "'+name+'" and all '+count+' entries?\n\nThis cannot be undone.')) return;
+  btn.disabled = true; btn.textContent = "Deleting...";
+  try {
+    await sb("wos_events","DELETE",null,"?id=eq."+id);
+    events = events.filter(function(e){ return e.id !== id; });
     renderEventsList();
-    setStatus(`✅ Event "${name}" deleted`,"ok");
-  }catch(e){
-    setStatus("Error: "+e.message,"err");
-    alert("Delete failed:
-"+e.message);
-    btn.disabled=false;btn.textContent="🗑️ Delete";
+    setStatus("Event deleted","ok");
+  } catch(err) {
+    setStatus("Error: "+err.message,"err");
+    btn.disabled = false; btn.textContent = "🗑️ Delete";
   }
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────
-function switchTab(name){
-  ["setup","scanner","players","events"].forEach(t=>{
-    document.getElementById(`pane-${t}`).classList.toggle("active",t===name);
-    const btn=document.getElementById(`tab-${t}`);
-    if(btn)btn.classList.toggle("active",t===name);
+// ── Tabs & helpers ─────────────────────────────────────────────────────────
+function switchTab(name) {
+  ["setup","scanner","players","events"].forEach(function(t){
+    document.getElementById("pane-"+t).classList.toggle("active", t===name);
+    var btn = document.getElementById("tab-"+t);
+    if (btn) btn.classList.toggle("active", t===name);
   });
 }
-
-// ── Event / column name ───────────────────────────────────────────
-function getColName(){
-  const name=(document.getElementById("ev-name").value||"Event").trim();
-  const date=document.getElementById("ev-date").value;
-  const type=document.getElementById("ev-type").value;
-  const d=new Date(date+"T12:00:00");
-  const dd=isNaN(d)?"":`_${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`;
-  return`${name}${dd}_${type}`;
+function toggleRank() {
+  includeRank = !includeRank;
+  document.getElementById("rank-check").classList.toggle("checked", includeRank);
 }
-function updateColName(){document.getElementById("col-name-preview").textContent=getColName();}
+function getColName() {
+  var name = (document.getElementById("ev-name").value||"Event").trim();
+  var date = document.getElementById("ev-date").value;
+  var type = document.getElementById("ev-type").value;
+  var d = new Date(date+"T12:00:00");
+  var dd = isNaN(d.getTime()) ? "" : "_"+String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0")+"."+d.getFullYear();
+  return name+dd+"_"+type;
+}
+function updateColName() { document.getElementById("col-name-preview").textContent = getColName(); }
 updateColName();
 
-// ── Clear All ─────────────────────────────────────────────────────
-function clearAll(){
-  if(scanResults.length&&!confirm("Clear all results and images?"))return;
-  scanResults=[];images=[];
+function clearAll() {
+  if (scanResults.length && !confirm("Clear all results and images?")) return;
+  scanResults=[]; images=[];
   document.getElementById("results-section").style.display="none";
   document.getElementById("image-preview").innerHTML="";
   document.getElementById("scan-btn").textContent="🔍 Scan Leaderboard";
   document.getElementById("clear-btn").style.display="none";
   document.getElementById("results-summary").textContent="";
   setProgress(0,0);
-  setStatus(players.length?`${players.length} players loaded`:"Ready","ok");
 }
 
-// ── Drag & drop ───────────────────────────────────────────────────
-function handleDragOver(e){e.preventDefault();document.getElementById("drop-zone").classList.add("drag-over");}
-function handleDragLeave(){document.getElementById("drop-zone").classList.remove("drag-over");}
-function handleDrop(e){e.preventDefault();document.getElementById("drop-zone").classList.remove("drag-over");handleImageFiles(e.dataTransfer.files);}
-function handleImageFiles(files){
-  Array.from(files).forEach(f=>{
-    const rd=new FileReader();
-    rd.onload=ev=>{images.push({id:Math.random().toString(36).slice(2),b64:ev.target.result.split(",")[1],type:f.type||"image/jpeg",preview:ev.target.result,name:f.name});renderPreviews();};
+// ── Drag & drop ────────────────────────────────────────────────────────────
+function handleDragOver(e) { e.preventDefault(); document.getElementById("drop-zone").classList.add("drag-over"); }
+function handleDragLeave() { document.getElementById("drop-zone").classList.remove("drag-over"); }
+function handleDrop(e) { e.preventDefault(); document.getElementById("drop-zone").classList.remove("drag-over"); handleImageFiles(e.dataTransfer.files); }
+function handleImageFiles(files) {
+  Array.from(files).forEach(function(f){
+    var rd = new FileReader();
+    rd.onload = function(ev) {
+      images.push({id:Math.random().toString(36).slice(2), b64:ev.target.result.split(",")[1], type:f.type||"image/jpeg", preview:ev.target.result, name:f.name});
+      renderPreviews();
+    };
     rd.readAsDataURL(f);
   });
 }
-function renderPreviews(){
-  document.getElementById("image-preview").innerHTML=images.map(img=>`<div class="img-thumb" title="${img.name}"><img src="${img.preview}" alt=""><button class="img-remove" onclick="removeImg('${img.id}')">✕</button></div>`).join("");
-  const n=images.length;
-  document.getElementById("scan-btn").textContent=`🔍 Scan Leaderboard${n?` (${n} image${n!==1?"s":""})`:""}`;
+function renderPreviews() {
+  document.getElementById("image-preview").innerHTML = images.map(function(img){
+    return '<div class="img-thumb" title="'+img.name+'"><img src="'+img.preview+'" alt=""><button class="img-remove" onclick="removeImg(\''+img.id+'\')">✕</button></div>';
+  }).join("");
+  var n = images.length;
+  document.getElementById("scan-btn").textContent = "🔍 Scan Leaderboard" + (n ? " ("+n+" image"+(n!==1?"s":"")+")": "");
 }
-function removeImg(id){images=images.filter(i=>i.id!==id);renderPreviews();}
-
-// ── Progress ──────────────────────────────────────────────────────
-function setProgress(val,max){
-  const bar=document.getElementById("progress-bar"),fill=document.getElementById("progress-fill");
-  if(max===0){bar.style.display="none";return;}
-  bar.style.display="block";fill.style.width=`${Math.round(val/max*100)}%`;
+function removeImg(id) { images = images.filter(function(i){ return i.id!==id; }); renderPreviews(); }
+function setProgress(val, max) {
+  var bar=document.getElementById("progress-bar"), fill=document.getElementById("progress-fill");
+  if (!max) { bar.style.display="none"; return; }
+  bar.style.display="block"; fill.style.width=Math.round(val/max*100)+"%";
 }
 
-// ── Fuzzy match ───────────────────────────────────────────────────
-const normStr=s=>(s||"").replace(/[^\p{L}\p{N}\s]/gu,"").toLowerCase().replace(/\s+/g," ").trim();
-function lev(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[m][n];}
-function sim(a,b){const na=normStr(a),nb=normStr(b);if(!na&&!nb)return 1;if(!na||!nb)return 0;if(na===nb)return 1;return Math.round((1-lev(na,nb)/Math.max(na.length,nb.length))*100)/100;}
-function findTop(name,pool,n=8){return pool.map(p=>({...p,score:sim(name,p.player_name)})).sort((a,b)=>b.score-a.score).slice(0,n);}
+// ── Fuzzy match ────────────────────────────────────────────────────────────
+function normStr(s) { return (s||"").replace(/[^\p{L}\p{N}\s]/gu,"").toLowerCase().replace(/\s+/g," ").trim(); }
+function lev(a,b) {
+  var m=a.length, n=b.length;
+  var d=[];
+  for(var i=0;i<=m;i++){d[i]=[];for(var j=0;j<=n;j++)d[i][j]=i===0?j:j===0?i:0;}
+  for(var i=1;i<=m;i++) for(var j=1;j<=n;j++) d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);
+  return d[m][n];
+}
+function sim(a,b) {
+  var na=normStr(a), nb=normStr(b);
+  if(!na&&!nb) return 1; if(!na||!nb) return 0; if(na===nb) return 1;
+  return Math.round((1-lev(na,nb)/Math.max(na.length,nb.length))*100)/100;
+}
+function findTop(name, pool, n) {
+  n = n||8;
+  return pool.map(function(p){ return Object.assign({},p,{score:sim(name,p.player_name)}); })
+    .sort(function(a,b){ return b.score-a.score; }).slice(0,n);
+}
 
-// ── Scan ──────────────────────────────────────────────────────────
-async function processImages(){
-  if(!apiKey)return alert("No API key set. Please go to the Setup tab (admin only).");
-  if(!images.length)return setStatus("No screenshots uploaded!","err");
-  if(!players.length)return setStatus("Import players first!","err");
-  setStatus(`Scanning 0/${images.length}...`,"info");
-  document.getElementById("scan-btn").disabled=true;
-  setProgress(0,images.length);
-  const all=[];
-  try{
-    for(let i=0;i<images.length;i++){
-      setStatus(`Scanning image ${i+1}/${images.length}...`,"info");
-      setProgress(i+1,images.length);
-      const img=images[i];
-      const resp=await fetch(PROXY,{
+// ── Scan ───────────────────────────────────────────────────────────────────
+async function processImages() {
+  if (!apiKey) return alert("No API key. Please ask an admin to set it in the Setup tab.");
+  if (!images.length) return setStatus("No screenshots uploaded!","err");
+  if (!players.length) return setStatus("Import players first!","err");
+  setStatus("Scanning 0/"+images.length+"...","info");
+  document.getElementById("scan-btn").disabled = true;
+  setProgress(0, images.length);
+  var all = [];
+  try {
+    for (var i=0; i<images.length; i++) {
+      setStatus("Scanning image "+(i+1)+"/"+images.length+"...","info");
+      setProgress(i+1, images.length);
+      var img = images[i];
+      var resp = await fetch(PROXY, {
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
         body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
           {type:"image",source:{type:"base64",media_type:img.type,data:img.b64}},
-          {type:"text",text:`Whiteout Survival leaderboard screenshot. Extract all visible player rows.\nReturn ONLY a valid JSON array, no markdown, no explanation:\n[{"rank":1,"name":"exact player name preserving all Unicode characters and alliance tags like [TBR] or [AIR]","value":2700133298},...]\n"value" is the large number shown next to each player.`}
+          {type:"text",text:"Whiteout Survival leaderboard screenshot. Extract all visible player rows.\nReturn ONLY a valid JSON array, no markdown:\n[{\"rank\":1,\"name\":\"exact name with all Unicode and alliance tags like [TBR]\",\"value\":2700133298},...]\n\"value\" is the large number next to each player."}
         ]}]})
       });
-      if(!resp.ok){const t=await resp.text();throw new Error(`API ${resp.status}: ${t}`);}
-      const data=await resp.json();
-      const txt=data.content?.find(b=>b.type==="text")?.text||"[]";
-      all.push(...JSON.parse(txt.replace(/```json|```/g,"").trim()));
+      if (!resp.ok) { var t=await resp.text(); throw new Error("API "+resp.status+": "+t); }
+      var data = await resp.json();
+      var txt = (data.content||[]).reduce(function(s,b){ return b.type==="text"?s+b.text:s; }, "");
+      all = all.concat(JSON.parse(txt.replace(/```json|```/g,"").trim()));
     }
-    setProgress(images.length,images.length);
+    setProgress(images.length, images.length);
     setStatus("Matching players...","info");
-
-    scanResults=all.map(e=>{
-      // Check correction DB first
-      const corr=corrections[e.name];
-      if(corr){
-        const top=findTop(e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim(),players);
-        return{rank:e.rank,name_raw:e.name,value:e.value,
-          player_id:corr.player_id,player_name:corr.player_name,alliance:corr.alliance,
-          score:1.0,fromCorrection:true,top};
+    scanResults = all.map(function(e) {
+      var corr = corrections[e.name];
+      var nameForMatch = e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim();
+      var top = findTop(nameForMatch, players);
+      if (corr) {
+        return {rank:e.rank, name_raw:e.name, value:e.value,
+          player_id:corr.player_id, player_name:corr.player_name, alliance:corr.alliance,
+          score:1.0, fromCorrection:true, top:top};
       }
-      // Strip alliance prefix like [TBR] from OCR name for better matching
-      const nameForMatch=e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim();
-      const top=findTop(nameForMatch,players);
-      const best=top[0];
-      return{rank:e.rank,name_raw:e.name,value:e.value,
-        player_id:best?.score>=0.5?best.player_id:null,
-        player_name:best?.score>=0.5?best.player_name:null,
-        alliance:best?.score>=0.5?best.alliance:"",
-        score:best?.score||0,fromCorrection:false,top};
-    }).sort((a,b)=>a.rank-b.rank);
-
+      var best = top[0];
+      return {rank:e.rank, name_raw:e.name, value:e.value,
+        player_id:best&&best.score>=0.5?best.player_id:null,
+        player_name:best&&best.score>=0.5?best.player_name:null,
+        alliance:best&&best.score>=0.5?best.alliance:"",
+        score:best?best.score:0, fromCorrection:false, top:top};
+    }).sort(function(a,b){ return a.rank-b.rank; });
     renderResults();
-    const fromCorr=scanResults.filter(r=>r.fromCorrection).length;
-    const auto=scanResults.filter(r=>!r.fromCorrection&&r.score>=0.85).length;
-    const manual=scanResults.filter(r=>!r.fromCorrection&&r.score<0.85).length;
-    document.getElementById("results-summary").textContent=`– 🎯 ${fromCorr} from DB, ${auto} matched, ${manual} to review`;
+    var fc=scanResults.filter(function(r){return r.fromCorrection;}).length;
+    var au=scanResults.filter(function(r){return !r.fromCorrection&&r.score>=0.85;}).length;
+    var ma=scanResults.filter(function(r){return !r.fromCorrection&&r.score<0.85;}).length;
+    document.getElementById("results-summary").textContent="– 🎯 "+fc+" from DB, "+au+" matched, "+ma+" to review";
     document.getElementById("clear-btn").style.display="";
-    setStatus(`${scanResults.length} entries – ${auto} OK, ${manual} to review`,"ok");
+    setStatus(scanResults.length+" entries – "+au+" OK, "+ma+" to review","ok");
     setProgress(0,0);
-  }catch(e){
+  } catch(e) {
     setStatus("Error: "+e.message,"err");
     alert("Scan error:\n"+e.message);
     setProgress(0,0);
   }
-  document.getElementById("scan-btn").disabled=false;
+  document.getElementById("scan-btn").disabled = false;
 }
 
-// ── Results table ─────────────────────────────────────────────────
-const pillClass=s=>s>=0.85?"ok":s>=0.6?"warn":"err";
+// ── Results table ──────────────────────────────────────────────────────────
+function pillClass(s) { return s>=0.85?"ok":s>=0.6?"warn":"err"; }
 
-function renderResults(){
-  document.getElementById("results-section").style.display="block";
-  const alliances=[...new Set(players.map(p=>p.alliance||"–"))].sort();
-  document.getElementById("results-body").innerHTML=scanResults.map(r=>`
-    <tr id="row-${r.rank}">
-      <td style="font-family:monospace;color:#8b949e">${r.rank}</td>
-      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.name_raw||"").replace(/"/g,"&quot;")}">${r.name_raw||""}</td>
-      <td>
-        <div class="match-name" onclick="toggleAssign(${r.rank})" title="Click to manually assign">
-          ${r.player_name
-            ?`<span>${r.player_name}</span>${r.fromCorrection?`<span title="From correction database (confirmed ${corrections[r.name_raw]?.confirmed_count||1}x)" style="font-size:11px;color:#58a6ff"> 🎯</span>`:r.score<0.85?`<span style="font-size:11px;color:#8b949e"> ✏️</span>`:""}`
-            :`<span style="color:#f85149;font-style:italic">unknown</span><span style="font-size:11px;color:#8b949e"> ✏️</span>`}
-        </div>
-        <div class="assign-box" id="assign-${r.rank}">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-size:12px;color:#8b949e">Assign player</span>
-            <button class="btn" style="font-size:11px;padding:3px 8px" onclick="toggleManual(${r.rank})" id="manual-toggle-${r.rank}">✍️ Enter manually</button>
-          </div>
-          <!-- Dropdown mode -->
-          <div id="dropdown-mode-${r.rank}">
-            <label>1. Select Alliance</label>
-            <select id="ali-sel-${r.rank}" onchange="updatePlayerDropdown(${r.rank})">
-              <option value="">– Alliance –</option>
-              ${alliances.map(a=>`<option value="${a}"${r.alliance===a?" selected":""}>${a}</option>`).join("")}
-            </select>
-            <label>2. Select Player</label>
-            <select id="pl-sel-${r.rank}"><option value="">– select alliance first –</option></select>
-          </div>
-          <!-- Manual mode -->
-          <div id="manual-mode-${r.rank}" style="display:none">
-            <label>Alliance Name</label>
-            <input type="text" id="man-ali-${r.rank}" placeholder="e.g. TBR" style="margin-bottom:8px;font-size:13px">
-            <label>Player Name</label>
-            <input type="text" id="man-name-${r.rank}" placeholder="e.g. Kleiner Wicht" style="font-size:13px">
-            <p style="font-size:11px;color:#e3b341;margin-top:6px">⚠️ Player will be saved to corrections DB but not added to the player list.</p>
-          </div>
-          <div class="assign-row" style="margin-top:8px">
-            <button class="btn btn-primary" style="font-size:13px;padding:5px 12px" onclick="applyAssign(${r.rank})">✓ Assign</button>
-            <button class="btn" style="font-size:13px;padding:5px 12px" onclick="toggleAssign(${r.rank})">Cancel</button>
-          </div>
-        </div>
-      </td>
-      <td style="color:#8b949e;font-size:12px">${r.alliance||""}</td>
-      <td style="font-family:monospace;font-size:12px;text-align:right">${(r.value||0).toLocaleString("en-US")}</td>
-      <td style="text-align:center">${r.fromCorrection?`<span class="pill ok" title="Learned match">🎯 DB</span>`:`<span class="pill ${pillClass(r.score)}">${Math.round(r.score*100)}%</span>`}</td>
-      <td style="text-align:center"><button onclick="removeResult(${r.rank})" title="Remove from results" style="background:none;border:none;cursor:pointer;font-size:15px;color:#6a3a3a;padding:2px 4px;border-radius:4px;transition:color .15s" onmouseover="this.style.color='#f85149'" onmouseout="this.style.color='#6a3a3a'">✕</button></td>
-    </tr>`).join("");
-  scanResults.forEach(r=>{if(r.alliance)updatePlayerDropdown(r.rank,r.player_id);});
+function renderResults() {
+  document.getElementById("results-section").style.display = "block";
+  var alliances = [...new Set(players.map(function(p){ return p.alliance||"–"; }))].sort();
+  var rows = scanResults.map(function(r) {
+    var corrCount = corrections[r.name_raw] ? corrections[r.name_raw].confirmed_count : 1;
+    var matchCell = r.player_name
+      ? (r.fromCorrection
+          ? r.player_name+' <span title="From corrections DB (confirmed '+corrCount+'x)" style="font-size:11px;color:#58a6ff">🎯</span>'
+          : r.player_name+(r.score<0.85?' <span style="font-size:11px;color:#8b949e">✏️</span>':""))
+      : '<span style="color:#f85149;font-style:italic">unknown</span> <span style="font-size:11px;color:#8b949e">✏️</span>';
+    var scoreCell = r.fromCorrection
+      ? '<span class="pill ok">🎯 DB</span>'
+      : '<span class="pill '+pillClass(r.score)+'">'+Math.round(r.score*100)+'%</span>';
+    var aliOpts = alliances.map(function(a){ return '<option value="'+a+'"'+(r.alliance===a?" selected":"")+'>'+a+'</option>'; }).join("");
+    return '<tr id="row-'+r.rank+'">'
+      +'<td style="font-family:monospace;color:#8b949e">'+r.rank+'</td>'
+      +'<td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r.name_raw.replace(/"/g,"&quot;")+'">'+r.name_raw+'</td>'
+      +'<td>'
+        +'<div class="match-name" onclick="toggleAssign('+r.rank+')" title="Click to assign">'+matchCell+'</div>'
+        +'<div class="assign-box" id="assign-'+r.rank+'">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+            +'<span style="font-size:12px;color:#8b949e">Assign player</span>'
+            +'<button class="btn" style="font-size:11px;padding:2px 7px" id="man-toggle-'+r.rank+'" onclick="toggleManual('+r.rank+')">✍️ Manual</button>'
+          +'</div>'
+          +'<div id="dd-mode-'+r.rank+'">'
+            +'<label>1. Select Alliance</label>'
+            +'<select id="ali-sel-'+r.rank+'" onchange="updatePlayerDropdown('+r.rank+')"><option value="">– Alliance –</option>'+aliOpts+'</select>'
+            +'<label>2. Select Player</label>'
+            +'<select id="pl-sel-'+r.rank+'"><option value="">– select alliance first –</option></select>'
+          +'</div>'
+          +'<div id="man-mode-'+r.rank+'" style="display:none">'
+            +'<label>Alliance</label>'
+            +'<input type="text" id="man-ali-'+r.rank+'" placeholder="e.g. TBR">'
+            +'<label>Player Name</label>'
+            +'<input type="text" id="man-name-'+r.rank+'" placeholder="e.g. Kleiner Wicht">'
+          +'</div>'
+          +'<div class="assign-row">'
+            +'<button class="btn btn-primary" style="font-size:13px;padding:5px 12px" onclick="applyAssign('+r.rank+')">✓ Assign</button>'
+            +'<button class="btn" style="font-size:13px;padding:5px 12px" onclick="toggleAssign('+r.rank+')">Cancel</button>'
+          +'</div>'
+        +'</div>'
+      +'</td>'
+      +'<td style="color:#8b949e;font-size:12px">'+(r.alliance||"")+'</td>'
+      +'<td style="font-family:monospace;font-size:12px;text-align:right">'+(r.value||0).toLocaleString("en-US")+'</td>'
+      +'<td style="text-align:center">'+scoreCell+'</td>'
+      +'<td style="text-align:center"><button onclick="removeResult('+r.rank+')" title="Remove" style="background:none;border:none;cursor:pointer;font-size:14px;opacity:.35" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.35">🗑️</button></td>'
+      +'</tr>';
+  });
+  document.getElementById("results-body").innerHTML = rows.join("");
+  scanResults.forEach(function(r){ if(r.alliance) updatePlayerDropdown(r.rank, r.player_id); });
 }
 
-function removeResult(rank){
-  scanResults=scanResults.filter(r=>r.rank!==rank);
-  if(!scanResults.length){
+function toggleAssign(rank) {
+  var box = document.getElementById("assign-"+rank);
+  var open = box.style.display === "block";
+  document.querySelectorAll(".assign-box").forEach(function(el){ el.style.display="none"; });
+  if (!open) {
+    box.style.display = "block";
+    var r = scanResults.find(function(x){ return x.rank===rank; });
+    if (r && r.alliance) { document.getElementById("ali-sel-"+rank).value=r.alliance; updatePlayerDropdown(rank, r.player_id); }
+  }
+}
+function toggleManual(rank) {
+  var dd=document.getElementById("dd-mode-"+rank), man=document.getElementById("man-mode-"+rank), btn=document.getElementById("man-toggle-"+rank);
+  var showing = man.style.display === "block";
+  dd.style.display = showing ? "block":"none";
+  man.style.display = showing ? "none":"block";
+  btn.textContent = showing ? "✍️ Manual":"📋 Dropdown";
+  if (!showing) setTimeout(function(){ document.getElementById("man-ali-"+rank).focus(); }, 30);
+}
+function updatePlayerDropdown(rank, preselectId) {
+  var ali = document.getElementById("ali-sel-"+rank).value;
+  var sel = document.getElementById("pl-sel-"+rank);
+  if (!ali) { sel.innerHTML='<option value="">– select alliance first –</option>'; return; }
+  var filtered = players.filter(function(p){ return (p.alliance||"–")===ali; })
+    .sort(function(a,b){ return a.player_name.localeCompare(b.player_name); });
+  sel.innerHTML = '<option value="">– select player –</option>'
+    + filtered.map(function(p){ return '<option value="'+p.player_id+'"'+(p.player_id==preselectId?" selected":"")+'>'+p.player_name+'</option>'; }).join("");
+}
+function applyAssign(rank) {
+  var manEl = document.getElementById("man-mode-"+rank);
+  var isManual = manEl && manEl.style.display === "block";
+  var i = scanResults.findIndex(function(r){ return r.rank===rank; });
+  if (i<0) return;
+  var ocrName = scanResults[i].name_raw;
+  if (isManual) {
+    var manName = (document.getElementById("man-name-"+rank).value||"").trim();
+    var manAli  = (document.getElementById("man-ali-"+rank).value||"").trim();
+    if (!manName) return alert("Please enter a player name");
+    scanResults[i] = Object.assign({}, scanResults[i], {player_id:null, player_name:manName, alliance:manAli, score:1.0, fromCorrection:false});
+    saveCorrection(ocrName, {player_id:null, player_name:manName, alliance:manAli});
+  } else {
+    var pid = parseInt(document.getElementById("pl-sel-"+rank).value);
+    if (!pid) return alert("Please select a player");
+    var player = players.find(function(p){ return p.player_id===pid; });
+    if (!player) return;
+    scanResults[i] = Object.assign({}, scanResults[i], {player_id:player.player_id, player_name:player.player_name, alliance:player.alliance, score:1.0, fromCorrection:false});
+    saveCorrection(ocrName, player);
+  }
+  renderResults();
+}
+function removeResult(rank) {
+  scanResults = scanResults.filter(function(r){ return r.rank!==rank; });
+  if (!scanResults.length) {
     document.getElementById("results-section").style.display="none";
     document.getElementById("clear-btn").style.display="none";
-    setStatus("All entries removed","info");
     return;
   }
-  // Update summary
-  const fromCorr=scanResults.filter(r=>r.fromCorrection).length;
-  const auto=scanResults.filter(r=>!r.fromCorrection&&r.score>=0.85).length;
-  const manual=scanResults.filter(r=>!r.fromCorrection&&r.score<0.85).length;
-  document.getElementById("results-summary").textContent=`– 🎯 ${fromCorr} from DB, ${auto} matched, ${manual} to review`;
+  var fc=scanResults.filter(function(r){return r.fromCorrection;}).length;
+  var au=scanResults.filter(function(r){return !r.fromCorrection&&r.score>=0.85;}).length;
+  var ma=scanResults.filter(function(r){return !r.fromCorrection&&r.score<0.85;}).length;
+  document.getElementById("results-summary").textContent="– 🎯 "+fc+" from DB, "+au+" matched, "+ma+" to review";
   renderResults();
 }
 
-function toggleAssign(rank){
-  const box=document.getElementById(`assign-${rank}`);
-  const open=box.style.display==="block";
-  document.querySelectorAll(".assign-box").forEach(el=>el.style.display="none");
-  if(!open){
-    box.style.display="block";
-    // reset to dropdown mode
-    document.getElementById(`dropdown-mode-${rank}`).style.display="block";
-    document.getElementById(`manual-mode-${rank}`).style.display="none";
-    document.getElementById(`manual-toggle-${rank}`).textContent="✍️ Enter manually";
-    const r=scanResults.find(x=>x.rank===rank);
-    if(r?.alliance){document.getElementById(`ali-sel-${rank}`).value=r.alliance;updatePlayerDropdown(rank,r.player_id);}
-  }
-}
-
-function toggleManual(rank){
-  const dd=document.getElementById(`dropdown-mode-${rank}`);
-  const man=document.getElementById(`manual-mode-${rank}`);
-  const btn=document.getElementById(`manual-toggle-${rank}`);
-  const isManual=man.style.display==="block";
-  dd.style.display=isManual?"block":"none";
-  man.style.display=isManual?"none":"block";
-  btn.textContent=isManual?"✍️ Enter manually":"📋 Use dropdown";
-  if(!isManual) setTimeout(()=>document.getElementById(`man-ali-${rank}`).focus(),50);
-}
-function updatePlayerDropdown(rank,preselectId=null){
-  const ali=document.getElementById(`ali-sel-${rank}`).value;
-  const sel=document.getElementById(`pl-sel-${rank}`);
-  if(!ali){sel.innerHTML='<option value="">– select alliance first –</option>';return;}
-  const filtered=players.filter(p=>(p.alliance||"–")===ali).sort((a,b)=>a.player_name.localeCompare(b.player_name));
-  sel.innerHTML='<option value="">– select player –</option>'+filtered.map(p=>`<option value="${p.player_id}"${p.player_id==preselectId?" selected":""}>${p.player_name}</option>`).join("");
-}
-function applyAssign(rank){
-  const isManual=document.getElementById(`manual-mode-${rank}`).style.display==="block";
-  const i=scanResults.findIndex(r=>r.rank===rank);
-  if(i<0)return;
-  const ocrName=scanResults[i].name_raw;
-
-  if(isManual){
-    const manAli=(document.getElementById(`man-ali-${rank}`).value||"").trim();
-    const manName=(document.getElementById(`man-name-${rank}`).value||"").trim();
-    if(!manName)return alert("Please enter a player name");
-    const manPlayer={player_id:null,player_name:manName,alliance:manAli};
-    scanResults[i]={...scanResults[i],player_id:null,player_name:manName,alliance:manAli,score:1.0,fromCorrection:false};
-    saveCorrection(ocrName,manPlayer);
-  } else {
-    const pid=parseInt(document.getElementById(`pl-sel-${rank}`).value);
-    if(!pid)return alert("Please select a player");
-    const player=players.find(p=>p.player_id===pid);
-    if(!player)return;
-    scanResults[i]={...scanResults[i],player_id:player.player_id,player_name:player.player_name,alliance:player.alliance,score:1.0,fromCorrection:false};
-    saveCorrection(ocrName,player);
-  }
-  renderResults();
-}
-
-// ── CSV Download ──────────────────────────────────────────────────
-function downloadCSV(){
-  if(!scanResults.length)return;
-  const colName=getColName();
-  const headerCols=["Player ID","Alliance Name","Player Name"];
-  if(includeRank)headerCols.push("Rank");
+// ── CSV Download ───────────────────────────────────────────────────────────
+function downloadCSV() {
+  if (!scanResults.length) return;
+  var colName = getColName();
+  var headerCols = ["Player ID","Alliance Name","Player Name"];
+  if (includeRank) headerCols.push("Rank");
   headerCols.push(colName);
-  const rows=scanResults.map(r=>{
-    const cols=[r.player_id||"",r.alliance||"",r.player_name||r.name_raw||""];
-    if(includeRank)cols.push(r.rank||"");
+  var rows = scanResults.map(function(r){
+    var cols = [r.player_id||"", r.alliance||"", r.player_name||r.name_raw||""];
+    if (includeRank) cols.push(r.rank||"");
     cols.push(r.value||"");
     return cols.join(";");
   });
-  const csv="\uFEFF"+[headerCols.join(";"),...rows].join("\r\n");
-  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download=`WOS_${colName.replace(/[^a-zA-Z0-9_\-\.]/g,"_")}.csv`;
-  a.click();URL.revokeObjectURL(url);
+  var csv = "\uFEFF" + [headerCols.join(";")].concat(rows).join("\r\n");
+  var blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href=url; a.download="WOS_"+colName.replace(/[^a-zA-Z0-9_\-\.]/g,"_")+".csv";
+  a.click(); URL.revokeObjectURL(url);
 }
 
-// ── Save to Supabase ──────────────────────────────────────────────
-async function saveResults(){
-  if(!scanResults.length)return;
-  document.getElementById("save-btn").disabled=true;
+// ── Save to Supabase ───────────────────────────────────────────────────────
+async function saveResults() {
+  if (!scanResults.length) return;
+  document.getElementById("save-btn").disabled = true;
   setStatus("Saving...","info");
-  try{
-    const n=document.getElementById("ev-name").value||"Event";
-    const type=document.getElementById("ev-type").value;
-    const date=document.getElementById("ev-date").value;
-    const code=getColName().replace(/[^a-zA-Z0-9_]/g,"_").slice(0,80);
-    let evId;
-    try{
-      const[ev]=await sb("wos_events","POST",{event_code:code,event_name:n,event_type:type,event_date:date},"","return=representation");
-      evId=ev.id;events.unshift(ev);renderEventsList();
-    }catch{
-      const existing=await sb("wos_events","GET",null,`?event_code=eq.${encodeURIComponent(code)}&select=id`);
-      if(existing&&existing.length)evId=existing[0].id;
-      else throw new Error("Could not create or find event");
+  try {
+    var n=document.getElementById("ev-name").value||"Event";
+    var type=document.getElementById("ev-type").value;
+    var date=document.getElementById("ev-date").value;
+    var code=getColName().replace(/[^a-zA-Z0-9_]/g,"_").slice(0,80);
+    var evId;
+    try {
+      var evArr = await sb("wos_events","POST",{event_code:code,event_name:n,event_type:type,event_date:date},"","return=representation");
+      evId=evArr[0].id; events.unshift(evArr[0]); renderEventsList();
+    } catch(e) {
+      var existing = await sb("wos_events","GET",null,"?event_code=eq."+encodeURIComponent(code)+"&select=id");
+      if (existing&&existing.length) evId=existing[0].id; else throw new Error("Could not create or find event");
     }
     await sb("wos_lb_entries","POST",
-      scanResults.map(r=>({event_id:evId,player_id:r.player_id,player_name_raw:r.name_raw,player_name_matched:r.player_name,alliance:r.alliance,rank:r.rank,value:r.value,match_score:r.score})),
+      scanResults.map(function(r){ return {event_id:evId,player_id:r.player_id,player_name_raw:r.name_raw,player_name_matched:r.player_name,alliance:r.alliance,rank:r.rank,value:r.value,match_score:r.score}; }),
       "","resolution=merge-duplicates,return=minimal");
-    setStatus(`✅ ${scanResults.length} entries saved!`,"ok");
-  }catch(e){setStatus("Error: "+e.message,"err");alert("Save error:\n"+e.message);}
-  document.getElementById("save-btn").disabled=false;
+    setStatus("✅ "+scanResults.length+" entries saved!","ok");
+  } catch(e) { setStatus("Error: "+e.message,"err"); alert("Save error:\n"+e.message); }
+  document.getElementById("save-btn").disabled = false;
 }
 
-// ── CSV Import ────────────────────────────────────────────────────
-function parseCSV(text){
-  const lines=text.replace(/^\uFEFF/,"").trim().split(/\r?\n/);
-  if(lines.length<2)return[];
-  const sep=lines[0].includes(";")?";":",";
-  const headers=lines[0].split(sep).map(h=>h.trim().toLowerCase());
-  const idIdx=headers.findIndex(h=>h.includes("player id")||h==="id");
-  const aliIdx=headers.findIndex(h=>h.includes("alliance"));
-  const nameIdx=headers.findIndex(h=>h.includes("player name")||h==="name");
-  if(idIdx===-1||nameIdx===-1){
-    alert(`CSV columns not recognized.\nExpected: Player ID;Alliance Name;Player Name\nFound: ${lines[0]}`);
-    return[];
-  }
-  return lines.slice(1).map(l=>{
-    const p=l.split(sep);
-    const id=parseInt(p[idIdx]?.trim());
-    const name=(p[nameIdx]||"").trim().replace(/^"|"$/g,"");
-    const alliance=aliIdx>=0?(p[aliIdx]||"").trim().replace(/^"|"$/g,""):"";
-    return!isNaN(id)&&name?{player_id:id,player_name:name,alliance}:null;
+// ── CSV Import ─────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  var lines = text.replace(/^\uFEFF/,"").trim().split(/\r?\n/);
+  if (lines.length<2) return [];
+  var sep = lines[0].includes(";") ? ";" : ",";
+  var headers = lines[0].split(sep).map(function(h){ return h.trim().toLowerCase(); });
+  var idIdx   = headers.findIndex(function(h){ return h.includes("player id")||h==="id"; });
+  var aliIdx  = headers.findIndex(function(h){ return h.includes("alliance"); });
+  var nameIdx = headers.findIndex(function(h){ return h.includes("player name")||h==="name"; });
+  if (idIdx===-1||nameIdx===-1) { alert("CSV columns not recognized.\nExpected: Player ID;Alliance Name;Player Name\nFound: "+lines[0]); return []; }
+  return lines.slice(1).map(function(l){
+    var p=l.split(sep);
+    var id=parseInt(p[idIdx]&&p[idIdx].trim());
+    var name=(p[nameIdx]||"").trim().replace(/^"|"$/g,"");
+    var alliance=aliIdx>=0?(p[aliIdx]||"").trim().replace(/^"|"$/g,""):"";
+    return (!isNaN(id)&&name)?{player_id:id,player_name:name,alliance:alliance}:null;
   }).filter(Boolean);
 }
-function handleCSV(file){
-  const rd=new FileReader();
-  rd.onload=ev=>{
-    parsedCSV=parseCSV(ev.target.result);
-    if(!parsedCSV.length)return;
-    const alliances=[...new Set(parsedCSV.map(p=>p.alliance).filter(Boolean))];
-    document.getElementById("csv-status").textContent=`${parsedCSV.length} players ready`;
-    document.getElementById("import-note").textContent=`Alliances: ${alliances.join(", ")}`;
-    const btn=document.getElementById("import-btn");
-    btn.disabled=false;btn.textContent=`📥 Import (${parsedCSV.length} players)`;
+function handleCSV(file) {
+  var rd = new FileReader();
+  rd.onload = function(ev) {
+    parsedCSV = parseCSV(ev.target.result);
+    if (!parsedCSV.length) return;
+    var alliances = [...new Set(parsedCSV.map(function(p){ return p.alliance; }).filter(Boolean))];
+    document.getElementById("csv-status").textContent = parsedCSV.length+" players ready";
+    document.getElementById("import-note").textContent = "Alliances: "+alliances.join(", ");
+    var btn=document.getElementById("import-btn"); btn.disabled=false; btn.textContent="📥 Import ("+parsedCSV.length+" players)";
     document.getElementById("csv-preview").style.display="block";
-    document.getElementById("csv-preview").innerHTML=parsedCSV.slice(0,4).map(p=>`<div>${p.player_id} | ${p.alliance} | ${p.player_name}</div>`).join("")+(parsedCSV.length>4?`<div style="color:#4a5568">... and ${parsedCSV.length-4} more</div>`:"");
+    document.getElementById("csv-preview").innerHTML=parsedCSV.slice(0,4).map(function(p){ return '<div>'+p.player_id+' | '+p.alliance+' | '+p.player_name+'</div>'; }).join("")+(parsedCSV.length>4?'<div style="color:#4a5568">... and '+(parsedCSV.length-4)+' more</div>':"");
   };
   rd.readAsText(file,"utf-8");
 }
-async function importPlayers(){
-  if(!parsedCSV.length)return;
+async function importPlayers() {
+  if (!parsedCSV.length) return;
   document.getElementById("import-btn").disabled=true;
   setStatus("Importing...","info");
-  try{
+  try {
     await sb("wos_players","POST",parsedCSV,"","resolution=merge-duplicates,return=minimal");
-    const p=await sb("wos_players","GET",null,"?select=player_id,player_name,alliance&order=player_name");
-    players=p||[];renderPlayerBadge();renderAllianceStats();
-    setStatus(`✅ ${parsedCSV.length} players imported`,"ok");
+    var p = await sb("wos_players","GET",null,"?select=player_id,player_name,alliance&order=player_name");
+    players=p||[]; renderPlayerBadge(); renderAllianceStats();
+    setStatus("✅ "+parsedCSV.length+" players imported","ok");
     parsedCSV=[];
     document.getElementById("csv-preview").style.display="none";
     document.getElementById("csv-status").textContent="No file selected";
     document.getElementById("import-note").textContent="";
-  }catch(e){setStatus("Error: "+e.message,"err");}
+  } catch(e) { setStatus("Error: "+e.message,"err"); }
   document.getElementById("import-btn").disabled=false;
 }
 
-// ── SQL copy ──────────────────────────────────────────────────────
-function copySQL(){
-  navigator.clipboard.writeText(SETUP_SQL).then(()=>setStatus("SQL copied! ✓","ok")).catch(()=>{
-    const ta=document.createElement("textarea");ta.value=SETUP_SQL;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);setStatus("SQL copied! ✓","ok");
+// ── SQL copy ───────────────────────────────────────────────────────────────
+function copySQL() {
+  navigator.clipboard.writeText(SETUP_SQL).then(function(){ setStatus("SQL copied!","ok"); }).catch(function(){
+    var ta=document.createElement("textarea"); ta.value=SETUP_SQL; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); setStatus("SQL copied!","ok");
+  });
+}
+function copyHistorySQL() {
+  navigator.clipboard.writeText(HISTORY_SQL).then(function(){ setStatus("History SQL copied!","ok"); }).catch(function(){
+    var ta=document.createElement("textarea"); ta.value=HISTORY_SQL; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); setStatus("History SQL copied!","ok");
   });
 }
 </script>
