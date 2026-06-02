@@ -379,6 +379,7 @@ function toggleRank(){
 const sb=async(table,method="GET",body=null,params="",prefer="")=>{
   const h={apikey:SUPA_KEY,Authorization:`Bearer ${SUPA_KEY}`,"Content-Type":"application/json"};
   if(prefer)h.Prefer=prefer;
+  if(method==="DELETE")h["Prefer"]="return=minimal";
   const r=await fetch(`${SUPA_URL}/rest/v1/${table}${params}`,{method,headers:h,...(body!==null?{body:JSON.stringify(body)}:{})});
   const t=await r.text();if(!r.ok)throw new Error(t);return t?JSON.parse(t):null;
 };
@@ -448,7 +449,45 @@ function renderAllianceStats(){
 function renderEventsList(){
   const el=document.getElementById("events-list");
   if(!events.length){el.innerHTML=`<p style="color:#8b949e;font-size:14px">No events saved yet.</p>`;return;}
-  el.innerHTML=`<p style="font-weight:600;margin-bottom:12px">${events.length} Events</p><div class="events-list">${events.map(e=>`<div class="event-row"><div><span style="font-weight:500;font-size:14px">${e.event_name}</span><code style="margin-left:8px;font-size:12px;color:#8b949e">${e.event_code}</code></div><div class="flex-row"><span class="pill ok" style="padding:2px 8px">${e.event_type}</span><span style="font-size:12px;color:#8b949e">${new Date(e.event_date+"T12:00:00").toLocaleDateString("en-GB")}</span></div></div>`).join("")}</div>`;
+  el.innerHTML=`<p style="font-weight:600;margin-bottom:12px">${events.length} Events</p><div class="events-list">${events.map(e=>`<div class="event-row">
+    <div style="flex:1;min-width:0">
+      <span style="font-weight:500;font-size:14px">${e.event_name}</span>
+      <code style="margin-left:8px;font-size:12px;color:#8b949e">${e.event_code}</code>
+    </div>
+    <div class="flex-row">
+      <span class="pill ok" style="padding:2px 8px">${e.event_type}</span>
+      <span style="font-size:12px;color:#8b949e">${new Date(e.event_date+"T12:00:00").toLocaleDateString("en-GB")}</span>
+      ${isAdmin?`<button onclick="deleteEvent(${e.id},'${e.event_name.replace(/'/g,"\\'")}',this)" title="Delete event and all entries"
+        style="background:none;border:1px solid #3a1a1a;border-radius:5px;cursor:pointer;font-size:12px;color:#6a3a3a;padding:3px 8px;transition:all .15s"
+        onmouseover="this.style.color='#f85149';this.style.borderColor='#6a2d2d'"
+        onmouseout="this.style.color='#6a3a3a';this.style.borderColor='#3a1a1a'">🗑️ Delete</button>`:""}
+    </div>
+  </div>`).join("")}</div>`;
+}
+
+async function deleteEvent(id, name, btn){
+  // First count entries
+  let count=0;
+  try{
+    const rows=await sb("wos_lb_entries","GET",null,`?event_id=eq.${id}&select=id`);
+    count=(rows||[]).length;
+  }catch{}
+  const msg=`Delete "${name}" and all ${count} associated entries?
+
+This cannot be undone.`;
+  if(!confirm(msg))return;
+  btn.disabled=true;btn.textContent="Deleting...";
+  try{
+    await sb("wos_events","DELETE",null,`?id=eq.${id}`);
+    events=events.filter(e=>e.id!==id);
+    renderEventsList();
+    setStatus(`✅ Event "${name}" deleted`,"ok");
+  }catch(e){
+    setStatus("Error: "+e.message,"err");
+    alert("Delete failed:
+"+e.message);
+    btn.disabled=false;btn.textContent="🗑️ Delete";
+  }
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────
