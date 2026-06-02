@@ -176,6 +176,23 @@ tr:hover td{background:#161f2b}
             <div class="check-box" id="rank-check"></div>
             <span style="font-size:13px;color:#c9d1d9">Include Rank column</span>
           </div>
+          <div class="check-row" onclick="toggleAllianceMode()">
+            <div class="check-box" id="alliance-check"></div>
+            <span style="font-size:13px;color:#c9d1d9">Alliance Ranking <span style="font-size:11px;color:#8b949e">(no player matching)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="home-server-row" style="display:none;margin-bottom:14px">
+        <div class="card" style="margin-bottom:0;padding:12px 16px;background:#0a1520;border-color:#2d4a6a">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <span style="font-size:13px;color:#58a6ff">🏰 Alliance Mode</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <label style="margin:0;white-space:nowrap">Our server:</label>
+              <input type="text" id="home-server" placeholder="646" style="width:80px">
+            </div>
+            <span style="font-size:12px;color:#8b949e">Results will be tagged: ✅ Our state / ⚔️ Enemy state</span>
+          </div>
         </div>
       </div>
 
@@ -335,6 +352,7 @@ document.getElementById("ev-date").value = new Date().toISOString().slice(0,10);
 // ── State ──────────────────────────────────────────────────────────────────
 var players=[], events=[], images=[], scanResults=[], parsedCSV=[], apiKey="";
 var includeRank = false;
+var isAllianceMode = false;
 var corrections = {};
 
 // ── Supabase ───────────────────────────────────────────────────────────────
@@ -497,6 +515,11 @@ function toggleRank() {
   includeRank = !includeRank;
   document.getElementById("rank-check").classList.toggle("checked", includeRank);
 }
+function toggleAllianceMode() {
+  isAllianceMode = !isAllianceMode;
+  document.getElementById("alliance-check").classList.toggle("checked", isAllianceMode);
+  document.getElementById("home-server-row").style.display = isAllianceMode ? "block" : "none";
+}
 function getColName() {
   var name = (document.getElementById("ev-name").value||"Event").trim();
   var date = document.getElementById("ev-date").value;
@@ -586,7 +609,9 @@ async function processImages() {
         headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
         body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
           {type:"image",source:{type:"base64",media_type:img.type,data:img.b64}},
-          {type:"text",text:"Whiteout Survival leaderboard screenshot. Extract all visible player rows.\nReturn ONLY a valid JSON array, no markdown:\n[{\"rank\":1,\"name\":\"exact name with all Unicode and alliance tags like [TBR]\",\"value\":2700133298},...]\n\"value\" is the large number next to each player."}
+          {type:"text",text: isAllianceMode
+            ? "Whiteout Survival ALLIANCE leaderboard. Extract all alliance rows. Return ONLY valid JSON array, no markdown: [{\"rank\":1,\"server\":\"646\",\"tag\":\"OSM\",\"name\":\"OldSpicyMisfits\",\"value\":689633426},...] server=number after #, tag=letters in brackets without brackets, name=alliance name after tag, value=large number."
+            : "Whiteout Survival leaderboard screenshot. Extract all visible player rows. Return ONLY a valid JSON array, no markdown: [{\"rank\":1,\"name\":\"exact name with all Unicode and alliance tags like [TBR]\",\"value\":2700133298},...] value is the large number next to each player."},...]\n\"value\" is the large number next to each player."}
         ]}]})
       });
       if (!resp.ok) { var t=await resp.text(); throw new Error("API "+resp.status+": "+t); }
@@ -595,28 +620,39 @@ async function processImages() {
       all = all.concat(JSON.parse(txt.replace(/```json|```/g,"").trim()));
     }
     setProgress(images.length, images.length);
-    setStatus("Matching players...","info");
-    scanResults = all.map(function(e) {
-      var corr = corrections[e.name];
-      var nameForMatch = e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim();
-      var top = findTop(nameForMatch, players);
-      if (corr) {
+    if (isAllianceMode) {
+      var homeServer = (document.getElementById("home-server").value||"").trim();
+      scanResults = all.map(function(e) {
+        var isHome = homeServer && String(e.server) === String(homeServer);
+        return {rank:e.rank, server:e.server, tag:e.tag, name_raw:e.name, value:e.value, isHome:isHome};
+      }).sort(function(a,b){ return a.rank-b.rank; });
+      renderAllianceResults();
+      var ours = scanResults.filter(function(r){return r.isHome;}).length;
+      document.getElementById("results-summary").textContent = "– "+ours+" our state, "+(scanResults.length-ours)+" enemy state";
+    } else {
+      setStatus("Matching players...","info");
+      scanResults = all.map(function(e) {
+        var corr = corrections[e.name];
+        var nameForMatch = e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim();
+        var top = findTop(nameForMatch, players);
+        if (corr) {
+          return {rank:e.rank, name_raw:e.name, value:e.value,
+            player_id:corr.player_id, player_name:corr.player_name, alliance:corr.alliance,
+            score:1.0, fromCorrection:true, top:top};
+        }
+        var best = top[0];
         return {rank:e.rank, name_raw:e.name, value:e.value,
-          player_id:corr.player_id, player_name:corr.player_name, alliance:corr.alliance,
-          score:1.0, fromCorrection:true, top:top};
-      }
-      var best = top[0];
-      return {rank:e.rank, name_raw:e.name, value:e.value,
-        player_id:best&&best.score>=0.5?best.player_id:null,
-        player_name:best&&best.score>=0.5?best.player_name:null,
-        alliance:best&&best.score>=0.5?best.alliance:"",
-        score:best?best.score:0, fromCorrection:false, top:top};
-    }).sort(function(a,b){ return a.rank-b.rank; });
-    renderResults();
-    var fc=scanResults.filter(function(r){return r.fromCorrection;}).length;
-    var au=scanResults.filter(function(r){return !r.fromCorrection&&r.score>=0.85;}).length;
-    var ma=scanResults.filter(function(r){return !r.fromCorrection&&r.score<0.85;}).length;
-    document.getElementById("results-summary").textContent="– 🎯 "+fc+" from DB, "+au+" matched, "+ma+" to review";
+          player_id:best&&best.score>=0.5?best.player_id:null,
+          player_name:best&&best.score>=0.5?best.player_name:null,
+          alliance:best&&best.score>=0.5?best.alliance:"",
+          score:best?best.score:0, fromCorrection:false, top:top};
+      }).sort(function(a,b){ return a.rank-b.rank; });
+      renderResults();
+      var fc=scanResults.filter(function(r){return r.fromCorrection;}).length;
+      var au=scanResults.filter(function(r){return !r.fromCorrection&&r.score>=0.85;}).length;
+      var ma=scanResults.filter(function(r){return !r.fromCorrection&&r.score<0.85;}).length;
+      document.getElementById("results-summary").textContent="– 🎯 "+fc+" from DB, "+au+" matched, "+ma+" to review";
+    }
     document.getElementById("clear-btn").style.display="";
     setStatus(scanResults.length+" entries – "+au+" OK, "+ma+" to review","ok");
     setProgress(0,0);
@@ -746,20 +782,53 @@ function removeResult(rank) {
   renderResults();
 }
 
+// ── Alliance Results ──────────────────────────────────────────────────────────
+function renderAllianceResults() {
+  document.getElementById("results-section").style.display = "block";
+  var rows = scanResults.map(function(r) {
+    var serverBadge = r.isHome
+      ? '<span style="font-size:11px;padding:2px 7px;border-radius:10px;background:#1a3a2a;color:#3fb950">✅ #'+r.server+'</span>'
+      : '<span style="font-size:11px;padding:2px 7px;border-radius:10px;background:#3a1a1a;color:#f85149">⚔️ #'+r.server+'</span>';
+    return '<tr>'
+      +'<td style="font-family:monospace;color:#8b949e">'+r.rank+'</td>'
+      +'<td>'+serverBadge+'</td>'
+      +'<td style="font-family:monospace;font-size:12px;color:#79c0ff">['+r.tag+']</td>'
+      +'<td style="font-weight:500">'+r.name_raw+'</td>'
+      +'<td style="font-family:monospace;font-size:12px;text-align:right">'+r.value.toLocaleString("en-US")+'</td>'
+      +'<td style="text-align:center"><button onclick="removeResult('+r.rank+')" title="Remove" style="background:none;border:none;cursor:pointer;font-size:14px;opacity:.35" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.35">🗑️</button></td>'
+      +'</tr>';
+  });
+  // Replace table headers for alliance mode
+  document.querySelector("#results-body").closest("table").querySelector("thead tr").innerHTML =
+    '<th style="width:50px">Rank</th><th style="width:90px">Server</th><th style="width:70px">Tag</th><th>Alliance Name</th><th style="width:120px;text-align:right">Value</th><th style="width:38px"></th>';
+  document.getElementById("results-body").innerHTML = rows.join("");
+}
+
 // ── CSV Download ───────────────────────────────────────────────────────────
 function downloadCSV() {
   if (!scanResults.length) return;
   var colName = getColName();
-  var headerCols = ["Player ID","Alliance Name","Player Name"];
-  if (includeRank) headerCols.push("Rank");
-  headerCols.push(colName);
-  var rows = scanResults.map(function(r){
-    var cols = [r.player_id||"", r.alliance||"", r.player_name||r.name_raw||""];
-    if (includeRank) cols.push(r.rank||"");
-    cols.push(r.value||"");
-    return cols.join(";");
-  });
-  var csv = "\uFEFF" + [headerCols.join(";")].concat(rows).join("\r\n");
+  var csv, rows;
+  if (isAllianceMode) {
+    var headerCols = ["Rank","Server","Tag","Alliance Name",colName];
+    rows = scanResults.map(function(r){
+      return [r.rank||"", r.server||"", r.tag||"", r.name_raw||"", r.value||""].join(";");
+    });
+    csv = "﻿" + [headerCols.join(";")].concat(rows).join("
+");
+  } else {
+    var headerCols = ["Player ID","Alliance Name","Player Name"];
+    if (includeRank) headerCols.push("Rank");
+    headerCols.push(colName);
+    rows = scanResults.map(function(r){
+      var cols = [r.player_id||"", r.alliance||"", r.player_name||r.name_raw||""];
+      if (includeRank) cols.push(r.rank||"");
+      cols.push(r.value||"");
+      return cols.join(";");
+    });
+    csv = "﻿" + [headerCols.join(";")].concat(rows).join("
+");
+  }
   var blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
   var url = URL.createObjectURL(blob);
   var a = document.createElement("a");
