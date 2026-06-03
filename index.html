@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WOS Leaderboard Scanner</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1923;color:#d0dce8;min-height:100vh;font-size:15px}
+body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1923;color:#d0dce8;min-height:100vh;font-size:15px}
 a{color:#58a6ff}
+*{font-feature-settings:"kern" 1,"liga" 1,"calt" 1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 .header{background:#161f2b;border-bottom:1px solid #1e3048;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.header h1{font-size:17px;font-weight:600;color:#e6edf3;display:flex;align-items:center;gap:8px}
+.header h1{font-size:17px;font-weight:600;color:#e6edf3;display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
 .status-badge{font-size:13px;padding:4px 12px;border-radius:20px;background:#1e3048;color:#8b949e;white-space:nowrap}
 .status-badge.ok{background:#1a3a2a;color:#3fb950}
 .status-badge.err{background:#3a1a1a;color:#f85149}
@@ -17,16 +19,16 @@ a{color:#58a6ff}
 .container{max-width:1000px;margin:0 auto;padding:24px}
 .tabs{display:flex;border-bottom:1px solid #1e3048;margin-bottom:24px}
 .tab-btn{padding:11px 18px;font-size:14px;border:none;border-bottom:2px solid transparent;background:none;color:#8b949e;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
-.tab-btn.active{color:#58a6ff;border-bottom-color:#58a6ff;font-weight:500}
+.tab-btn.active{color:#58a6ff;border-bottom-color:#58a6ff;font-weight:600}
 .tab-btn:hover:not(.active){color:#c9d1d9}
 .badge{background:#1e3048;color:#8b949e;font-size:11px;padding:1px 7px;border-radius:10px}
 .card{background:#161f2b;border:1px solid #1e3048;border-radius:10px;padding:18px 20px;margin-bottom:16px}
-.card h3{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:14px}
+.card h3{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:14px;letter-spacing:-0.01em}
 label{font-size:12px;color:#8b949e;display:block;margin-bottom:4px}
 input[type=text],input[type=password],input[type=date],select{color-scheme:dark;width:100%;background:#0f1923;border:1px solid #1e3048;border-radius:6px;padding:8px 11px;color:#c9d1d9;font-size:14px;outline:none;transition:border .15s}
 input:focus,select:focus{border-color:#58a6ff}
 input[type=file]{display:none}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:14px;cursor:pointer;border:1px solid #1e3048;background:#1e3048;color:#c9d1d9;transition:all .15s;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #1e3048;background:#1e3048;color:#c9d1d9;transition:all .15s;white-space:nowrap}
 .btn:hover:not(:disabled){background:#263549}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn-primary{background:#1a3a5c;border-color:#2d6a9f;color:#79c0ff}
@@ -45,7 +47,7 @@ input[type=file]{display:none}
 .img-thumb img{height:72px;border-radius:6px;border:1px solid #1e3048;object-fit:cover;display:block}
 .img-remove{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#6a2d2d;color:#f85149;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{padding:8px 10px;text-align:left;font-weight:500;font-size:12px;color:#8b949e;border-bottom:1px solid #1e3048}
+th{padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:#8b949e;border-bottom:1px solid #1e3048;letter-spacing:0.02em}
 td{padding:7px 10px;border-bottom:1px solid #1e2a38;vertical-align:top}
 tr:hover td{background:#161f2b}
 .pill{font-size:11px;padding:2px 8px;border-radius:20px;font-family:monospace}
@@ -808,9 +810,10 @@ function renderAllianceResults() {
 function downloadCSV() {
   if (!scanResults.length) return;
   var colName = getColName();
+  var scoreType = document.getElementById("ev-type").value;
   var csv, rows;
   if (isAllianceMode) {
-    var headerCols = ["Rank","Server","Tag","Alliance Name",colName];
+    var headerCols = ["Rank","Server","Tag","Alliance Name",scoreType];
     rows = scanResults.map(function(r){
       return [r.rank||"", r.server||"", r.tag||"", r.name_raw||"", r.value||""].join(";");
     });
@@ -819,7 +822,7 @@ function downloadCSV() {
   } else {
     var headerCols = ["Player ID","Alliance Name","Player Name"];
     if (includeRank) headerCols.push("Rank");
-    headerCols.push(colName);
+    headerCols.push(scoreType);
     rows = scanResults.map(function(r){
       var cols = [r.player_id||"", r.alliance||"", r.player_name||r.name_raw||""];
       if (includeRank) cols.push(r.rank||"");
