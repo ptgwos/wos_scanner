@@ -160,8 +160,27 @@ tr:hover td{background:#161f2b}
     <div class="pane active" id="pane-scanner">
       <div class="card">
         <h3>📅 Event Details</h3>
-        <div class="grid-3">
-          <div><label>Event Name</label><input type="text" id="ev-name" value="Bear Trap 1" oninput="updateColName()"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 160px;gap:12px;align-items:end">
+          <div>
+            <label>Event</label>
+            <select id="ev-preset" onchange="updateEventPreset()">
+              <option value="SvS Prep">SvS Prep</option>
+              <option value="Bear Trap">Bear Trap</option>
+              <option value="KoI">KoI</option>
+              <option value="Crazy Joe">Crazy Joe</option>
+              <option value="Foundry">Foundry</option>
+              <option value="Canyon Clash">Canyon Clash</option>
+              <option value="__custom__">✏️ Custom...</option>
+            </select>
+          </div>
+          <div id="ev-sub-wrap">
+            <label>Sub-Event</label>
+            <select id="ev-sub" onchange="updateColName()"></select>
+          </div>
+          <div id="ev-custom-wrap" style="display:none">
+            <label>Custom Name</label>
+            <input type="text" id="ev-custom" placeholder="Event name" oninput="updateColName()">
+          </div>
           <div><label>Date</label><input type="date" id="ev-date" oninput="updateColName()"></div>
           <div><label>Score Type</label>
             <select id="ev-type" onchange="updateColName()">
@@ -513,6 +532,37 @@ function switchTab(name) {
     if (btn) btn.classList.toggle("active", t===name);
   });
 }
+var EVENT_PRESETS = {
+  "SvS Prep":     ["Day 1","Day 2","Day 3","Day 4","Day 5","Overall"],
+  "Bear Trap":    ["BT1","BT2"],
+  "KoI":          [],
+  "Crazy Joe":    [],
+  "Foundry":      ["Legion 1","Legion 2"],
+  "Canyon Clash": ["Legion 1","Legion 2"]
+};
+
+function updateEventPreset() {
+  var preset = document.getElementById("ev-preset").value;
+  var subWrap = document.getElementById("ev-sub-wrap");
+  var customWrap = document.getElementById("ev-custom-wrap");
+  var subSel = document.getElementById("ev-sub");
+  if (preset === "__custom__") {
+    subWrap.style.display = "none";
+    customWrap.style.display = "block";
+  } else {
+    customWrap.style.display = "none";
+    var subs = EVENT_PRESETS[preset] || [];
+    if (subs.length > 0) {
+      subWrap.style.display = "block";
+      subSel.innerHTML = subs.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join("");
+    } else {
+      subWrap.style.display = "none";
+      subSel.innerHTML = "";
+    }
+  }
+  updateColName();
+}
+
 function toggleRank() {
   includeRank = !includeRank;
   document.getElementById("rank-check").classList.toggle("checked", includeRank);
@@ -521,17 +571,27 @@ function toggleAllianceMode() {
   isAllianceMode = !isAllianceMode;
   document.getElementById("alliance-check").classList.toggle("checked", isAllianceMode);
   document.getElementById("home-server-row").style.display = isAllianceMode ? "block" : "none";
+  updateColName();
+}
+function getEventName() {
+  var preset = document.getElementById("ev-preset").value;
+  if (preset === "__custom__") return (document.getElementById("ev-custom").value||"Event").trim();
+  var sub = document.getElementById("ev-sub").value;
+  return sub ? preset+" "+sub : preset;
 }
 function getColName() {
-  var name = (document.getElementById("ev-name").value||"Event").trim();
+  var name = getEventName();
   var date = document.getElementById("ev-date").value;
   var type = document.getElementById("ev-type").value;
+  var alliance = isAllianceMode ? "_alliances" : "";
   var d = new Date(date+"T12:00:00");
   var dd = isNaN(d.getTime()) ? "" : "_"+String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0")+"."+d.getFullYear();
-  return name+dd+"_"+type;
+  return name+dd+"_"+type+alliance;
 }
 function updateColName() { document.getElementById("col-name-preview").textContent = getColName(); }
 updateColName();
+// Init dropdowns on load
+setTimeout(updateEventPreset, 50);
 
 function clearAll() {
   if (scanResults.length && !confirm("Clear all results and images?")) return;
@@ -845,7 +905,7 @@ async function saveResults() {
   document.getElementById("save-btn").disabled = true;
   setStatus("Saving...","info");
   try {
-    var n=document.getElementById("ev-name").value||"Event";
+    var n=getEventName();
     var type=document.getElementById("ev-type").value;
     var date=document.getElementById("ev-date").value;
     var code=getColName().replace(/[^a-zA-Z0-9_]/g,"_").slice(0,80);
