@@ -1,0 +1,24 @@
+name: Supabase Keepalive
+
+on:
+  schedule:
+    - cron: '0 8 */5 * *'  # Every 5 days at 08:00 UTC
+  workflow_dispatch:        # Allow manual trigger from GitHub Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping WOS Scanner (Supabase)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://oyjmbdlruuqldwqkrpjl.supabase.co/rest/v1/wos_players?limit=1" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1iZGxydXVxbGR3cWtycGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTU1ODYsImV4cCI6MjA5NTQzMTU4Nn0.JUWcpH3cx8smQmdWXfVp8pD3cWSm7zd2eNYm_FlY6Y8")
+          echo "WOS Scanner: HTTP $STATUS"
+
+      - name: Ping Facility Planner (Supabase)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://frrctfpsfxhysokgdqkt.supabase.co/rest/v1/" \
+            -H "apikey: sb_publishable_Bw0RPmmV-BNy1jx2r34qVQ_uDGu_ZBz")
+          echo "Facility Planner: HTTP $STATUS"
