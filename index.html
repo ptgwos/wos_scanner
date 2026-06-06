@@ -890,9 +890,9 @@ function downloadCSV() {
     csv = "\uFEFF" + [headerCols.join(";")].concat(rows).join("\r\n");
 
   } else {
-    var headerCols = ["Player ID","Alliance Name","Player Name"];
-    if (includeRank) headerCols.push("Rank");
-    headerCols.push(scoreType);
+    var headerCols = ["ID","ALLIANCE","NAME"];
+    if (includeRank) headerCols.push("RANK");
+    headerCols.push(scoreType.toUpperCase());
     rows = scanResults.map(function(r){
       var cols = [r.player_id||"", r.alliance||"", r.player_name||r.name_raw||""];
       if (includeRank) cols.push(r.rank||"");
