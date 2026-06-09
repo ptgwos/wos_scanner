@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WOS Leaderboards</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{--bg:#0d0f14;--bg2:#161920;--bg3:#1e2230;--border:#2a2d3e;--text:#e8eaf0;--muted:#8890a6;--accent:#4f8ef7;--amber:#fbbf24}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:3rem}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header h1{font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:8px}
+header h1 i{color:var(--amber)}
+.meta{font-size:12px;color:var(--muted);margin-left:auto}
+.main{max-width:900px;margin:0 auto;padding:2rem}
+.intro{font-size:14px;color:var(--muted);margin-bottom:1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;transition:border .12s,background .12s}
+.card:hover{border-color:var(--accent);background:var(--bg3)}
+.card-icon{width:34px;height:34px;border-radius:8px;background:rgba(79,142,247,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon i{font-size:18px;color:var(--accent)}
+.card-body{flex:1;min-width:0}
+.card-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-file{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-arrow{font-size:16px;color:var(--muted);flex-shrink:0;transition:color .12s;margin-left:auto}
+.card:hover .card-arrow{color:var(--accent)}
+footer{text-align:center;padding:2rem;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1><i class="ti ti-trophy"></i> WOS Leaderboards</h1>
+  <span class="meta">Stand: 09.06.2026, 15:43 &nbsp;·&nbsp; ptgwos Alliance</span>
+</header>
+<div class="main">
+  <p class="intro">3 Leaderboards verfügbar — klicke auf einen Eintrag um ihn zu öffnen.</p>
+  <div class="grid">
+<a class="card" href="https://ptgwos.github.io/wos_scanner/KOI_WEEK23_2026.html" target="_blank">
+  <div class="card-icon"><i class="ti ti-table" aria-hidden="true"></i></div>
+  <div class="card-body">
+    <div class="card-name">KOI WEEK23 2026</div>
+    <div class="card-file">KOI_WEEK23_2026.html</div>
+  </div>
+  <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
+</a>
+<a class="card" href="https://ptgwos.github.io/wos_scanner/Party_Expert.html" target="_blank">
+  <div class="card-icon"><i class="ti ti-table" aria-hidden="true"></i></div>
+  <div class="card-body">
+    <div class="card-name">Party Expert</div>
+    <div class="card-file">Party_Expert.html</div>
+  </div>
+  <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
+</a>
+<a class="card" href="https://ptgwos.github.io/wos_scanner/index.html" target="_blank">
+  <div class="card-icon"><i class="ti ti-table" aria-hidden="true"></i></div>
+  <div class="card-body">
+    <div class="card-name">index</div>
+    <div class="card-file">index.html</div>
+  </div>
+  <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
+</a>
+  </div>
+</div>
+<footer>ptgwos · WOS Alliance Tools</footer>
+</body>
+</html>
