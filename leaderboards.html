@@ -1,59 +1,69 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WOS Leaderboards</title>
+<title>State 646 - Leaderboards</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
 :root{--bg:#0d0f14;--bg2:#161920;--bg3:#1e2230;--border:#2a2d3e;--text:#e8eaf0;--muted:#8890a6;--accent:#4f8ef7;--amber:#fbbf24}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:3rem}
-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:10px}
 header h1{font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:8px}
 header h1 i{color:var(--amber)}
 .meta{font-size:12px;color:var(--muted);margin-left:auto}
 .main{max-width:900px;margin:0 auto;padding:2rem}
-.intro{font-size:14px;color:var(--muted);margin-bottom:1.5rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;transition:border .12s,background .12s}
+.intro{font-size:13px;color:var(--muted);margin-bottom:1.75rem}
+.group-block{margin-bottom:1.75rem}
+.group-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.group-header i{font-size:15px;color:var(--amber)}
+.group-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);white-space:nowrap}
+.group-line{flex:1;height:1px;background:var(--border)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;transition:border .12s,background .12s}
 .card:hover{border-color:var(--accent);background:var(--bg3)}
-.card-icon{width:34px;height:34px;border-radius:8px;background:rgba(79,142,247,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.card-icon i{font-size:18px;color:var(--accent)}
+.card-icon{width:32px;height:32px;border-radius:7px;background:rgba(79,142,247,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon i{font-size:17px;color:var(--accent)}
 .card-body{flex:1;min-width:0}
-.card-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-file{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-arrow{font-size:16px;color:var(--muted);flex-shrink:0;transition:color .12s;margin-left:auto}
+.card-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-arrow{font-size:15px;color:var(--muted);flex-shrink:0;margin-left:auto;transition:color .12s}
 .card:hover .card-arrow{color:var(--accent)}
-footer{text-align:center;padding:2rem;font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
 <header>
-  <h1><i class="ti ti-trophy"></i> WOS Leaderboards</h1>
-  <span class="meta">Stand: 09.06.2026, 15:46 &nbsp;·&nbsp; ptgwos Alliance</span>
+  <h1><i class="ti ti-trophy"></i> State 646 - Leaderboards</h1>
+  <span class="meta">Updated: 11/06/2026, 11:54</span>
 </header>
 <div class="main">
-  <p class="intro">2 Leaderboards verfügbar — klicke auf einen Eintrag um ihn zu öffnen.</p>
-  <div class="grid">
-<a class="card" href="https://ptgwos.github.io/wos_scanner/KOI_WEEK23_2026.html" target="_blank">
-  <div class="card-icon"><i class="ti ti-table" aria-hidden="true"></i></div>
-  <div class="card-body">
-    <div class="card-name">KOI WEEK23 2026</div>
-    <div class="card-file">KOI_WEEK23_2026.html</div>
-  </div>
-  <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
-</a>
-<a class="card" href="https://ptgwos.github.io/wos_scanner/Party_Expert.html" target="_blank">
-  <div class="card-icon"><i class="ti ti-table" aria-hidden="true"></i></div>
-  <div class="card-body">
-    <div class="card-name">Party Expert</div>
-    <div class="card-file">Party_Expert.html</div>
-  </div>
-  <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
-</a>
-  </div>
+  <p class="intro">2 leaderboards available</p>
+  <div class="group-block">
+  <div class="group-header"><i class="ti ti-folder"></i><span class="group-label">King of Icefield</span><div class="group-line"></div></div>
+  <div class="grid"><a class="card" href="https://ptgwos.github.io/wos_scanner/KOI_WEEK23_2026.html" target="_blank">
+    <div class="card-icon"><i class="ti ti-table"></i></div>
+    <div class="card-body">
+      <div class="card-title">KOI WEEK23/2026</div>
+      
+      <div class="card-sub">06/01/2026 - 06/07/2026</div>
+    </div>
+    <i class="ti ti-arrow-right card-arrow"></i>
+  </a></div>
 </div>
-<footer>ptgwos · WOS Alliance Tools</footer>
+<div class="group-block">
+  <div class="group-header"><span class="group-label">Other</span><div class="group-line"></div></div>
+  <div class="grid"><a class="card" href="https://ptgwos.github.io/wos_scanner/Party_Expert.html" target="_blank">
+    <div class="card-icon"><i class="ti ti-table"></i></div>
+    <div class="card-body">
+      <div class="card-title">Party Expert</div>
+      <div class="card-sub">Childhood Memorial Festival</div>
+      
+    </div>
+    <i class="ti ti-arrow-right card-arrow"></i>
+  </a></div>
+</div>
+
+</div>
 </body>
 </html>
