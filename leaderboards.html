@@ -6,7 +6,7 @@
 <title>State 646 - Leaderboards</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
-:root{--bg:#0d0f14;--bg2:#161920;--bg3:#1e2230;--border:#2a2d3e;--text:#e8eaf0;--muted:#8890a6;--accent:#4f8ef7;--amber:#fbbf24}
+:root{--bg:#0d0f14;--bg2:#161920;--bg3:#1e2230;--border:#2a2d3e;--text:#e8eaf0;--muted:#8890a6;--accent:#4f8ef7;--amber:#fbbf24;--purple:#a78bfa;--red:#f87171}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:10px}
@@ -17,9 +17,11 @@ header h1 i{color:var(--amber)}
 .intro{font-size:13px;color:var(--muted);margin-bottom:1.75rem}
 .group-block{margin-bottom:1.75rem}
 .group-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.group-header i{font-size:15px;color:var(--amber)}
+.group-header i{font-size:15px}
 .group-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);white-space:nowrap}
 .group-line{flex:1;height:1px;background:var(--border)}
+.lock-btn{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid rgba(167,139,250,.3);background:rgba(167,139,250,.08);color:var(--purple);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.lock-btn:hover{background:rgba(167,139,250,.15)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;transition:border .12s,background .12s}
 .card:hover{border-color:var(--accent);background:var(--bg3)}
@@ -30,40 +32,69 @@ header h1 i{color:var(--amber)}
 .card-sub{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-arrow{font-size:15px;color:var(--muted);flex-shrink:0;margin-left:auto;transition:color .12s}
 .card:hover .card-arrow{color:var(--accent)}
+.lock-gate{background:var(--bg2);border:1px solid rgba(167,139,250,.25);border-radius:10px;padding:1.5rem;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.lock-gate i.li{font-size:32px;color:var(--purple)}
+.lock-gate p{font-size:13px;color:var(--muted)}
+.lg-row{display:flex;gap:8px;width:100%;max-width:320px}
+.lg-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none}
+.lg-row input:focus{border-color:var(--purple)}
+.lg-btn{font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid rgba(167,139,250,.4);background:rgba(167,139,250,.1);color:var(--purple);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.lg-btn:hover{background:rgba(167,139,250,.2)}
+.lg-err{font-size:12px;color:var(--red);display:none}
+.lg-err.show{display:block}
 </style>
 </head>
 <body>
 <header>
   <h1><i class="ti ti-trophy"></i> State 646 - Leaderboards</h1>
-  <span class="meta">Updated: 11/06/2026, 11:54</span>
+  <span class="meta">Updated: 12/06/2026, 07:46</span>
 </header>
 <div class="main">
-  <p class="intro">2 leaderboards available</p>
-  <div class="group-block">
-  <div class="group-header"><i class="ti ti-folder"></i><span class="group-label">King of Icefield</span><div class="group-line"></div></div>
-  <div class="grid"><a class="card" href="https://ptgwos.github.io/wos_scanner/KOI_WEEK23_2026.html" target="_blank">
-    <div class="card-icon"><i class="ti ti-table"></i></div>
-    <div class="card-body">
-      <div class="card-title">KOI WEEK23/2026</div>
-      
-      <div class="card-sub">06/01/2026 - 06/07/2026</div>
-    </div>
-    <i class="ti ti-arrow-right card-arrow"></i>
-  </a></div>
+  <p class="intro" id="intro"></p>
+  <div id="body"></div>
 </div>
-<div class="group-block">
-  <div class="group-header"><span class="group-label">Other</span><div class="group-line"></div></div>
-  <div class="grid"><a class="card" href="https://ptgwos.github.io/wos_scanner/Party_Expert.html" target="_blank">
-    <div class="card-icon"><i class="ti ti-table"></i></div>
-    <div class="card-body">
-      <div class="card-title">Party Expert</div>
-      <div class="card-sub">Childhood Memorial Festival</div>
-      
-    </div>
-    <i class="ti ti-arrow-right card-arrow"></i>
-  </a></div>
-</div>
-
-</div>
+<script>
+const GROUPS=[{"name":"King of Icefield","pwHash":""},{"name":"State vs. State","pwHash":""},{"name":"TBR","pwHash":""}];
+const CARDS=[{"url":"https://ptgwos.github.io/wos_scanner/KOI_WEEK23_2026.html","title":"KOI WEEK23/2026","sub1":"","sub2":"06/01/2026 - 06/07/2026","group":"King of Icefield"},{"url":"https://ptgwos.github.io/wos_scanner/Party_Expert.html","title":"Party Expert","sub1":"Childhood Memorial Festival","sub2":"","group":""}];
+const unlocked=new Set();
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+function e(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function render(){
+  const active=CARDS;
+  document.getElementById('intro').textContent=active.length+' leaderboard'+(active.length!==1?'s':'')+' available';
+  const grouped={}, ungrouped=[];
+  active.forEach(c=>{const g=c.group||''; const go=GROUPS.find(x=>x.name===g); if(g&&go){if(!grouped[g])grouped[g]=[];grouped[g].push(c);}else ungrouped.push(c);});
+  let html='';
+  GROUPS.forEach(g=>{
+    if(!grouped[g.name]?.length)return;
+    const locked=!!g.pwHash&&!unlocked.has(g.name);
+    const id='lg'+g.name.replace(/[^a-z0-9]/gi,'_');
+    html+='<div class="group-block"><div class="group-header">'
+      +'<i class="ti '+(g.pwHash?'ti-lock':'ti-folder')+'" style="color:'+(g.pwHash?'var(--purple)':'var(--amber)')+'"></i>'
+      +'<span class="group-label">'+e(g.name)+'</span>'
+      +(g.pwHash&&!locked?'<button class="lock-btn" onclick="lockG(''+e(g.name)+'')"><i class="ti ti-lock"></i> Lock</button>':'')
+      +'<div class="group-line"></div></div>';
+    if(locked){
+      html+='<div class="lock-gate"><i class="ti ti-lock li"></i><p>This group is password-protected.</p>'
+        +'<div class="lg-row"><input type="password" id="'+id+'" placeholder="Enter password…" onkeydown="if(event.key==='Enter')tryU(''+e(g.name)+'',''+id+'')">'
+        +'<button class="lg-btn" onclick="tryU(''+e(g.name)+'',''+id+'')"><i class="ti ti-arrow-right"></i> Unlock</button></div>'
+        +'<span class="lg-err" id="'+id+'-err">Wrong password.</span></div>';
+    } else {
+      html+='<div class="grid">'+grouped[g.name].map(cardH).join('')+'</div>';
+    }
+    html+='</div>';
+  });
+  if(ungrouped.length){
+    const hasAny=GROUPS.length&&active.some(c=>c.group);
+    html+='<div class="group-block">'+(hasAny?'<div class="group-header"><span class="group-label">Other</span><div class="group-line"></div></div>':'')
+      +'<div class="grid">'+ungrouped.map(cardH).join('')+'</div></div>';
+  }
+  document.getElementById('body').innerHTML=html;
+}
+function cardH(c){return'<a class="card" href="'+e(c.url)+'" target="_blank"><div class="card-icon"><i class="ti ti-table"></i></div><div class="card-body"><div class="card-title">'+e(c.title)+'</div>'+(c.sub1?'<div class="card-sub">'+e(c.sub1)+'</div>':'')+(c.sub2?'<div class="card-sub">'+e(c.sub2)+'</div>':'')+'</div><i class="ti ti-arrow-right card-arrow"></i></a>';}
+async function tryU(gName,id){const inp=document.getElementById(id);const h=await sha256(inp.value);const g=GROUPS.find(x=>x.name===gName);if(g&&h===g.pwHash){unlocked.add(gName);inp.value='';document.getElementById(id+'-err').classList.remove('show');render();}else{document.getElementById(id+'-err').classList.add('show');inp.select();}}
+function lockG(gName){unlocked.delete(gName);render();}
+render();
+</script>
 </body>
 </html>
