@@ -52,11 +52,11 @@ header h1 i{color:var(--amber)}
   <a class="back-link" href="state.html"><i class="ti ti-arrow-left"></i> Home</a>
   <span class="header-divider">/</span>
   <h1><i class="ti ti-trophy"></i> State 646 - Leaderboards</h1>
-  <span class="meta">Updated: 12/06/2026, 08:30</span>
+  <span class="meta">Updated: 12/06/2026, 08:36</span>
 </header>
 <div class="main">
   <p class="intro" id="intro"></p>
-  <div id="body"></div>
+  <div id="lb-body"></div>
 </div>
 <script>
 const GROUPS=[{"name":"King of Icefield","pwHash":""},{"name":"State vs. State","pwHash":""},{"name":"TBR","pwHash":""}];
@@ -94,7 +94,7 @@ function render(){
     html+='<div class="group-block">'+(hasAny?'<div class="group-header"><span class="group-label">Other</span><div class="group-line"></div></div>':'')
       +'<div class="grid">'+ungrouped.map(cardH).join('')+'</div></div>';
   }
-  document.getElementById('body').innerHTML=html;
+  document.getElementById('lb-body').innerHTML=html;
 }
 function cardH(c){return'<a class="card" href="'+e(c.url)+'" target="_blank"><div class="card-icon"><i class="ti ti-table"></i></div><div class="card-body"><div class="card-title">'+e(c.title)+'</div>'+(c.sub1?'<div class="card-sub">'+e(c.sub1)+'</div>':'')+(c.sub2?'<div class="card-sub">'+e(c.sub2)+'</div>':'')+'</div><i class="ti ti-arrow-right card-arrow"></i></a>';}
 async function tryU(gName,id){const inp=document.getElementById(id);const h=await sha256(inp.value);const g=GROUPS.find(x=>x.name===gName);if(g&&h===g.pwHash){unlocked.add(gName);inp.value='';document.getElementById(id+'-err').classList.remove('show');render();}else{document.getElementById(id+'-err').classList.add('show');inp.select();}}
