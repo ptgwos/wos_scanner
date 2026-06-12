@@ -94,6 +94,7 @@ tbody td.week-cell.active-week{background:rgba(79,142,247,.05)}
     <button class="week-btn" onclick="setWeek(6)">Week 6</button>
     <button class="week-btn" onclick="setWeek(7)">Week 7</button>
     <button class="week-btn" onclick="setWeek(8)">Week 8</button>
+    <button class="week-btn buff-btn" id="buff-toggle" onclick="toggleBuffs()" style="margin-left:8px;border-color:rgba(52,211,153,.4);color:var(--green)"><i class="ti ti-shield-bolt" style="font-size:14px"></i> Buffs only</button>
   </div>
 
   <!-- STRONGHOLDS -->
@@ -190,6 +191,8 @@ const FORTRESSES = [
 ];
 
 let activeWeek = 0; // 0 = all
+let buffsOnly = false;
+const BUFFS = ['Health buff', 'Lethality buff', 'Deployment buff'];
 
 function badgeClass(a) {
   return ['TBR','TbR','AIR','FUQ','OSM','SFZ','LUX'].includes(a) ? 'badge-'+a : 'badge-default';
@@ -213,7 +216,9 @@ function renderBody(id, rows, activeWeek) {
     const w = activeWeek === 0 ? row.weeks : [row.weeks[activeWeek - 1]];
     const weekCells = w.map((wk, i) => {
       const wIdx = activeWeek === 0 ? i + 1 : activeWeek;
-      return `<td class="week-cell${activeWeek===0&&wIdx===activeWeek?' active-week':''}">
+      const isBuff = BUFFS.includes(wk.reward);
+      const dim = buffsOnly && !isBuff;
+      return `<td class="week-cell${activeWeek===0&&wIdx===activeWeek?' active-week':''}" style="${dim?'opacity:.15;':''}">
         <span class="badge ${badgeClass(wk.alliance)}">${wk.alliance}</span><br>
         <span class="reward">${wk.reward}</span>
       </td>`;
@@ -231,12 +236,24 @@ function render() {
   renderBody('body-stronghold', STRONGHOLDS, activeWeek);
   renderBody('body-fortress', FORTRESSES, activeWeek);
 
-  document.querySelectorAll('.week-btn').forEach((btn, i) => {
+  document.querySelectorAll('.week-btn:not(.buff-btn)').forEach((btn, i) => {
     btn.classList.toggle('active', i === activeWeek);
   });
+
+  const buffBtn = document.getElementById('buff-toggle');
+  if (buffsOnly) {
+    buffBtn.style.background = 'rgba(52,211,153,.15)';
+    buffBtn.style.borderColor = 'var(--green)';
+    buffBtn.style.color = 'var(--green)';
+  } else {
+    buffBtn.style.background = '';
+    buffBtn.style.borderColor = 'rgba(52,211,153,.4)';
+    buffBtn.style.color = 'var(--green)';
+  }
 }
 
 function setWeek(w) { activeWeek = w; render(); }
+function toggleBuffs() { buffsOnly = !buffsOnly; render(); }
 
 render();
 </script>
