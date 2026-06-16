@@ -701,13 +701,20 @@ async function processImages() {
         var corr = corrections[e.name];
         var nameForMatch = e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim();
         var top = findTop(nameForMatch, players);
+        var playerSrv = String(e.server||"").trim();
+        var homeSrv = String((document.getElementById("home-server").value||"")).trim();
+        var isEnemy = playerSrv && homeSrv && playerSrv !== homeSrv;
+        if (isEnemy) {
+          return {rank:e.rank, server:playerSrv, name_raw:e.name, value:e.value,
+            player_id:null, player_name:null, alliance:"", score:0, fromCorrection:false, top:[]};
+        }
         if (corr) {
-          return {rank:e.rank, server:e.server||"", name_raw:e.name, value:e.value,
+          return {rank:e.rank, server:playerSrv||e.server||"", name_raw:e.name, value:e.value,
             player_id:corr.player_id, player_name:corr.player_name, alliance:corr.alliance,
             score:1.0, fromCorrection:true, top:top};
         }
         var best = top[0];
-        return {rank:e.rank, server:e.server||"", name_raw:e.name, value:e.value,
+        return {rank:e.rank, server:playerSrv||e.server||"", name_raw:e.name, value:e.value,
           player_id:best&&best.score>=0.5?best.player_id:null,
           player_name:best&&best.score>=0.5?best.player_name:null,
           alliance:best&&best.score>=0.5?best.alliance:"",
@@ -880,14 +887,14 @@ function downloadCSV() {
   var scoreType = document.getElementById("ev-type").value;
   var csv, rows;
   if (isAllianceMode) {
-    var headerCols = ["Rank","Server","Tag","Alliance Name",scoreType];
+    var headerCols = ["Rank","State","Tag","Alliance Name",scoreType];
     rows = scanResults.map(function(r){
       return [r.rank||"", r.server||"", r.tag||"", r.name_raw||"", r.value||""].join(";");
     });
     csv = "\uFEFF" + [headerCols.join(";")].concat(rows).join("\r\n");
 
   } else {
-    var headerCols = ["ID","SERVER","ALLIANCE","NAME"];
+    var headerCols = ["ID","STATE","ALLIANCE","NAME"];
     if (includeRank) headerCols.push("RANK");
     headerCols.push(scoreType.toUpperCase());
     rows = scanResults.map(function(r){
