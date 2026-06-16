@@ -196,6 +196,11 @@ tr:hover td{background:#161f2b}
             </select>
           </div>
         </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
+          <label style="margin:0;white-space:nowrap;font-size:12px;color:#8b949e">Our server (optional):</label>
+          <input type="text" id="home-server" placeholder="e.g. 646" style="width:90px">
+          <span style="font-size:12px;color:#4a5568">Colors results &#x2705; our / &#x2694; enemy</span>
+        </div>
         <div style="margin-top:12px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
           <div><span style="font-size:12px;color:#8b949e">CSV column: </span><code id="col-name-preview" style="font-family:monospace;color:#58a6ff;font-size:13px"></code></div>
           <div class="check-row" onclick="toggleRank()">
@@ -209,18 +214,7 @@ tr:hover td{background:#161f2b}
         </div>
       </div>
 
-      <div id="home-server-row" style="display:none;margin-bottom:14px">
-        <div class="card" style="margin-bottom:0;padding:12px 16px;background:#0a1520;border-color:#2d4a6a">
-          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <span style="font-size:13px;color:#58a6ff">🏰 Alliance Mode</span>
-            <div style="display:flex;align-items:center;gap:8px">
-              <label style="margin:0;white-space:nowrap">Our server:</label>
-              <input type="text" id="home-server" placeholder="646" style="width:80px">
-            </div>
-            <span style="font-size:12px;color:#8b949e">Results will be tagged: ✅ Our state / ⚔️ Enemy state</span>
-          </div>
-        </div>
-      </div>
+
 
       <div class="drop-zone" id="drop-zone" onclick="document.getElementById('img-input').click()"
         ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
@@ -249,6 +243,7 @@ tr:hover td{background:#161f2b}
           <table>
             <thead><tr>
               <th style="width:50px">Rank</th>
+              <th style="width:85px">Server</th>
               <th>OCR Name</th>
               <th>Matched Player</th>
               <th style="width:80px">Alliance</th>
@@ -580,7 +575,6 @@ function toggleRank() {
 function toggleAllianceMode() {
   isAllianceMode = !isAllianceMode;
   document.getElementById("alliance-check").classList.toggle("checked", isAllianceMode);
-  document.getElementById("home-server-row").style.display = isAllianceMode ? "block" : "none";
   updateColName();
 }
 function getEventName() {
@@ -683,7 +677,7 @@ async function processImages() {
           {type:"image",source:{type:"base64",media_type:img.type,data:img.b64}},
           {type:"text",text: isAllianceMode
             ? "Whiteout Survival ALLIANCE leaderboard. Extract all alliance rows. Return ONLY valid JSON array, no markdown: [{\"rank\":1,\"server\":\"646\",\"tag\":\"OSM\",\"name\":\"OldSpicyMisfits\",\"value\":689633426},...] server=number after #, tag=letters in brackets without brackets, name=alliance name after tag, value=large number."
-            : "Whiteout Survival leaderboard screenshot. Extract all visible player rows. Return ONLY a valid JSON array, no markdown: [{\"rank\":1,\"name\":\"exact name with all Unicode and alliance tags like [TBR]\",\"value\":2700133298},...] value is the large number next to each player."}
+            : "Whiteout Survival leaderboard. Extract all player rows. Return ONLY valid JSON array, no markdown: [{\"rank\":1,\"server\":\"646\",\"name\":\"exact name including alliance tags like [TBR]\",\"value\":2700133298},...] server=number shown after # before player name (empty string if not shown). value=large number next to player."}
         ]}]})
       });
       if (!resp.ok) { var t=await resp.text(); throw new Error("API "+resp.status+": "+t); }
@@ -708,12 +702,12 @@ async function processImages() {
         var nameForMatch = e.name.replace(/^\[[A-Z0-9]+\]\s*/,"").trim();
         var top = findTop(nameForMatch, players);
         if (corr) {
-          return {rank:e.rank, name_raw:e.name, value:e.value,
+          return {rank:e.rank, server:e.server||"", name_raw:e.name, value:e.value,
             player_id:corr.player_id, player_name:corr.player_name, alliance:corr.alliance,
             score:1.0, fromCorrection:true, top:top};
         }
         var best = top[0];
-        return {rank:e.rank, name_raw:e.name, value:e.value,
+        return {rank:e.rank, server:e.server||"", name_raw:e.name, value:e.value,
           player_id:best&&best.score>=0.5?best.player_id:null,
           player_name:best&&best.score>=0.5?best.player_name:null,
           alliance:best&&best.score>=0.5?best.alliance:"",
@@ -741,8 +735,10 @@ function pillClass(s) { return s>=0.85?"ok":s>=0.6?"warn":"err"; }
 
 function renderResults() {
   document.getElementById("results-section").style.display = "block";
+  var homeServer = (document.getElementById("home-server").value||"").trim();
   var alliances = [...new Set(players.map(function(p){ return p.alliance||"–"; }))].sort();
   var rows = scanResults.map(function(r) {
+    var srv = r.server ? (homeServer && String(r.server)===String(homeServer) ? '<span style="font-size:11px;padding:2px 5px;border-radius:8px;background:#1a3a2a;color:#3fb950">✅ #'+r.server+'</span>' : homeServer ? '<span style="font-size:11px;padding:2px 5px;border-radius:8px;background:#3a1a1a;color:#f85149">⚔ #'+r.server+'</span>' : '<span style="font-size:11px;padding:2px 5px;border-radius:8px;background:#1e3048;color:#8b949e">#'+r.server+'</span>') : '';
     var corrCount = corrections[r.name_raw] ? corrections[r.name_raw].confirmed_count : 1;
     var matchCell = r.player_name
       ? (r.fromCorrection
@@ -755,7 +751,8 @@ function renderResults() {
     var aliOpts = alliances.map(function(a){ return '<option value="'+a+'"'+(r.alliance===a?" selected":"")+'>'+a+'</option>'; }).join("");
     return '<tr id="row-'+r.rank+'">'
       +'<td style="font-family:monospace;color:#8b949e">'+r.rank+'</td>'
-      +'<td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r.name_raw.replace(/"/g,"&quot;")+'">'+r.name_raw+'</td>'
+      +'<td>'+srv+'</td>'
+      +'<td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r.name_raw.replace(/"/g,"&quot;")+'">'+r.name_raw+'</td>'
       +'<td>'
         +'<div class="match-name" onclick="toggleAssign('+r.rank+')" title="Click to assign">'+matchCell+'</div>'
         +'<div class="assign-box" id="assign-'+r.rank+'">'
@@ -890,11 +887,11 @@ function downloadCSV() {
     csv = "\uFEFF" + [headerCols.join(";")].concat(rows).join("\r\n");
 
   } else {
-    var headerCols = ["ID","ALLIANCE","NAME"];
+    var headerCols = ["ID","SERVER","ALLIANCE","NAME"];
     if (includeRank) headerCols.push("RANK");
     headerCols.push(scoreType.toUpperCase());
     rows = scanResults.map(function(r){
-      var cols = [r.player_id||"", r.alliance||"", r.player_name||r.name_raw||""];
+      var cols = [r.player_id||"", r.server||"", r.alliance||"", r.player_name||r.name_raw||""];
       if (includeRank) cols.push(r.rank||"");
       cols.push(r.value||"");
       return cols.join(";");
