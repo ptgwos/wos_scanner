@@ -891,7 +891,9 @@ function downloadCSV() {
     if (includeRank) headerCols.push("RANK");
     headerCols.push(scoreType.toUpperCase());
     rows = scanResults.map(function(r){
-      var cols = [r.player_id||"", r.server||"", r.alliance||"", r.player_name||r.name_raw||""];
+      var rawTag = r.alliance || (r.name_raw||"").replace(/^.*\[([A-Za-z0-9]+)\].*$/, "$1").replace(/.*/, function(m){ return m === (r.name_raw||"") ? "" : m; });
+      var displayName = r.player_name || (r.name_raw||"").replace(/^\[[A-Za-z0-9]+\]\s*/, "").trim();
+      var cols = [r.player_id||"", r.server||"", rawTag, displayName];
       if (includeRank) cols.push(r.rank||"");
       cols.push(r.value||"");
       return cols.join(";");
