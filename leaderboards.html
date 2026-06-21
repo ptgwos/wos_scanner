@@ -49,62 +49,38 @@ h1 i{color:var(--amber)}
   <a class="back-link" href="index.html"><i class="ti ti-arrow-left"></i> Home</a>
   <span class="header-divider">/</span>
   <h1><i class="ti ti-trophy"></i> State 646 - Leaderboards</h1>
-  <span class="meta">Updated: 14/06/2026, 19:16</span>
+  <span class="meta">Updated: 21/06/2026, 16:00</span>
 </header>
 <div class="main">
-  <p class="intro">5 leaderboards available</p>
+  <p class="intro">3 leaderboards available</p>
   <div class="group-block">
   <div class="group-header">
     <i class="ti ti-folder" style="font-size:15px;color:var(--amber)"></i>
-    <span class="group-label">Kings of Icefield</span>
+    <span class="group-label">King of Icefield</span>
     
     <div class="group-line"></div>
   </div>
   <div class="grid"><a class="card" href="https://ptgwos.github.io/wos_scanner/KOI_WEEK23_2026.html" target="_blank">
   <div class="card-icon"><i class="ti ti-table"></i></div>
-  <div class="card-body"><div class="card-title">KOI - WEEK 23/2026</div></div>
-  <i class="ti ti-arrow-right card-arrow"></i>
-</a></div>
-</div>
-<div class="group-block">
-  <div class="group-header">
-    <i class="ti ti-lock" style="font-size:15px;color:var(--purple)"></i>
-    <span class="group-label">TBR</span>
-    <button class="lock-btn" id="grp_TBR_lockbtn" onclick="relock('grp_TBR')" style="display:none"><i class="ti ti-lock"></i> Lock</button>
-    <div class="group-line"></div>
-  </div>
-  <div class="lock-gate" id="grp_TBR_gate">
-  <i class="ti ti-lock li"></i>
-  <p>This group is password-protected.</p>
-  <div class="lg-row">
-    <input type="password" id="grp_TBR_inp" placeholder="Enter password…">
-    <button class="lg-btn" onclick="tryUnlock('TBR','grp_TBR')"><i class="ti ti-arrow-right"></i> Unlock</button>
-  </div>
-  <span class="lg-err" id="grp_TBR_err">Wrong password.</span>
-</div>
-<div class="grid" id="grp_TBR_cards" style="display:none"><a class="card" href="https://ptgwos.github.io/wos_scanner/CC_L1_13062026.html" target="_blank">
-  <div class="card-icon"><i class="ti ti-table"></i></div>
-  <div class="card-body"><div class="card-title">CANYON CLASH - 06/13/26</div><div class="card-sub">Legion 1</div><div class="card-sub">06/13/2026</div></div>
-  <i class="ti ti-arrow-right card-arrow"></i>
-</a>
-<a class="card" href="https://ptgwos.github.io/wos_scanner/CC_L2_13062026.html" target="_blank">
-  <div class="card-icon"><i class="ti ti-table"></i></div>
-  <div class="card-body"><div class="card-title">CANYON CLASH - 06/13/2026</div><div class="card-sub">Legion 2</div><div class="card-sub">06/13/2026</div></div>
-  <i class="ti ti-arrow-right card-arrow"></i>
-</a>
-<a class="card" href="https://ptgwos.github.io/wos_scanner/F_L2_14062026.html" target="_blank">
-  <div class="card-icon"><i class="ti ti-table"></i></div>
-  <div class="card-body"><div class="card-title">FOUNDRY - 06/14/2026</div><div class="card-sub">Legion 2</div><div class="card-sub">06/14/2026</div></div>
+  <div class="card-body"><div class="card-title">KOI - W23/2026</div><div class="card-sub">06/01/2026 - 06/07/2026</div></div>
   <i class="ti ti-arrow-right card-arrow"></i>
 </a></div>
 </div>
 <div class="group-block">
   <div class="group-header">
     <i class="ti ti-folder" style="font-size:15px;color:var(--amber)"></i>
-    <span class="group-label">Special Events</span>
+    <span class="group-label">State vs. State</span>
     
     <div class="group-line"></div>
   </div>
+  <div class="grid"><a class="card" href="https://ptgwos.github.io/wos_scanner/SvS_W25_2026.html" target="_blank">
+  <div class="card-icon"><i class="ti ti-table"></i></div>
+  <div class="card-body"><div class="card-title">SvS - W25/2026</div><div class="card-sub">06/15/2026 - 06/20/2026</div></div>
+  <i class="ti ti-arrow-right card-arrow"></i>
+</a></div>
+</div>
+<div class="group-block">
+  <div class="group-header"><span class="group-label">Other</span><div class="group-line"></div></div>
   <div class="grid"><a class="card" href="https://ptgwos.github.io/wos_scanner/Party_Expert.html" target="_blank">
   <div class="card-icon"><i class="ti ti-table"></i></div>
   <div class="card-body"><div class="card-title">Party Expert</div><div class="card-sub">Childhood Memorial Festival</div></div>
@@ -114,45 +90,5 @@ h1 i{color:var(--amber)}
 
 </div>
 
-<script id="pw-handler">
-(function(){
-  var PW = JSON.parse(atob('eyJUQlIiOiIxZGRiOWQ0N2ZlYmU3MWE5YWRkZjk4YmE4OTNkZWZlMjRmNWRiZjI4YjE2MzFkNTA0Nzk1YmI3NDZhZjVkMTAwIn0='));
-  async function sha256(s){
-    var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-    return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');
-  }
-  window.tryUnlock = async function(gName, gId) {
-    var inp = document.getElementById(gId+'_inp');
-    var h = await sha256(inp.value);
-    if (h === PW[gName]) {
-      document.getElementById(gId+'_gate').style.display = 'none';
-      document.getElementById(gId+'_cards').style.display = '';
-      var lb = document.getElementById(gId+'_lockbtn');
-      if (lb) lb.style.display = 'inline-flex';
-    } else {
-      document.getElementById(gId+'_err').classList.add('show');
-      inp.select();
-    }
-  };
-  window.relock = function(gId) {
-    document.getElementById(gId+'_gate').style.display = '';
-    document.getElementById(gId+'_cards').style.display = 'none';
-    var lb = document.getElementById(gId+'_lockbtn');
-    if (lb) lb.style.display = 'none';
-    document.getElementById(gId+'_inp').value = '';
-    document.getElementById(gId+'_err').classList.remove('show');
-  };
-  document.querySelectorAll('.lg-row input').forEach(function(inp){
-    inp.addEventListener('keydown', function(e){
-      if (e.key === 'Enter') {
-        var gId = inp.id.replace('_inp','');
-        var gName = inp.closest('.lock-gate').nextElementSibling.closest('[id]')?.id?.replace('_cards','') || '';
-        // find group name from gate id
-        document.querySelector('[onclick*="'+gId+'"]')?.click();
-      }
-    });
-  });
-})();
-</script>
 </body>
 </html>
