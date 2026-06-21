@@ -1,0 +1,613 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SvS_W25_2026_Z</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F4CB;</text></svg>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.8.1/css/searchBuilder.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.4/css/dataTables.dateTime.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/searchpanes/2.3.3/css/searchPanes.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/select/2.1.0/css/select.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/5.0.4/css/fixedColumns.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/colreorder/2.0.4/css/colReorder.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.5.1/css/rowGroup.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/4.0.1/css/fixedHeader.bootstrap5.min.css">
+  <style>
+    :root { --dt-row-selected: 55, 114, 163; }
+    body { background: #f8f9fa; min-height: 100vh; }
+    table.dataTable td, table.dataTable th { white-space: pre-line; overflow-wrap: break-word; }
+    .main-container { padding: 1.5rem; }
+    .dashboard-card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; }
+    .card-header-pro { background: #3772a3; padding: 1.25rem 1.5rem; color: white; position: relative; }
+    .card-header-pro h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    .header-logo { position: absolute; bottom: 1rem; right: 1.5rem; max-height: 80px; width: auto; border-radius: 4px; }
+    .header-branding { position: absolute; top: 1rem; right: 1.5rem; color: rgba(255,255,255,0.7); font-size: 0.75rem; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; }
+    .header-branding:hover { color: white; }
+    .branding-link { color: rgba(255,255,255,0.7); font-size: 0.75rem; text-decoration: none; margin-right: 1rem; transition: all 0.2s; }
+    .branding-link:hover { color: white; text-decoration: underline; }
+    .theme-switch-free, .theme-label-free { cursor: pointer; opacity: 0.5; }
+    .btn-pro-disabled { opacity: 0.6; }
+    .card-header-pro .subtitle { opacity: 0.7; font-size: 0.85rem; }
+    .stats-bar { display: flex; gap: 1rem; margin-top: 0.75rem; }
+    .stat-item { display: flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.15); padding: 0.4rem 0.75rem; border-radius: 4px; font-size: 0.85rem; }
+    .stat-value { font-weight: 600; }
+    .column-indicator { background: #fff3cd; color: #856404; padding: 0.5rem 1.5rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #ffc107; }
+    body.dark-mode .column-indicator { background: #3d3200; color: #ffc107; border-color: #665200; }
+    .footer-bar { background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 1rem 2rem; display: flex; justify-content: center; }
+    .powered-by { color: #3772a3; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+    .powered-by:hover { color: #2d5a82; }
+    .dt-paging .page-link { color: #3772a3; }
+    .dt-paging .page-item.active .page-link { background-color: #3772a3; border-color: #3772a3; color: white; }
+    table.dataTable tbody tr.selected, table.dataTable tbody tr.selected > * { background-color: #3772a3 !important; }
+    table.dataTable tbody tr.selected td { color: white !important; }
+    .multiselect-dropdown { position: relative; display: inline-block; width: 100%; }
+    .multiselect-dropdown .dropdown-btn { width: 100%; padding: 0.25rem 0.5rem; font-size: 0.875rem; border: 1px solid #ced4da; border-radius: 0.25rem; background: white; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; white-space: nowrap; overflow: hidden; }
+    .multiselect-dropdown .dropdown-btn:hover { border-color: #3772a3; }
+    .multiselect-dropdown .dropdown-btn .btn-text { overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .multiselect-dropdown .dropdown-menu, body > .dropdown-menu { position: absolute; top: 100%; left: 0; z-index: 9999; min-width: 200px; max-height: 250px; overflow-y: auto; background: white; border: 1px solid rgba(0,0,0,0.15); border-radius: 0.25rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15); display: none; padding: 0.5rem 0; }
+    .multiselect-dropdown .dropdown-menu.show, body > .dropdown-menu.show { display: block; }
+    .multiselect-dropdown .dropdown-item, body > .dropdown-menu .dropdown-item { padding: 0.25rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+    .multiselect-dropdown .dropdown-item:hover, body > .dropdown-menu .dropdown-item:hover { background: #f8f9fa; }
+    .multiselect-dropdown .dropdown-item input, body > .dropdown-menu .dropdown-item input { margin: 0; accent-color: #3772a3; }
+    .dt-button-collection .dt-button.dt-button-active { color: #3772a3 !important; }
+    .dt-button-collection .dt-button.dt-button-active::before { color: #3772a3 !important; }
+    .dt-button-collection .dt-button:focus, .dt-button-collection .dt-button:active { outline-color: #3772a3 !important; box-shadow: 0 0 0 0.2rem #3772a340 !important; }
+    .multiselect-dropdown .dropdown-item label, body > .dropdown-menu .dropdown-item label { margin: 0; cursor: pointer; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .multiselect-dropdown .select-all-item, body > .dropdown-menu .select-all-item { border-bottom: 1px solid #dee2e6; margin-bottom: 0.25rem; padding-bottom: 0.5rem; }
+    .multiselect-dropdown .badge { background: #3772a3; font-size: 0.7rem; padding: 0.2rem 0.4rem; margin-left: 0.25rem; }
+    .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .theme-toggle label { color: rgba(255,255,255,0.7); font-size: 0.75rem; cursor: pointer; margin: 0; }
+    .theme-switch { position: relative; width: 40px; height: 20px; }
+    .theme-switch input { opacity: 0; width: 0; height: 0; }
+    .theme-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.3); border-radius: 20px; transition: 0.3s; }
+    .theme-slider:before { position: absolute; content: ''; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .theme-switch input:checked + .theme-slider { background: rgba(255,255,255,0.5); }
+    .theme-switch input:checked + .theme-slider:before { transform: translateX(20px); }
+    body.dark-mode { background: #1a1a2e; }
+    body.dark-mode .dashboard-card { background: #16213e; }
+    body.dark-mode .card-header-pro { background: #3772a3; filter: brightness(0.7); }
+    body.dark-mode .table { color: #e0e0e0; }
+    body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * { background-color: rgba(255,255,255,0.05); color: #e0e0e0; }
+    body.dark-mode .table-striped > tbody > tr:nth-of-type(even) > * { background-color: transparent; color: #e0e0e0; }
+    body.dark-mode .table-hover > tbody > tr:hover > * { background-color: rgba(255,255,255,0.1); }
+    body.dark-mode .footer-bar { background: #1a1a2e; border-color: #0f3460; }
+    body.dark-mode .powered-by { color: #7ec8e3; }
+    body.dark-mode .form-control, body.dark-mode .form-select { background: #1a1a2e; color: #e0e0e0; border-color: #0f3460; }
+    body.dark-mode .multiselect-dropdown .dropdown-btn { background: #1a1a2e; color: #e0e0e0; border-color: #0f3460; }
+    body.dark-mode .multiselect-dropdown .dropdown-menu { background: #16213e; border-color: #0f3460; }
+    body.dark-mode .multiselect-dropdown .dropdown-item { color: #e0e0e0; }
+    body.dark-mode .multiselect-dropdown .dropdown-item:hover { background: #0f3460; }
+    body.dark-mode .dt-paging .page-link { background: #16213e; color: #7ec8e3; border-color: #0f3460; }
+    body.dark-mode .dt-paging .page-item.active .page-link { background: #0f3460; border-color: #0f3460; }
+    body.dark-mode .btn-secondary { background: #0f3460; border-color: #0f3460; color: #e0e0e0; }
+    body.dark-mode .btn-primary { background: #7ec8e3; border-color: #7ec8e3; color: #1a1a2e; }
+    body.dark-mode .dtsb-searchBuilder { background: #16213e; border-color: #0f3460; }
+    body.dark-mode .dtsb-group, body.dark-mode .dtsb-criteria { background: #1a1a2e; color: #e0e0e0; }
+    body.dark-mode .dtsb-searchBuilder select, body.dark-mode .dtsb-searchBuilder input { background: #1a1a2e; color: #e0e0e0; border-color: #0f3460; }
+    body.dark-mode .dtsb-searchBuilder .dtsb-button { background: #0f3460; color: #e0e0e0; border-color: #0f3460; }
+    body.dark-mode .dt-search input { background: #1a1a2e; color: #e0e0e0; border-color: #0f3460; }
+    body.dark-mode .dt-search input::placeholder { color: #e0e0e0; }
+    body.dark-mode .dt-search label { color: #e0e0e0; }
+    body.dark-mode .dt-length select { background: #1a1a2e; color: #e0e0e0; border-color: #0f3460; }
+    body.dark-mode .dt-length label { color: #e0e0e0; }
+    body.dark-mode .dt-info { color: #e0e0e0; }
+    body.dark-mode table.dataTable thead th { color: #e0e0e0; border-color: #0f3460; background: #16213e !important; }
+    body.dark-mode table.dataTable thead tr { background: #16213e !important; }
+    body.dark-mode .filter-row th { background: #1a1a2e !important; }
+    body.dark-mode .filter-row input::placeholder { color: #e0e0e0; }
+    body.dark-mode .dt-buttons .btn { background: #0f3460; color: #e0e0e0; border-color: #0f3460; }
+    body.dark-mode .dt-buttons .btn:hover { background: #1a3a5c; }
+    .theme-toggle .bi-sun-fill { display: none; }
+    body.dark-mode .theme-toggle .bi-moon-fill { display: none; }
+    body.dark-mode .theme-toggle .bi-sun-fill { display: inline; }
+    table.dataTable td a { color: #3772a3; text-decoration: none; }
+    table.dataTable td a:hover { text-decoration: underline; }
+    body.dark-mode table.dataTable td a { color: #7ec8e3; }
+    .filter-row input:hover { border-color: #3772a3; }
+    .filter-row input:focus { border-color: #3772a3; box-shadow: 0 0 0 0.2rem #3772a340; outline: none; }
+    .filter-row input[type="date"] { accent-color: #3772a3; }
+    .filter-row select:hover { border-color: #3772a3; }
+    .filter-row select:focus { border-color: #3772a3; box-shadow: 0 0 0 0.2rem #3772a340; outline: none; }
+    .date-filter-wrap { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; }
+    .date-filter-wrap select { width: auto; min-width: 42px; padding: 0.15rem 0.3rem; font-size: 0.8rem; }
+    .date-filter-wrap input[type="date"] { flex: 1; min-width: 0; }
+    .dt-search input:hover, .dt-length select:hover { border-color: #3772a3; }
+    .dt-search input:focus, .dt-length select:focus { border-color: #3772a3; box-shadow: 0 0 0 0.2rem #3772a340; outline: none; }
+    .nav-tabs { border-bottom: 2px solid #3772a3; padding: 0 1.5rem; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; }
+    .nav-tabs .nav-item { white-space: nowrap; }
+    .nav-tabs .nav-link { color: #6c757d; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 0.75rem 1.25rem; font-weight: 500; transition: all 0.2s; }
+    .nav-tabs .nav-link:hover { color: #3772a3; border-bottom-color: #3772a380; }
+    .nav-tabs .nav-link.active { color: #3772a3; border-bottom-color: #3772a3; background: transparent; }
+    .nav-tabs .nav-link .badge { background: #3772a3; font-size: 0.7rem; }
+    body.dark-mode .nav-tabs { border-bottom-color: #0f3460; }
+    body.dark-mode .nav-tabs .nav-link { color: #7ec8e3; }
+    body.dark-mode .nav-tabs .nav-link.active { color: #fff; border-bottom-color: #7ec8e3; }
+    body.dark-mode .nav-tabs .nav-link .badge { background: #0f3460; }
+    .tab-content { padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="dashboard-card">
+      <div class="card-header-pro">
+        <div class="theme-toggle">
+          <label class="theme-switch"><input type="checkbox" id="darkModeToggle"><span class="theme-slider"></span></label>
+          <label for="darkModeToggle"><i class="bi bi-moon-fill"></i><i class="bi bi-sun-fill"></i></label>
+        </div>
+        <h1><i class="bi bi-table"></i> SvS_W25_2026_Z</h1>
+        <div class="subtitle">Exported from SvS_W25_2026_Z.xlsx on Juni 21, 2026 at 3:02 PM — 5 tables</div>
+        <div class="stats-bar">
+          <div class="stat-item"><i class="bi bi-layers"></i><span class="stat-value">5</span> Tables</div>
+          <div class="stat-item"><i class="bi bi-grid-3x3"></i><span class="stat-value">617</span> Total Rows</div>
+        </div>
+      </div>
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-1" type="button" role="tab">Prep_Personal</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-2" type="button" role="tab">Prep_Alliances</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-3" type="button" role="tab">BattlePhase_Personal</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-4" type="button" role="tab">BattlePhase_Alliances</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-5" type="button" role="tab">CastleBattle</button></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-1" role="tabpanel">
+      <div class="table-wrapper" style="padding: 0 1.5rem 1.5rem 1.5rem;">
+        <table id="dt-0" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>STATE</th>
+              <th>RANK</th>
+              <th>NAME</th>
+              <th>ALLIANCE</th>
+              <th>POINTS</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+        </div>
+        <div class="tab-pane fade" id="tab-2" role="tabpanel">
+      <div class="table-wrapper" style="padding: 0 1.5rem 1.5rem 1.5rem;">
+        <table id="dt-1" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>STATE</th>
+              <th>RANK</th>
+              <th>ALLIANCE</th>
+              <th>ALLIANCE NAME</th>
+              <th>POINTS</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+        </div>
+        <div class="tab-pane fade" id="tab-3" role="tabpanel">
+      <div class="table-wrapper" style="padding: 0 1.5rem 1.5rem 1.5rem;">
+        <table id="dt-2" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>STATE</th>
+              <th>RANK</th>
+              <th>NAME</th>
+              <th>ALLIANCE</th>
+              <th>POINTS</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+        </div>
+        <div class="tab-pane fade" id="tab-4" role="tabpanel">
+      <div class="table-wrapper" style="padding: 0 1.5rem 1.5rem 1.5rem;">
+        <table id="dt-3" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>STATE</th>
+              <th>RANK</th>
+              <th>ALLIANCE</th>
+              <th>ALLIANCE NAME</th>
+              <th>POINTS</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+        </div>
+        <div class="tab-pane fade" id="tab-5" role="tabpanel">
+      <div class="table-wrapper" style="padding: 0 1.5rem 1.5rem 1.5rem;">
+        <table id="dt-4" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>RANK</th>
+              <th>NAME</th>
+              <th>ALLIANCE</th>
+              <th>POINTS</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/searchbuilder/1.8.1/js/dataTables.searchBuilder.min.js"></script>
+  <script src="https://cdn.datatables.net/searchbuilder/1.8.1/js/searchBuilder.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/datetime/1.5.4/js/dataTables.dateTime.min.js"></script>
+  <script src="https://cdn.datatables.net/searchpanes/2.3.3/js/dataTables.searchPanes.min.js"></script>
+  <script src="https://cdn.datatables.net/searchpanes/2.3.3/js/searchPanes.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/select/2.1.0/js/dataTables.select.min.js"></script>
+  <script src="https://cdn.datatables.net/fixedcolumns/5.0.4/js/dataTables.fixedColumns.min.js"></script>
+  <script src="https://cdn.datatables.net/colreorder/2.0.4/js/dataTables.colReorder.min.js"></script>
+  <script src="https://cdn.datatables.net/rowgroup/1.5.1/js/dataTables.rowGroup.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.min.js"></script>
+  <script src="https://cdn.datatables.net/fixedheader/4.0.1/js/dataTables.fixedHeader.min.js"></script>
+  <script>if(typeof jQuery==='undefined'){document.body.innerHTML='<div style="font-family:sans-serif;padding:2rem;text-align:center"><h2>Internet Connection Required</h2><p>This interactive table requires an internet connection to load its libraries.</p><p>Please connect to the internet and refresh the page.</p></div>';}
+  else if(!$.fn.DataTable){document.body.innerHTML='<div style="font-family:sans-serif;padding:2rem;text-align:center"><h2>Failed to Load Table Libraries</h2><p>jQuery loaded but DataTables could not be loaded.</p><p>A firewall or content blocker may be preventing access to cdn.datatables.net</p><p>Please check your network settings and refresh the page.</p></div>';}</script>
+  <script>
+    $(document).ready(function() {
+      const DECIMAL_SEP = ',';
+      const THOUSANDS_SEP = '.';
+      const DATE_ORDER = 1;
+
+      const tableData_0 = [["740","1","Arty_Pep88LMN","KOH","268.281.385"],["646","2","Gary Gbur","FUX","268.255.930"],["646","3","༺ʍǟʀɨɛ༻ ᵀᴮᴿ","TBR","261.414.793"],["646","4","Zerethusta","OSM","217.610.886"],["646","5","Mariah","FUX","186.654.211"],["646","6","kas","FUX","181.243.229"],["740","7","Fifa Štar Ñader","OBC","150.087.180"],["646","8","Sexy Boy","OSM","147.078.312"],["646","9","Dominator1369","AIR","138.503.127"],["646","10","◤K◢◤o◢◤c◢◤h◢◤i◢","FUX","138.497.762"],["646","11","Deja Juport","OSM","138.330.816"],["646","12","Deadpool","AIR","132.211.128"],["740","13","عازف","OBC","127.488.049"],["740","14","JƎKƩЯ ツ","OBC","126.770.529"],["740","15","Frogger 2","rBV","125.964.731"],["646","16","Pandaria","ELF","121.428.109"],["646","17","Mando","AIR","115.421.043"],["740","18","ŤöXįĊ 『KWT』","MON","104.122.575"],["740","19","Magna","OBC","103.806.703"],["646","20","Taste Deez","AIR","103.599.805"],["740","21","RAKAN~~Ksa","OBC","103.529.883"],["740","22","Chuytk","FLY","102.320.339"],["646","23","Aves","OSM","101.212.435"],["646","24","NNIL","OSM","99.082.111"],["646","25","Jakobs Loca","AIR","94.379.761"],["646","26","༒ঔĦąřļęÿ Çřîmঔ༒","OSM","93.613.734"],["646","27","Lord Whitebread","FUX","92.795.087"],["740","28","Miss Jöle","OBC","79.882.714"],["740","29","@deathxx2","obc","79.853.980"],["646","30","ɮɛǟʀʕ·͡ᴥ፝֟·ʔ ᵀᴮᴿ","TBR","78.313.008"],["646","31","Chief13","AIR","76.107.003"],["740","32","Sheriff","OBC","72.368.839"],["646","33","༺Lady A༻","OSM","69.334.059"],["740","34","BO_7M00D","MON","69.161.853"],["740","35","C3M0 Sagara","OBC","68.555.681"],["740","36","Sanny Hart","FLY","65.813.676"],["646","37","Ðo҉va҉h ø Ҟi҉in","OSM","65.611.141"],["646","38","ⒷⓊⓏⓏ","TBR","64.638.071"],["740","39","Fadol","rBV","61.725.265"],["740","40","MOHAM3D²","mOn","60.874.691"],["646","41","KIEO","FUX","60.779.213"],["740","42","Blawy","OBC","59.392.453"],["646","43","Lexi 0 ᵥ 0","AIR","59.289.101"],["740","44","Hakan Jr","obc","58.897.605"],["740","45","『D7✗』","MON","58.501.586"],["646","46","Mobster Lobster","FUX","58.007.505"],["646","47","Dish","AIR","57.064.583"],["646","48","AliceMadaquacker","OSM","56.908.388"],["646","49","Blaze","AIR","56.212.675"],["646","50","꧁ღSilly_Gooseღ꧂","FUX","56.161.518"],["646","51","ABN ليبيا","FUX","56.038.009"],["740","52","Megaladon","CCR","55.166.342"],["646","53","Lurtz 調皮海豚","FUX","55.068.778"],["646","54","Skinny Puppy ᶠᵘˣ","FUX","54.261.311"],["740","55","General","MON","54.112.446"],["740","56","HAKAN jr jr","obc","53.834.460"],["646","57","Alices Ulysses","OSM","52.450.628"],["646","58","ঔৣ ɳαɳα ঔৣ ᶠᵘˣ","FUX","52.214.624"],["646","59","J O E L","AIR","51.944.181"],["740","60","Tfjeer_","MON","51.797.733"],["646","61","EPIC","TBR","51.736.111"],["646","62","Tyca","FUX","50.573.652"],["646","63","Johnny ᴸᵘˣ","FUX","49.986.253"],["646","64","337","OSM","49.943.761"],["740","65","General jr","mOn","49.490.906"],["646","66","Enya","AIR","48.267.654"],["740","67","ICE MAN","OBC","47.697.207"],["646","68","LucyGrayBaird","AIR","45.465.551"],["740","69","PRIME°BENGRX","MON","45.338.847"],["740","70","Cherry~","KOH","45.246.719"],["740","71","Escanor","FLY","45.206.412"],["740","72","Woodsman","obc","44.999.212"],["646","73","FeistyMapìa","FUX","44.614.501"],["740","74","FaTiMa","OBC","44.315.074"],["646","75","Fin ᶠᵘˣ","FUX","43.881.354"],["646","76","Winston Furchill","AIR","43.611.737"],["646","77","Carbonite Han","TBR","43.468.324"],["740","78","Ahmed qu","MON","43.389.752"],["646","79","T R O U B L E","OSM","42.802.302"],["740","80","BABYHUNK","MON","42.694.166"],["740","81","What the Duck","TOP","42.445.124"],["740","82","ليث","MON","42.177.975"],["740","83","Rocky~","FLY","41.336.860"],["646","84","Marihøne","FUX","41.177.136"],["646","85","ッǟʟɨƈɛ༄","OSM","40.561.347"],["646","86","JoyToy","FUX","39.515.146"],["646","87","JonSnowStark ᶠᵘˣ","FUX","39.191.329"],["646","88","Rainstorm","SFZ","38.252.810"],["740","89","NAXrbv","rBV","37.989.536"],["646","90","Ruffo","FUX","37.544.659"],["740","91","Nixa","KOH","37.501.637"],["740","92","BannerBoy","OBC","37.254.086"],["646","93","N00B","OSM","37.215.444"],["646","94","DuckyMac","FUX","37.093.110"],["740","95","Ali SA","MON","36.967.354"],["646","96","#696Hex","AIR","36.871.455"],["740","97","Sαmγυ_Fσx","rBV","36.308.677"],["646","98","Thorskipoo","OSM","36.221.748"],["646","99","What٠","OSM","35.359.568"],["740","100","LMN","rBV","34.774.375"],["646","101","꧁ʝahae꧂","OSM","34.723.274"],["646","102","Nav","FUX","34.262.985"],["646","103","Semetican","AIR","33.939.549"],["740","104","KAFD","MON","33.898.166"],["740","105","Nessa","OBC","33.263.202"],["740","106","hales","FLY","33.074.967"],["646","107","Beachy","TBR","32.996.186"],["740","108","PoisonIvy×","FLY","32.339.036"],["646","109","Lucille ᴸᵘˣ","FUX","32.219.182"],["646","110","Terry's Terror","FUX","31.817.820"],["646","111","Corsaline","TBR","31.430.176"],["740","112","BAGHEERA47","MON","31.159.486"],["740","113","9","obc","31.134.320"],["646","114","Delorfimbor","OSM","31.120.045"],["646","115","Kardolmer","AIR","31.083.481"],["740","116","vactoja","KOH","31.039.384"],["740","117","Magnus Chase","FLY","30.990.561"],["646","118","Kick Buttowski","TBR","30.919.851"],["646","119","CJay","AIR","30.906.875"],["740","120","SHADOWWAR","OBC","30.705.603"],["740","121","DarkHollow","FLY","30.509.336"],["646","122","Tiny Terror","ELF","30.483.315"],["740","123","مخاوية","OBC","30.356.075"],["740","124","AjLan","MON","30.331.059"],["740","125","Lorlddk","TOP","29.891.415"],["740","126","Ķšâ~","OBC","29.551.707"],["740","127","ＡＳＴＲＯ","FLY","29.232.187"],["646","128","SirSnorlax","AIR","29.179.827"],["646","129","Peter the Great","TBR","29.102.074"],["646","130","PinkPonyNessie","FUX","28.986.342"],["740","131","Alanoud","MON","28.940.246"],["740","132","Peking Duck","TOP","28.920.734"],["740","133","Hormonette","FLY","28.891.246"],["646","134","Azrus","AIR","28.772.392"],["740","135","Ironside","OBC","28.684.823"],["740","136","Raposinha","FLY","28.484.920"],["646","137","Johnny Jr","ELF","27.749.060"],["646","138","HellsBelles","AIR","27.703.695"],["740","139","Fatima1","CCR","27.570.983"],["740","140","رَحَآاَلْـ","MON","27.437.355"],["646","141","Malecifant","AIR","26.975.659"],["740","142","「Abu Yusuf」","OBC","26.829.478"],["740","143","Mini","rBV","26.699.299"],["646","144","Dayᶦˢᵐᵉ","AIR","26.588.460"],["740","145","ClankEmod","rBV","26.491.948"],["646","146","Glory 8686","TBR","26.483.016"],["646","147","Sam's Chaos","OSM","26.444.799"],["646","148","LordJenS","OSM","26.385.486"],["646","149","Mini Me","TBR","26.376.978"],["646","150","ßíÇ","AIR","26.290.814"],["646","151","FireWolfCla","AIR","26.089.841"],["646","152","F̸A̸F̸O̸","TBR","25.929.445"],["646","153","fūrîøšā","AIR","25.742.154"],["646","154","Zupi ᵀᴮᴿ","TBR","25.624.641"],["740","155","Peter","TOP","25.591.470"],["646","156","B00B","FUX","25.409.620"],["646","157","༄༊࿆Viola࿐","FUX","25.257.452"],["740","158","Hepenaattori","FLY","25.012.385"],["646","159","Paulo Torres","FUX","24.926.060"],["646","160","༺RAFFA༻ ᵀᴮᴿ","TBR","24.834.026"],["646","161","ABREK","SFZ","24.779.704"],["740","162","Cliver","FLY","24.302.864"],["740","163","Maotiverse","FLY","24.137.851"],["646","164","Mars","SFZ","23.897.101"],["740","165","ⓐⓛⓘ","MON","23.701.520"],["740","166","MOHAMMED","MON","23.636.380"],["740","167","POTCraiigerзTOP","TOP","23.599.980"],["646","168","乃 尺 卂 丨 几 丨 卂 匚","FUX","23.590.530"],["646","169","711","AIR","23.589.995"],["646","170","mād fūrî","AIR","23.519.626"],["740","171","PlzBeQuiet","MON","23.468.789"],["646","172","Rose love P","TbR","23.357.748"],["740","173","the QQQ","FLY","23.293.208"],["740","174","d7aem","OBC","23.284.489"],["646","175","YukiKaze","FUX","23.183.082"],["646","176","《《STU666》》","FUX","23.147.779"],["740","177","KayWasHere","rBV","23.086.150"],["740","178","Myrrima7","FLY","22.878.980"],["646","179","Mieze","FUX","22.856.175"],["646","180","Bubble","TbR","22.828.186"],["740","181","Lord ainz","FLY","22.549.610"],["740","182","#800Red","FLY","22.262.697"],["646","183","LokiOdinson","AIR","22.168.166"],["740","184","「Śúúúê Yäššêř」","OBC","22.081.206"],["646","185","@_Coco","TBR","22.035.074"],["646","186","Rita","TbR","21.773.947"],["740","187","Dige90","rBV","21.632.692"],["740","188","Majdi","MON","21.556.642"],["740","189","Scorpions","MON","21.395.827"],["646","190","Xiao Elev11","TbR","21.356.540"],["740","191","MAHA","OBC","21.348.640"],["646","192","Garavar","TBR","21.229.990"],["740","193","DrShadlil","MON","21.133.688"],["646","194","MiniMando","OSM","21.058.681"],["740","195","Mala Reina","FLY","21.042.301"],["646","196","Lynx","SFZ","21.020.769"],["646","197","ϾϿES6ϾϿ","OSM","20.863.520"],["646","198","TEUFEL ᴸᵘˣ","FUX","20.507.902"],["646","199","Ronny","FUX","20.502.137"],["646","200","HelpingMapía","ELF","20.413.024"]];
+      const DATE_COLUMNS_0 = [];
+      const DATE_COL_ORDER_0 = {};
+      const config_0 = {
+        deferRender: true, processing: true,
+        data: tableData_0,
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+        stateSave: false,
+        autoWidth: false,
+        select: true,
+        colReorder: true,
+        rowGroup: { enable: false },
+        responsive: true,
+        fixedHeader: true,
+        orderCellsTop: true,
+        scrollX: true,
+        layout: {
+          top1Start: { buttons: [{ extend: 'searchBuilder', className: 'btn-primary', text: '<i class="bi bi-funnel"></i> Advanced Filter' }] },
+          top1End: 'search',
+          topStart: { buttons: [
+            { extend: 'copy', className: 'btn-secondary', text: '<i class="bi bi-clipboard"></i> Copy', exportOptions: { columns: ':visible' } },
+            { extend: 'csv', className: 'btn-secondary', text: '<i class="bi bi-filetype-csv"></i> CSV', exportOptions: { columns: ':visible' } },
+            { extend: 'excel', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-excel"></i> Excel', exportOptions: { columns: ':visible' } },
+            { extend: 'pdf', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-pdf"></i> PDF', orientation: 'portrait', exportOptions: { columns: ':visible' } },
+            { extend: 'print', className: 'btn-secondary', text: '<i class="bi bi-printer"></i> Print', exportOptions: { columns: ':visible' } },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-eye"></i> Columns', buttons: [
+              { text: '<i class="bi bi-check-all"></i> Show All', action: function(e, dt) { dt.columns().visible(true); } },
+              { text: '<i class="bi bi-x-lg"></i> Hide All', action: function(e, dt) { dt.columns().visible(false); } },
+              'columnsVisibility'
+            ] },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-collection"></i> Group By', autoClose: true, buttons: function() {
+              var btns = [{ text: '<i class="bi bi-x-circle"></i> No Grouping', action: function(e, dt) { dt.rowGroup().enable(false); dt.draw(); } }];
+              $('#dt-4 thead th').each(function(idx) { var colName = $(this).text(); btns.push({ text: colName, action: function(e, dt) { dt.rowGroup().dataSrc(idx).enable(true); dt.order([idx, 'asc']).draw(); } }); });
+              return btns; } }
+          ] },
+          topEnd: 'pageLength',
+          bottomStart: 'info', bottomEnd: 'paging'
+        },
+        language: { search: '<i class="bi bi-search"></i>', searchPlaceholder: 'Search all columns...', lengthMenu: 'Show _MENU_', info: 'Showing _START_ to _END_ of _TOTAL_ entries', infoFiltered: '(filtered from _MAX_)', paginate: { first: 'First', previous: 'Prev', next: 'Next', last: 'Last' }, select: { rows: { _: '%d rows selected', 0: '', 1: '1 row selected' } } },
+        columnDefs: [
+            { className: 'dt-center', width: '15,6%', targets: 0 },
+            { className: 'dt-center', width: '14,4%', targets: 1 },
+            { className: 'dt-center', width: '30,3%', targets: 2 },
+            { className: 'dt-center', width: '17,9%', targets: 3 },
+            { className: 'dt-center', width: '21,8%', targets: 4 },
+            { render: DataTable.render.text(), targets: '_all' }
+        ],
+        order: []
+      };
+
+      const tableData_1 = [["646","1","FUX","LuckyFuqqers","2.410.318.499"],["740","2","OBC","OneBrainCell","2.072.222.777"],["646","3","AIR","AngelsInRevolt","2.012.741.677"],["646","4","OSM","OldSpicyMisfits","1.785.730.386"],["740","5","MON","MONSTERS","1.605.860.897"],["740","6","rBV","AlphaItaliaTV","1.450.100.987"],["646","7","TBR","TacticalBakedRCP","1.351.283.505"],["740","8","FLY","Fireflies","1.023.910.117"],["646","9","ELF","Littlefuqers","598.274.753"],["740","10","TOP","TOPSavageDucks","582.653.747"],["646","11","TbR","TacticalRecipes2","481.550.710"],["646","12","SFZ","TheSafeZone","443.740.841"],["646","13","DFT","DaFngTurtles","206.121.511"],["646","14","osm","ChaoticMisfits","179.484.045"],["740","15","obc","onebraincell","165.029.844"],["740","16","fly","flyCandyland","145.832.173"],["740","17","CCR","obc2","103.091.301"],["740","18","mon","monsters","43.085.153"],["646","19","HYg","Twilight","39.457.053"],["646","20","PKB","Peekaboo","24.952.865"],["646","21","EVL","Immortals","21.241.561"],["740","22","HOD","HouseOfDragons","15.221.287"],["740","23","PPG","PewPewGang","13.803.633"],["646","24","NEW","HardlyUsed","10.135.724"],["740","25","SDL","Sunnydale","8.627.204"],["646","26","GYN","GotYourNose","8.396.717"],["740","27","vOG","TheReturnOfVIK","6.904.756"],["646","28","KOJ","KnightsofJesus","6.655.681"],["646","29","HOS","GreysHospital","6.598.297"],["740","30","vMa","VirtualMasters","6.201.558"],["646","31","LOL","LaughingOutLoud","5.410.746"],["646","32","fux","LittleFux","5.101.543"],["646","33","AST","Thepest","4.661.391"],["740","34","INA","IceNation","4.450.544"],["740","35","rB2","AlphaltaAcademy","3.611.631"],["646","36","YXp","savaşçılar","3.317.568"],["740","37","AGJ","Crickets","3.278.524"],["740","38","MLT","Moonlight","2.980.687"],["740","39","HSQ","Cocosadams","2.385.721"],["646","40","Mda","Moldova","2.145.820"],["646","41","SV3","Overflow","1.960.983"],["740","42","mOn","mOnSTERS","1.958.689"],["740","43","ZZZ","USA","1.841.516"],["646","44","THA","DASHTI87","1.715.616"],["646","45","HSW","Winterfell","1.610.920"],["646","46","spi","blv","1.605.403"],["646","47","cXd","GEORGIATBILISI","1.598.859"],["646","48","tbr","Bakers2","1.434.757"],["740","49","KSA","King","1.384.251"],["646","50","906","Paddy'sPub","1.266.051"],["646","51","TST","Gametesting","1.206.392"],["646","52","The","Chaos","1.125.781"],["646","53","dft","TURTLEFARM","1.086.210"],["740","54","7SS","7s","1.051.420"],["740","55","kjc","中华远征军","1.031.450"],["740","56","EEE","Drango","1.030.250"],["740","57","SUR","SurVivor","1.027.397"],["740","58","kmd","Rütli1291","968.850"],["740","59","CnP","smiles","968.540"],["740","60","VNu","archbald","832.100"],["646","61","TFC","TheFrostyClaws","749.677"],["646","62","pvE","Shitbirds","631.403"],["646","63","jbb","ClitLovers","585.536"],["646","64","Kfo","Kfo2THEAcademy","545.961"],["646","65","die","Horde","539.951"],["646","66","CHu","CrazyHunters","532.163"],["646","67","LCY","LipkaCITY","531.941"],["646","68","Rjn","g","513.419"],["646","69","RI1","INDO","488.886"],["646","70","APA","öOSMANLIDEVLET","476.116"],["646","71","fuq","Minifuqersfarm","475.785"],["646","72","IOM","IslandOfMisfits","454.523"],["646","73","631","631Minis","432.319"],["740","74","TnS","valiant warriors","293.520"],["740","75","HEC","HellsChamber","260.500"],["740","76","CDR","CHDIRO","250.080"],["740","77","WIZ","winnieandwizo","220.765"],["740","78","tpo","TPOFarms","163.960"],["646","79","fCM","#631Romania","115.495"],["740","80","NUj","Ivy","9.600"],["646","81","Fkk","Fireball","5.280"]];
+      const DATE_COLUMNS_1 = [];
+      const DATE_COL_ORDER_1 = {};
+      const config_1 = {
+        deferRender: true, processing: true,
+        data: tableData_1,
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+        stateSave: false,
+        autoWidth: false,
+        select: true,
+        colReorder: true,
+        rowGroup: { enable: false },
+        responsive: true,
+        fixedHeader: true,
+        orderCellsTop: true,
+        scrollX: true,
+        layout: {
+          top1Start: { buttons: [{ extend: 'searchBuilder', className: 'btn-primary', text: '<i class="bi bi-funnel"></i> Advanced Filter' }] },
+          top1End: 'search',
+          topStart: { buttons: [
+            { extend: 'copy', className: 'btn-secondary', text: '<i class="bi bi-clipboard"></i> Copy', exportOptions: { columns: ':visible' } },
+            { extend: 'csv', className: 'btn-secondary', text: '<i class="bi bi-filetype-csv"></i> CSV', exportOptions: { columns: ':visible' } },
+            { extend: 'excel', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-excel"></i> Excel', exportOptions: { columns: ':visible' } },
+            { extend: 'pdf', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-pdf"></i> PDF', orientation: 'portrait', exportOptions: { columns: ':visible' } },
+            { extend: 'print', className: 'btn-secondary', text: '<i class="bi bi-printer"></i> Print', exportOptions: { columns: ':visible' } },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-eye"></i> Columns', buttons: [
+              { text: '<i class="bi bi-check-all"></i> Show All', action: function(e, dt) { dt.columns().visible(true); } },
+              { text: '<i class="bi bi-x-lg"></i> Hide All', action: function(e, dt) { dt.columns().visible(false); } },
+              'columnsVisibility'
+            ] },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-collection"></i> Group By', autoClose: true, buttons: function() {
+              var btns = [{ text: '<i class="bi bi-x-circle"></i> No Grouping', action: function(e, dt) { dt.rowGroup().enable(false); dt.draw(); } }];
+              $('#dt-4 thead th').each(function(idx) { var colName = $(this).text(); btns.push({ text: colName, action: function(e, dt) { dt.rowGroup().dataSrc(idx).enable(true); dt.order([idx, 'asc']).draw(); } }); });
+              return btns; } }
+          ] },
+          topEnd: 'pageLength',
+          bottomStart: 'info', bottomEnd: 'paging'
+        },
+        language: { search: '<i class="bi bi-search"></i>', searchPlaceholder: 'Search all columns...', lengthMenu: 'Show _MENU_', info: 'Showing _START_ to _END_ of _TOTAL_ entries', infoFiltered: '(filtered from _MAX_)', paginate: { first: 'First', previous: 'Prev', next: 'Next', last: 'Last' }, select: { rows: { _: '%d rows selected', 0: '', 1: '1 row selected' } } },
+        columnDefs: [
+            { className: 'dt-center', width: '13,6%', targets: 0 },
+            { className: 'dt-center', width: '12,5%', targets: 1 },
+            { className: 'dt-center', width: '26,3%', targets: 2 },
+            { className: 'dt-center', width: '22,2%', targets: 3 },
+            { className: 'dt-center', width: '25,4%', targets: 4 },
+            { render: DataTable.render.text(), targets: '_all' }
+        ],
+        order: []
+      };
+
+      const tableData_2 = [["646","1","ッǟʟɨƈɛ༄","OSM","1.500.197.282"],["646","2","Zerethusta","OSM","1.255.019.783"],["646","3","What٠","OSM","1.227.258.979"],["740","4","Fifa Štar Ñader","OBC","1.182.149.036"],["740","5","RAKAN~~Ksa","OBC","911.991.360"],["646","6","Lexi 0 ᵥ 0","AIR","888.227.572"],["740","7","ICE MAN","OBC","817.001.913"],["646","8","NNIL","OSM","811.733.440"],["646","9","Taste Deez","AIR","790.811.861"],["646","10","༺ʍǟʀɨɛ༻ ᵀᴮᴿ","TBR","749.778.610"],["740","11","Alanoud.","MON","727.732.786"],["646","12","Mando","AIR","693.637.643"],["740","13","『D7╳』","MON","627.895.661"],["646","14","༺Lady A༻","OSM","626.552.457"],["740","15","GeneralKsA","MON","546.653.595"],["646","16","Amoor","SFZ","533.851.729"],["646","17","ɮɛǟʀʕ·͡ᴥ፝֟·ʔ ᵀᴮᴿ","TBR","531.659.192"],["646","18","J O E L","AIR","526.429.195"],["740","19","GᵒᵉT Ωωeɹ","OBC","522.796.932"],["740","20","「Śúúúê Yäššêř」","OBC","494.056.071"],["740","21","Blawy","OBC","464.921.426"],["646","22","ⒷⓊⓏⓏ","TBR","455.956.911"],["740","23","Mα3Bσσσ¢н KWT","MON","454.832.407"],["740","24","BO_7MOOD","MON","453.509.665"],["740","25","Magna","OBC","453.072.357"],["740","26","「Abu Yusuf」","OBC","432.867.697"],["646","27","LucyGrayBaird","AIR","428.548.888"],["646","28","Skinny Puppy ᶠᵘˣ","FUX","375.300.697"],["646","29","İKO","AIR","374.402.367"],["646","30","Deadpool","AIR","367.573.491"],["740","31","Saudi Arabia","OBC","367.157.833"],["740","32","","KOH","360.802.928"],["646","33","LokiOdinson","AIR","359.631.943"],["740","34","Blackcara","MON","356.038.634"],["646","35","Aves","OSM","350.914.552"],["740","36","PATCHİ","MON","348.450.619"],["740","37","Onur","rBV","325.514.967"],["740","38","ৱঢ় SHADOWwar ঢ়ৱ","OBC","306.648.588"],["740","39","C3M0 Sagara","OBC","299.436.643"],["646","40","Nav","FUX","294.508.345"],["740","41","OTB","CCR","292.280.130"],["740","42","avalancheUwU","OBC","250.573.452"],["740","43","A,M,15","OBC","244.157.746"],["740","44","GANDAL","CCR","241.579.073"],["646","45","Joy Boy","AIR","241.494.815"],["740","46","Miss Jöle","OBC","226.036.045"],["646","47","Dish","AIR","222.610.940"],["646","48","Marihøne","FUX","219.664.837"],["646","49","Mars","SFZ","217.361.744"],["740","50","AlSubaie","MON","214.683.541"],["740","51","NikferCarsi","MON","202.238.709"],["740","52","Pink Tiger","OBC","201.135.011"],["646","53","EPIC","TBR","200.649.069"],["740","54","Lady Woo","KOH","198.862.145"],["740","55","FaTiMa","OBC","197.109.548"],["740","56","Cerberus","OBC","195.939.629"],["646","57","Song jin hwo","TBR","195.491.739"],["646","58","༒ঔĦąřļęÿ Çřîmঔ༒","OSM","192.451.087"],["646","59","Queen C","OSM","186.979.228"],["740","60","TöXiÇ 『KWT』","MON","186.870.219"],["740","61","ஜ SIMO ჯe syr","MON","182.624.337"],["740","62","cАПТАІNНаmΔi","OBC","171.188.127"],["740","63","JӨКΣЯ ツ","OBC","170.116.226"],["646","64","@AL SINWAR@","AIR","166.448.818"],["646","65","337","OSM","162.099.611"],["740","66","Megaladon","CCR","162.046.795"],["740","67","AahedAhmed","OBC","157.370.234"],["646","68","Lurtz 調皮海豚","FUX","155.875.594"],["740","69","Vassy","rBV","155.758.901"],["740","70","Tfjeer","MON","154.898.960"],["646","71","꧁ʝahae꧂","OSM","154.716.566"],["646","72","ঔৣ ɳαɳα ঔৣ ᶠᵘˣ","FUX","154.045.681"],["646","73","Chief13","AIR","153.115.046"],["646","74","Glory 8686","TBR","148.678.417"],["740","75","Nada Ksa","OBC","144.833.081"],["646","76","Mariah","FUX","143.627.879"],["740","77","°· Wizo ·°","MON","140.553.987"],["740","78","Stormi","FLY","138.281.181"],["740","79","MOHAM3DLy","MON","138.071.862"],["646","80","Lord Whitebread","FUX","135.961.720"],["740","81","WEREWOLF","rBV","135.341.625"],["646","82","fūrîøšā","AIR","133.921.392"],["646","83","Azrus","AIR","133.638.777"],["646","84","LordJenS","OSM","130.291.657"],["646","85","Milek","AIR","129.950.052"],["646","86","Toruk Makto Alv","TbR","126.863.160"],["646","87","Thorskipoo","OSM","126.582.455"],["646","88","KIEO","FUX","124.886.909"],["740","89","Majdi","MON","124.403.981"],["740","90","『BTaTa』","MON","124.260.010"],["740","91","AHMAD","MON","119.820.675"],["646","92","SirSnorlax","AIR","119.258.582"],["740","93","JLandlord","OBC","119.021.069"],["740","94","Ahmed qu","MON","118.279.223"],["740","95","MAHA","OBC","117.716.388"],["646","96","Ðo҉va҉h ø Ҟi҉in","OSM","117.553.769"],["740","97","♡BLACK ROSE♡ ΣЖЗ","MON","115.171.735"],["646","98","Lion","TBR","114.950.804"],["646","99","Peter the Great","TBR","113.476.390"],["646","100","Xiao Cloud坐看云起时","TBR","111.840.318"],["740","101","RCBWAR","OBC","110.821.469"],["740","102","AjLan","MON","108.811.197"],["740","103","HAKAN jr jr","obc","106.738.046"],["646","104","Bubble","TbR","106.274.430"],["646","105","krotek 0 ᵥ 0","AIR","104.546.144"],["740","106","Ķšâ~","OBC","104.521.970"],["740","107","SQ57","MON","103.323.132"],["740","108","ALeEx","MON","103.210.608"],["740","109","Raffa","rBV","100.451.553"],["646","110","Lucille ᴸᵘˣ","FUX","100.375.219"],["646","111","Mr B e e n","OSM","99.136.126"],["740","112","KaaXv","FLY","98.177.163"],["740","113","Cattooo","MON","97.865.598"],["740","114","◇A96◇","MON","96.439.140"],["740","115","°ȜAMANIǴ°","OBC","94.941.824"],["740","116","ليث","MON","94.499.643"],["646","117","PickleMan","SFZ","94.483.032"],["740","118","EliteHero","OBC","94.377.058"],["646","119","Dominator1369","AIR","92.675.422"],["646","120","ØNÐE","AIR","92.280.610"],["740","121","800","OBC","91.051.400"],["740","122","TheGreat","MON","90.643.284"],["740","123","st Knickerless","TOP","89.469.632"],["740","124","Ghezlan","OBC","89.283.333"],["646","125","RobinS","DFT","88.169.872"],["646","126","ALI2030","OSM","88.096.182"],["740","127","lordfatih01","OBC","85.712.572"],["646","128","Mobster Lobster","FUX","84.340.541"],["646","129","Zupi ᵀᴮᴿ","TBR","83.899.918"],["740","130","BU KEYAN","OBC","83.811.247"],["740","131","Lorlddk","TOP","83.165.176"],["740","132","جنان","MON","82.198.777"],["740","133","#729SBA","TOP","82.162.026"],["646","134","Semetican","AIR","81.638.772"],["740","135","Chuytk","FLY","81.571.361"],["740","136","Major Tom 12th","rBV","81.392.391"],["646","137","DFM","AIR","80.597.899"],["740","138","《FrozenNugget》","TOP","78.935.699"],["740","139","Escanor","FLY","78.470.413"],["740","140","King Odino","rBV","77.754.314"],["740","141","Dan","OBC","77.744.760"],["646","142","Hk ツ","DFT","77.716.971"],["646","143","◤K◢◤o◢◤c◢◤h◢◤i◢","FUX","77.643.850"],["646","144","Supotco","DFT","76.868.971"],["646","145","Carbonite Han","TBR","76.605.969"],["740","146","jordoo","OBC","75.472.549"],["740","147","Zeroed","rBV","74.591.613"],["740","148","PotAnton","rBV","74.500.969"],["740","149","🌿PhARАоН °кИ","OBC","74.424.476"],["646","150","༄ᴮᶤᴳλλɱεર00࿐","OSM","74.396.981"],["740","151","Ghaida","MON","73.305.562"],["646","152","Pekson","AIR","72.176.213"],["740","153","DrShadlil","MON","71.761.899"],["646","154","乃 尺 卂 丨 几 丨 卂 匚","FUX","71.592.107"],["740","155","KAFD","MON","71.572.769"],["740","156","Frogger 2","rBV","70.195.895"],["646","157","kas","FUX","70.180.239"],["646","158","Whick","TBR","68.808.522"],["740","159","Fatima1","CCR","68.724.300"],["740","160","Krack Head","OBC","68.117.770"],["646","161","Chris 1","TbR","68.109.702"],["740","162","Fatima2","CCR","67.737.210"],["740","163","Hakan Jr","obc","65.661.364"],["646","164","Papa Smurf","AIR","64.996.978"],["740","165","Lasu","","64.763.145"],["740","166","LorkRokan","KOH","64.191.965"],["646","167","Sebastian514","TBR","64.140.982"],["646","168","ScRoo U","AIR","63.818.569"],["646","169","LoveOutLoud","OSM","63.808.491"],["646","170","DevilinDisguise","AIR","63.110.130"],["646","171","PITCHOUNE","FUX","63.049.534"],["646","172","Victorianana","ELF","62.953.094"],["740","173","M BÕØ M","MON","62.648.336"],["740","174","Hormonette","FLY","62.423.772"],["740","175","# Güneş #","MON","61.641.741"],["740","176","Charlie_","rB2","61.612.997"],["740","177","سامي","MON","61.531.555"],["740","178","Butra","rBV","61.003.116"],["646","179","KnightRider","DFT","60.877.124"],["646","180","Versatile BFG","OSM","60.720.422"],["740","181","Runnin1905","","59.276.062"],["740","182","MOHAMMED","MON","58.841.958"],["740","183","Spartacσ","rBV","58.585.022"],["740","184","بدر مرشد","MON","58.531.132"],["740","185","BFanger","TOP","58.508.055"],["740","186","Lord αInz","FLY","58.035.449"],["646","187","Amaruq","TBR","57.723.575"],["740","188","heNq","OBC","57.354.423"],["646","189","Timbo","ELF","56.936.716"],["646","190","Nugglicious","DFT","56.896.376"],["740","191","BAGHEERA47","MON","56.659.293"],["646","192","༺MaQ2༻ ᵀᴮᴿ","TBR","56.637.515"],["740","193","Pippo Darnaso","TOP","55.898.460"],["646","194","Code","osm","55.772.012"],["646","195","#483bagheera","DFT","55.462.236"],["740","196","Professor","OBC","55.059.577"],["646","197","Formosa","TbR","54.831.169"],["740","198","Myrrima7","FLY","54.391.383"],["646","199","المافيا","TbR","54.337.632"],["646","200","RayKing","FUX","54.113.091"]];
+      const DATE_COLUMNS_2 = [];
+      const DATE_COL_ORDER_2 = {};
+      const config_2 = {
+        deferRender: true, processing: true,
+        data: tableData_2,
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+        stateSave: false,
+        autoWidth: false,
+        select: true,
+        colReorder: true,
+        rowGroup: { enable: false },
+        responsive: true,
+        fixedHeader: true,
+        orderCellsTop: true,
+        scrollX: true,
+        layout: {
+          top1Start: { buttons: [{ extend: 'searchBuilder', className: 'btn-primary', text: '<i class="bi bi-funnel"></i> Advanced Filter' }] },
+          top1End: 'search',
+          topStart: { buttons: [
+            { extend: 'copy', className: 'btn-secondary', text: '<i class="bi bi-clipboard"></i> Copy', exportOptions: { columns: ':visible' } },
+            { extend: 'csv', className: 'btn-secondary', text: '<i class="bi bi-filetype-csv"></i> CSV', exportOptions: { columns: ':visible' } },
+            { extend: 'excel', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-excel"></i> Excel', exportOptions: { columns: ':visible' } },
+            { extend: 'pdf', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-pdf"></i> PDF', orientation: 'portrait', exportOptions: { columns: ':visible' } },
+            { extend: 'print', className: 'btn-secondary', text: '<i class="bi bi-printer"></i> Print', exportOptions: { columns: ':visible' } },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-eye"></i> Columns', buttons: [
+              { text: '<i class="bi bi-check-all"></i> Show All', action: function(e, dt) { dt.columns().visible(true); } },
+              { text: '<i class="bi bi-x-lg"></i> Hide All', action: function(e, dt) { dt.columns().visible(false); } },
+              'columnsVisibility'
+            ] },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-collection"></i> Group By', autoClose: true, buttons: function() {
+              var btns = [{ text: '<i class="bi bi-x-circle"></i> No Grouping', action: function(e, dt) { dt.rowGroup().enable(false); dt.draw(); } }];
+              $('#dt-4 thead th').each(function(idx) { var colName = $(this).text(); btns.push({ text: colName, action: function(e, dt) { dt.rowGroup().dataSrc(idx).enable(true); dt.order([idx, 'asc']).draw(); } }); });
+              return btns; } }
+          ] },
+          topEnd: 'pageLength',
+          bottomStart: 'info', bottomEnd: 'paging'
+        },
+        language: { search: '<i class="bi bi-search"></i>', searchPlaceholder: 'Search all columns...', lengthMenu: 'Show _MENU_', info: 'Showing _START_ to _END_ of _TOTAL_ entries', infoFiltered: '(filtered from _MAX_)', paginate: { first: 'First', previous: 'Prev', next: 'Next', last: 'Last' }, select: { rows: { _: '%d rows selected', 0: '', 1: '1 row selected' } } },
+        columnDefs: [
+            { className: 'dt-center', width: '15,6%', targets: 0 },
+            { className: 'dt-center', width: '14,4%', targets: 1 },
+            { className: 'dt-center', width: '30,3%', targets: 2 },
+            { className: 'dt-center', width: '17,9%', targets: 3 },
+            { className: 'dt-center', width: '21,8%', targets: 4 },
+            { render: DataTable.render.text(), targets: '_all' }
+        ],
+        order: []
+      };
+
+      const tableData_3 = [["646","1","PKB","Peekaboo","13.503.484.311"],["740","2","OBC","OneBrainCell","11.357.111.401"],["740","3","MON","MONSTERS","6.977.421.954"],["646","4","GYN","GotYourNose","6.819.195.742"],["740","5","rBV","AlphaItaliaTV","3.402.977.474"],["740","6","FLY","Fireflies","1.235.343.305"],["740","7","TOP","TOPSavageDucks","1.038.938.454"],["646","8","AIR","AngelsInRevolt","910.059.088"],["646","9","DFT","DaFngTurtles","728.123.916"],["740","10","obc","onebraincell","623.075.649"],["646","11","OSM","OldSpicyMisfits","600.478.886"],["646","12","TbR","TacticalRecipes2","534.530.229"],["646","13","TBR","TacticalBakedRCP","481.280.575"],["646","14","FUX","LuckyFuqqers","478.844.268"],["646","15","SFZ","TheSafeZone","411.934.462"],["646","16","ELF","Littlefuqers","375.013.318"],["740","17","fly","flyCandyland","263.857.950"],["646","18","osm","ChaoticMisfits","173.161.644"],["646","19","EVL","Immortals","81.593.973"],["740","20","rB2","AlphaItaAcademy","67.026.464"],["646","21","HYg","Twilight","61.040.940"],["646","22","fux","LittleFux","28.129.319"],["646","23","HSW","Winterfell","21.687.004"],["740","24","PPG","PewPewGang","21.600.407"],["740","25","HOD","HouseOfDragons","19.671.380"],["740","26","CCR","obc2","19.053.303"],["646","27","AST","Thepest","18.925.922"],["740","28","INA","IceNation","16.513.066"],["646","29","spi","blv","12.470.602"],["740","30","HSQ","Cocosadams","10.159.506"],["740","31","7SS","7s","9.868.390"],["740","32","MLT","Moonlight","8.481.698"],["740","33","SDL","Sunnydale","7.196.804"],["740","34","mOn","mOnSTERS","6.873.122"],["740","35","vMa","VirtualMasters","2.753.768"],["646","36","die","Horde","2.137.897"]];
+      const DATE_COLUMNS_3 = [];
+      const DATE_COL_ORDER_3 = {};
+      const config_3 = {
+        deferRender: true, processing: true,
+        data: tableData_3,
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+        stateSave: false,
+        autoWidth: false,
+        select: true,
+        colReorder: true,
+        rowGroup: { enable: false },
+        responsive: true,
+        fixedHeader: true,
+        orderCellsTop: true,
+        scrollX: true,
+        layout: {
+          top1Start: { buttons: [{ extend: 'searchBuilder', className: 'btn-primary', text: '<i class="bi bi-funnel"></i> Advanced Filter' }] },
+          top1End: 'search',
+          topStart: { buttons: [
+            { extend: 'copy', className: 'btn-secondary', text: '<i class="bi bi-clipboard"></i> Copy', exportOptions: { columns: ':visible' } },
+            { extend: 'csv', className: 'btn-secondary', text: '<i class="bi bi-filetype-csv"></i> CSV', exportOptions: { columns: ':visible' } },
+            { extend: 'excel', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-excel"></i> Excel', exportOptions: { columns: ':visible' } },
+            { extend: 'pdf', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-pdf"></i> PDF', orientation: 'portrait', exportOptions: { columns: ':visible' } },
+            { extend: 'print', className: 'btn-secondary', text: '<i class="bi bi-printer"></i> Print', exportOptions: { columns: ':visible' } },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-eye"></i> Columns', buttons: [
+              { text: '<i class="bi bi-check-all"></i> Show All', action: function(e, dt) { dt.columns().visible(true); } },
+              { text: '<i class="bi bi-x-lg"></i> Hide All', action: function(e, dt) { dt.columns().visible(false); } },
+              'columnsVisibility'
+            ] },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-collection"></i> Group By', autoClose: true, buttons: function() {
+              var btns = [{ text: '<i class="bi bi-x-circle"></i> No Grouping', action: function(e, dt) { dt.rowGroup().enable(false); dt.draw(); } }];
+              $('#dt-4 thead th').each(function(idx) { var colName = $(this).text(); btns.push({ text: colName, action: function(e, dt) { dt.rowGroup().dataSrc(idx).enable(true); dt.order([idx, 'asc']).draw(); } }); });
+              return btns; } }
+          ] },
+          topEnd: 'pageLength',
+          bottomStart: 'info', bottomEnd: 'paging'
+        },
+        language: { search: '<i class="bi bi-search"></i>', searchPlaceholder: 'Search all columns...', lengthMenu: 'Show _MENU_', info: 'Showing _START_ to _END_ of _TOTAL_ entries', infoFiltered: '(filtered from _MAX_)', paginate: { first: 'First', previous: 'Prev', next: 'Next', last: 'Last' }, select: { rows: { _: '%d rows selected', 0: '', 1: '1 row selected' } } },
+        columnDefs: [
+            { className: 'dt-center', width: '13,6%', targets: 0 },
+            { className: 'dt-center', width: '12,5%', targets: 1 },
+            { className: 'dt-center', width: '26,3%', targets: 2 },
+            { className: 'dt-center', width: '22,2%', targets: 3 },
+            { className: 'dt-center', width: '25,4%', targets: 4 },
+            { render: DataTable.render.text(), targets: '_all' }
+        ],
+        order: []
+      };
+
+      const tableData_4 = [["1","Lexi 0 ᵥ 0","AIR","440.751.111"],["2","Zerethusta","OSM","391.267.809"],["3","ッǟʟɨƈɛ༄","OSM","379.050.562"],["4","ɮɛǟʀʕ·͡ᴥ፝֟·ʔ ᵀᴮᴿ","TBR","287.318.592"],["5","J O E L","AIR","251.286.589"],["6","༺Lady A༻","OSM","249.507.396"],["7","LucyGrayBaird","AIR","240.869.697"],["8","What٠","OSM","236.180.980"],["9","ⒷⓊⓏⓏ","TBR","236.050.682"],["10","༺ʍǟʀɨɛ༻ ᵀᴮᴿ","TBR","235.899.691"],["11","Taste Deez","AIR","210.554.397"],["12","LokiOdinson","AIR","205.816.877"],["13","Amoor","SFZ","197.496.654"],["14","Skinny Puppy ᶠᵘˣ","FUX","194.751.183"],["15","Mando","AIR","171.581.491"],["16","Nav","FUX","156.136.064"],["17","Queen C","OSM","139.957.563"],["18","NNIL","OSM","128.225.343"],["19","Joy Boy","AIR","126.089.555"],["20","Dish","AIR","119.340.937"],["21","337","OSM","103.984.916"],["22","İKO","AIR","103.763.943"],["23","Aves","OSM","103.180.931"],["24","EPIC","TBR","101.663.782"],["25","Mars","SFZ","96.324.445"],["26","༒ঔĦąřļęÿ Çřîmঔ༒","OSM","94.744.848"],["27","ঔৣ ɳαɳα ঔৣ ᶠᵘˣ","FUX","91.795.345"],["28","Mr B e e n","OSM","85.531.534"],["29","Lord Whitebread","FUX","85.170.430"],["30","LordJenS","OSM","84.839.315"],["31","Milek","AIR","84.143.224"],["32","Lion","TBR","81.626.125"],["33","fūrîøšā","AIR","81.188.313"],["34","Azrus","AIR","78.030.116"],["35","Thorskipoo","OSM","76.450.025"],["36","Mariah","FUX","76.359.122"],["37","Chief13","AIR","73.415.562"],["38","꧁ʝahae꧂","OSM","73.377.178"],["39","KIEO","FUX","72.232.197"],["40","Ðo҉va҉h ø Ҟi҉in","OSM","71.661.984"],["41","Dominator1369","AIR","71.152.505"],["42","SirSnorlax","AIR","70.581.059"],["43","Peter the Great","TBR","70.424.738"],["44","Whick","TBR","68.322.996"],["45","krotek 0 ᵥ 0","AIR","66.267.200"],["46","ØNÐE","AIR","65.612.114"],["47","Bubble","TbR","62.041.155"],["48","Marihøne","FUX","58.929.594"],["49","Song jin hwo","TBR","58.462.839"],["50","PickleMan","SFZ","57.602.762"],["51","Lucille ᴸᵘˣ","FUX","56.503.187"],["52","Semetican","AIR","52.654.318"],["53","Mobster Lobster","FUX","49.443.838"],["54","◤K◢◤o◢◤c◢◤h◢◤i◢","FUX","47.192.970"],["55","ALI2030","OSM","46.876.905"],["56","PITCHOUNE","FUX","46.729.153"],["57","Zupi ᵀᴮᴿ","TBR","43.167.520"],["58","Jazz","TBR","43.015.350"],["59","Carbonite Han","TBR","41.522.962"],["60","༄ᴮᶤᴳλλɱεર00࿐","OSM","41.024.410"],["61","Hk ツ","DFT","40.185.470"],["62","LoveOutLoud","OSM","39.925.629"],["63","@AL SINWAR@","AIR","39.771.244"],["64","Deadpool","AIR","39.672.494"],["65","乃 尺 卂 丨 几 丨 卂 匚","FUX","38.852.519"],["66","cezar150","AIR","36.857.476"],["67","DevilinDisguise","AIR","36.029.900"],["68","AGZ","AIR","35.508.543"],["69","S̴E̴D̴A̴T̴","TBR","35.414.519"],["70","ʝǟʏƈʊȶʟɛʀ","TBR","33.179.995"],["71","kas","FUX","32.724.373"],["72","ALMARRI","DFT","32.672.199"],["73","DuckyMac","FUX","32.525.738"],["74","Glory 8686","TBR","32.445.516"],["75","AliceMadaquacker","OSM","31.042.652"],["76","GING3","OSM","28.717.285"],["77","꧁༒UĞUR༒꧂","FUX","27.831.499"],["78","Band_animal","OSM","25.224.734"],["79","《《STU666》》","FUX","25.112.469"],["80","edotensei","OSM","24.375.821"],["81","FeistyMapìa","FUX","24.204.949"],["82","Whenst","OSM","24.082.994"],["83","Toruk Makto Alv","TbR","23.066.343"],["84","༄༊࿆Viola࿐","FUX","21.927.353"],["85","Nadeem81","AIR","21.610.879"],["86","࿔ྀᶜᵉ᭄ꕥNӪrɪ፝֟ꕥᝰ","TBR","21.418.620"],["87","ⓃⒶⒾⒻ","AIR","19.592.429"],["88","Wiolek","AIR","19.330.665"],["89","GrandWizzard","AIR","18.988.625"],["90","Johnny ᴸᵘˣ","FUX","18.729.753"],["91","༺MaQ2༻ ᵀᴮᴿ","TBR","17.967.696"],["92","RRRS","TBR","16.936.714"],["93","exit","TBR","16.273.465"],["94","Kraspen","GYN","16.186.237"],["95","吉村ㄧ樹","TBR","16.083.125"],["96","Versatile BFG","OSM","16.029.289"],["97","Lady Poison13","AIR","15.706.873"],["98","NARO","SFZ","15.622.027"],["99","Odenie","FUX","15.565.500"],["100","King of Babylon","TBR","14.848.576"]];
+      const DATE_COLUMNS_4 = [];
+      const DATE_COL_ORDER_4 = {};
+      const config_4 = {
+        deferRender: true, processing: true,
+        data: tableData_4,
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+        stateSave: false,
+        autoWidth: false,
+        select: true,
+        colReorder: true,
+        rowGroup: { enable: false },
+        responsive: true,
+        fixedHeader: true,
+        orderCellsTop: true,
+        scrollX: true,
+        layout: {
+          top1Start: { buttons: [{ extend: 'searchBuilder', className: 'btn-primary', text: '<i class="bi bi-funnel"></i> Advanced Filter' }] },
+          top1End: 'search',
+          topStart: { buttons: [
+            { extend: 'copy', className: 'btn-secondary', text: '<i class="bi bi-clipboard"></i> Copy', exportOptions: { columns: ':visible' } },
+            { extend: 'csv', className: 'btn-secondary', text: '<i class="bi bi-filetype-csv"></i> CSV', exportOptions: { columns: ':visible' } },
+            { extend: 'excel', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-excel"></i> Excel', exportOptions: { columns: ':visible' } },
+            { extend: 'pdf', className: 'btn-secondary', text: '<i class="bi bi-file-earmark-pdf"></i> PDF', orientation: 'portrait', exportOptions: { columns: ':visible' } },
+            { extend: 'print', className: 'btn-secondary', text: '<i class="bi bi-printer"></i> Print', exportOptions: { columns: ':visible' } },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-eye"></i> Columns', buttons: [
+              { text: '<i class="bi bi-check-all"></i> Show All', action: function(e, dt) { dt.columns().visible(true); } },
+              { text: '<i class="bi bi-x-lg"></i> Hide All', action: function(e, dt) { dt.columns().visible(false); } },
+              'columnsVisibility'
+            ] },
+            { extend: 'collection', className: 'btn-secondary', text: '<i class="bi bi-collection"></i> Group By', autoClose: true, buttons: function() {
+              var btns = [{ text: '<i class="bi bi-x-circle"></i> No Grouping', action: function(e, dt) { dt.rowGroup().enable(false); dt.draw(); } }];
+              $('#dt-4 thead th').each(function(idx) { var colName = $(this).text(); btns.push({ text: colName, action: function(e, dt) { dt.rowGroup().dataSrc(idx).enable(true); dt.order([idx, 'asc']).draw(); } }); });
+              return btns; } }
+          ] },
+          topEnd: 'pageLength',
+          bottomStart: 'info', bottomEnd: 'paging'
+        },
+        language: { search: '<i class="bi bi-search"></i>', searchPlaceholder: 'Search all columns...', lengthMenu: 'Show _MENU_', info: 'Showing _START_ to _END_ of _TOTAL_ entries', infoFiltered: '(filtered from _MAX_)', paginate: { first: 'First', previous: 'Prev', next: 'Next', last: 'Last' }, select: { rows: { _: '%d rows selected', 0: '', 1: '1 row selected' } } },
+        columnDefs: [
+            { className: 'dt-center', width: '17,1%', targets: 0 },
+            { className: 'dt-center', width: '35,9%', targets: 1 },
+            { className: 'dt-center', width: '21,2%', targets: 2 },
+            { className: 'dt-center', width: '25,8%', targets: 3 },
+            { render: DataTable.render.text(), targets: '_all' }
+        ],
+        order: []
+      };
+
+      function initTable(tableId, idx, dateColumns, dateColOrder) {
+        var tblEl = $('#' + tableId);
+        if ($.fn.dataTable.isDataTable(tblEl)) { tblEl.DataTable().columns.adjust(); return; }
+        var cfg = eval('config_' + idx);
+        cfg.initComplete = function() {
+          var api = this.api();
+          var nTableId = tableId;
+          var filterTr = $('<tr class="filter-row"></tr>');
+          api.columns().every(function(){ filterTr.append('<th></th>'); });
+          $(api.table().header()).append(filterTr);
+          function stripHtml(s){var tmp=document.createElement('div');tmp.innerHTML=s;var t=tmp.textContent||tmp.innerText||'';if(!t.trim()){var img=tmp.querySelector('img');if(img)t=img.alt||img.title||img.src.split('/').pop();}return t||s;}
+          api.columns().every(function(colIdx) {
+            var column = this, data = column.data().toArray(), nonEmpty = data.filter(v => v !== '');
+            var colType = column.type();
+            var isDate = dateColumns.indexOf(colIdx) !== -1;
+            var isNumeric = !isDate && (colType === 'num' || colType === 'num-fmt' || colType === 'html-num' || colType === 'html-num-fmt');
+            var th = $(column.header()).closest('thead').find('.filter-row th').eq(colIdx);
+            th.attr('data-col-idx', colIdx);
+            if (isDate) {
+              var dateWrap = $('<div class="date-filter-wrap"></div>');
+              var opSel = $('<select class="form-select form-select-sm" title="= exact, >= on or after, <= on or before, > after, < before, &harr; between two dates"></select>');
+              $.each([['','--'],['=','='],['>=','\u2265'],['<=','\u2264'],['>','>'],['<','<'],['..','\u2194']], function(i,v) { opSel.append($('<option></option>').val(v[0]).text(v[1])); });
+              var dateA = $('<input type="date" class="form-control form-control-sm">'), dateB = $('<input type="date" class="form-control form-control-sm">').hide();
+              dateWrap.append(opSel).append(dateA).append(dateB);
+              (function(opSel,dateA,dateB,column,colIdx,nTableId){
+                var colOrder=dateColOrder.hasOwnProperty(colIdx)?dateColOrder[colIdx]:DATE_ORDER;
+                function toDateMs(s){if(!s)return NaN;var ms,y,m,d;var iso=s.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);if(iso){ms=Date.parse(iso[1]+'-'+iso[2]+'-'+iso[3]);if(!isNaN(ms))return ms;}var parts=s.match(/(\d{1,2})\D+(\d{1,2})\D+(\d{2,4})/);if(parts){var a=parts[1],b=parts[2],c=parts[3];if(colOrder===1){d=a;m=b;y=c;}else if(colOrder===0){m=a;d=b;y=c;}else{y=a;m=b;d=c;}if(y.length===2){y=(parseInt(y,10)<=29?'20':'19')+y;}ms=Date.parse(y+'-'+m+'-'+d);if(!isNaN(ms))return ms;}ms=Date.parse(s);return isNaN(ms)?NaN:ms;}
+                opSel.on('change',function(){if($(this).val()==='..'){dateB.show();}else{dateB.hide().val('');}if($(this).val()===''){dateA.val('');dateB.val('');}column.draw();});
+                $.fn.dataTable.ext.search.push(function(settings,row){if(settings.nTable.id!==nTableId)return true;var op=opSel.val(),a=dateA.val();if(!op||!a)return true;var cell=row[colIdx];if(cell===''||cell===null||cell===undefined)return true;var cellMs=toDateMs(cell);if(isNaN(cellMs))return false;var aMs=Date.parse(a+'T00:00:00');if(op==='=')return cellMs>=aMs&&cellMs<=Date.parse(a+'T23:59:59');if(op==='>=')return cellMs>=aMs;if(op==='>')return cellMs>Date.parse(a+'T23:59:59');if(op==='<=')return cellMs<=Date.parse(a+'T23:59:59');if(op==='<')return cellMs<aMs;if(op==='..'){var b=dateB.val();return cellMs>=aMs&&cellMs<=(b?Date.parse(b+'T23:59:59'):Infinity);}return true;});
+                dateA.on('change',function(){column.draw();});dateB.on('change',function(){column.draw();});
+              })(opSel,dateA,dateB,column,colIdx,nTableId);
+              th.append(dateWrap);
+            } else if (isNumeric) {
+              th.css('text-align','right');
+              var pn=function(v){var s=v.toString().replace(/[^0-9.,\s\-]/g,'');if(THOUSANDS_SEP)s=s.split(THOUSANDS_SEP).join('');if(DECIMAL_SEP!=='.')s=s.replace(DECIMAL_SEP,'.');return parseFloat(s);};
+              var nums=nonEmpty.map(pn).filter(function(n){return isFinite(n);});
+              var hint=nums.length>=2?'>'+Math.min.apply(null,nums)+' <'+Math.max.apply(null,nums):'>min <max';
+              var exprInput=$('<input type="text" class="form-control form-control-sm text-end" style="width:100%">');
+              exprInput.attr('placeholder',hint).attr('title','Use >, <, >=, <=, = operators or semicolons for multiple values');
+              (function(exprInput,column,colIdx,nTableId){
+                function parseNum(s){if(s===undefined||s===null||s==='')return NaN;s=s.toString().replace(/[^0-9.,\s-]/g,'');if(THOUSANDS_SEP)s=s.split(THOUSANDS_SEP).join('');if(DECIMAL_SEP!=='.')s=s.replace(DECIMAL_SEP,'.');return parseFloat(s);}
+                function parseExpr(expr){var conditions=[],multiVals=[];var regex=/(>=|<=|>|<|=)\s*([0-9,.\s-]+)/g;var m;while((m=regex.exec(expr))!==null){conditions.push({op:m[1],val:parseNum(m[2])});}if(conditions.length===0&&expr.trim()!==''){expr.split(';').forEach(function(part){var n=parseNum(part.trim());if(!isNaN(n))multiVals.push(n);});}return{conditions:conditions,multiVals:multiVals};}
+                $.fn.dataTable.ext.search.push(function(settings,row){if(settings.nTable.id!==nTableId)return true;var expr=exprInput.val().trim();if(expr==='')return true;var parsed=parseExpr(expr);if(parsed.conditions.length===0&&parsed.multiVals.length===0)return true;var val=parseNum(row[colIdx]);if(isNaN(val))return false;if(parsed.multiVals.length>0)return parsed.multiVals.indexOf(val)!==-1;return parsed.conditions.every(function(c){switch(c.op){case'>':return val>c.val;case'<':return val<c.val;case'>=':return val>=c.val;case'<=':return val<=c.val;case'=':return val===c.val;default:return true;}});});
+                exprInput.on('keyup change',function(){column.draw();});
+              })(exprInput,column,colIdx,nTableId);
+              th.append(exprInput);
+            } else {
+              var uniqueVals=[...new Set(data)].filter(v=>v!=='').sort(function(a,b){return stripHtml(a).localeCompare(stripHtml(b));});
+              var dropdown=$('<div class="multiselect-dropdown"></div>');
+              var btn=$('<button type="button" class="dropdown-btn"><span class="btn-text">All</span><i class="bi bi-chevron-down"></i></button>');
+              var menu=$('<div class="dropdown-menu"></div>');
+              var saId='sa_T'+idx+'_C'+colIdx;
+              var selectAllItem=$('<div class="dropdown-item select-all-item"><input type="checkbox" id="'+saId+'" checked><label for="'+saId+'">Select All</label></div>');
+              menu.append(selectAllItem); var checkedVals=new Set(uniqueVals),allSelected=true;
+              uniqueVals.forEach(function(val,i){var itemId='it_T'+idx+'_C'+colIdx+'_'+i;var item=$('<div class="dropdown-item"></div>');var cb=$('<input type="checkbox" checked>').attr('id',itemId).val(val);var lbl=$('<label></label>').attr('for',itemId).text(stripHtml(val));item.append(cb).append(lbl);menu.append(item);});
+              dropdown.append(btn).append(menu);
+              btn.on('click',function(e){e.stopPropagation();if(!menu.hasClass('show')){var btnPos=btn[0].getBoundingClientRect();menu.appendTo('body').css({position:'fixed',top:btnPos.bottom+'px',left:btnPos.left+'px',width:Math.max(btnPos.width,200)+'px'}).addClass('show');}else{menu.removeClass('show').appendTo(dropdown);}});
+              (function(menu,btn,column,colIdx,checkedVals,allSelected,nTableId,saId){
+                $.fn.dataTable.ext.search.push(function(settings,searchData,dataIndex,rowData){if(settings.nTable.id!==nTableId)return true;if(allSelected)return true;return checkedVals.has(rowData[colIdx]);});
+                function updateFilter(){var checked=menu.find('input[type="checkbox"]:not(#'+saId+'):checked');var total=menu.find('input[type="checkbox"]:not(#'+saId+')').length;checkedVals.clear();checked.each(function(){checkedVals.add($(this).val());});allSelected=(checked.length===total);if(checked.length===0){btn.find('.btn-text').html('None');}else if(allSelected){btn.find('.btn-text').html('All');}else{btn.find('.btn-text').html(checked.length+' selected');}selectAllItem.find('input').prop('checked',allSelected).prop('indeterminate',checked.length>0&&!allSelected);column.draw();}
+                menu.find('input[type="checkbox"]:not(#'+saId+')').on('change',updateFilter);selectAllItem.find('input').on('change',function(){menu.find('input[type="checkbox"]:not(#'+saId+')').prop('checked',$(this).prop('checked'));updateFilter();});
+              })(menu,btn,column,colIdx,checkedVals,allSelected,nTableId,saId);
+              th.append(dropdown);
+            }
+          });
+          if(!window._tpDocClickBound){window._tpDocClickBound=true;$(document).on('click',function(e){$('.multiselect-dropdown').each(function(){var dd=$(this),m=dd.find('.dropdown-menu').add($('body > .dropdown-menu'));if(!dd.is(e.target)&&dd.has(e.target).length===0&&!m.is(e.target)&&m.has(e.target).length===0){m.filter('.show').removeClass('show').appendTo(dd);}});});}
+          var filterRow = $(api.table().node()).find('.filter-row');
+          api.on('column-visibility.dt', function(e, settings, colIdx, visible) {
+            filterRow.find('th[data-col-idx="' + colIdx + '"]').toggle(visible);
+          });
+        };
+        tblEl.DataTable(cfg);
+      }
+
+      initTable('dt-0', 0, DATE_COLUMNS_0, DATE_COL_ORDER_0);
+      $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+        var pane = $($(e.target).attr('data-bs-target'));
+        var tblEl = pane.find('table[id]');
+        $('body > .dropdown-menu.show').removeClass('show');
+        if (tblEl.length) { var id = tblEl.attr('id'); var i = parseInt(id.split('-')[1]); initTable(id, i, eval('DATE_COLUMNS_' + i), eval('DATE_COL_ORDER_' + i)); if($.fn.dataTable.isDataTable(tblEl)){var dt=tblEl.DataTable();if(dt.fixedHeader){dt.fixedHeader.disable();dt.fixedHeader.enable();}} }
+      });
+    });
+    const darkToggle = document.getElementById('darkModeToggle');
+    if (darkToggle) { if (localStorage.getItem('tablepop-darkMode') === 'true') { document.body.classList.add('dark-mode'); darkToggle.checked = true; }
+    darkToggle.addEventListener('change', function() { document.body.classList.toggle('dark-mode', this.checked); localStorage.setItem('tablepop-darkMode', this.checked); }); }
+  </script>
+  <script>if(window!==window.parent){(function(){function post(){window.parent.postMessage({type:'tablepop-resize',height:document.body.scrollHeight},'*');}if(typeof ResizeObserver!=='undefined'){new ResizeObserver(post).observe(document.body);}window.addEventListener('load',post);setInterval(post,1000);})();}</script>
+</body>
+</html>
