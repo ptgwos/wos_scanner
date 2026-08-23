@@ -22,7 +22,22 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 
 .header-divider{color:var(--border);font-size:18px}
 .logo{display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:600}
 .logo i{color:var(--orange);font-size:20px}
-.header-right{margin-left:auto;font-size:12px;color:var(--muted)}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.state-label{font-size:12px;color:var(--muted)}
+
+/* Language switcher */
+.lang-switch{position:relative}
+.lang-current{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:14px;padding:6px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border .12s}
+.lang-current:hover{border-color:var(--accent)}
+.lang-current i{font-size:13px;color:var(--muted)}
+.lang-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:6px;min-width:170px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
+[dir="rtl"] .lang-menu{right:auto;left:0}
+.lang-menu.open{display:block}
+.lang-option{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--text);font-size:13px;padding:8px 10px;border-radius:6px;cursor:pointer;text-align:left}
+[dir="rtl"] .lang-option{text-align:right}
+.lang-option:hover{background:var(--bg4)}
+.lang-option.active{background:rgba(79,142,247,.12);color:var(--accent)}
+.lang-flag{font-size:16px}
 
 .main{max-width:780px;margin:0 auto;padding:2rem}
 
@@ -41,15 +56,19 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 
 
 .rules-list{display:flex;flex-direction:column;gap:8px}
 .rule{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;display:flex;gap:14px;align-items:flex-start;transition:border .12s}
+[dir="rtl"] .rule{flex-direction:row-reverse}
 .rule:hover{border-color:var(--bg4)}
 .rule.critical{border-left:3px solid var(--red)}
 .rule.warning{border-left:3px solid var(--orange)}
 .rule.info{border-left:3px solid var(--accent)}
+[dir="rtl"] .rule.critical{border-left:none;border-right:3px solid var(--red)}
+[dir="rtl"] .rule.warning{border-left:none;border-right:3px solid var(--orange)}
+[dir="rtl"] .rule.info{border-left:none;border-right:3px solid var(--accent)}
 .rule-num{font-size:11px;font-weight:700;color:var(--muted2);min-width:22px;padding-top:2px;flex-shrink:0}
 .rule-body{flex:1;min-width:0}
-.rule-text{font-size:13px;line-height:1.65;color:var(--text)}
-.rule-text strong{color:var(--text);font-weight:600}
-.rule-note{font-size:12px;color:var(--muted);margin-top:6px;padding:6px 10px;background:var(--bg3);border-radius:6px;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
+.rule-text{font-size:13px;line-height:1.75;color:var(--text)}
+.rule-note{font-size:12px;color:var(--muted);margin-top:6px;padding:6px 10px;background:var(--bg3);border-radius:6px;display:flex;align-items:flex-start;gap:6px;line-height:1.6}
+[dir="rtl"] .rule-note{flex-direction:row-reverse}
 .rule-note i{font-size:13px;flex-shrink:0;margin-top:1px}
 .rule-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:99px;margin-bottom:6px}
 .tag-critical{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25)}
@@ -60,122 +79,279 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 
 <body>
 
 <header>
-  <a class="back-link" href="state.html"><i class="ti ti-arrow-left"></i> Home</a>
+  <a class="back-link" href="state.html"><i class="ti ti-arrow-left"></i> <span id="homeText">Home</span></a>
   <span class="header-divider">/</span>
-  <div class="logo"><i class="ti ti-file-description"></i> State Rules</div>
-  <span class="header-right">State 646</span>
+  <div class="logo"><i class="ti ti-file-description"></i> <span id="logoText">State Rules</span></div>
+  <div class="header-right">
+    <span class="state-label">State 646</span>
+    <div class="lang-switch">
+      <button class="lang-current" id="langBtn" onclick="document.getElementById('langMenu').classList.toggle('open')">🇬🇧 <i class="ti ti-chevron-down"></i></button>
+      <div class="lang-menu" id="langMenu"></div>
+    </div>
+  </div>
 </header>
 
 <div class="main">
 
   <div class="page-title">
-    <h2><i class="ti ti-shield-check"></i> State 646 — Official Rules</h2>
-    <p>Rules and guidelines agreed upon by all Active Council alliances. R5s are responsible for informing their members.</p>
+    <h2><i class="ti ti-shield-check"></i> <span id="pageTitleText">State 646 — Official Rules</span></h2>
+    <p id="pageSubtitle">Rules and guidelines agreed upon by all Active Council alliances. R5s are responsible for informing their members.</p>
   </div>
 
-  <div class="section-label"><i class="ti ti-handshake" style="color:var(--green)"></i> Active Council Alliances</div>
+  <div class="section-label"><i class="ti ti-handshake" style="color:var(--green)"></i> <span id="sectionLabelText">Active Council Alliances</span></div>
   <div class="nap-row">
     <span class="nap-badge"><span class="dot" style="background:#4f8ef7"></span> AIR</span>
     <span class="nap-badge"><span class="dot" style="background:#f87171"></span> TBR</span>
     <span class="nap-badge"><span class="dot" style="background:#34d399"></span> OSM</span>
   </div>
 
-  <div class="rules-list">
-
-    <div class="rule info">
-      <span class="rule-num">1</span>
-      <div class="rule-body">
-        <div class="rule-text">AIR, TBR, OSM are "Active Council" and agree to make decisions together regarding all state matters.</div>
-      </div>
-    </div>
-
-    <div class="rule info">
-      <span class="rule-num">2</span>
-      <div class="rule-body">
-        <div class="rule-text">Strongholds will be assigned to the top 3 SvS scoring alliances (Based on 70/30 prep/castle performance) and the 4th stronghold will rotate.</div>
-      </div>
-    </div>
-
-    <div class="rule info">
-      <span class="rule-num">3</span>
-      <div class="rule-body">
-        <div class="rule-text">All 3 top SvS scoring alliances will also take 3 fortresses. The 4th alliance will take 2 fortresses, and the 5th alliance gets 1 fortress. (Based on 70/30 prep/castle performance. Average of 2 preps prior to start of Fortress season.)</div>
-      </div>
-    </div>
-
-    <div class="rule critical">
-      <span class="rule-num">4</span>
-      <div class="rule-body">
-        <span class="rule-tag tag-critical"><i class="ti ti-ban"></i> Zero Tolerance</span>
-        <div class="rule-text">NO ONE will solo into Fortresses or Strongholds to steal first rewards.</div>
-        <div class="rule-note"><i class="ti ti-alert-triangle" style="color:var(--red)"></i> Breaking this rule will result in an immediate action from Active Council.</div>
-      </div>
-    </div>
-
-    <div class="rule critical">
-      <span class="rule-num">5</span>
-      <div class="rule-body">
-        <span class="rule-tag tag-critical"><i class="ti ti-ban"></i> Prohibited</span>
-        <div class="rule-text">NO CITY ATTACKS or tile attacks are allowed (unless agreed to by both players) and every state member will make every attempt to avoid 646 players in Arena, truck event, Frost Fire mine, etc.</div>
-      </div>
-    </div>
-
-    <div class="rule info">
-      <span class="rule-num">6</span>
-      <div class="rule-body">
-        <div class="rule-text">All R5s of 646 are responsible for informing their players of state rules.</div>
-      </div>
-    </div>
-
-    <div class="rule critical">
-      <span class="rule-num">7</span>
-      <div class="rule-body">
-        <span class="rule-tag tag-critical"><i class="ti ti-ban"></i> Zero Tolerance</span>
-        <div class="rule-text">Hate speech will not be tolerated in 646. Violations should be reported to player's R5 and handled by Active Council.</div>
-      </div>
-    </div>
-
-    <div class="rule info">
-      <span class="rule-num">8</span>
-      <div class="rule-body">
-        <div class="rule-text">State president will be rotated between Active Council alliances.</div>
-        <div class="rule-note"><i class="ti ti-info-circle"></i> Requirements to be President: R4/R5 of Active Council alliance and active/present in State Discord Leadership Chat.</div>
-      </div>
-    </div>
-
-    <div class="rule warning">
-      <span class="rule-num">9</span>
-      <div class="rule-body">
-        <span class="rule-tag tag-warning"><i class="ti ti-alert-circle"></i> Punishment</span>
-        <div class="rule-text">Active Council will enact a punishment of double the troop losses for city attack violations (minimum of 50k) and double the troop injuries for tile attack violations. Only violations supported by reports will be considered.</div>
-        <div class="rule-note"><i class="ti ti-clock" style="color:var(--orange)"></i> Deadline: <strong>72 hours</strong> for city attack reports · <strong>24 hours</strong> for tile attack reports.</div>
-      </div>
-    </div>
-
-    <div class="rule critical">
-      <span class="rule-num">10</span>
-      <div class="rule-body">
-        <span class="rule-tag tag-critical"><i class="ti ti-user-x"></i> Blacklist</span>
-        <div class="rule-text">Rule breakers will be added to strike list and after 3 strikes, they will be blacklisted from all Active Council alliances.</div>
-      </div>
-    </div>
-
-    <div class="rule info">
-      <span class="rule-num">11</span>
-      <div class="rule-body">
-        <div class="rule-text">Minister of Interior position is to be used for resources only unless holding for state activities (SvS, FDT, and TAL).</div>
-      </div>
-    </div>
-
-    <div class="rule warning">
-      <span class="rule-num">12</span>
-      <div class="rule-body">
-        <div class="rule-text">State members will not solo castle/turrets from PKB, GYN, or HOS and never when in the top 50 on the castle leaderboard.</div>
-      </div>
-    </div>
-
-  </div>
+  <div class="rules-list" id="rulesList"></div>
 
 </div>
+
+<script>
+const ruleMeta = [
+  {type:"info", tag:null},
+  {type:"info", tag:null},
+  {type:"info", tag:null},
+  {type:"critical", tag:"zero"},
+  {type:"critical", tag:"prohibited"},
+  {type:"info", tag:null},
+  {type:"critical", tag:"zero"},
+  {type:"info", tag:null},
+  {type:"warning", tag:"punishment"},
+  {type:"critical", tag:"blacklist"},
+  {type:"info", tag:null},
+  {type:"warning", tag:"important"}
+];
+
+const iconMap = {zero:"ti-ban", prohibited:"ti-ban", punishment:"ti-alert-circle", blacklist:"ti-user-x", important:"ti-alert-circle"};
+
+const translations = {
+  en: {
+    flag:"🇬🇧", name:"English", dir:"ltr",
+    title:"State 646 — Official Rules",
+    subtitle:"Rules and guidelines agreed upon by all Active Council alliances. R5s are responsible for informing their members.",
+    sectionLabel:"Active Council Alliances", home:"Home", logo:"State Rules",
+    tags:{zero:"Zero Tolerance", prohibited:"Prohibited", punishment:"Punishment", blacklist:"Blacklist", important:"Important"},
+    rules:[
+      {text:"AIR, TBR, OSM are “Active Council” and agree to make decisions together regarding all state matters."},
+      {text:"Strongholds will be assigned to the top 3 SvS scoring alliances (Based on 70/30 prep/castle performance) and the 4th stronghold will rotate."},
+      {text:"All 3 top SvS scoring alliances will also take 3 fortresses. The 4th alliance will take 2 fortresses, and the 5th alliance gets 1 fortress. (Based on 70/30 prep/castle performance. Average of 2 preps prior to start of Fortress season.)"},
+      {text:"NO ONE will solo into Fortresses or Strongholds to steal first rewards.", note:"Breaking this rule will result in an immediate action from Active Council."},
+      {text:"NO CITY ATTACKS or tile attacks are allowed (unless agreed to by both players) and every state member will make every attempt to avoid 646 players in Arena, truck event, Frost Fire mine, etc."},
+      {text:"All R5s of 646 are responsible for informing their players of state rules."},
+      {text:"Hate speech will not be tolerated in 646. Violations should be reported to player's R5 and handled by Active Council."},
+      {text:"State president will be rotated between Active Council alliances.", note:"Requirements to be President: R4/R5 of Active Council alliance and active/present in State Discord Leadership Chat."},
+      {text:"Active Council will enact a punishment of double the troop losses for city attack violations (minimum of 50k) and double the troop injuries for tile attack violations. Only violations supported by reports will be considered.", note:"Deadline: 72 hours for city attack reports · 24 hours for tile attack reports."},
+      {text:"Rule breakers will be added to strike list and after 3 strikes, they will be blacklisted from all Active Council alliances."},
+      {text:"Minister of Interior position is to be used for resources only unless holding for state activities (SvS, FDT, and TAL)."},
+      {text:"State members will not solo castle/turrets from PKB, GYN, or HOS and never when in the top 50 on the castle leaderboard."}
+    ]
+  },
+  de: {
+    flag:"🇩🇪", name:"Deutsch", dir:"ltr",
+    title:"State 646 — Offizielle Regeln",
+    subtitle:"Regeln und Richtlinien, die von allen Active-Council-Allianzen vereinbart wurden. R5s sind dafür verantwortlich, ihre Mitglieder zu informieren.",
+    sectionLabel:"Active-Council-Allianzen", home:"Start", logo:"State Rules",
+    tags:{zero:"Nulltoleranz", prohibited:"Verboten", punishment:"Strafe", blacklist:"Blacklist", important:"Wichtig"},
+    rules:[
+      {text:"AIR, TBR und OSM sind der “Active Council” und treffen gemeinsam Entscheidungen in allen State-Angelegenheiten."},
+      {text:"Strongholds werden den 3 SvS-Top-Allianzen zugewiesen (basierend auf 70/30 Prep/Castle-Leistung), der 4. Stronghold rotiert."},
+      {text:"Die 3 SvS-Top-Allianzen erhalten außerdem je 3 Fortresses. Die 4. Allianz erhält 2 Fortresses, die 5. Allianz erhält 1 Fortress. (Basierend auf 70/30 Prep/Castle-Leistung. Durchschnitt der letzten 2 Preps vor Beginn der Fortress-Saison.)"},
+      {text:"NIEMAND darf allein in Fortresses oder Strongholds gehen, um die ersten Belohnungen zu stehlen.", note:"Ein Verstoß gegen diese Regel führt zu sofortigen Maßnahmen durch den Active Council."},
+      {text:"KEINE STADT- oder Tile-Angriffe sind erlaubt (außer beide Spieler stimmen zu), und jedes State-Mitglied wird sich bemühen, 646-Spieler in Arena, Truck-Event, Frost-Fire-Mine usw. zu vermeiden."},
+      {text:"Alle R5s von 646 sind dafür verantwortlich, ihre Spieler über die State-Regeln zu informieren."},
+      {text:"Hassrede wird in 646 nicht toleriert. Verstöße sind dem R5 des Spielers zu melden und werden vom Active Council behandelt."},
+      {text:"Das Amt des State-Präsidenten rotiert zwischen den Active-Council-Allianzen.", note:"Voraussetzungen für das Präsidentenamt: R4/R5 einer Active-Council-Allianz und aktiv/anwesend im State-Discord-Leadership-Chat."},
+      {text:"Der Active Council verhängt bei Stadtangriffs-Verstößen die doppelten Truppenverluste (mindestens 50k) und bei Tile-Angriffs-Verstößen die doppelten Truppenverletzungen als Strafe. Es werden nur durch Berichte belegte Verstöße berücksichtigt.", note:"Frist: 72 Stunden für Stadtangriffs-Berichte · 24 Stunden für Tile-Angriffs-Berichte."},
+      {text:"Regelbrecher werden auf die Strike-Liste gesetzt und nach 3 Strikes aus allen Active-Council-Allianzen verbannt (blacklisted)."},
+      {text:"Die Position des Innenministers (Minister of Interior) ist ausschließlich für Ressourcen zu nutzen, außer sie wird für State-Aktivitäten (SvS, FDT und TAL) benötigt."},
+      {text:"State-Mitglieder dürfen Castle/Turrets von PKB, GYN oder HOS nicht solo angreifen — und niemals, wenn sie in den Top 50 des Castle-Leaderboards stehen."}
+    ]
+  },
+  fr: {
+    flag:"🇫🇷", name:"Français", dir:"ltr",
+    title:"State 646 — Règles officielles",
+    subtitle:"Règles et directives convenues par toutes les alliances de l'Active Council. Les R5 sont responsables d'en informer leurs membres.",
+    sectionLabel:"Alliances de l'Active Council", home:"Accueil", logo:"State Rules",
+    tags:{zero:"Tolérance zéro", prohibited:"Interdit", punishment:"Sanction", blacklist:"Liste noire", important:"Important"},
+    rules:[
+      {text:"AIR, TBR et OSM forment le “Active Council” et acceptent de prendre ensemble les décisions concernant toutes les affaires de l'État."},
+      {text:"Les Strongholds seront attribués aux 3 meilleures alliances au classement SvS (basé sur une performance 70/30 prépa/château), et le 4e Stronghold tournera."},
+      {text:"Les 3 meilleures alliances SvS recevront également 3 forteresses chacune. La 4e alliance recevra 2 forteresses, et la 5e alliance recevra 1 forteresse. (Basé sur une performance 70/30 prépa/château. Moyenne des 2 dernières prépas avant le début de la saison des forteresses.)"},
+      {text:"PERSONNE ne doit entrer seul dans une forteresse ou un Stronghold pour voler les premières récompenses.", note:"Toute infraction à cette règle entraînera une action immédiate de l'Active Council."},
+      {text:"AUCUNE ATTAQUE DE VILLE ni attaque de case n'est autorisée (sauf accord des deux joueurs), et chaque membre de l'État doit faire tout son possible pour éviter les joueurs de 646 dans l'Arène, l'événement camion, la mine Frost Fire, etc."},
+      {text:"Tous les R5 de 646 sont responsables d'informer leurs joueurs des règles de l'État."},
+      {text:"Les discours haineux ne seront pas tolérés dans 646. Les infractions doivent être signalées au R5 du joueur et traitées par l'Active Council."},
+      {text:"Le poste de président de l'État tournera entre les alliances de l'Active Council.", note:"Conditions pour devenir président : être R4/R5 d'une alliance de l'Active Council et être actif/présent dans le chat Discord de direction de l'État."},
+      {text:"L'Active Council appliquera une sanction correspondant au double des pertes de troupes pour les violations d'attaque de ville (minimum 50k) et au double des blessures de troupes pour les violations d'attaque de case. Seules les infractions appuyées par des rapports seront prises en compte.", note:"Délai : 72 heures pour les rapports d'attaque de ville · 24 heures pour les rapports d'attaque de case."},
+      {text:"Les contrevenants seront ajoutés à la liste de sanctions et, après 3 sanctions, seront mis sur liste noire de toutes les alliances de l'Active Council."},
+      {text:"Le poste de ministre de l'Intérieur doit être utilisé uniquement pour les ressources, sauf s'il est occupé pour des activités de l'État (SvS, FDT et TAL)."},
+      {text:"Les membres de l'État ne doivent pas attaquer en solo le château ou les tourelles depuis PKB, GYN ou HOS, et jamais lorsqu'ils sont dans le top 50 du classement du château."}
+    ]
+  },
+  tr: {
+    flag:"🇹🇷", name:"Türkçe", dir:"ltr",
+    title:"State 646 — Resmi Kurallar",
+    subtitle:"Tüm Active Council ittifakları tarafından kabul edilen kurallar ve yönergeler. R5'ler üyelerini bilgilendirmekten sorumludur.",
+    sectionLabel:"Active Council İttifakları", home:"Ana Sayfa", logo:"State Rules",
+    tags:{zero:"Sıfır Tolerans", prohibited:"Yasak", punishment:"Ceza", blacklist:"Kara Liste", important:"Önemli"},
+    rules:[
+      {text:"AIR, TBR ve OSM “Active Council”dır ve tüm state konularında birlikte karar almayı kabul eder."},
+      {text:"Stronghold'lar SvS'te en yüksek puan alan ilk 3 ittifaka verilecektir (70/30 prep/castle performansına dayalı) ve 4. Stronghold rotasyonlu olacaktır."},
+      {text:"En üst 3 SvS ittifakı ayrıca 3'er fortress alacaktır. 4. ittifak 2 fortress, 5. ittifak ise 1 fortress alacaktır. (70/30 prep/castle performansına dayalı. Fortress sezonu başlamadan önceki 2 prep'in ortalaması.)"},
+      {text:"HİÇ KİMSE ilk ödülleri çalmak için Fortress veya Stronghold'lara tek başına girmeyecektir.", note:"Bu kuralın ihlali, Active Council tarafından derhal işlem yapılmasına neden olacaktır."},
+      {text:"ŞEHİR SALDIRISI veya tile saldırısı yasaktır (her iki oyuncu da kabul etmedikçe) ve her state üyesi Arena, kamyon etkinliği, Frost Fire madeni vb. yerlerde 646 oyuncularından kaçınmak için elinden geleni yapacaktır."},
+      {text:"646'daki tüm R5'ler, oyuncularını state kuralları hakkında bilgilendirmekten sorumludur."},
+      {text:"646'da nefret söylemine tolerans gösterilmeyecektir. İhlaller oyuncunun R5'ine bildirilmeli ve Active Council tarafından ele alınmalıdır."},
+      {text:"State başkanlığı Active Council ittifakları arasında rotasyonlu olacaktır.", note:"Başkan olma şartları: Active Council ittifakının R4/R5'i olmak ve State Discord Liderlik Sohbetinde aktif/mevcut olmak."},
+      {text:"Active Council, şehir saldırısı ihlalleri için çift asker kaybı cezası (minimum 50k) ve tile saldırısı ihlalleri için çift asker yaralanma cezası uygulayacaktır. Yalnızca raporlarla desteklenen ihlaller dikkate alınacaktır.", note:"Süre: Şehir saldırısı raporları için 72 saat · tile saldırısı raporları için 24 saat."},
+      {text:"Kural ihlal edenler strike listesine eklenecek ve 3 strike sonrasında tüm Active Council ittifaklarından kara listeye alınacaktır."},
+      {text:"İçişleri Bakanı pozisyonu, state faaliyetleri (SvS, FDT ve TAL) için tutulmadıkça yalnızca kaynaklar için kullanılacaktır."},
+      {text:"State üyeleri PKB, GYN veya HOS'tan castle/turret'lara tek başına saldırmayacak ve castle liderlik tablosunda ilk 50'de iken asla saldırmayacaktır."}
+    ]
+  },
+  ar: {
+    flag:"🇸🇦", name:"العربية", dir:"rtl",
+    title:"State 646 — القواعد الرسمية",
+    subtitle:"القواعد والإرشادات المتفق عليها من قبل جميع تحالفات المجلس النشط (Active Council). قادة R5 مسؤولون عن إبلاغ أعضائهم.",
+    sectionLabel:"تحالفات المجلس النشط", home:"الرئيسية", logo:"قواعد الولاية",
+    tags:{zero:"تسامح صفري", prohibited:"ممنوع", punishment:"عقوبة", blacklist:"القائمة السوداء", important:"مهم"},
+    rules:[
+      {text:"AIR وTBR وOSM هم “المجلس النشط” ويتفقون على اتخاذ القرارات معًا في جميع شؤون الولاية."},
+      {text:"سيتم تخصيص القلاع (Strongholds) لأفضل 3 تحالفات في تصنيف SvS (بناءً على أداء 70/30 للتحضير/القلعة)، وسيتم تناوب القلعة الرابعة."},
+      {text:"ستحصل أفضل 3 تحالفات في SvS أيضًا على 3 حصون (Fortresses) لكل منها. سيحصل التحالف الرابع على حصنين، ويحصل التحالف الخامس على حصن واحد. (بناءً على أداء 70/30 للتحضير/القلعة. بمعدل آخر تحضيرين قبل بداية موسم الحصون.)"},
+      {text:"لن يقوم أي شخص بالدخول منفردًا إلى الحصون أو القلاع لسرقة المكافآت الأولى.", note:"مخالفة هذه القاعدة ستؤدي إلى إجراء فوري من المجلس النشط."},
+      {text:"لا يُسمح بهجمات المدن أو هجمات المربعات (إلا بموافقة اللاعبين) وسيبذل كل عضو في الولاية قصارى جهده لتجنب لاعبي 646 في الأرينا، وحدث الشاحنة، ومنجم Frost Fire، وغيرها."},
+      {text:"جميع قادة R5 في 646 مسؤولون عن إبلاغ لاعبيهم بقواعد الولاية."},
+      {text:"لن يتم التسامح مع خطاب الكراهية في 646. يجب الإبلاغ عن المخالفات إلى قائد R5 الخاص باللاعب، ويتولى المجلس النشط التعامل معها."},
+      {text:"سيتم تناوب منصب رئيس الولاية بين تحالفات المجلس النشط.", note:"شروط تولي منصب الرئيس: أن يكون R4/R5 في تحالف تابع للمجلس النشط، وأن يكون نشطًا/حاضرًا في محادثة قيادة الولاية على Discord."},
+      {text:"سيفرض المجلس النشط عقوبة تتمثل في ضعف خسائر الجنود لمخالفات هجمات المدن (بحد أدنى 50 ألف) وضعف إصابات الجنود لمخالفات هجمات المربعات. لن يُنظر إلا في المخالفات المدعومة بتقارير.", note:"الموعد النهائي: 72 ساعة لتقارير هجمات المدن · 24 ساعة لتقارير هجمات المربعات."},
+      {text:"سيتم إضافة المخالفين إلى قائمة الإنذارات، وبعد 3 إنذارات سيتم إدراجهم في القائمة السوداء لجميع تحالفات المجلس النشط."},
+      {text:"يُستخدم منصب وزير الداخلية للموارد فقط، إلا إذا تم شغله لأنشطة الولاية (SvS وFDT وTAL)."},
+      {text:"لن يهاجم أعضاء الولاية القلعة أو الأبراج بمفردهم من PKB أو GYN أو HOS، وأبدًا عندما يكونون ضمن أفضل 50 في لوحة صدارة القلعة."}
+    ]
+  },
+  es: {
+    flag:"🇪🇸", name:"Español", dir:"ltr",
+    title:"State 646 — Reglas oficiales",
+    subtitle:"Reglas y directrices acordadas por todas las alianzas del Active Council. Los R5 son responsables de informar a sus miembros.",
+    sectionLabel:"Alianzas del Active Council", home:"Inicio", logo:"State Rules",
+    tags:{zero:"Tolerancia cero", prohibited:"Prohibido", punishment:"Sanción", blacklist:"Lista negra", important:"Importante"},
+    rules:[
+      {text:"AIR, TBR y OSM son el “Active Council” y aceptan tomar decisiones juntos sobre todos los asuntos del estado."},
+      {text:"Los Strongholds se asignarán a las 3 alianzas con mejor puntuación en SvS (según el rendimiento 70/30 de prep/castillo) y el 4º Stronghold rotará."},
+      {text:"Las 3 principales alianzas de SvS también recibirán 3 fortalezas cada una. La 4ª alianza recibirá 2 fortalezas, y la 5ª alianza recibirá 1 fortaleza. (Según el rendimiento 70/30 de prep/castillo. Promedio de las 2 preps previas al inicio de la temporada de fortalezas.)"},
+      {text:"NADIE entrará en solitario a Fortalezas o Strongholds para robar las primeras recompensas.", note:"Romper esta regla resultará en una acción inmediata por parte del Active Council."},
+      {text:"NO SE PERMITEN ataques a ciudades ni a casillas (a menos que ambos jugadores lo acuerden), y cada miembro del estado hará todo lo posible por evitar a jugadores de 646 en la Arena, el evento del camión, la mina Frost Fire, etc."},
+      {text:"Todos los R5 de 646 son responsables de informar a sus jugadores sobre las reglas del estado."},
+      {text:"No se tolerará el discurso de odio en 646. Las infracciones deben reportarse al R5 del jugador y serán gestionadas por el Active Council."},
+      {text:"El puesto de presidente del estado rotará entre las alianzas del Active Council.", note:"Requisitos para ser presidente: ser R4/R5 de una alianza del Active Council y estar activo/presente en el chat de liderazgo del estado en Discord."},
+      {text:"El Active Council aplicará una sanción del doble de pérdidas de tropas por infracciones de ataque a ciudades (mínimo 50k) y del doble de heridas de tropas por infracciones de ataque a casillas. Solo se considerarán las infracciones respaldadas por reportes.", note:"Plazo: 72 horas para reportes de ataques a ciudades · 24 horas para reportes de ataques a casillas."},
+      {text:"Los infractores serán añadidos a la lista de sanciones y, tras 3 sanciones, serán vetados (blacklisted) de todas las alianzas del Active Council."},
+      {text:"El puesto de Ministro del Interior se usará únicamente para recursos, salvo que se ocupe para actividades del estado (SvS, FDT y TAL)."},
+      {text:"Los miembros del estado no atacarán en solitario el castillo o las torretas desde PKB, GYN o HOS, y nunca cuando estén entre los 50 primeros en la clasificación del castillo."}
+    ]
+  },
+  ja: {
+    flag:"🇯🇵", name:"日本語", dir:"ltr",
+    title:"State 646 — 公式ルール",
+    subtitle:"すべてのActive Council同盟によって合意されたルールとガイドラインです。R5はメンバーへの周知に責任を持ちます。",
+    sectionLabel:"Active Council 同盟", home:"ホーム", logo:"State Rules",
+    tags:{zero:"ゼロ・トレランス", prohibited:"禁止", punishment:"罰則", blacklist:"ブラックリスト", important:"重要"},
+    rules:[
+      {text:"AIR、TBR、OSMは“Active Council”であり、州のすべての事項について共同で決定することに同意する。"},
+      {text:"ストロングホールドはSvSスコア上位3同盟に割り当てられ（プレップ/キャッスル戦績70/30に基づく）、4番目のストロングホールドは持ち回りとする。"},
+      {text:"SvS上位3同盟はさらにそれぞれフォートレスを3つずつ獲得する。4位の同盟はフォートレスを2つ、5位の同盟はフォートレスを1つ獲得する。（プレップ/キャッスル戦績70/30に基づく。フォートレスシーズン開始前の直近2回のプレップの平均。）"},
+      {text:"最初の報酬を奪うためにフォートレスやストロングホールドへ単独で突入することは何人も禁止する。", note:"このルール違反は、Active Councilによる即時の対応につながる。"},
+      {text:"都市攻撃およびタイル攻撃は（両プレイヤーの合意がない限り）禁止とし、すべての州メンバーはアリーナ、トラックイベント、フロストファイア鉱山などで646のプレイヤーを避けるよう最大限努力すること。"},
+      {text:"646のすべてのR5は、自分のプレイヤーに州のルールを周知する責任を負う。"},
+      {text:"646ではヘイトスピーチを一切容認しない。違反はプレイヤーのR5に報告し、Active Councilが対応する。"},
+      {text:"州の会長職はActive Council加盟同盟の間で持ち回りとする。", note:"会長になるための条件：Active Council加盟同盟のR4/R5であり、州のDiscordリーダーシップチャットで活動的・在籍していること。"},
+      {text:"Active Councilは、都市攻撃違反に対しては部隊損失の2倍（最低5万）、タイル攻撃違反に対しては部隊負傷の2倍の罰則を科す。報告によって裏付けられた違反のみを対象とする。", note:"期限：都市攻撃の報告は72時間以内、タイル攻撃の報告は24時間以内。"},
+      {text:"ルール違反者はストライクリストに追加され、3回のストライク後、すべてのActive Council加盟同盟からブラックリスト登録される。"},
+      {text:"内務大臣（Minister of Interior）の役職は、州の活動（SvS、FDT、TAL）のために保持している場合を除き、資源目的のみに使用すること。"},
+      {text:"州メンバーはPKB、GYN、HOSからキャッスル／タレットへ単独攻撃してはならず、キャッスルリーダーボードで上位50位以内にいる場合は決して行ってはならない。"}
+    ]
+  },
+  ko: {
+    flag:"🇰🇷", name:"한국어", dir:"ltr",
+    title:"State 646 — 공식 규칙",
+    subtitle:"모든 Active Council 동맹이 합의한 규칙 및 지침입니다. R5는 회원에게 이를 안내할 책임이 있습니다.",
+    sectionLabel:"Active Council 동맹", home:"홈", logo:"State Rules",
+    tags:{zero:"무관용", prohibited:"금지", punishment:"처벌", blacklist:"블랙리스트", important:"중요"},
+    rules:[
+      {text:"AIR, TBR, OSM은 “Active Council”이며 모든 스테이트 관련 사안에 대해 공동으로 결정을 내리는 데 동의한다."},
+      {text:"스트롱홀드는 SvS 점수 상위 3개 동맹에게 배정되며(70/30 프렙/캐슬 성과 기준), 4번째 스트롱홀드는 순환제로 운영된다."},
+      {text:"SvS 상위 3개 동맹은 각각 포트리스 3개를 추가로 획득한다. 4위 동맹은 포트리스 2개, 5위 동맹은 포트리스 1개를 획득한다. (70/30 프렙/캐슬 성과 기준. 포트리스 시즌 시작 전 최근 2회 프렙의 평균.)"},
+      {text:"첫 보상을 가로채기 위해 포트리스나 스트롱홀드에 단독으로 진입하는 행위는 누구도 해서는 안 된다.", note:"이 규칙을 위반할 경우 Active Council의 즉각적인 조치가 취해진다."},
+      {text:"도시 공격 및 타일 공격은 (양측 플레이어가 합의하지 않는 한) 금지되며, 모든 스테이트 멤버는 아레나, 트럭 이벤트, 프로스트파이어 광산 등에서 646 플레이어와의 접촉을 최대한 피하도록 노력해야 한다."},
+      {text:"646의 모든 R5는 자신의 플레이어에게 스테이트 규칙을 안내할 책임이 있다."},
+      {text:"646에서는 혐오 발언을 용납하지 않는다. 위반 사항은 해당 플레이어의 R5에게 보고하며 Active Council이 처리한다."},
+      {text:"스테이트 회장직은 Active Council 소속 동맹들 사이에서 순환된다.", note:"회장이 되기 위한 조건: Active Council 소속 동맹의 R4/R5이며, 스테이트 디스코드 리더십 채팅에 활발히 참여/상주할 것."},
+      {text:"Active Council은 도시 공격 위반에 대해 부대 손실의 2배(최소 5만), 타일 공격 위반에 대해 부대 부상의 2배에 해당하는 처벌을 시행한다. 보고서로 뒷받침된 위반만 고려된다.", note:"기한: 도시 공격 보고는 72시간 이내 · 타일 공격 보고는 24시간 이내."},
+      {text:"규칙 위반자는 스트라이크 목록에 추가되며, 3회 스트라이크 후 모든 Active Council 동맹으로부터 블랙리스트에 등록된다."},
+      {text:"내무장관(Minister of Interior) 직책은 스테이트 활동(SvS, FDT, TAL)을 위해 보유하는 경우를 제외하고 자원 용도로만 사용해야 한다."},
+      {text:"스테이트 멤버는 PKB, GYN, HOS에서 캐슬 또는 터렛을 단독으로 공격해서는 안 되며, 캐슬 리더보드 상위 50위 이내에 있을 때는 절대 공격해서는 안 된다."}
+    ]
+  }
+};
+
+function buildLangMenu(current){
+  const menu = document.getElementById("langMenu");
+  menu.innerHTML = "";
+  Object.keys(translations).forEach(code => {
+    const d = translations[code];
+    const btn = document.createElement("button");
+    btn.className = "lang-option" + (code === current ? " active" : "");
+    btn.innerHTML = `<span class="lang-flag">${d.flag}</span><span>${d.name}</span>`;
+    btn.onclick = () => { render(code); localStorage.setItem("state646_lang", code); };
+    menu.appendChild(btn);
+  });
+}
+
+function render(lang){
+  const d = translations[lang];
+  document.documentElement.lang = lang;
+  document.documentElement.dir = d.dir;
+  document.getElementById("pageTitleText").textContent = d.title;
+  document.getElementById("pageSubtitle").textContent = d.subtitle;
+  document.getElementById("sectionLabelText").textContent = d.sectionLabel;
+  document.getElementById("homeText").textContent = d.home;
+  document.getElementById("logoText").textContent = d.logo;
+  document.getElementById("langBtn").innerHTML = d.flag + ' <i class="ti ti-chevron-down"></i>';
+
+  const list = document.getElementById("rulesList");
+  list.innerHTML = "";
+  d.rules.forEach((r, i) => {
+    const meta = ruleMeta[i];
+    const div = document.createElement("div");
+    div.className = "rule " + meta.type;
+    let tagHtml = "";
+    if(meta.tag){
+      tagHtml = `<span class="rule-tag tag-${meta.type}"><i class="ti ${iconMap[meta.tag]}"></i> ${d.tags[meta.tag]}</span>`;
+    }
+    let noteHtml = "";
+    if(r.note){
+      noteHtml = `<div class="rule-note"><i class="ti ti-info-circle"></i> ${r.note}</div>`;
+    }
+    div.innerHTML = `<span class="rule-num">${i+1}</span><div class="rule-body">${tagHtml}<div class="rule-text">${r.text}</div>${noteHtml}</div>`;
+    list.appendChild(div);
+  });
+
+  buildLangMenu(lang);
+  document.getElementById("langMenu").classList.remove("open");
+}
+
+document.addEventListener("click", (e) => {
+  const switcher = document.querySelector(".lang-switch");
+  if(!switcher.contains(e.target)) document.getElementById("langMenu").classList.remove("open");
+});
+
+const savedLang = localStorage.getItem("state646_lang");
+render(savedLang && translations[savedLang] ? savedLang : "en");
+</script>
+
 </body>
 </html>
