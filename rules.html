@@ -11,7 +11,7 @@
   --border:#2a2d3e;--text:#e8eaf0;--muted:#8890a6;--muted2:#5a6280;
   --accent:#4f8ef7;--amber:#fbbf24;--green:#34d399;--red:#f87171;
   --orange:#fb923c;--purple:#a78bfa;
-  --radius:10px;
+  --radius:10px;--radius-sm:7px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:4rem}
@@ -35,26 +35,32 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 
 .nap-badge{font-size:12px;font-weight:600;padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg2);color:var(--text);display:inline-flex;align-items:center;gap:6px}
 .nap-badge .dot{width:8px;height:8px;border-radius:50%}
 
-.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);margin-bottom:12px;margin-top:2rem;display:flex;align-items:center;gap:8px}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-label i{font-size:14px}
 
 .rules-list{display:flex;flex-direction:column;gap:8px}
-.rule{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;display:flex;gap:14px;align-items:flex-start}
+.rule{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;display:flex;gap:14px;align-items:flex-start;transition:border .12s}
+.rule:hover{border-color:var(--bg4)}
 .rule.critical{border-left:3px solid var(--red)}
 .rule.warning{border-left:3px solid var(--orange)}
 .rule.info{border-left:3px solid var(--accent)}
-.rule-num{font-size:11px;font-weight:700;color:var(--muted2);min-width:20px;padding-top:2px;flex-shrink:0}
+.rule-num{font-size:11px;font-weight:700;color:var(--muted2);min-width:22px;padding-top:2px;flex-shrink:0}
 .rule-body{flex:1;min-width:0}
 .rule-text{font-size:13px;line-height:1.65;color:var(--text)}
-.rule-text strong{font-weight:600}
+.rule-text strong{color:var(--text);font-weight:600}
 .rule-note{font-size:12px;color:var(--muted);margin-top:6px;padding:6px 10px;background:var(--bg3);border-radius:6px;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
 .rule-note i{font-size:13px;flex-shrink:0;margin-top:1px}
+.rule-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:99px;margin-bottom:6px}
+.tag-critical{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25)}
+.tag-warning{background:rgba(251,146,60,.1);color:var(--orange);border:1px solid rgba(251,146,60,.25)}
+.tag-info{background:rgba(79,142,247,.1);color:var(--accent);border:1px solid rgba(79,142,247,.2)}
 </style>
 </head>
 <body>
 
 <header>
-  <a class="back-link" href="index.html"><i class="ti ti-arrow-left"></i> Home</a>
+  <a class="back-link" href="state.html"><i class="ti ti-arrow-left"></i> Home</a>
   <span class="header-divider">/</span>
   <div class="logo"><i class="ti ti-file-description"></i> State Rules</div>
   <span class="header-right">State 646</span>
@@ -64,17 +70,14 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 
 
   <div class="page-title">
     <h2><i class="ti ti-shield-check"></i> State 646 — Official Rules</h2>
-    <p>Rules and guidelines agreed upon by all Active NAP alliances. R5s are responsible for informing their members.</p>
+    <p>Rules and guidelines agreed upon by all Active Council alliances. R5s are responsible for informing their members.</p>
   </div>
 
-  <div class="section-label"><i class="ti ti-handshake" style="color:var(--green)"></i> Active NAP Alliances</div>
-  <div class="nap-row" style="margin-bottom:2rem">
+  <div class="section-label"><i class="ti ti-handshake" style="color:var(--green)"></i> Active Council Alliances</div>
+  <div class="nap-row">
     <span class="nap-badge"><span class="dot" style="background:#4f8ef7"></span> AIR</span>
-    <span class="nap-badge"><span class="dot" style="background:#a78bfa"></span> SFZ</span>
-    <span class="nap-badge"><span class="dot" style="background:#34d399"></span> OSM</span>
     <span class="nap-badge"><span class="dot" style="background:#f87171"></span> TBR</span>
-    <span class="nap-badge"><span class="dot" style="background:#fbbf24"></span> FUX</span>
-    <span class="nap-badge"><span class="dot" style="background:#fb923c"></span> ELF</span>
+    <span class="nap-badge"><span class="dot" style="background:#34d399"></span> OSM</span>
   </div>
 
   <div class="rules-list">
@@ -82,134 +85,97 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 
     <div class="rule info">
       <span class="rule-num">1</span>
       <div class="rule-body">
-        <div class="rule-text">AIR, SFZ, OSM, TBR, FUX and ELF are <strong>Active NAP</strong> and agree to make decisions together regarding all state matters.</div>
+        <div class="rule-text">AIR, TBR, OSM are "Active Council" and agree to make decisions together regarding all state matters.</div>
       </div>
     </div>
 
     <div class="rule info">
       <span class="rule-num">2</span>
       <div class="rule-body">
-        <div class="rule-text">Strongholds will be assigned to the <strong>top 4 SvS scoring alliances</strong>, based on a 70/30 prep/castle performance split.</div>
+        <div class="rule-text">Strongholds will be assigned to the top 3 SvS scoring alliances (Based on 70/30 prep/castle performance) and the 4th stronghold will rotate.</div>
       </div>
     </div>
 
     <div class="rule info">
       <span class="rule-num">3</span>
       <div class="rule-body">
-        <div class="rule-text">All 3 top SvS scoring alliances will take <strong>2 Fortresses</strong>. The 4th NAP alliance will take 1, the 5th and 6th will take 2, and the 7th will take the remaining fortress.</div>
+        <div class="rule-text">All 3 top SvS scoring alliances will also take 3 fortresses. The 4th alliance will take 2 fortresses, and the 5th alliance gets 1 fortress. (Based on 70/30 prep/castle performance. Average of 2 preps prior to start of Fortress season.)</div>
       </div>
     </div>
 
-    <div class="rule info">
+    <div class="rule critical">
       <span class="rule-num">4</span>
       <div class="rule-body">
-        <div class="rule-text">A <strong>State Strike Team</strong> will handle rule breaks, comprised of 2 players from each of AIR, SFZ, OSM, TBR, FUX and ELF. All NAP violations must be reported to them. The strike team may escalate decisions to council if needed.</div>
+        <span class="rule-tag tag-critical"><i class="ti ti-ban"></i> Zero Tolerance</span>
+        <div class="rule-text">NO ONE will solo into Fortresses or Strongholds to steal first rewards.</div>
+        <div class="rule-note"><i class="ti ti-alert-triangle" style="color:var(--red)"></i> Breaking this rule will result in an immediate action from Active Council.</div>
       </div>
     </div>
 
     <div class="rule critical">
       <span class="rule-num">5</span>
       <div class="rule-body">
-        <div class="rule-text">Facility/Fortress/Stronghold <strong>will not be contained</strong> with banners or encampments.</div>
+        <span class="rule-tag tag-critical"><i class="ti ti-ban"></i> Prohibited</span>
+        <div class="rule-text">NO CITY ATTACKS or tile attacks are allowed (unless agreed to by both players) and every state member will make every attempt to avoid 646 players in Arena, truck event, Frost Fire mine, etc.</div>
+      </div>
+    </div>
+
+    <div class="rule info">
+      <span class="rule-num">6</span>
+      <div class="rule-body">
+        <div class="rule-text">All R5s of 646 are responsible for informing their players of state rules.</div>
       </div>
     </div>
 
     <div class="rule critical">
-      <span class="rule-num">6</span>
-      <div class="rule-body">
-        <div class="rule-text"><strong>NO ONE will solo into Fortresses or Strongholds</strong> to steal first rewards.</div>
-        <div class="rule-note"><i class="ti ti-alert-triangle" style="color:var(--red)"></i> Breaking this rule will result in an <strong>immediate hit from the strike team</strong>.</div>
-      </div>
-    </div>
-
-    <div class="rule warning">
       <span class="rule-num">7</span>
       <div class="rule-body">
-        <div class="rule-text">NAP alliances will <strong>not attack each other on gathering tiles</strong>, unless specified in KE rules.</div>
+        <span class="rule-tag tag-critical"><i class="ti ti-ban"></i> Zero Tolerance</span>
+        <div class="rule-text">Hate speech will not be tolerated in 646. Violations should be reported to player's R5 and handled by Active Council.</div>
       </div>
     </div>
 
     <div class="rule info">
       <span class="rule-num">8</span>
       <div class="rule-body">
-        <div class="rule-text">All <strong>R5s of Active NAP</strong> are responsible for informing their players of state rules.</div>
+        <div class="rule-text">State president will be rotated between Active Council alliances.</div>
+        <div class="rule-note"><i class="ti ti-info-circle"></i> Requirements to be President: R4/R5 of Active Council alliance and active/present in State Discord Leadership Chat.</div>
       </div>
     </div>
 
-    <div class="rule critical">
+    <div class="rule warning">
       <span class="rule-num">9</span>
       <div class="rule-body">
-        <div class="rule-text"><strong>Hate speech will not be tolerated</strong> in 646. Violations should be reported to the player's R5 and handled by council.</div>
-      </div>
-    </div>
-
-    <div class="rule warning">
-      <span class="rule-num">10</span>
-      <div class="rule-body">
-        <div class="rule-text"><strong>Main accounts cannot be moved</strong> to other alliances to aid in Facility/Fortress/Stronghold battles.</div>
-      </div>
-    </div>
-
-    <div class="rule critical">
-      <span class="rule-num">11</span>
-      <div class="rule-body">
-        <div class="rule-text"><strong>No city attacks</strong> are allowed in 646 at any time unless agreed on by attacker and defender, including KE.</div>
-        <div class="rule-note"><i class="ti ti-info-circle"></i> Does not include Arena, Frostfire, Truck event, or other events that do not cause troop loss/injury.</div>
-      </div>
-    </div>
-
-    <div class="rule info">
-      <span class="rule-num">12</span>
-      <div class="rule-body">
-        <div class="rule-text">The <strong>State President</strong> position will be rotated between Active NAP alliances.</div>
-        <div class="rule-note"><i class="ti ti-info-circle"></i> Requirements: active participation in council chats/VC meetings, and participation in at least 2 SvS (prep &amp; castle) in 646 where the alliance placed in the Top 10 for prep phase.</div>
-      </div>
-    </div>
-
-    <div class="rule info">
-      <span class="rule-num">13</span>
-      <div class="rule-body">
-        <div class="rule-text">Scouting is <strong>not a NAP violation</strong> unless done in a harassing manner, or after SvS matchmaking has begun until SvS has finished.</div>
-      </div>
-    </div>
-
-    <div class="rule warning">
-      <span class="rule-num">14</span>
-      <div class="rule-body">
-        <div class="rule-text">Strike team will enact <strong>double the troop losses</strong> for city attack violations (minimum 50k) and <strong>double the troop injuries</strong> for tile attack violations. Only violations supported by reports will be considered.</div>
+        <span class="rule-tag tag-warning"><i class="ti ti-alert-circle"></i> Punishment</span>
+        <div class="rule-text">Active Council will enact a punishment of double the troop losses for city attack violations (minimum of 50k) and double the troop injuries for tile attack violations. Only violations supported by reports will be considered.</div>
         <div class="rule-note"><i class="ti ti-clock" style="color:var(--orange)"></i> Deadline: <strong>72 hours</strong> for city attack reports · <strong>24 hours</strong> for tile attack reports.</div>
       </div>
     </div>
 
-    <div class="rule warning">
-      <span class="rule-num">15</span>
-      <div class="rule-body">
-        <div class="rule-text">Attacks on <strong>PKB, GYN, and HOS</strong> are ONLY ALLOWED when arranged by R5 in advance.</div>
-      </div>
-    </div>
-
     <div class="rule critical">
-      <span class="rule-num">16</span>
+      <span class="rule-num">10</span>
       <div class="rule-body">
-        <div class="rule-text">NAP violators will be added to the strike list. After <strong>3 strikes</strong> they will be blacklisted from all Active NAP alliances.</div>
+        <span class="rule-tag tag-critical"><i class="ti ti-user-x"></i> Blacklist</span>
+        <div class="rule-text">Rule breakers will be added to strike list and after 3 strikes, they will be blacklisted from all Active Council alliances.</div>
       </div>
     </div>
 
     <div class="rule info">
-      <span class="rule-num">17</span>
+      <span class="rule-num">11</span>
       <div class="rule-body">
-        <div class="rule-text">The <strong>Minister of Interior</strong> position is to be used for resources only, unless holding for SvS roles.</div>
+        <div class="rule-text">Minister of Interior position is to be used for resources only unless holding for state activities (SvS, FDT, and TAL).</div>
       </div>
     </div>
 
-    <div class="rule info">
-      <span class="rule-num">18</span>
+    <div class="rule warning">
+      <span class="rule-num">12</span>
       <div class="rule-body">
-        <div class="rule-text">NAP members will <strong>not solo castle/turrets</strong> without permission from their leadership team.</div>
+        <div class="rule-text">State members will not solo castle/turrets from PKB, GYN, or HOS and never when in the top 50 on the castle leaderboard.</div>
       </div>
     </div>
 
   </div>
+
 </div>
 </body>
 </html>
