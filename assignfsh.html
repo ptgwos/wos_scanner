@@ -185,13 +185,9 @@
 
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
-// ── Fill these in with your project's values (Supabase → Project Settings → API) ──
-const SUPABASE_URL = 'https://frrctfpsfxhysokgdqkt.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Bw0RPmmV-BNy1jx2r34qVQ_uDGu_ZBz';
-// ────────────────────────────────────────────────────────────────────────────────
-
-const configured = !SUPABASE_URL.includes('YOUR_') && !SUPABASE_ANON_KEY.includes('YOUR_');
+const configured = !SUPABASE_URL.includes('YOUR_') && !SUPABASE_ANON_KEY.includes('dein-');
 if(!configured){
   document.getElementById('configWarning').style.display = 'block';
 }
