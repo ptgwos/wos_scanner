@@ -200,10 +200,11 @@ const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : nu
 const ALLIANCES = ["AIR","OSM","TBR","TbR","osm","HYg","tbr","NEW","PKB","GYN"];
 const BUFF_TYPES = new Set(["Health Buff", "Deployment Buff", "Damage Buff"]);
 
-// Anchor point: Phase 1 of CURRENT_SEASON started on this UTC date/time.
-// Season/phase for any later date are calculated relative to this anchor —
-// reset both values if the 8-week rhythm is ever interrupted.
-const SEASON_START = new Date('2026-08-07T00:00:00Z');
+// Anchor point: Phase 1 of CURRENT_SEASON started at this UTC date/time.
+// Saturday 18:00 UTC matches the moment alliance leaders finish distributing
+// rewards (24h after Friday's captures) — that's when the week rolls over.
+// Must stay in sync with bot.py!
+const SEASON_START = new Date('2026-08-08T18:00:00Z');
 const CURRENT_SEASON = 9;
 
 function currentSeasonAndPhase(now = new Date()){
