@@ -187,8 +187,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // ── Fill these in with your project's values (Supabase → Project Settings → API) ──
-const SUPABASE_URL = 'https://frrctfpsfxhysokgdqkt.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Bw0RPmmV-BNy1jx2r34qVQ_uDGu_ZBz';
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 // ────────────────────────────────────────────────────────────────────────────────
 
 const configured = !SUPABASE_URL.includes('YOUR_') && !SUPABASE_ANON_KEY.includes('YOUR_');
@@ -201,10 +201,11 @@ const ALLIANCES = ["AIR","OSM","TBR","TbR","osm","HYg","tbr","NEW","PKB","GYN"];
 const BUFF_TYPES = new Set(["Health Buff", "Deployment Buff", "Damage Buff"]);
 
 // Anchor point: Phase 1 of CURRENT_SEASON started at this UTC date/time.
-// Saturday 18:00 UTC matches the moment alliance leaders finish distributing
-// rewards (24h after Friday's captures) — that's when the week rolls over.
+// This marks the START of Phase 1's window; its battle Friday (Aug 7) falls
+// inside it, and the window closes the next Saturday 18:00 UTC (Aug 8),
+// when leaders finish distributing rewards and Phase 2 begins.
 // Must stay in sync with bot.py!
-const SEASON_START = new Date('2026-08-08T18:00:00Z');
+const SEASON_START = new Date('2026-08-01T18:00:00Z');
 const CURRENT_SEASON = 9;
 
 function currentSeasonAndPhase(now = new Date()){
