@@ -373,6 +373,21 @@
   .ttq-m{height:4px;border-radius:2px;background:var(--border);margin-top:3px;overflow:hidden;}
   .ttq-m i{display:block;height:100%;background:linear-gradient(90deg,var(--ice),var(--frost));border-radius:2px;}
   .ttq .tt-note{margin-top:4px;}
+
+  /* battle phase / castle: note, contribution bar, battle alliance flag */
+  .phase-note{font-size:12px;color:var(--text-faint);margin:0 0 14px;padding:8px 12px;border-left:2px solid var(--ice-dim);background:rgba(111,227,255,.04);border-radius:0 4px 4px 0;}
+  .contrib{margin-bottom:16px;}
+  .contrib-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:12px;margin-bottom:6px;}
+  .contrib-head b{color:var(--text);font-weight:600;}
+  .contrib-head span{color:var(--text-faint);}
+  .contrib-bar{display:flex;height:22px;border-radius:4px;overflow:hidden;border:1px solid var(--border);background:var(--panel-2);}
+  .cseg{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;overflow:hidden;white-space:nowrap;transition:width .6s ease;}
+  .contrib-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:11.5px;color:var(--text-dim);}
+  .citem{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;}
+  .citem i{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none;}
+  .citem b{color:var(--text);}
+  .citem em{font-style:normal;color:var(--text-faint);}
+  .aflag{display:inline-block;margin-left:8px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:3px;color:var(--gold);border:1px solid rgba(255,180,0,.45);background:rgba(255,180,0,.08);vertical-align:middle;}
   /* animations */
   @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
   .fade-in{animation:fadeUp .25s ease both;}
@@ -444,6 +459,8 @@
   <div class="panel" id="tablePanel">
     <div class="controls" id="controls"></div>
     <div id="stateStats"></div>
+    <div id="phaseNote"></div>
+    <div id="contribBar"></div>
     <div id="tableWrap"></div>
   </div>
 
@@ -471,7 +488,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Ops Board — static export · build 2026-10-04 · b7</footer>
+  <footer>State 646 · SvS Ops Board — static export · build 2026-10-04 · b8</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -499,6 +516,10 @@
   const PHASES_MAIN = ['Prep Total','Day 1','Day 2','Day 3','Day 4','Day 5','Battle Phase'];
   const PHASES_CASTLE = ['Castle Battle'];
   const TIP_PHASES = ['Day 1','Day 2','Day 3','Day 4','Day 5','Prep Total','Battle Phase','Castle Battle'];
+  // State 646 players fight in these alliances during Battle Phase / Castle Battle;
+  // the player lists still show each player's HOME alliance tag.
+  const BATTLE_ALLIANCES = ['PKB', 'GYN'];
+  const BATTLE_ALLIANCES_TXT = BATTLE_ALLIANCES.join(' · ');
 
   const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const NO_HOVER = window.matchMedia && window.matchMedia('(hover: none)').matches;
@@ -717,8 +738,89 @@
     }
   }
 
+  function isHomeTagView(){
+    return state.tab === 'castle' || (state.tab === 'player' && state.phase === 'Battle Phase');
+  }
+
+  // ----- note + contribution bar for Battle Phase / Castle Battle -----
+  const CONTRIB_COLORS = [
+    {bg:'#6fe3ff', fg:'#04141b'}, {bg:'#4f7cff', fg:'#ffffff'}, {bg:'#ffb400', fg:'#231400'},
+    {bg:'#a78bfa', fg:'#ffffff'}, {bg:'#43e6a0', fg:'#04170f'}, {bg:'#ff7ab6', fg:'#2a0716'},
+    {bg:'#ff9f5a', fg:'#2a1204'}, {bg:'#7ee0c3', fg:'#04170f'}
+  ];
+  const CONTRIB_OTHER = {bg:'#3d4c6b', fg:'#eef1f8'};
+  let lastContribKey = '';
+
+  function renderPhaseExtras(){
+    const noteEl = document.getElementById('phaseNote');
+    const barEl = document.getElementById('contribBar');
+    let note = '';
+    if(isHomeTagView()){
+      note = `Battle alliances: ${BATTLE_ALLIANCES_TXT} · Tag = home alliance (where a player fought is not recorded)`;
+    } else if(state.tab === 'alliance' && state.phase === 'Battle Phase'){
+      note = `${BATTLE_ALLIANCES_TXT} are the battle alliances of 646. Player lists show each player's home alliance.`;
+    }
+    noteEl.innerHTML = note ? `<div class="phase-note">${escapeHtml(note)}</div>` : '';
+
+    if(!isHomeTagView()){ barEl.innerHTML = ''; lastContribKey = ''; return; }
+    const isCastle = state.tab === 'castle';
+    const rows = isCastle
+      ? (DATA.castle['Castle Battle'] || [])
+      : (DATA.player['Battle Phase'] || []).filter(r => r.state === '646');
+    if(!rows.length){ barEl.innerHTML = ''; return; }
+
+    const g = new Map();
+    let total = 0;
+    rows.forEach(r => {
+      const k = r.alliance || '(none)';
+      const e = g.get(k) || {tag:k, n:0, pts:0};
+      e.n++; e.pts += r.points; total += r.points;
+      g.set(k, e);
+    });
+    const all = [...g.values()].sort((a, b) => b.pts - a.pts);
+    const main = all.filter(e => e.pts / total >= 0.01);
+    const rest = all.filter(e => e.pts / total < 0.01);
+    const segs = main.map(e => {
+      const i = ALLIANCES_646.indexOf(e.tag);
+      return {...e, color: i >= 0 ? CONTRIB_COLORS[i % CONTRIB_COLORS.length] : CONTRIB_OTHER};
+    });
+    if(rest.length){
+      segs.push({tag:'Other', n: rest.reduce((a, e) => a + e.n, 0), pts: rest.reduce((a, e) => a + e.pts, 0),
+                 color: CONTRIB_OTHER, many: rest.length});
+    }
+
+    const key = state.tab + '|' + state.phase;
+    const grow = key !== lastContribKey && !REDUCED_MOTION;
+    lastContribKey = key;
+
+    const bar = segs.map(s => {
+      const p = s.pts / total * 100;
+      return `<div class="cseg" title="${escapeHtml(s.tag)} · ${s.n} players · ${fmt(s.pts)}" style="width:${grow ? 0 : p}%;background:${s.color.bg};color:${s.color.fg}">${p >= 8 ? p.toFixed(0) + '%' : ''}</div>`;
+    }).join('');
+    const legend = segs.map(s => {
+      const p = s.pts / total * 100;
+      const label = s.many ? `Other (${s.many})` : s.tag;
+      return `<span class="citem"><i style="background:${s.color.bg}"></i><b>${escapeHtml(label)}</b> ${pctStr(p)} · ${fmt(s.pts)} <em>${s.n} players</em></span>`;
+    }).join('');
+
+    barEl.innerHTML = `
+      <div class="contrib">
+        <div class="contrib-head"><b>Points by home alliance</b><span>State 646 · listed players only (${rows.length})</span></div>
+        <div class="contrib-bar">${bar}</div>
+        <div class="contrib-legend">${legend}</div>
+      </div>`;
+
+    if(grow){
+      const els = barEl.querySelectorAll('.cseg');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        segs.forEach((s, i) => { els[i].style.width = (s.pts / total * 100) + '%'; });
+      }));
+    }
+  }
+
   function renderTable(){
     renderStateStats();
+    renderPhaseExtras();
     let rows = currentRows();
 
     if(state.only646){
@@ -745,7 +847,7 @@
     const cols = [
       {key:'rank', label:'Rank'},
       {key:'name', label: nameHeader},
-      {key:'alliance', label:'Tag'},
+      {key:'alliance', label: isHomeTagView() ? 'Home alliance' : 'Tag'},
       {key:'points', label:'Points'}
     ];
     if(state.tab !== 'castle'){
@@ -775,7 +877,7 @@
       const animStyle = animate && idx < 14 ? ` style="--i:${idx}"` : '';
       return `<tr class="${stateCls}${cutoffCls}${animate ? ' row-anim' : ''}" data-tip="${escapeHtml(tipKey)}"${animStyle}>
         <td class="rank">${r.rank}</td>
-        <td class="name">${escapeHtml(r.name)}</td>
+        <td class="name">${escapeHtml(r.name)}${(state.tab === 'alliance' && state.phase === 'Battle Phase' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</td>
         <td><span class="tag">${escapeHtml(r.alliance||'—')}</span></td>
         ${showState ? `<td class="state">${r.state||'—'}</td>` : ''}
         <td class="num">${fmt(r.points)}</td>
@@ -1103,9 +1205,10 @@
   const totalsCache = {};
   function totalsFor(phase){
     if(totalsCache[phase]) return totalsCache[phase];
-    const ally = new Map(), stateSum = {}, listed = new Map();
+    const ally = new Map(), stateSum = {}, listed = new Map(), listedState = {};
     // sum of the listed (top-N) players per alliance tag, used to sanity-check alliance totals
     (DATA.player[phase] || []).forEach(r => {
+      if(r.state) listedState[r.state] = (listedState[r.state] || 0) + r.points;
       if(!r.alliance) return;
       const k = r.alliance + '|' + r.state;
       listed.set(k, (listed.get(k) || 0) + r.points);
@@ -1130,10 +1233,11 @@
         const g = top[r.state] || (top[r.state] = {tags: [], sum: 0, listed: 0});
         g.tags.push(r.alliance);
         g.sum += r.points;
-        g.listed += listed.get(r.alliance + '|' + r.state) || 0;
+        // battle alliances carry no tagged players (players keep their home tag) -> excluded from the check
+        if(!BATTLE_ALLIANCES.includes(r.alliance)) g.listed += listed.get(r.alliance + '|' + r.state) || 0;
       });
     }
-    return (totalsCache[phase] = {ally, stateSum, listed, top});
+    return (totalsCache[phase] = {ally, stateSum, listed, listedState, top});
   }
 
   function pctStr(p){
@@ -1165,7 +1269,15 @@
         const st = e.state || allianceStateMap[e.alliance] || '';
         const t = totalsFor(p);
         const parts = [];
-        if(kind === 'player' && e.alliance){
+        const fought = (p === 'Battle Phase' || p === 'Castle Battle');
+        if(kind === 'player' && fought){
+          // players may have fought in a battle alliance -> compare with the state's listed players instead of the home alliance
+          if(p === 'Castle Battle'){
+            if(t.stateSum[st]) parts.push(shareRow('of ' + st + ' Castle Top 100', v.points, t.stateSum[st], 'listed players only'));
+          } else if(t.listedState[st]){
+            parts.push(shareRow('of listed ' + st + ' players', v.points, t.listedState[st], 'listed players only'));
+          }
+        } else if(kind === 'player' && e.alliance){
           const key = e.alliance + '|' + st;
           const at = t.ally.get(key);
           if(at && at >= (t.listed.get(key) || 0)){
@@ -1183,10 +1295,12 @@
             parts.push(`<div class="ttq-n warn">Share of the ${escapeHtml(st)} Top 10 alliances not shown: their totals in the export are lower than the sum of their listed players.</div>`);
           }
         }
-        if(st && t.stateSum[st]) parts.push(shareRow('of all ' + st + ' alliances', v.points, t.stateSum[st]));
+        if(st && t.stateSum[st] && !(p === 'Castle Battle' && kind === 'player')) parts.push(shareRow('of all ' + st + ' alliances', v.points, t.stateSum[st]));
         inner = parts.join('') || `<div class="ttq-n">no total available</div>`;
       }
-      const note = (p === 'Castle Battle' && v) ? `<div class="tt-note">Castle totals = Top 100 players only</div>` : '';
+      let note = '';
+      if(v && p === 'Castle Battle') note = `<div class="tt-note">Castle: Top 100 players only · tag = home alliance</div>`;
+      if(v && p === 'Battle Phase' && kind === 'player') note = `<div class="tt-note">Alliance share not shown: battle alliances are ${escapeHtml(BATTLE_ALLIANCES_TXT)}</div>`;
       return `<div class="ttq"><div class="ttq-t">${p} · share of points</div>${inner}${note}</div>`;
     }).join('');
   }
