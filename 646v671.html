@@ -344,7 +344,8 @@
     opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease;
     font-size:12px;
   }
-  #tooltip.show{opacity:1;transform:none;}
+  #tooltip{visibility:hidden;transition:opacity .12s ease,transform .12s ease,visibility 0s linear .12s;}
+  #tooltip.show{opacity:1;transform:none;visibility:visible;transition-delay:0s;}
   .tt-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
   .tt-head b{font-size:13.5px;color:#fff;}
   .tt-state{font-size:11px;font-weight:700;color:var(--state657);}
@@ -363,15 +364,15 @@
   tbody tr[data-tip]{transition:background .12s;}
 
 
-  .tt-share{margin:8px 0 10px;padding:8px 10px;background:rgba(111,227,255,.05);border:1px solid var(--border);border-radius:6px;}
-  .tt-share-title{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ice-dim);margin-bottom:6px;font-weight:600;}
-  .tt-share-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;color:var(--text-dim);margin-top:5px;}
-  .tt-share-row b{color:var(--text);font-size:12.5px;font-variant-numeric:tabular-nums;}
-  .tt-share-nums{font-size:10.5px;color:var(--text-faint);font-variant-numeric:tabular-nums;margin-top:1px;}
-  .tt-share-nums.warn{color:var(--gold);font-size:10.5px;line-height:1.35;margin:5px 0 2px;}
+  .tt-stats{margin:8px 0 10px;padding:8px 10px;background:rgba(111,227,255,.05);border:1px solid var(--border);border-radius:6px;}
+  .tt-stats-title{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ice-dim);margin-bottom:6px;font-weight:600;}
+  .tt-stats-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;color:var(--text-dim);margin-top:5px;}
+  .tt-stats-row b{color:var(--text);font-size:12.5px;font-variant-numeric:tabular-nums;}
+  .tt-stats-nums{font-size:10.5px;color:var(--text-faint);font-variant-numeric:tabular-nums;margin-top:1px;}
+  .tt-stats-nums.warn{color:var(--gold);font-size:10.5px;line-height:1.35;margin:5px 0 2px;}
   .tt-meter{height:4px;border-radius:2px;background:var(--border);margin-top:3px;overflow:hidden;}
   .tt-meter i{display:block;height:100%;background:linear-gradient(90deg,var(--ice),var(--frost));border-radius:2px;}
-  .tt-share .tt-note{margin-top:4px;}
+  .tt-stats .tt-note{margin-top:4px;}
   /* animations */
   @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
   .fade-in{animation:fadeUp .25s ease both;}
@@ -379,8 +380,8 @@
   select.chest-select{transition:border-color .2s,color .2s;}
 
   @media (hover:none){
-    #tooltip{left:14px !important;right:14px;top:auto !important;bottom:calc(env(safe-area-inset-bottom, 0px) + 24px);max-width:none;max-height:75vh;max-height:75dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;pointer-events:auto;transform:translateY(10px);}
-    #tooltip.show{transform:none;}
+    #tooltip{left:14px !important;right:14px;top:auto !important;bottom:calc(env(safe-area-inset-bottom, 0px) + 24px);max-width:none;max-height:75vh;max-height:75dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;transform:translateY(10px);}
+    #tooltip.show{transform:none;pointer-events:auto;}
     .switch{width:100%;}
   }
   @media (prefers-reduced-motion:reduce){
@@ -470,7 +471,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Ops Board — static export · build 2026-10-04 · b4</footer>
+  <footer>State 646 · SvS Ops Board — static export · build 2026-10-04 · b6</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1142,9 +1143,9 @@
   function shareRow(label, part, total, extra){
     const p = total > 0 ? part / total * 100 : 0;
     return `
-      <div class="tt-share-row"><span>${escapeHtml(label)}</span><b>${pctStr(p)}</b></div>
-      ${extra ? `<div class="tt-share-nums">${escapeHtml(extra)}</div>` : ''}
-      <div class="tt-share-nums">${fmt(part)} / ${fmt(total)}</div>
+      <div class="tt-stats-row"><span>${escapeHtml(label)}</span><b>${pctStr(p)}</b></div>
+      ${extra ? `<div class="tt-stats-nums">${escapeHtml(extra)}</div>` : ''}
+      <div class="tt-stats-nums">${fmt(part)} / ${fmt(total)}</div>
       <div class="tt-meter"><i style="width:${Math.min(100, p)}%"></i></div>`;
   }
 
@@ -1159,7 +1160,7 @@
       const v = e.phases[p];
       let inner;
       if(!v){
-        inner = `<div class="tt-share-nums">not in the listed ranking</div>`;
+        inner = `<div class="tt-stats-nums">not in the listed ranking</div>`;
       } else {
         const st = e.state || allianceStateMap[e.alliance] || '';
         const t = totalsFor(p);
@@ -1171,7 +1172,7 @@
             parts.push(shareRow('of ' + e.alliance, v.points, at));
           } else if(at){
             // alliance total is smaller than its own listed players -> the export's numbers don't match up
-            parts.push(`<div class="tt-share-nums warn">Share of ${escapeHtml(e.alliance)} not shown: the alliance total in the export is lower than the sum of its listed players.</div>`);
+            parts.push(`<div class="tt-stats-nums warn">Share of ${escapeHtml(e.alliance)} not shown: the alliance total in the export is lower than the sum of its listed players.</div>`);
           }
         }
         const g = t.top[st];
@@ -1179,14 +1180,14 @@
           if(g.sum >= g.listed){
             parts.push(shareRow('of ' + st + ' Top 10 alliances', v.points, g.sum, g.tags.join(' · ')));
           } else {
-            parts.push(`<div class="tt-share-nums warn">Share of the ${escapeHtml(st)} Top 10 alliances not shown: their totals in the export are lower than the sum of their listed players.</div>`);
+            parts.push(`<div class="tt-stats-nums warn">Share of the ${escapeHtml(st)} Top 10 alliances not shown: their totals in the export are lower than the sum of their listed players.</div>`);
           }
         }
         if(st && t.stateSum[st]) parts.push(shareRow('of all ' + st + ' alliances', v.points, t.stateSum[st]));
-        inner = parts.join('') || `<div class="tt-share-nums">no total available</div>`;
+        inner = parts.join('') || `<div class="tt-stats-nums">no total available</div>`;
       }
       const note = (p === 'Castle Battle' && v) ? `<div class="tt-note">Castle totals = Top 100 players only</div>` : '';
-      return `<div class="tt-share"><div class="tt-share-title">${p} · share of points</div>${inner}${note}</div>`;
+      return `<div class="tt-stats"><div class="tt-stats-title">${p} · share of points</div>${inner}${note}</div>`;
     }).join('');
   }
 
