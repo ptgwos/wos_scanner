@@ -379,7 +379,7 @@
   select.chest-select{transition:border-color .2s,color .2s;}
 
   @media (hover:none){
-    #tooltip{left:10px !important;right:10px;top:auto !important;bottom:10px;max-width:none;max-height:75vh;overflow-y:auto;pointer-events:auto;transform:translateY(10px);}
+    #tooltip{left:10px !important;right:10px;top:auto !important;bottom:10px;max-width:none;max-height:75vh;max-height:75dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;pointer-events:auto;transform:translateY(10px);}
     #tooltip.show{transform:none;}
     .switch{width:100%;}
   }
@@ -470,7 +470,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Ops Board — static export</footer>
+  <footer>State 646 · SvS Ops Board — static export · build 2026-10-04</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1239,6 +1239,7 @@
       const html = buildTip(key);
       if(!html){ hideTip(); return; }
       tipEl.innerHTML = html;
+      tipEl.scrollTop = 0;   // new content always starts at the top (statistics first)
       tipKeyShown = cacheKey;
     }
     tipEl.classList.add('show');
