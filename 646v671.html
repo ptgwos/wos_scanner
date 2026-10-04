@@ -320,6 +320,72 @@
   }
   .btn-secondary:hover{color:var(--ice);border-color:var(--ice-dim);}
 
+
+  /* controls layout: phase buttons get their own row, filters + actions sit together below */
+  #controls > .field:first-child{flex:1 1 100%;}
+
+  /* switch */
+  .switch{display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;align-self:flex-end;padding:8px 0;}
+  .switch input{position:absolute;opacity:0;width:0;height:0;}
+  .switch-track{width:38px;height:22px;border-radius:11px;background:var(--panel-2);border:1px solid var(--border);position:relative;transition:background .2s,border-color .2s;flex:none;}
+  .switch-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text-dim);transition:transform .2s,background .2s;}
+  .switch input:checked + .switch-track{background:rgba(255,180,0,.18);border-color:var(--state646);}
+  .switch input:checked + .switch-track .switch-thumb{transform:translateX(16px);background:var(--state646);}
+  .switch input:focus-visible + .switch-track{outline:2px solid var(--ice-dim);outline-offset:2px;}
+  .switch-label{font-size:13px;color:var(--text-dim);font-weight:500;}
+  .switch input:checked ~ .switch-label{color:var(--text);}
+
+  /* tooltip */
+  #tooltip{
+    position:fixed;z-index:200;pointer-events:none;
+    min-width:240px;max-width:310px;
+    background:rgba(10,15,28,.97);border:1px solid var(--ice-dim);border-radius:8px;
+    padding:12px 14px;box-shadow:0 12px 36px rgba(0,0,0,.55);
+    opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease;
+    font-size:12px;
+  }
+  #tooltip.show{opacity:1;transform:none;}
+  .tt-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+  .tt-head b{font-size:13.5px;color:#fff;}
+  .tt-state{font-size:11px;font-weight:700;color:var(--state657);}
+  .tt-state.home{color:var(--state646);}
+  .tt-id{color:var(--text-faint);font-size:11.5px;margin-bottom:8px;}
+  .tt-spark{display:flex;align-items:flex-end;gap:6px;height:50px;margin:8px 0 10px;}
+  .tt-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%;}
+  .tt-bar i{display:block;width:100%;border-radius:2px 2px 0 0;background:linear-gradient(180deg,var(--ice),var(--frost));}
+  .tt-bar.empty i{background:var(--border);}
+  .tt-bar span{font-size:9.5px;color:var(--text-faint);}
+  .tt-table{width:100%;font-size:11.5px;border-collapse:collapse;}
+  .tt-table td{padding:2px 0;border:none;color:var(--text-dim);}
+  .tt-table td.r{text-align:right;color:var(--text-faint);padding-right:10px;}
+  .tt-table td.p{text-align:right;color:var(--text);font-variant-numeric:tabular-nums;}
+  .tt-note{margin-top:6px;font-size:10.5px;color:var(--text-faint);}
+  tbody tr[data-tip]{transition:background .12s;}
+
+
+  .tt-share{margin:8px 0 10px;padding:8px 10px;background:rgba(111,227,255,.05);border:1px solid var(--border);border-radius:6px;}
+  .tt-share-title{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ice-dim);margin-bottom:6px;font-weight:600;}
+  .tt-share-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;color:var(--text-dim);margin-top:5px;}
+  .tt-share-row b{color:var(--text);font-size:12.5px;font-variant-numeric:tabular-nums;}
+  .tt-share-nums{font-size:10.5px;color:var(--text-faint);font-variant-numeric:tabular-nums;margin-top:1px;}
+  .tt-share-nums.warn{color:var(--gold);font-size:10.5px;line-height:1.35;margin:5px 0 2px;}
+  .tt-meter{height:4px;border-radius:2px;background:var(--border);margin-top:3px;overflow:hidden;}
+  .tt-meter i{display:block;height:100%;background:linear-gradient(90deg,var(--ice),var(--frost));border-radius:2px;}
+  .tt-share .tt-note{margin-top:4px;}
+  /* animations */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .fade-in{animation:fadeUp .25s ease both;}
+  tr.row-anim{animation:fadeUp .3s ease both;animation-delay:calc(var(--i,0) * 22ms);}
+  select.chest-select{transition:border-color .2s,color .2s;}
+
+  @media (hover:none){
+    #tooltip{left:10px !important;right:10px;top:auto !important;bottom:10px;max-width:none;max-height:75vh;overflow-y:auto;pointer-events:auto;transform:translateY(10px);}
+    #tooltip.show{transform:none;}
+    .switch{width:100%;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;}
+  }
   @media (max-width:640px){
     body{padding:20px 12px 60px;}
     .wrap{max-width:100%;}
@@ -431,6 +497,40 @@
 
   const PHASES_MAIN = ['Prep Total','Day 1','Day 2','Day 3','Day 4','Day 5','Battle Phase'];
   const PHASES_CASTLE = ['Castle Battle'];
+  const TIP_PHASES = ['Day 1','Day 2','Day 3','Day 4','Day 5','Prep Total','Battle Phase','Castle Battle'];
+
+  const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NO_HOVER = window.matchMedia && window.matchMedia('(hover: none)').matches;
+
+  // alliance tag -> state (from alliance rows first, then player rows)
+  const allianceStateMap = {};
+  [DATA.alliance, DATA.player].forEach(group => {
+    Object.values(group).forEach(rows => rows.forEach(r => {
+      if(r.alliance && r.state && !(r.alliance in allianceStateMap)) allianceStateMap[r.alliance] = r.state;
+    }));
+  });
+
+  // lookup indexes for hover details
+  const playerIdx = new Map();
+  Object.entries(DATA.player).forEach(([phase, rows]) => rows.forEach(r => {
+    let e = playerIdx.get(r.name);
+    if(!e){ e = {name:r.name, alliance:r.alliance, state:r.state, id:r.id, phases:{}}; playerIdx.set(r.name, e); }
+    e.phases[phase] = {rank:r.rank, points:r.points};
+    if(!e.id && r.id) e.id = r.id;
+  }));
+  (DATA.castle['Castle Battle'] || []).forEach(r => {
+    let e = playerIdx.get(r.name);
+    if(!e){ e = {name:r.name, alliance:r.alliance, state:allianceStateMap[r.alliance]||'', id:r.id, phases:{}}; playerIdx.set(r.name, e); }
+    e.phases['Castle Battle'] = {rank:r.rank, points:r.points};
+    if(!e.id && r.id) e.id = r.id;
+  });
+  const allyIdx = new Map();
+  Object.entries(DATA.alliance).forEach(([phase, rows]) => rows.forEach(r => {
+    const k = r.name + '|' + r.alliance;
+    let e = allyIdx.get(k);
+    if(!e){ e = {name:r.name, alliance:r.alliance, state:r.state, phases:{}}; allyIdx.set(k, e); }
+    e.phases[phase] = {rank:r.rank, points:r.points};
+  }));
 
   const fmt = n => n.toLocaleString('de-DE');
 
@@ -440,7 +540,9 @@
     allianceFilter: '',
     search: '',
     sortKey: 'rank',
-    sortDir: 'asc'
+    sortDir: 'asc',
+    only646: false,
+    animate: true
   };
 
   const chestState = {
@@ -473,8 +575,17 @@
       `<button data-phase="${p}" class="${p===state.phase?'active':''}">${p}</button>`
     ).join('');
 
+    // dropdown only offers alliances that actually appear in the currently shown ranking
+    // (phase + "Only 646" switch); case-sensitive, so OSM and osm stay separate
+    const allianceList = [...new Set(
+      currentRows()
+        .filter(r => !state.only646 || (r.state || allianceStateMap[r.alliance]) === '646')
+        .map(r => r.alliance)
+        .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+    if(state.allianceFilter && !allianceList.includes(state.allianceFilter)) state.allianceFilter = '';
     const allianceOptions = ['<option value="">All alliances</option>']
-      .concat(ALLIANCES.map(a => `<option value="${a}" ${a===state.allianceFilter?'selected':''}>${a}</option>`))
+      .concat(allianceList.map(a => `<option value="${a}" ${a===state.allianceFilter?'selected':''}>${a}</option>`))
       .join('');
 
     const top100ButtonHtml = (state.tab === 'player' || state.tab === 'castle')
@@ -493,9 +604,21 @@
         <label for="searchBox">Search</label>
         <input type="text" id="searchBox" placeholder="Player name…" value="${state.search.replace(/"/g,'&quot;')}">
       </div>
+      <label class="switch" title="Hide players and alliances from the other state">
+        <input type="checkbox" id="only646" ${state.only646 ? 'checked' : ''}>
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+        <span class="switch-label">Only 646</span>
+      </label>
       ${top100ButtonHtml}
       <div class="count-pill" id="countPill"></div>
     `;
+
+    controlsEl.querySelector('#only646').addEventListener('change', e => {
+      state.only646 = e.target.checked;
+      state.animate = true;
+      renderControls();
+      renderTable();
+    });
 
     const top100Btn = controlsEl.querySelector('#openTop100');
     if(top100Btn) top100Btn.addEventListener('click', openTop100Modal);
@@ -504,6 +627,7 @@
       const btn = e.target.closest('button[data-phase]');
       if(!btn) return;
       state.phase = btn.dataset.phase;
+      state.animate = true;
       renderControls();
       renderTable();
     });
@@ -528,10 +652,24 @@
     });
   }
 
+  let lastStatsKey = '';
+  function countUp(el, target, formatter, duration){
+    if(REDUCED_MOTION){ el.textContent = formatter(target); return; }
+    const t0 = performance.now();
+    function frame(now){
+      const p = Math.min(1, (now - t0) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = formatter(target * eased);
+      if(p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
   function renderStateStats(){
     const el = document.getElementById('stateStats');
     if(state.tab !== 'alliance'){
       el.innerHTML = '';
+      lastStatsKey = '';
       return;
     }
     const phases = currentPhases();
@@ -547,24 +685,44 @@
     const p646 = (t646/sum*100);
     const pAway = (tAway/sum*100);
 
+    const key = state.tab + '|' + phase;
+    const animate = key !== lastStatsKey && !REDUCED_MOTION;
+    lastStatsKey = key;
+
     el.innerHTML = `
       <div class="state-stats">
         <div class="state-stats-labels">
-          <span class="l646"><b>646</b> · ${p646.toFixed(1)}% · ${fmt(t646)} pts</span>
-          <span class="l657"><b>${escapeHtml(awayState)}</b> · ${pAway.toFixed(1)}% · ${fmt(tAway)} pts</span>
+          <span class="l646"><b>646</b> · <span data-n="p646">${p646.toFixed(1)}</span>% · <span data-n="t646">${fmt(t646)}</span> pts</span>
+          <span class="l657"><b>${escapeHtml(awayState)}</b> · <span data-n="pAway">${pAway.toFixed(1)}</span>% · <span data-n="tAway">${fmt(tAway)}</span> pts</span>
         </div>
         <div class="state-bar">
-          <div class="seg s646" style="width:${p646}%">${p646>=8?p646.toFixed(0)+'%':''}</div>
-          <div class="seg s657" style="width:${pAway}%">${pAway>=8?pAway.toFixed(0)+'%':''}</div>
+          <div class="seg s646" style="width:${animate ? 0 : p646}%">${p646>=8?p646.toFixed(0)+'%':''}</div>
+          <div class="seg s657" style="width:${animate ? 0 : pAway}%">${pAway>=8?pAway.toFixed(0)+'%':''}</div>
         </div>
       </div>
     `;
+
+    if(animate){
+      const segs = el.querySelectorAll('.state-bar .seg');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        segs[0].style.width = p646 + '%';
+        segs[1].style.width = pAway + '%';
+      }));
+      const q = n => el.querySelector('[data-n="' + n + '"]');
+      countUp(q('p646'), p646, v => v.toFixed(1), 800);
+      countUp(q('pAway'), pAway, v => v.toFixed(1), 800);
+      countUp(q('t646'), t646, v => fmt(Math.round(v)), 800);
+      countUp(q('tAway'), tAway, v => fmt(Math.round(v)), 800);
+    }
   }
 
   function renderTable(){
     renderStateStats();
     let rows = currentRows();
 
+    if(state.only646){
+      rows = rows.filter(r => (r.state || allianceStateMap[r.alliance]) === '646');
+    }
     if(state.allianceFilter){
       rows = rows.filter(r => r.alliance === state.allianceFilter);
     }
@@ -601,10 +759,20 @@
 
     const showState = state.tab !== 'castle';
     const showCutoff = state.tab === 'alliance' && state.phase === 'Prep Total';
-    const tbody = rows.map(r => {
+    // red line after the last shown rank <= 10 (still visible when the 646 filter hides rank 10 itself)
+    let cutoffRank = -1;
+    if(showCutoff){
+      rows.forEach(r => { if(r.rank <= 10 && r.rank > cutoffRank) cutoffRank = r.rank; });
+      if(!rows.some(r => r.rank > 10)) cutoffRank = -1;
+    }
+    const animate = state.animate && !REDUCED_MOTION;
+    state.animate = false;
+    const tbody = rows.map((r, idx) => {
       const stateCls = r.state === '646' ? 'row-646' : (r.state ? 'row-away' : '');
-      const cutoffCls = (showCutoff && r.rank === 10) ? ' rank-cutoff' : '';
-      return `<tr class="${stateCls}${cutoffCls}">
+      const cutoffCls = (showCutoff && r.rank === cutoffRank) ? ' rank-cutoff' : '';
+      const tipKey = state.tab === 'alliance' ? 'a::' + r.name + '|' + r.alliance : 'p::' + r.name;
+      const animStyle = animate && idx < 14 ? ` style="--i:${idx}"` : '';
+      return `<tr class="${stateCls}${cutoffCls}${animate ? ' row-anim' : ''}" data-tip="${escapeHtml(tipKey)}"${animStyle}>
         <td class="rank">${r.rank}</td>
         <td class="name">${escapeHtml(r.name)}</td>
         <td><span class="tag">${escapeHtml(r.alliance||'—')}</span></td>
@@ -640,17 +808,21 @@
     tabsEl.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     state.tab = btn.dataset.tab;
+    state.animate = true;
+    hideTip();
 
     if(state.tab === 'chests'){
       tablePanel.style.display = 'none';
       chestPanel.style.display = 'block';
       renderChests();
+      replayFade(chestPanel);
     } else {
       chestPanel.style.display = 'none';
       tablePanel.style.display = 'block';
       state.sortKey = 'rank'; state.sortDir = 'asc';
       renderControls();
       renderTable();
+      replayFade(tablePanel);
     }
   });
 
@@ -733,7 +905,7 @@
     const tbody = rows.map(r => {
       const pick = chestState.picks.get(r.name) || '';
       const stateCls = r.state === '646' ? 'row-646' : (r.state ? 'row-away' : '');
-      return `<tr class="${stateCls}">
+      return `<tr class="${stateCls}" data-tip="${escapeHtml('p::' + r.name)}">
         <td class="rank">${r.rank}</td>
         <td class="name">${escapeHtml(r.name)}</td>
         <td class="num">${fmt(Math.round(r.prep))}</td>
@@ -821,11 +993,6 @@
   // ---------- TOP 100 OVERVIEW ----------
   const TOP100_COLS = ['Day 1','Day 2','Day 3','Day 4','Day 5','Prep Total','Battle Phase','Castle Battle'];
 
-  // alliance -> state, derived once from Prep Total player rows
-  const allianceStateMap = {};
-  (DATA.player['Prep Total'] || []).forEach(r => {
-    if(r.alliance && !(r.alliance in allianceStateMap)) allianceStateMap[r.alliance] = r.state;
-  });
 
   function computeTop100Matrix(){
     const counts = {};
@@ -911,6 +1078,215 @@
   document.addEventListener('keydown', e => {
     if(e.key === 'Escape') closeTop100Modal();
   });
+
+  // ---------- HOVER / TAP DETAILS ----------
+  function replayFade(el){
+    if(REDUCED_MOTION) return;
+    el.classList.remove('fade-in');
+    void el.offsetWidth;
+    el.classList.add('fade-in');
+  }
+
+  const tipEl = document.createElement('div');
+  tipEl.id = 'tooltip';
+  tipEl.setAttribute('role', 'tooltip');
+  document.body.appendChild(tipEl);
+  let tipKeyShown = '';
+
+  function tipData(key){
+    if(key.startsWith('a::')) return {kind:'alliance', e: allyIdx.get(key.slice(3))};
+    return {kind:'player', e: playerIdx.get(key.slice(3))};
+  }
+
+  // ----- share-of-points statistics -----
+  const totalsCache = {};
+  function totalsFor(phase){
+    if(totalsCache[phase]) return totalsCache[phase];
+    const ally = new Map(), stateSum = {}, listed = new Map();
+    // sum of the listed (top-N) players per alliance tag, used to sanity-check alliance totals
+    (DATA.player[phase] || []).forEach(r => {
+      if(!r.alliance) return;
+      const k = r.alliance + '|' + r.state;
+      listed.set(k, (listed.get(k) || 0) + r.points);
+    });
+    if(phase === 'Castle Battle'){
+      // castle export only lists the Top 100 players of State 646 -> sums are Top-100 based
+      (DATA.castle['Castle Battle'] || []).forEach(r => {
+        const st = allianceStateMap[r.alliance] || '646';
+        if(r.alliance) ally.set(r.alliance + '|' + st, (ally.get(r.alliance + '|' + st) || 0) + r.points);
+        stateSum[st] = (stateSum[st] || 0) + r.points;
+      });
+    } else {
+      (DATA.alliance[phase] || []).forEach(r => {
+        ally.set(r.alliance + '|' + r.state, r.points);
+        stateSum[r.state] = (stateSum[r.state] || 0) + r.points;
+      });
+    }
+    // alliances ranked Top 10 in this phase's alliance leaderboard, grouped by state
+    const top = {};
+    if(phase !== 'Castle Battle'){
+      (DATA.alliance[phase] || []).filter(r => r.rank <= 10 && r.state).forEach(r => {
+        const g = top[r.state] || (top[r.state] = {tags: [], sum: 0, listed: 0});
+        g.tags.push(r.alliance);
+        g.sum += r.points;
+        g.listed += listed.get(r.alliance + '|' + r.state) || 0;
+      });
+    }
+    return (totalsCache[phase] = {ally, stateSum, listed, top});
+  }
+
+  function pctStr(p){
+    const d = p < 1 ? 2 : 1;
+    return p.toLocaleString('de-DE', {minimumFractionDigits: d, maximumFractionDigits: d}) + ' %';
+  }
+  function shareRow(label, part, total, extra){
+    const p = total > 0 ? part / total * 100 : 0;
+    return `
+      <div class="tt-share-row"><span>${escapeHtml(label)}</span><b>${pctStr(p)}</b></div>
+      ${extra ? `<div class="tt-share-nums">${escapeHtml(extra)}</div>` : ''}
+      <div class="tt-share-nums">${fmt(part)} / ${fmt(total)}</div>
+      <div class="tt-meter"><i style="width:${Math.min(100, p)}%"></i></div>`;
+  }
+
+  function tipPhases(){
+    if(state.tab === 'chests') return ['Prep Total', 'Castle Battle'];
+    if(state.tab === 'castle') return ['Castle Battle'];
+    return [state.phase];
+  }
+
+  function shareBlock(kind, e){
+    return tipPhases().map(p => {
+      const v = e.phases[p];
+      let inner;
+      if(!v){
+        inner = `<div class="tt-share-nums">not in the listed ranking</div>`;
+      } else {
+        const st = e.state || allianceStateMap[e.alliance] || '';
+        const t = totalsFor(p);
+        const parts = [];
+        if(kind === 'player' && e.alliance){
+          const key = e.alliance + '|' + st;
+          const at = t.ally.get(key);
+          if(at && at >= (t.listed.get(key) || 0)){
+            parts.push(shareRow('of ' + e.alliance, v.points, at));
+          } else if(at){
+            // alliance total is smaller than its own listed players -> the export's numbers don't match up
+            parts.push(`<div class="tt-share-nums warn">Share of ${escapeHtml(e.alliance)} not shown: the alliance total in the export is lower than the sum of its listed players.</div>`);
+          }
+        }
+        const g = t.top[st];
+        if(g && g.sum > 0){
+          if(g.sum >= g.listed){
+            parts.push(shareRow('of ' + st + ' Top 10 alliances', v.points, g.sum, g.tags.join(' · ')));
+          } else {
+            parts.push(`<div class="tt-share-nums warn">Share of the ${escapeHtml(st)} Top 10 alliances not shown: their totals in the export are lower than the sum of their listed players.</div>`);
+          }
+        }
+        if(st && t.stateSum[st]) parts.push(shareRow('of all ' + st + ' alliances', v.points, t.stateSum[st]));
+        inner = parts.join('') || `<div class="tt-share-nums">no total available</div>`;
+      }
+      const note = (p === 'Castle Battle' && v) ? `<div class="tt-note">Castle totals = Top 100 players only</div>` : '';
+      return `<div class="tt-share"><div class="tt-share-title">${p} · share of points</div>${inner}${note}</div>`;
+    }).join('');
+  }
+
+  function buildTip(key){
+    const {kind, e} = tipData(key);
+    if(!e) return '';
+    const days = ['Day 1','Day 2','Day 3','Day 4','Day 5'];
+    const vals = days.map(d => e.phases[d] ? e.phases[d].points : 0);
+    const max = Math.max(1, ...vals);
+    const bars = days.map((d, i) => {
+      const h = Math.max(vals[i] ? 6 : 2, Math.round(vals[i] / max * 34));
+      return `<div class="tt-bar${vals[i] ? '' : ' empty'}" title="${d}"><i style="height:${h}px"></i><span>D${i+1}</span></div>`;
+    }).join('');
+    const phaseList = kind === 'alliance' ? TIP_PHASES.filter(p => p !== 'Castle Battle') : TIP_PHASES;
+    const trs = phaseList.map(p => {
+      const v = e.phases[p];
+      return `<tr><td>${p}</td><td class="r">${v ? '#' + v.rank : '–'}</td><td class="p">${v ? fmt(v.points) : '–'}</td></tr>`;
+    }).join('');
+    const state = e.state || allianceStateMap[e.alliance] || '';
+    return `
+      <div class="tt-head">
+        <b>${escapeHtml(e.name)}</b>
+        <span class="tag">${escapeHtml(e.alliance || '—')}</span>
+        ${state ? `<span class="tt-state${state === '646' ? ' home' : ''}">${escapeHtml(state)}</span>` : ''}
+      </div>
+      ${e.id ? `<div class="tt-id">ID: ${e.id}</div>` : ''}
+      ${shareBlock(kind, e)}
+      <div class="tt-spark">${bars}</div>
+      <table class="tt-table">${trs}</table>
+      <div class="tt-note">– = not in the listed ranking</div>
+      ${NO_HOVER ? '<div class="tt-note">Tap outside to close</div>' : ''}
+    `;
+  }
+
+  function placeTip(x, y){
+    if(NO_HOVER) return;
+    const pad = 14;
+    const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    let left = x + pad, top = y + pad;
+    if(left + w > window.innerWidth - 8) left = x - w - pad;
+    if(left < 8) left = 8;
+    if(top + h > window.innerHeight - 8) top = Math.max(8, window.innerHeight - h - 8);
+    tipEl.style.left = left + 'px';
+    tipEl.style.top = top + 'px';
+  }
+
+  function showTip(key, x, y){
+    const cacheKey = key + '|' + tipPhases().join(',');
+    if(cacheKey !== tipKeyShown){
+      const html = buildTip(key);
+      if(!html){ hideTip(); return; }
+      tipEl.innerHTML = html;
+      tipKeyShown = cacheKey;
+    }
+    tipEl.classList.add('show');
+    placeTip(x, y);
+  }
+  function hideTip(){
+    clearTimeout(tipTimer);
+    pendingKey = '';
+    tipEl.classList.remove('show');
+    tipKeyShown = '';
+  }
+
+  // delay before the popup first appears (ms); once visible it follows the mouse without delay
+  const TIP_DELAY = 400;
+  let tipTimer = null, pendingKey = '', lastX = 0, lastY = 0;
+  function scheduleTip(key, x, y){
+    lastX = x; lastY = y;
+    if(tipEl.classList.contains('show')){ showTip(key, x, y); return; }
+    if(pendingKey === key) return;
+    clearTimeout(tipTimer);
+    pendingKey = key;
+    tipTimer = setTimeout(() => { pendingKey = ''; showTip(key, lastX, lastY); }, TIP_DELAY);
+  }
+
+  [tableWrap, chestTableWrap].forEach(wrap => {
+    if(!NO_HOVER){
+      wrap.addEventListener('mousemove', e => {
+        const tr = e.target.closest('tbody tr[data-tip]');
+        if(!tr){ hideTip(); return; }
+        scheduleTip(tr.dataset.tip, e.clientX, e.clientY);
+      });
+      wrap.addEventListener('mouseleave', hideTip);
+    } else {
+      wrap.addEventListener('click', e => {
+        if(e.target.closest('select, option, th')) return;
+        const tr = e.target.closest('tbody tr[data-tip]');
+        if(!tr) return;
+        e.stopPropagation();
+        showTip(tr.dataset.tip, 0, 0);
+      });
+    }
+  });
+  if(NO_HOVER){
+    document.addEventListener('click', e => {
+      if(!tipEl.contains(e.target)) hideTip();
+    });
+  }
+  window.addEventListener('scroll', hideTip, {passive:true});
 
   // ---------- INIT ----------
   (function setEyebrow(){
