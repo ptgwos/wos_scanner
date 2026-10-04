@@ -353,7 +353,7 @@
   .tt-spark{display:flex;align-items:flex-end;gap:6px;height:50px;margin:8px 0 10px;}
   .tt-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%;}
   .tt-bar i{display:block;width:100%;border-radius:2px 2px 0 0;background:linear-gradient(180deg,var(--ice),var(--frost));}
-  .tt-bar.empty i{background:var(--border);}
+  .tt-bar.zero i{background:var(--border);}
   .tt-bar span{font-size:9.5px;color:var(--text-faint);}
   .tt-table{width:100%;font-size:11.5px;border-collapse:collapse;}
   .tt-table td{padding:2px 0;border:none;color:var(--text-dim);}
@@ -470,7 +470,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Ops Board — static export · build 2026-10-04</footer>
+  <footer>State 646 · SvS Ops Board — static export · build 2026-10-04 · b3</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1198,7 +1198,7 @@
     const max = Math.max(1, ...vals);
     const bars = days.map((d, i) => {
       const h = Math.max(vals[i] ? 6 : 2, Math.round(vals[i] / max * 34));
-      return `<div class="tt-bar${vals[i] ? '' : ' empty'}" title="${d}"><i style="height:${h}px"></i><span>D${i+1}</span></div>`;
+      return `<div class="tt-bar${vals[i] ? '' : ' zero'}" title="${d}"><i style="height:${h}px"></i><span>D${i+1}</span></div>`;
     }).join('');
     const phaseList = kind === 'alliance' ? TIP_PHASES.filter(p => p !== 'Castle Battle') : TIP_PHASES;
     const trs = phaseList.map(p => {
