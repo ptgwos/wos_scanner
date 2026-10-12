@@ -178,6 +178,11 @@
   tbody tr:hover{background:rgba(111,227,255,0.04);}
   tbody td{padding:9px 12px;color:var(--text);}
   td.num{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;text-align:right;color:var(--text);}
+  .namecell{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .days{display:inline-flex;gap:4px;flex:none;}
+  .dd{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--text-faint);box-sizing:border-box;}
+  .dd.on{background:var(--ice);border-color:var(--ice);}
+  .dd.na{opacity:.3;border-style:dashed;}
   td.srank{color:var(--ice-dim);}
   td.rank{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;color:var(--text-dim);width:44px;}
   .row-646{border-left:2px solid var(--state646);}
@@ -568,7 +573,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-12 · b23</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-12 · b25</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -591,6 +596,7 @@
   const EVENTS = RAW.events.slice().sort((a, b) => b.date.localeCompare(a.date));  // newest first
   let CUR = EVENTS[0];
   // everything below is derived from the selected event (see buildDerived)
+  let dayIdx = {}, dayIdxA = {};
   let DATA, ALLIANCES, ALLIANCES_646, CASTLE_LOOKUP, allianceStateMap, playerIdx, allyIdx;
 
   const PHASES_MAIN = ['Prep Total','Day 1','Day 2','Day 3','Day 4','Day 5','Battle Phase'];
@@ -623,6 +629,25 @@
         if(r.alliance && r.state && !(r.alliance in allianceStateMap)) allianceStateMap[r.alliance] = r.state;
       }));
     });
+
+    // which players are listed on which prep day (Day 1-5), for the dots in the Player table
+    dayIdxA = {};
+    for(let i = 1; i <= 5; i++){
+      const rowsA = DATA.alliance['Day ' + i] || [];
+      if(rowsA.length) dayIdxA[i] = new Set(rowsA.map(r => (r.state || '') + '|' + r.alliance));
+    }
+    dayIdx = {};
+    for(let i = 1; i <= 5; i++){
+      const rows = (DATA.player['Day ' + i] || []);
+      if(!rows.length) continue;
+      const ix = {ids: new Set(), namesNoId: new Set(), namesAll: new Set()};
+      rows.forEach(r => {
+        const k = (r.state || '') + '|' + r.name;
+        ix.namesAll.add(k);
+        if(r.id) ix.ids.add(r.id); else ix.namesNoId.add(k);
+      });
+      dayIdx[i] = ix;
+    }
 
     // rank inside the own state (per tab + phase), based on the entries listed in the export
     ['player', 'alliance', 'castle'].forEach(tab => Object.values(DATA[tab] || {}).forEach(rows => {
@@ -698,6 +723,21 @@
     const phases = currentPhases();
     const phase = phases.includes(state.phase) ? state.phase : phases[0];
     return (DATA[state.tab] && DATA[state.tab][phase]) ? DATA[state.tab][phase] : [];
+  }
+
+  // five dots = prep days 1-5: filled when the player is listed in that day's ranking
+  function dayDots(r){
+    const isAlly = state.tab === 'alliance';
+    const k = (r.state || '') + '|' + (isAlly ? r.alliance : r.name);
+    const dots = [], on = [];
+    for(let i = 1; i <= 5; i++){
+      const ix = isAlly ? dayIdxA[i] : dayIdx[i];
+      if(!ix){ dots.push('<i class="dd na"></i>'); continue; }
+      const hit = isAlly ? ix.has(k) : ((r.id && ix.ids.has(r.id)) || ix.namesNoId.has(k) || (!r.id && ix.namesAll.has(k)));
+      dots.push(`<i class="dd${hit ? ' on' : ''}"></i>`);
+      if(hit) on.push(i);
+    }
+    return `<span class="days" role="img" aria-label="${on.length ? 'Listed on day ' + on.join(', ') : 'Not listed on any prep day'}">${dots.join('')}</span>`;
   }
 
   function stateMatch(r){
@@ -979,10 +1019,11 @@
 
     const showSel = state.tab === 'player' || state.tab === 'alliance';
     const selSet = state.sel[state.tab];
+    const dayHint = 'Dots = prep Day 1 to 5: filled when the ' + (state.tab === 'alliance' ? 'alliance' : 'player') + ' is listed in that day\'s ranking';
     const thead = (showSel ? '<th class="selcol"><input type="checkbox" id="selAll" aria-label="Select all shown rows"></th>' : '') + cols.map(c => {
       const sorted = state.sortKey === c.key;
       const arrow = sorted ? (state.sortDir === 'asc' ? '&#9650;' : '&#9660;') : '';
-      return `<th data-key="${c.key}" class="${sorted?'sorted':''}">${c.label}<span class="arrow">${arrow}</span></th>`;
+      return `<th data-key="${c.key}" class="${sorted?'sorted':''}"${(c.key === 'name' && state.tab !== 'castle') ? ` title="${dayHint}"` : ''}>${c.label}<span class="arrow">${arrow}</span></th>`;
     }).join('');
 
     const showState = state.tab !== 'castle';
@@ -1005,7 +1046,7 @@
         ${showSel ? `<td class="selcol"><input type="checkbox" class="rowsel" data-k="${escapeHtml(selKeyOf(r))}" aria-label="Select ${escapeHtml(r.name)}"${isSel ? ' checked' : ''}></td>` : ''}
         <td class="rank">${r.rank}</td>
         <td class="rank srank">${r.srank < 99999 ? r.srank : '—'}</td>
-        <td class="name">${escapeHtml(r.name)}${(state.tab === 'alliance' && state.phase === 'Battle Phase' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</td>
+        <td class="name">${state.tab === 'castle' ? escapeHtml(r.name) : `<div class="namecell"><span>${escapeHtml(r.name)}${(state.tab === 'alliance' && state.phase === 'Battle Phase' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</span>${dayDots(r)}</div>`}</td>
         <td>${tagChip(r.alliance, r.state || allianceStateMap[r.alliance])}</td>
         ${showState ? `<td class="state">${r.state||'—'}</td>` : ''}
         <td class="num">${fmt(r.points)}</td>
