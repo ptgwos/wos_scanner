@@ -212,7 +212,9 @@
   .sel-total{font-size:16px;color:var(--text);}
   .sel-total b{color:var(--ice);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;}
   .sel-meta{font-size:12.5px;color:var(--text-dim);}
-  .sel-clear{margin-left:auto;background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer;}
+  .sel-compare{margin-left:auto;background:var(--ice);color:#04141b;border:0;border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;}
+  .sel-compare:hover{filter:brightness(1.1);}
+  .sel-clear{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer;}
   .sel-clear:hover{color:var(--ice);border-color:var(--ice-dim);}
 
   /* state share stat bar */
@@ -426,6 +428,10 @@
   .sx-chip button:hover{color:var(--text);}
   .sx-quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
   .sx-quick .sx-hit{width:auto;padding:6px 10px;}
+  .sx-browse{margin-bottom:12px;}
+  .sx-browse select{max-width:100%;}
+  .sx-browse-list{max-height:320px;overflow:auto;margin-top:8px;}
+  .sx-hit.picked{opacity:.45;}
   .sx-q-title{width:100%;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
   .sx-ctrl{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 10px;}
   .sx-ctrl select{min-width:200px;}
@@ -562,7 +568,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-12 · b22</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-12 · b23</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1057,7 +1063,7 @@
     currentRows().forEach(r => { if(set.has(selKeyOf(r))){ sum += r.points; n++; } });
     const missing = set.size - n;
     selTotalEl.style.display = '';
-    selTotalEl.innerHTML = `<div class="sel-bar"><span class="sel-total">Total: <b>${fmt(sum)}</b></span><span class="sel-meta">${n} selected · ${escapeHtml(state.phase)}${missing > 0 ? ' · ' + missing + ' not listed in this phase' : ''}</span><button type="button" class="sel-clear">Clear selection</button></div>`;
+    selTotalEl.innerHTML = `<div class="sel-bar"><span class="sel-total">Total: <b>${fmt(sum)}</b></span><span class="sel-meta">${n} selected · ${escapeHtml(state.phase)}${missing > 0 ? ' · ' + missing + ' not listed in this phase' : ''}</span><button type="button" class="sel-compare" title="Open the selection in the Statistics tab (max ${MAX_PICKS})">${set.size > MAX_PICKS ? 'Compare first ' + MAX_PICKS : 'Compare'} in Statistics</button><button type="button" class="sel-clear">Clear selection</button></div>`;
   }
   function updateSelHeader(){
     const all = tableWrap.querySelector('#selAll');
@@ -1084,6 +1090,7 @@
     updateSelTotal();
   });
   selTotalEl.addEventListener('click', e => {
+    if(e.target.closest('.sel-compare')){ compareSelected(); return; }
     if(!e.target.closest('.sel-clear')) return;
     state.sel[state.tab].clear();
     tableWrap.querySelectorAll('.rowsel').forEach(b => { b.checked = false; b.closest('tr').classList.remove('row-sel'); });
@@ -1634,7 +1641,8 @@
     metric: {player: 'Prep Total', alliance: 'Prep Total', state: 'prep'},
     value: 'points',
     only646: true,
-    query: ''
+    query: '',
+    browse: {player: '', alliance: ''}
   };
   let TD = null;
   let trendBuilt = false;
@@ -1754,7 +1762,9 @@
               battleShare: battle != null && battle + battleAway ? battle / (battle + battleAway) * 100 : null};
     });
 
-    return {evs, people, allies, stateRows, info: {multiEvent, renamed, byName}};
+    const nameKey = new Map();
+    people.forEach(p => p.evIds.forEach(id => { const e = p.byEvent[id]; const k = e.state + '|' + e.name; if(!nameKey.has(k)) nameKey.set(k, p.key); }));
+    return {evs, people, allies, stateRows, nameKey, info: {multiEvent, renamed, byName}};
   }
 
   // ---------- helpers ----------
@@ -1876,8 +1886,8 @@
     }
     return `<span class="sx-id">${escapeHtml(e.latest.name || '')}</span>`;
   }
-  function hitHtml(e){
-    return `<button class="sx-hit" data-key="${escapeHtml(e.key)}"><b>${escapeHtml(entityName(e))}</b>${entitySub(e)}<span class="sx-id">${e.evIds.length} event${e.evIds.length > 1 ? 's' : ''}</span></button>`;
+  function hitHtml(e, picked){
+    return `<button class="sx-hit${picked ? ' picked' : ''}" data-key="${escapeHtml(e.key)}"><b>${escapeHtml(entityName(e))}</b>${entitySub(e)}<span class="sx-id">${e.evIds.length} event${e.evIds.length > 1 ? 's' : ''}</span></button>`;
   }
 
   // ---------- rendering ----------
@@ -1902,6 +1912,10 @@
         </div>
         <div id="sxChips" class="sx-chips"></div>
         <div id="sxQuick" class="sx-quick"></div>
+        <div id="sxBrowse" class="sx-browse">
+          <select id="sxBrowseSel" aria-label="Browse by alliance"></select>
+          <div id="sxBrowseList" class="sx-hits sx-browse-list"></div>
+        </div>
       </div>
       <div class="sx-ctrl">
         <div class="field"><label for="sxMetric">Metric</label><select id="sxMetric"></select></div>
@@ -1940,6 +1954,8 @@
     };
     trendPanel.querySelector('#sxHits').addEventListener('click', e => { const b = e.target.closest('.sx-hit'); if(b) addPick(b.dataset.key); });
     trendPanel.querySelector('#sxQuick').addEventListener('click', e => { const b = e.target.closest('.sx-hit'); if(b) addPick(b.dataset.key); });
+    trendPanel.querySelector('#sxBrowseList').addEventListener('click', e => { const b = e.target.closest('.sx-hit'); if(b) addPick(b.dataset.key); });
+    trendPanel.querySelector('#sxBrowseSel').addEventListener('change', e => { trend.browse[trend.mode] = e.target.value; renderBrowse(); });
     trendPanel.querySelector('#sxChips').addEventListener('click', e => {
       const b = e.target.closest('button[data-rm]');
       if(!b) return;
@@ -1948,6 +1964,60 @@
       if(i >= 0) picks.splice(i, 1);
       renderTrendParts();
     });
+  }
+
+  // browse list: pick an alliance and click a player (no typing, works for any name)
+  function renderBrowse(){
+    const wrap = trendPanel.querySelector('#sxBrowse');
+    if(!wrap) return;
+    if(trend.mode === 'state'){ wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+    const sel = wrap.querySelector('#sxBrowseSel'), list = wrap.querySelector('#sxBrowseList');
+    const picks = currentPicks();
+    const byPoints = (a, b) => b.latest.phases[qpPhase(b)].points - a.latest.phases[qpPhase(a)].points;
+    let options, hits = [], cur = trend.browse[trend.mode];
+    if(trend.mode === 'player'){
+      const pool = [...TD.people.values()].filter(p => (!trend.only646 || p.state === '646') && inNewest(p) && qpPhase(p));
+      const tags = [...new Set(pool.map(p => p.latest.alliance).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+      options = [`<option value="">Browse players by alliance…</option>`].concat(tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`));
+      if(cur && !tags.includes(cur)) cur = trend.browse.player = '';
+      if(cur) hits = pool.filter(p => p.latest.alliance === cur).sort(byPoints);
+    } else {
+      options = [`<option value="">Browse alliances…</option>`, `<option value="all">All alliances (latest event)</option>`];
+      if(cur === 'all') hits = [...TD.allies.values()].filter(a => (!trend.only646 || a.state === '646') && inNewest(a) && qpPhase(a)).sort(byPoints);
+    }
+    sel.innerHTML = options.join('');
+    sel.value = cur;
+    list.innerHTML = hits.slice(0, 120).map(e => hitHtml(e, picks.includes(e.key))).join('');
+  }
+
+  // "Compare selected" in the sum bar: put the checked players / alliances into the Statistics tab
+  function compareSelected(){
+    const mode = state.tab;
+    if(mode !== 'player' && mode !== 'alliance') return;
+    if(!TD) TD = buildTrendData();
+    const rowByKey = new Map();
+    Object.values(DATA[mode] || {}).forEach(rows => rows.forEach(r => {
+      const k = selKeyOf(r), old = rowByKey.get(k);
+      if(!old || (!old.id && r.id)) rowByKey.set(k, r);
+    }));
+    const keys = [];
+    state.sel[mode].forEach(k => {
+      const r = rowByKey.get(k);
+      if(!r) return;
+      let tk;
+      if(mode === 'player') tk = r.id ? 'id:' + r.id : (TD.nameKey.get((r.state || '') + '|' + r.name) || 'n:' + (r.state || '') + '|' + r.name);
+      else tk = allyKey(r.state, r.alliance);
+      const ent = mode === 'player' ? TD.people.get(tk) : TD.allies.get(tk);
+      if(ent && !keys.includes(tk)) keys.push(tk);
+    });
+    if(!keys.length) return;
+    trend.mode = mode;
+    trend.picks[mode] = keys.slice(0, MAX_PICKS);
+    trend.query = '';
+    const q = trendPanel.querySelector('#sxQuery'); if(q) q.value = '';
+    tabsEl.querySelector('.tab[data-tab="trends"]').click();
+    window.scrollTo(0, 0);
   }
 
   function renderTrendHits(){
@@ -1980,6 +2050,7 @@
     trendPanel.querySelector('#sxValueWrap').style.display = rankable ? '' : 'none';
 
     renderTrendHits();
+    renderBrowse();
 
     // chips + quick picks
     const picks = currentPicks().filter(k => entityOf(k));
