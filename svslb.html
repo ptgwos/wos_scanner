@@ -178,6 +178,7 @@
   tbody tr:hover{background:rgba(111,227,255,0.04);}
   tbody td{padding:9px 12px;color:var(--text);}
   td.num{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;text-align:right;color:var(--text);}
+  td.srank{color:var(--ice-dim);}
   td.rank{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;color:var(--text-dim);width:44px;}
   .row-646{border-left:2px solid var(--state646);}
   .row-646 td.name{font-weight:700;color:#fff;}
@@ -188,12 +189,13 @@
     display:inline-block;
     font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;
     font-size:11.5px;
-    padding:2px 7px;
-    border-radius:3px;
+    padding:2px 9px;
+    border-radius:999px;
     background:var(--panel-2);
     border:1px solid var(--border);
     color:var(--text-dim);
   }
+  .tag.tag-c{font-weight:600;}
   .empty{
     text-align:center;
     color:var(--text-faint);
@@ -560,7 +562,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-11 · b19</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-12 · b22</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -616,6 +618,17 @@
       }));
     });
 
+    // rank inside the own state (per tab + phase), based on the entries listed in the export
+    ['player', 'alliance', 'castle'].forEach(tab => Object.values(DATA[tab] || {}).forEach(rows => {
+      const cnt = {};
+      rows.slice().sort((a, b) => a.rank - b.rank).forEach(r => {
+        const s = r.state || allianceStateMap[r.alliance] || '';
+        if(!s){ r.srank = 99999; return; }
+        cnt[s] = (cnt[s] || 0) + 1;
+        r.srank = cnt[s];
+      });
+    }));
+
     // lookup indexes for hover details
     playerIdx = new Map();
     Object.entries(DATA.player).forEach(([phase, rows]) => rows.forEach(r => {
@@ -649,7 +662,7 @@
     search: '',
     sortKey: 'rank',
     sortDir: 'asc',
-    only646: false,
+    stateFilter: 'all',   // 'all' | '646' | 'away'
     animate: true,
     sel: {player: new Set(), alliance: new Set()}
   };
@@ -681,6 +694,12 @@
     return (DATA[state.tab] && DATA[state.tab][phase]) ? DATA[state.tab][phase] : [];
   }
 
+  function stateMatch(r){
+    if(state.stateFilter === 'all') return true;
+    const s = r.state || allianceStateMap[r.alliance] || '';
+    return state.stateFilter === '646' ? s === '646' : (s !== '' && s !== '646');
+  }
+
   function renderControls(){
     const phases = currentPhases();
     if(!phases.includes(state.phase)) state.phase = phases[0];
@@ -690,10 +709,10 @@
     ).join('');
 
     // dropdown only offers alliances that actually appear in the currently shown ranking
-    // (phase + "Only 646" switch); case-sensitive, so OSM and osm stay separate
+    // (phase + state filter); case-sensitive, so OSM and osm stay separate
     const allianceList = [...new Set(
       currentRows()
-        .filter(r => !state.only646 || (r.state || allianceStateMap[r.alliance]) === '646')
+        .filter(stateMatch)
         .map(r => r.alliance)
         .filter(Boolean)
     )].sort((a, b) => a.localeCompare(b));
@@ -718,17 +737,22 @@
         <label for="searchBox">Search</label>
         <input type="text" id="searchBox" placeholder="Player name…" value="${state.search.replace(/"/g,'&quot;')}">
       </div>
-      <label class="switch" title="Hide players and alliances from the other state">
-        <input type="checkbox" id="only646" ${state.only646 ? 'checked' : ''}>
-        <span class="switch-track"><span class="switch-thumb"></span></span>
-        <span class="switch-label">Only 646</span>
-      </label>
+      <div class="field">
+        <label>State</label>
+        <div class="seg" id="stateSeg" title="Show everyone, only State 646, or only the opponent state">
+          <button data-st="all" class="${state.stateFilter === 'all' ? 'active' : ''}">All</button>
+          <button data-st="646" class="${state.stateFilter === '646' ? 'active' : ''}">Only 646</button>
+          <button data-st="away" class="${state.stateFilter === 'away' ? 'active' : ''}">Opponent</button>
+        </div>
+      </div>
       ${top100ButtonHtml}
       <div class="count-pill" id="countPill"></div>
     `;
 
-    controlsEl.querySelector('#only646').addEventListener('change', e => {
-      state.only646 = e.target.checked;
+    controlsEl.querySelector('#stateSeg').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-st]');
+      if(!btn) return;
+      state.stateFilter = btn.dataset.st;
       state.animate = true;
       renderControls();
       renderTable();
@@ -835,10 +859,9 @@
   }
 
   // ----- note + contribution bar for Battle Phase / Castle Battle -----
-  const CONTRIB_COLORS = [
-    {bg:'#6fe3ff', fg:'#04141b'}, {bg:'#4f7cff', fg:'#ffffff'}, {bg:'#ffb400', fg:'#231400'},
-    {bg:'#a78bfa', fg:'#ffffff'}, {bg:'#43e6a0', fg:'#04170f'}, {bg:'#ff7ab6', fg:'#2a0716'},
-    {bg:'#ff9f5a', fg:'#2a1204'}, {bg:'#7ee0c3', fg:'#04170f'}
+  const CONTRIB_COLORS = [   // for alliances without a fixed tag color (reds / greens / blue are reserved)
+    {bg:'#ffb400', fg:'#231400'}, {bg:'#a78bfa', fg:'#1a1033'}, {bg:'#6fe3ff', fg:'#04141b'},
+    {bg:'#e6c27a', fg:'#241a05'}, {bg:'#9fb2cc', fg:'#0d1626'}, {bg:'#d08bff', fg:'#240a3a'}
   ];
   const CONTRIB_OTHER = {bg:'#3d4c6b', fg:'#eef1f8'};
   let lastContribKey = '';
@@ -872,8 +895,10 @@
     const all = [...g.values()].sort((a, b) => b.pts - a.pts);
     const main = all.filter(e => e.pts / total >= 0.01);
     const rest = all.filter(e => e.pts / total < 0.01);
+    const unassigned = ALLIANCES_646.filter(a => !TAG_COLORS[a]);
     const segs = main.map(e => {
-      const i = ALLIANCES_646.indexOf(e.tag);
+      if(TAG_COLORS[e.tag]) return {...e, color: TAG_COLORS[e.tag]};
+      const i = unassigned.indexOf(e.tag);
       return {...e, color: i >= 0 ? CONTRIB_COLORS[i % CONTRIB_COLORS.length] : CONTRIB_OTHER};
     });
     if(rest.length){
@@ -916,9 +941,7 @@
     renderPhaseExtras();
     let rows = currentRows();
 
-    if(state.only646){
-      rows = rows.filter(r => (r.state || allianceStateMap[r.alliance]) === '646');
-    }
+    rows = rows.filter(stateMatch);
     if(state.allianceFilter){
       rows = rows.filter(r => r.alliance === state.allianceFilter);
     }
@@ -946,6 +969,7 @@
     if(state.tab !== 'castle'){
       cols.splice(3, 0, {key:'state', label:'State'});
     }
+    cols.splice(1, 0, {key:'srank', label:'State rank'});
 
     const showSel = state.tab === 'player' || state.tab === 'alliance';
     const selSet = state.sel[state.tab];
@@ -974,8 +998,9 @@
       return `<tr class="${stateCls}${cutoffCls}${animate ? ' row-anim' : ''}${isSel ? ' row-sel' : ''}" data-tip="${escapeHtml(tipKey)}"${animStyle}>
         ${showSel ? `<td class="selcol"><input type="checkbox" class="rowsel" data-k="${escapeHtml(selKeyOf(r))}" aria-label="Select ${escapeHtml(r.name)}"${isSel ? ' checked' : ''}></td>` : ''}
         <td class="rank">${r.rank}</td>
+        <td class="rank srank">${r.srank < 99999 ? r.srank : '—'}</td>
         <td class="name">${escapeHtml(r.name)}${(state.tab === 'alliance' && state.phase === 'Battle Phase' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</td>
-        <td><span class="tag">${escapeHtml(r.alliance||'—')}</span></td>
+        <td>${tagChip(r.alliance, r.state || allianceStateMap[r.alliance])}</td>
         ${showState ? `<td class="state">${r.state||'—'}</td>` : ''}
         <td class="num">${fmt(r.points)}</td>
       </tr>`;
@@ -1001,6 +1026,25 @@
 
   function escapeHtml(s){
     return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- ALLIANCE TAG COLORS ----------
+  // main alliance = darker, sister/alt alliance = lighter (case-sensitive tags). OSM = old tag of BLP.
+  const TAG_RED = {bg:'#b8283a', fg:'#ffffff', bd:'#b8283a'};
+  const TAG_COLORS = {
+    BLP: TAG_RED, OSM: TAG_RED,
+    osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'},
+    AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'},
+    TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'},
+    TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}
+  };
+  const TAG_HOME_PLAIN = {bg:'#3a4357', fg:'#dfe6f2', bd:'#4d5873'};   // 646 alliances without own color: grey
+  function tagChip(tag, st){
+    const label = escapeHtml(tag || '—');
+    const s = st || (tag ? allianceStateMap[tag] : '') || '';
+    // home (646) alliances: own color, else grey; opponent state: plain default chip
+    const c = (!tag || (s && s !== '646')) ? null : (TAG_COLORS[tag] || (s === '646' ? TAG_HOME_PLAIN : null));
+    return c ? `<span class="tag tag-c" style="background:${c.bg};color:${c.fg};border-color:${c.bd}">${label}</span>` : `<span class="tag">${label}</span>`;
   }
 
   // ---------- ROW SELECTION + TOTAL (Player / Alliance) ----------
@@ -1476,7 +1520,7 @@
     return `
       <div class="tt-head">
         <b>${escapeHtml(e.name)}</b>
-        <span class="tag">${escapeHtml(e.alliance || '—')}</span>
+        ${tagChip(e.alliance, state)}
         ${state ? `<span class="tt-state${state === '646' ? ' home' : ''}">${escapeHtml(state)}</span>` : ''}
       </div>
       ${e.id ? `<div class="tt-id">ID: ${e.id}</div>` : ''}
@@ -1828,7 +1872,7 @@
   }
   function entitySub(e){
     if(trend.mode === 'player'){
-      return `<span class="tag">${escapeHtml(e.latest.alliance || '—')}</span>${e.id ? `<span class="sx-id">ID ${e.id}</span>` : ''}`;
+      return `${tagChip(e.latest.alliance, e.state)}${e.id ? `<span class="sx-id">ID ${e.id}</span>` : ''}`;
     }
     return `<span class="sx-id">${escapeHtml(e.latest.name || '')}</span>`;
   }
@@ -2010,12 +2054,12 @@
         const P = ph => ev.phases[ph];
         const pv = ph => (gid => { const x = e.byEvent[gid]; return x && x.phases[ph] ? x.phases[ph].points : null; });
         rows.push(`<tr><td>${escapeHtml(id)}${ev.byName ? ' <em class="sx-flag" title="No ID in this event – matched by exact name">name match</em>' : ''}</td>
-          <td><span class="tag">${escapeHtml(ev.alliance || '—')}</span></td>
+          <td>${tagChip(ev.alliance, e.state)}</td>
           ${['Prep Total', 'Battle Phase', 'Castle Battle'].map(ph => cellHtml(P(ph) ? P(ph).points : null, P(ph) ? P(ph).rank : null, prevOf(i, pv(ph)))).join('')}</tr>`);
       } else {
         const A = ph => ev.phases[ph];
         const av = key => (gid => { const x = e.byEvent[gid]; return x ? (x.phases[key] ? x.phases[key].points : x[key]) : null; });
-        rows.push(`<tr><td>${escapeHtml(id)}</td><td><span class="tag">${escapeHtml(ev.tag)}</span></td>
+        rows.push(`<tr><td>${escapeHtml(id)}</td><td>${tagChip(ev.tag, e.state)}</td>
           ${cellHtml(A('Prep Total') ? A('Prep Total').points : null, A('Prep Total') ? A('Prep Total').rank : null, prevOf(i, av('Prep Total')))}
           ${cellHtml(A('Battle Phase') ? A('Battle Phase').points : null, A('Battle Phase') ? A('Battle Phase').rank : null, prevOf(i, av('Battle Phase')))}
           ${cellHtml(ev.prepTop100, null, prevOf(i, av('prepTop100')), {count: true})}
