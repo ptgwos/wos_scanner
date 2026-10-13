@@ -470,9 +470,14 @@
   .sx-hist{width:100%;font-size:11.5px;color:var(--text-faint);}
   .sx-hist em{font-style:normal;color:var(--text-faint);opacity:.8;}
   .sx-scroll{overflow-x:auto;}
-  .sx-card table{min-width:560px;font-size:13px;}
+  .sx-card table{min-width:600px;width:100%;table-layout:fixed;font-size:13px;}
+  .sx-card th:first-child{width:150px;}
+  .sx-card th.tagc{width:96px;}
+  .sx-card th.num{text-align:right;}
+  .sx-card td .sx-flag{display:inline-block;margin:3px 0 0;}
+  .sx-card td.sx-na{color:var(--text-faint);}
   .sx-card td em, .sx-card td .sx-flag{font-style:normal;color:var(--text-faint);font-size:11.5px;}
-  .sx-card td .sx-flag{border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:6px;}
+  .sx-card td .sx-flag{border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:0;}
   .sx-card td.num{text-align:right;white-space:nowrap;}
   .sx-na{color:var(--text-faint);}
   .sx-miss td{color:var(--text-faint);font-size:12.5px;}
@@ -591,7 +596,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-13 · b29</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-13 · b30</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1965,7 +1970,8 @@
           const lt = opt.pct ? v.toFixed(1).replace('.', ',') + ' %' : (opt.count ? String(v) : (reverse ? '#' + v : (W >= 600 ? fmt(v) : compact(v))));
           const ly = Math.min(H - B - 3, Math.max(T + 6, y(v) + VOFF[si]));
           const anchor = n > 1 && i === 0 ? 'start' : (n > 1 && i === n - 1 ? 'end' : 'middle');
-          g += `<text x="${x(i).toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" class="sx-vl" fill="${s.color}">${escapeHtml(lt)}</text>`;
+          const lx = x(i) + (anchor === 'start' ? 6 : (anchor === 'end' ? -6 : 0));
+          g += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" class="sx-vl" fill="${s.color}">${escapeHtml(lt)}</text>`;
         }
       });
     });
@@ -2264,7 +2270,7 @@
           ${cellHtml(ev.castleHome || null, null, prevOf(i, av('castleHome')))}</tr>`);
       }
     }
-    return `<div class="sx-card">${head}<div class="sx-scroll"><table><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div></div>`;
+    return `<div class="sx-card">${head}<div class="sx-scroll"><table><thead><tr>${cols.map((c, i) => `<th class="${i === 0 ? '' : (i === 1 ? 'tagc' : 'num')}">${c}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div></div>`;
   }
 
   // share of the State 646 points made together by the selected players (per event and phase)
@@ -2294,7 +2300,7 @@
       }).join('');
       body.push(`<tr><td>${escapeHtml(ev.date)}</td>${cells}</tr>`);
     }
-    const head = PH.map(p => p === 'Prep Total' ? '<th>Total</th>' : (p === 'Castle Battle' ? '<th>Castle</th>' : `<th>${plHtml(p)}</th>`)).join('');
+    const head = PH.map(p => p === 'Prep Total' ? '<th class="num">Total</th>' : (p === 'Castle Battle' ? '<th class="num">Castle</th>' : `<th class="num">${plHtml(p)}</th>`)).join('');
     return `<div class="sx-card"><div class="sx-card-head"><b>Selected players</b><span class="sx-id">${escapeHtml(names)} · share of State 646 points</span></div>
       <div class="sx-scroll"><table><thead><tr><th>Event</th>${head}</tr></thead><tbody>${body.join('')}</tbody></table></div>
       <div class="sx-share-note">Share of the points of all listed State 646 alliances in that phase (Castle: of the Top 100 castle players). Players outside the lists (Top 200) count as 0.${skipped ? ` ${skipped} selected opponent player${skipped > 1 ? 's are' : ' is'} not included.` : ''}</div></div>`;
@@ -2311,7 +2317,7 @@
       ${cellHtml(r.battle, null, prevOf(r.id, 'battle'))}<td class="num">${r.battleAway == null ? '–' : fmt(r.battleAway)}</td><td class="num">${pct(r.battleShare)}</td>
       ${cellHtml(r.castle, null, prevOf(r.id, 'castle'))}</tr>`).join('');
     return `<div class="sx-card"><div class="sx-card-head"><b>State 646 per event</b><span class="sx-id">sums of the alliance rankings (castle: Top 100 players)</span></div>
-      <div class="sx-scroll"><table><thead><tr><th>Event</th><th>Opponent</th><th>Prep 646</th><th>Prep opp.</th><th>646 share</th><th>Battle 646</th><th>Battle opp.</th><th>646 share</th><th>Castle 646</th></tr></thead><tbody>${body}</tbody></table></div></div>`;
+      <div class="sx-scroll"><table><thead><tr><th>Event</th><th>Opponent</th><th class="num">Prep 646</th><th class="num">Prep opp.</th><th class="num">646 share</th><th class="num">Battle 646</th><th class="num">Battle opp.</th><th class="num">646 share</th><th class="num">Castle 646</th></tr></thead><tbody>${body}</tbody></table></div></div>`;
   }
 
   let resizeTimer = null;
