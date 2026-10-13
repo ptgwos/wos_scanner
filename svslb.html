@@ -180,6 +180,18 @@
   td.num{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;text-align:right;color:var(--text);}
   .namecell{display:flex;align-items:center;justify-content:space-between;gap:16px;}
   .days{display:inline-flex;gap:4px;flex:none;}
+  .nm{display:inline-flex;align-items:center;gap:6px;min-width:0;}
+  .medals{display:inline-flex;gap:3px;flex:none;}
+  .medal{width:17px;height:17px;display:block;}
+  @media (max-width:640px){
+    .namecell{flex-direction:column;align-items:flex-start;gap:5px;}
+    .nm .nt{max-width:96px;overflow:hidden;text-overflow:ellipsis;}
+    #tableWrap th.stk, #tableWrap td.stk{position:sticky;z-index:1;background:var(--panel);padding-left:5px;padding-right:5px;}
+    #tableWrap thead th.stk{z-index:3;}
+    #tableWrap tr.row-sel td.stk{background:#122338;}
+    #tableWrap td.stk.name-stk{box-shadow:1px 0 0 var(--border);}
+    #tableWrap th.selcol.stk, #tableWrap td.selcol.stk{padding-left:8px;padding-right:2px;}
+  }
   .dd{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--text-faint);box-sizing:border-box;}
   .dd.on{background:var(--ice);border-color:var(--ice);}
   .dd.na{opacity:.3;border-style:dashed;}
@@ -201,6 +213,10 @@
     color:var(--text-dim);
   }
   .tag.tag-c{font-weight:600;}
+  .ps{display:none;}
+  @media (max-width:480px){ .pf{display:none;} .ps{display:inline;} }
+  .sx-vl{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;paint-order:stroke;stroke:#0f1626;stroke-width:3px;stroke-linejoin:round;}
+  .sx-share-note{padding:8px 14px;font-size:11.5px;color:var(--text-faint);border-top:1px solid var(--border-soft);}
   .empty{
     text-align:center;
     color:var(--text-faint);
@@ -335,6 +351,8 @@
   #top100TableWrap th, #top100TableWrap td{padding:7px 10px;white-space:nowrap;}
   #top100TableWrap thead th{position:sticky;top:0;background:var(--panel);}
   #top100TableWrap td.num{text-align:center;}
+  #top100TableWrap th:first-child, #top100TableWrap td:first-child{position:sticky;left:0;background:var(--panel);z-index:1;box-shadow:1px 0 0 var(--border);}
+  #top100TableWrap thead th:first-child{z-index:2;}
   .btn-secondary{
     font-family:'Inter',sans-serif;font-weight:600;font-size:13px;
     background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);
@@ -573,7 +591,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-12 · b25</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-13 · b29</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -725,6 +743,57 @@
     return (DATA[state.tab] && DATA[state.tab][phase]) ? DATA[state.tab][phase] : [];
   }
 
+  // medals: places 1-3 in the overall Prep Total ranking of an event (State 646 only), oldest event first
+  let MEDALS = null;
+  function buildMedals(){
+    MEDALS = {player: [], alliance: {}};
+    EVENTS.slice().reverse().forEach(ev => {
+      ((ev.data.player || {})['Prep Total'] || []).forEach(r => {
+        if(r.state === '646' && r.rank >= 1 && r.rank <= 3) MEDALS.player.push({id: r.id || 0, name: r.name, date: ev.date, place: r.rank});
+      });
+      ((ev.data.alliance || {})['Prep Total'] || []).forEach(r => {
+        if(r.state === '646' && r.rank >= 1 && r.rank <= 3){
+          const t = r.alliance === 'OSM' ? 'BLP' : r.alliance;   // OSM was renamed to BLP
+          (MEDALS.alliance[t] = MEDALS.alliance[t] || []).push({date: ev.date, place: r.rank});
+        }
+      });
+    });
+  }
+  const MEDAL_COL = {1: ['#f7c948', '#9a6b00'], 2: ['#d5dbe3', '#5b6573'], 3: ['#d9893f', '#7a3f0f']};
+  function medalSvg(place, title){
+    const c = MEDAL_COL[place];
+    return `<span class="medal-w" title="${escapeHtml(title)}"><svg class="medal" viewBox="0 0 20 20" role="img" aria-label="${escapeHtml(title)}"><circle cx="10" cy="10" r="9" fill="${c[0]}" stroke="${c[1]}" stroke-width="1.5"/><text x="10" y="14.2" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" font-weight="800" fill="${c[1]}">${place}</text></svg></span>`;
+  }
+  function medalsHtml(r){
+    if(state.tab === 'castle' || r.state !== '646') return '';
+    if(!MEDALS) buildMedals();
+    let list;
+    if(state.tab === 'alliance'){
+      const t = r.alliance === 'OSM' ? 'BLP' : r.alliance;
+      list = MEDALS.alliance[t] || [];
+    } else {
+      list = MEDALS.player.filter(m => (r.id && m.id) ? m.id === r.id : m.name === r.name);
+    }
+    if(!list.length) return '';
+    return '<span class="medals">' + list.map(m => medalSvg(m.place, m.date + ' · Prep Total · place ' + m.place)).join('') + '</span>';
+  }
+
+  // sticky first columns on narrow screens (checkbox, R, SR, name): left offsets measured from the header cells
+  function applySticky(){
+    const t = tableWrap.querySelector('table');
+    if(!t || !t.tHead) return;
+    const hc = [...t.tHead.rows[0].cells];
+    const n = hc.findIndex(c => c.dataset.key === 'name');
+    if(n < 0) return;
+    let left = 0;
+    const offs = hc.slice(0, n + 1).map(c => { const o = left; left += c.offsetWidth; return o; });
+    [...t.rows].forEach(tr => offs.forEach((o, i) => {
+      const c = tr.cells[i]; if(!c) return;
+      c.classList.add('stk'); if(i === n) c.classList.add('name-stk'); c.style.left = o + 'px';
+    }));
+  }
+  window.addEventListener('resize', () => { if(tableWrap.querySelector('table')) applySticky(); });
+
   // five dots = prep days 1-5: filled when the player is listed in that day's ranking
   function dayDots(r){
     const isAlly = state.tab === 'alliance';
@@ -737,7 +806,7 @@
       dots.push(`<i class="dd${hit ? ' on' : ''}"></i>`);
       if(hit) on.push(i);
     }
-    return `<span class="days" role="img" aria-label="${on.length ? 'Listed on day ' + on.join(', ') : 'Not listed on any prep day'}">${dots.join('')}</span>`;
+    return `<span class="days" role="img" aria-label="${on.length ? 'Listed in phase ' + on.join(', ') : 'Not listed in any prep phase'}">${dots.join('')}</span>`;
   }
 
   function stateMatch(r){
@@ -751,7 +820,7 @@
     if(!phases.includes(state.phase)) state.phase = phases[0];
 
     let phaseButtons = phases.map(p =>
-      `<button data-phase="${p}" class="${p===state.phase?'active':''}${hasPhaseData(state.tab, p)?'':' nodata'}">${p}</button>`
+      `<button data-phase="${p}" class="${p===state.phase?'active':''}${hasPhaseData(state.tab, p)?'':' nodata'}">${plHtml(p)}</button>`
     ).join('');
 
     // dropdown only offers alliances that actually appear in the currently shown ranking
@@ -1007,7 +1076,7 @@
 
     const nameHeader = state.tab === 'alliance' ? 'Alliance' : 'Name';
     const cols = [
-      {key:'rank', label:'Rank'},
+      {key:'rank', label:'R', tip:'Rank'},
       {key:'name', label: nameHeader},
       {key:'alliance', label: isHomeTagView() ? 'Home alliance' : 'Tag'},
       {key:'points', label:'Points'}
@@ -1015,15 +1084,15 @@
     if(state.tab !== 'castle'){
       cols.splice(3, 0, {key:'state', label:'State'});
     }
-    cols.splice(1, 0, {key:'srank', label:'State rank'});
+    cols.splice(1, 0, {key:'srank', label:'SR', tip:'State rank (rank inside the own state among the listed entries)'});
 
     const showSel = state.tab === 'player' || state.tab === 'alliance';
     const selSet = state.sel[state.tab];
-    const dayHint = 'Dots = prep Day 1 to 5: filled when the ' + (state.tab === 'alliance' ? 'alliance' : 'player') + ' is listed in that day\'s ranking';
+    const dayHint = 'Dots = prep Phase 1 to 5: filled when the ' + (state.tab === 'alliance' ? 'alliance' : 'player') + ' is listed in that phase\'s ranking';
     const thead = (showSel ? '<th class="selcol"><input type="checkbox" id="selAll" aria-label="Select all shown rows"></th>' : '') + cols.map(c => {
       const sorted = state.sortKey === c.key;
       const arrow = sorted ? (state.sortDir === 'asc' ? '&#9650;' : '&#9660;') : '';
-      return `<th data-key="${c.key}" class="${sorted?'sorted':''}"${(c.key === 'name' && state.tab !== 'castle') ? ` title="${dayHint}"` : ''}>${c.label}<span class="arrow">${arrow}</span></th>`;
+      return `<th data-key="${c.key}" class="${sorted?'sorted':''}"${(c.key === 'name' && state.tab !== 'castle') ? ` title="${dayHint}"` : (c.tip ? ` title="${escapeHtml(c.tip)}"` : '')}>${c.label}<span class="arrow">${arrow}</span></th>`;
     }).join('');
 
     const showState = state.tab !== 'castle';
@@ -1046,7 +1115,7 @@
         ${showSel ? `<td class="selcol"><input type="checkbox" class="rowsel" data-k="${escapeHtml(selKeyOf(r))}" aria-label="Select ${escapeHtml(r.name)}"${isSel ? ' checked' : ''}></td>` : ''}
         <td class="rank">${r.rank}</td>
         <td class="rank srank">${r.srank < 99999 ? r.srank : '—'}</td>
-        <td class="name">${state.tab === 'castle' ? escapeHtml(r.name) : `<div class="namecell"><span>${escapeHtml(r.name)}${(state.tab === 'alliance' && state.phase === 'Battle Phase' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</span>${dayDots(r)}</div>`}</td>
+        <td class="name">${state.tab === 'castle' ? escapeHtml(r.name) : `<div class="namecell"><span class="nm"><span class="nt">${escapeHtml(r.name)}</span>${medalsHtml(r)}${(state.tab === 'alliance' && state.phase === 'Battle Phase' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</span>${dayDots(r)}</div>`}</td>
         <td>${tagChip(r.alliance, r.state || allianceStateMap[r.alliance])}</td>
         ${showState ? `<td class="state">${r.state||'—'}</td>` : ''}
         <td class="num">${fmt(r.points)}</td>
@@ -1056,6 +1125,7 @@
     tableWrap.innerHTML = `<table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`;
 
     updateSelHeader();
+    applySticky();
 
     tableWrap.querySelectorAll('thead th[data-key]').forEach(th => {
       th.addEventListener('click', () => {
@@ -1070,6 +1140,10 @@
       });
     });
   }
+
+  // data keys stay 'Day N'; the screen says 'Phase N' (short 'P N' on narrow screens)
+  function pl(p){ const m = /^Day (\d)$/.exec(p); return m ? 'Phase ' + m[1] : p; }
+  function plHtml(p){ const m = /^Day (\d)$/.exec(p); return m ? `<span class="pf">Phase ${m[1]}</span><span class="ps">P${m[1]}</span>` : escapeHtml(p); }
 
   function escapeHtml(s){
     return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1104,7 +1178,7 @@
     currentRows().forEach(r => { if(set.has(selKeyOf(r))){ sum += r.points; n++; } });
     const missing = set.size - n;
     selTotalEl.style.display = '';
-    selTotalEl.innerHTML = `<div class="sel-bar"><span class="sel-total">Total: <b>${fmt(sum)}</b></span><span class="sel-meta">${n} selected · ${escapeHtml(state.phase)}${missing > 0 ? ' · ' + missing + ' not listed in this phase' : ''}</span><button type="button" class="sel-compare" title="Open the selection in the Statistics tab (max ${MAX_PICKS})">${set.size > MAX_PICKS ? 'Compare first ' + MAX_PICKS : 'Compare'} in Statistics</button><button type="button" class="sel-clear">Clear selection</button></div>`;
+    selTotalEl.innerHTML = `<div class="sel-bar"><span class="sel-total">Total: <b>${fmt(sum)}</b></span><span class="sel-meta">${n} selected · ${escapeHtml(pl(state.phase))}${missing > 0 ? ' · ' + missing + ' not listed in this phase' : ''}</span><button type="button" class="sel-compare" title="Open the selection in the Statistics tab (max ${MAX_PICKS})">${set.size > MAX_PICKS ? 'Compare first ' + MAX_PICKS : 'Compare'} in Statistics</button><button type="button" class="sel-clear">Clear selection</button></div>`;
   }
   function updateSelHeader(){
     const all = tableWrap.querySelector('#selAll');
@@ -1386,7 +1460,7 @@
       const arrow = sorted ? (top100Sort.dir === 'asc' ? '&#9650;' : '&#9660;') : '';
       return `<th data-key="${key}" class="${sorted?'sorted':''}">${label}<span class="arrow">${arrow}</span></th>`;
     };
-    const thead = `<tr>${headCol('alliance','Alliance')}${TOP100_COLS.map(c => headCol(c, c)).join('')}</tr>`;
+    const thead = `<tr>${headCol('alliance','Alliance')}${TOP100_COLS.map(c => headCol(c, /^Day \d$/.test(c) ? 'P' + c.slice(4) : c)).join('')}</tr>`;
 
     const tbody = rows.map(r => {
       const stateCls = 'row-646';
@@ -1545,7 +1619,7 @@
       let note = '';
       if(v && p === 'Castle Battle') note = `<div class="tt-note">Castle: Top 100 players only · tag = home alliance</div>`;
       if(v && p === 'Battle Phase' && kind === 'player') note = `<div class="tt-note">Alliance share not shown: battle alliances are ${escapeHtml(BATTLE_ALLIANCES_TXT)}</div>`;
-      return `<div class="ttq"><div class="ttq-t">${p} · share of points</div>${inner}${note}</div>`;
+      return `<div class="ttq"><div class="ttq-t">${escapeHtml(pl(p))} · share of points</div>${inner}${note}</div>`;
     }).join('');
   }
 
@@ -1557,12 +1631,12 @@
     const max = Math.max(1, ...vals);
     const bars = days.map((d, i) => {
       const h = Math.max(vals[i] ? 6 : 2, Math.round(vals[i] / max * 34));
-      return `<div class="tt-bar${vals[i] ? '' : ' zero'}" title="${d}"><i style="height:${h}px"></i><span>D${i+1}</span></div>`;
+      return `<div class="tt-bar${vals[i] ? '' : ' zero'}" title="${escapeHtml(pl(d))}"><i style="height:${h}px"></i><span>P${i+1}</span></div>`;
     }).join('');
     const phaseList = kind === 'alliance' ? TIP_PHASES.filter(p => p !== 'Castle Battle') : TIP_PHASES;
     const trs = phaseList.map(p => {
       const v = e.phases[p];
-      return `<tr><td>${p}</td><td class="r">${v ? '#' + v.rank : '–'}</td><td class="p">${v ? fmt(v.points) : '–'}</td></tr>`;
+      return `<tr><td>${escapeHtml(pl(p))}</td><td class="r">${v ? '#' + v.rank : '–'}</td><td class="p">${v ? fmt(v.points) : '–'}</td></tr>`;
     }).join('');
     const state = e.state || allianceStateMap[e.alliance] || '';
     return `
@@ -1663,9 +1737,9 @@
     {key:'battleHome', label:'Battle Phase points of home members (listed players)'},
     {key:'castleHome', label:'Castle Battle points of home members (Top 100)'},
     {key:'castleCount', label:'Players in Castle Battle Top 100', count:true},
-    {key:'Day 1', label:'Day 1 (alliance ranking)', ranked:true}, {key:'Day 2', label:'Day 2 (alliance ranking)', ranked:true},
-    {key:'Day 3', label:'Day 3 (alliance ranking)', ranked:true}, {key:'Day 4', label:'Day 4 (alliance ranking)', ranked:true},
-    {key:'Day 5', label:'Day 5 (alliance ranking)', ranked:true}
+    {key:'Day 1', label:'Phase 1 (alliance ranking)', ranked:true}, {key:'Day 2', label:'Phase 2 (alliance ranking)', ranked:true},
+    {key:'Day 3', label:'Phase 3 (alliance ranking)', ranked:true}, {key:'Day 4', label:'Phase 4 (alliance ranking)', ranked:true},
+    {key:'Day 5', label:'Phase 5 (alliance ranking)', ranked:true}
   ];
   const STATE_METRICS = [
     {key:'prep', label:'Prep Total – State 646'}, {key:'battle', label:'Battle Phase – State 646'},
@@ -1873,7 +1947,9 @@
     labels.forEach((lb, i) => {
       g += `<text x="${x(i)}" y="${H - 14}" text-anchor="middle" class="sx-axis">${escapeHtml(short ? lb.slice(2) : lb)}</text>`;
     });
-    series.forEach(s => {
+    const showVals = series.length <= 3;
+    const VOFF = [-10, 18, -24];
+    series.forEach((s, si) => {
       let d = '', open = false;
       s.vals.forEach((v, i) => {
         if(v == null){ open = false; return; }
@@ -1885,6 +1961,12 @@
         if(v == null) return;
         const txt = opt.pct ? v.toFixed(1) + ' %' : (opt.count ? String(v) : (reverse ? '#' + v : fmt(v)));
         g += `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="4.5" fill="${s.color}" stroke="#0f1626" stroke-width="1.5"><title>${escapeHtml(s.label)} · ${escapeHtml(labels[i])} · ${escapeHtml(txt)}</title></circle>`;
+        if(showVals){
+          const lt = opt.pct ? v.toFixed(1).replace('.', ',') + ' %' : (opt.count ? String(v) : (reverse ? '#' + v : (W >= 600 ? fmt(v) : compact(v))));
+          const ly = Math.min(H - B - 3, Math.max(T + 6, y(v) + VOFF[si]));
+          const anchor = n > 1 && i === 0 ? 'start' : (n > 1 && i === n - 1 ? 'end' : 'middle');
+          g += `<text x="${x(i).toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" class="sx-vl" fill="${s.color}">${escapeHtml(lt)}</text>`;
+        }
       });
     });
     return `<svg viewBox="0 0 ${W} ${H}" class="sx-svg" role="img" aria-label="Development over events">${g}</svg>`;
@@ -1965,6 +2047,7 @@
       </div>
       <div id="sxChart"></div>
       <div id="sxTables"></div>
+      <div id="sxShare"></div>
       <div class="sx-note" id="sxNote"></div>`;
 
     trendPanel.querySelector('#sxMode').addEventListener('click', e => {
@@ -2080,7 +2163,7 @@
 
     // metric select
     const sel = trendPanel.querySelector('#sxMetric');
-    const opts = mode === 'player' ? PLAYER_METRICS.map(k => ({key: k, label: k})) : (mode === 'alliance' ? ALLY_METRICS : STATE_METRICS);
+    const opts = mode === 'player' ? PLAYER_METRICS.map(k => ({key: k, label: pl(k)})) : (mode === 'alliance' ? ALLY_METRICS : STATE_METRICS);
     const curKey = mode === 'player' ? trend.metric.player : (mode === 'alliance' ? trend.metric.alliance : trend.metric.state);
     sel.innerHTML = opts.map(o => `<option value="${escapeHtml(o.key)}" ${o.key === curKey ? 'selected' : ''}>${escapeHtml(o.label)}</option>`).join('');
     const def = metricDef();
@@ -2126,6 +2209,8 @@
         trendChart(labels, series, {reverse, count: !!def.count});
       tables.innerHTML = picks.map((k, i) => entityTableHtml(entityOf(k), TREND_COLORS[i % TREND_COLORS.length])).join('');
     }
+
+    trendPanel.querySelector('#sxShare').innerHTML = (!isState && mode === 'player' && picks.length) ? groupShareHtml(picks) : '';
 
     const inf = TD.info;
     trendPanel.querySelector('#sxNote').innerHTML =
@@ -2180,6 +2265,39 @@
       }
     }
     return `<div class="sx-card">${head}<div class="sx-scroll"><table><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div></div>`;
+  }
+
+  // share of the State 646 points made together by the selected players (per event and phase)
+  function groupShareHtml(picks){
+    const ents = picks.map(k => TD.people.get(k)).filter(Boolean);
+    const home = ents.filter(e => e.state === '646');
+    const skipped = ents.length - home.length;
+    const PH = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Prep Total', 'Castle Battle'];
+    const names = home.map(e => e.latest.name).join(' + ');
+    if(!home.length){
+      return `<div class="sx-card"><div class="sx-card-head"><b>Selected players</b><span class="sx-id">share of State 646 points</span></div><div class="sx-empty">Only State 646 players are counted here.</div></div>`;
+    }
+    const denom = (ev, ph) => {
+      const rows = ph === 'Castle Battle' ? (ev.data.castle['Castle Battle'] || []) : ((ev.data.alliance[ph] || []).filter(r => r.state === '646'));
+      return rows.length ? rows.reduce((a, r) => a + r.points, 0) : null;
+    };
+    const body = [];
+    for(let i = TD.evs.length - 1; i >= 0; i--){
+      const ev = TD.evs[i];
+      const there = home.filter(e => e.byEvent[ev.id]);
+      if(!there.length){ body.push(`<tr class="sx-miss"><td>${escapeHtml(ev.date)}</td><td colspan="${PH.length}">not in the listed rankings</td></tr>`); continue; }
+      const cells = PH.map(ph => {
+        const den = denom(ev, ph);
+        let sum = 0, n = 0;
+        there.forEach(e => { const v = e.byEvent[ev.id].phases[ph]; if(v){ sum += v.points; n++; } });
+        return (den && n) ? `<td class="num">${pctStr(sum / den * 100)}</td>` : `<td class="num sx-na">–</td>`;
+      }).join('');
+      body.push(`<tr><td>${escapeHtml(ev.date)}</td>${cells}</tr>`);
+    }
+    const head = PH.map(p => p === 'Prep Total' ? '<th>Total</th>' : (p === 'Castle Battle' ? '<th>Castle</th>' : `<th>${plHtml(p)}</th>`)).join('');
+    return `<div class="sx-card"><div class="sx-card-head"><b>Selected players</b><span class="sx-id">${escapeHtml(names)} · share of State 646 points</span></div>
+      <div class="sx-scroll"><table><thead><tr><th>Event</th>${head}</tr></thead><tbody>${body.join('')}</tbody></table></div>
+      <div class="sx-share-note">Share of the points of all listed State 646 alliances in that phase (Castle: of the Top 100 castle players). Players outside the lists (Top 200) count as 0.${skipped ? ` ${skipped} selected opponent player${skipped > 1 ? 's are' : ' is'} not included.` : ''}</div></div>`;
   }
 
   function stateTableHtml(){
