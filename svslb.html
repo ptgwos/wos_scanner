@@ -216,6 +216,27 @@
   .ps{display:none;}
   @media (max-width:480px){ .pf{display:none;} .ps{display:inline;} }
   .sx-vl{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;paint-order:stroke;stroke:#0f1626;stroke-width:3px;stroke-linejoin:round;}
+  .hl-sec{margin-top:24px;}
+  .hl-sec h3{font-size:14px;font-weight:700;color:#fff;margin:0 0 3px;}
+  .hl-sub{font-size:12px;color:var(--text-faint);margin:0 0 10px;line-height:1.45;}
+  .hl-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .hl-grid .sx-card{margin-top:0;}
+  @media (max-width:820px){ .hl-grid{grid-template-columns:1fr;} }
+  .sx-card.hl-card table{min-width:0;table-layout:auto;}
+  .sx-card.hl-card th:first-child{width:auto;}
+  .hl-card td.nm2{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sx-card th.ctr, .sx-card td.ctr{text-align:center;width:56px;}
+  .medal-w{display:inline-block;vertical-align:middle;line-height:0;}
+  .hl-up{color:var(--good);} .hl-down{color:var(--danger);}
+  .hl-bars{display:flex;flex-direction:column;gap:10px;}
+  .hl-bar-row{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;font-size:12px;color:var(--text-dim);}
+  .hl-bar-row .cseg{transition:none;}
+  .hl-ctl{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:4px;}
+  .pm-row{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;padding:7px 14px;border-top:1px solid var(--border-soft);font-size:12.5px;}
+  .pm-row:first-of-type{border-top:0;}
+  .pm-bar{display:flex;height:20px;border-radius:4px;overflow:hidden;border:1px solid var(--border);}
+  .pm-bar div{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:#06121f;overflow:hidden;}
+  @media (max-width:640px){ .pm-row{grid-template-columns:1fr;gap:5px;} .hl-bar-row{grid-template-columns:1fr;gap:4px;} }
   .sx-share-note{padding:8px 14px;font-size:11.5px;color:var(--text-faint);border-top:1px solid var(--border-soft);}
   .empty{
     text-align:center;
@@ -596,7 +617,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-13 · b30</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-15 · b32</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -925,6 +946,32 @@
 
   function renderStateStats(){
     const el = document.getElementById('stateStats');
+    if(state.tab === 'player'){
+      // how many of the listed players (Top 200 of both states) belong to which state
+      const phases0 = currentPhases();
+      const phase0 = phases0.includes(state.phase) ? state.phase : phases0[0];
+      const rows0 = (DATA.player && DATA.player[phase0]) || [];
+      lastStatsKey = '';
+      if(!rows0.length){ el.innerHTML = ''; return; }
+      const cnt = {};
+      rows0.forEach(r => { const s = r.state || '?'; cnt[s] = (cnt[s] || 0) + 1; });
+      const n646 = cnt['646'] || 0;
+      const awaySt = Object.keys(cnt).find(s => s !== '646' && s !== '?') || CUR.away || '';
+      const nAway = awaySt ? (cnt[awaySt] || 0) : 0;
+      const tot = rows0.length;
+      const pA = n646 / tot * 100, pB = nAway / tot * 100;
+      const seg = (cls, p, n) => p > 0 ? `<div class="seg ${cls}" style="width:${p}%">${p >= 8 ? n : ''}</div>` : '';
+      el.innerHTML = `
+        <div class="state-stats">
+          <div class="state-stats-labels">
+            <span class="l646"><b>646</b> · ${n646} players · ${pA.toFixed(1)}%</span>
+            <span class="l657"><b>${escapeHtml(awaySt)}</b> · ${nAway} players · ${pB.toFixed(1)}%</span>
+          </div>
+          <div class="state-bar">${seg('s646', pA, n646)}${seg('s657', pB, nAway)}</div>
+          <div class="hl-sub" style="margin:6px 0 0">Players per state in the ${escapeHtml(pl(phase0))} list (${tot} listed)</div>
+        </div>`;
+      return;
+    }
     if(state.tab !== 'alliance'){
       el.innerHTML = '';
       lastStatsKey = '';
@@ -1762,7 +1809,8 @@
     value: 'points',
     only646: true,
     query: '',
-    browse: {player: '', alliance: ''}
+    browse: {player: '', alliance: ''},
+    hlEv: ''
   };
   let TD = null;
   let trendBuilt = false;
@@ -2027,6 +2075,7 @@
           <button data-m="player" class="active">Players</button>
           <button data-m="alliance">Alliances</button>
           <button data-m="state">State 646</button>
+          <button data-m="hl">Highlights</button>
         </div>
         <label class="switch" id="sxOnlyWrap" title="Hide players and alliances of the other states">
           <input type="checkbox" id="sxOnly" checked>
@@ -2054,6 +2103,7 @@
       <div id="sxChart"></div>
       <div id="sxTables"></div>
       <div id="sxShare"></div>
+      <div id="sxHl"></div>
       <div class="sx-note" id="sxNote"></div>`;
 
     trendPanel.querySelector('#sxMode').addEventListener('click', e => {
@@ -2163,6 +2213,15 @@
     const mode = trend.mode;
     const isState = mode === 'state';
     trendPanel.querySelectorAll('#sxMode button').forEach(b => b.classList.toggle('active', b.dataset.m === mode));
+    const isHl = mode === 'hl';
+    ['#sxPickArea', '#sxOnlyWrap', '.sx-ctrl', '#sxChart', '#sxTables', '#sxShare'].forEach(s => { const e = trendPanel.querySelector(s); if(e) e.style.display = isHl ? 'none' : (s === '#sxPickArea' && isState ? 'none' : ''); });
+    trendPanel.querySelector('#sxHl').innerHTML = isHl ? highlightsHtml() : '';
+    if(isHl){
+      const sel = trendPanel.querySelector('#hlEv');
+      if(sel) sel.addEventListener('change', e => { trend.hlEv = e.target.value; renderTrendParts(); });
+      trendPanel.querySelector('#sxNote').innerHTML = `${TD.evs.length} events loaded. All figures use the listed rankings only (players: Top 200 of both states, alliances: the listed alliance rows); alliance sums are not the official state score. Players are matched across events by Public ID.`;
+      return;
+    }
     trendPanel.querySelector('#sxPickArea').style.display = isState ? 'none' : '';
     trendPanel.querySelector('#sxOnlyWrap').style.display = isState ? 'none' : '';
     trendPanel.querySelector('#sxQuery').placeholder = mode === 'player' ? 'Search player by name or ID (also finds former names)…' : 'Search alliance by tag or name…';
@@ -2216,7 +2275,7 @@
       tables.innerHTML = picks.map((k, i) => entityTableHtml(entityOf(k), TREND_COLORS[i % TREND_COLORS.length])).join('');
     }
 
-    trendPanel.querySelector('#sxShare').innerHTML = (!isState && mode === 'player' && picks.length) ? groupShareHtml(picks) : '';
+    trendPanel.querySelector('#sxShare').innerHTML = (!isState && mode === 'player' && picks.length) ? groupShareHtml(picks) + phaseProfileHtml(picks) : '';
 
     const inf = TD.info;
     trendPanel.querySelector('#sxNote').innerHTML =
@@ -2225,6 +2284,138 @@
       `${inf.byName ? `, ${inf.byName} entr${inf.byName === 1 ? 'y' : 'ies'} without ID matched by exact name` : ''}).` +
       ` Opponents carry no ID and can only be followed within one event.` +
       ` Ranks and points come from the listed rankings (players: Top 200, castle: Top 100).`;
+  }
+
+  // ---------- HIGHLIGHTS ----------
+  function hlName(p){ return escapeHtml(p.latest.name); }
+  function hlP646(){ return [...TD.people.values()].filter(p => p.state === '646'); }
+  function hlPrep(p, evId){ const e = p.byEvent[evId]; return e && e.phases['Prep Total'] ? e.phases['Prep Total'] : null; }
+  function hlAllyColor(tag, i){
+    if(TAG_COLORS[tag]) return TAG_COLORS[tag];
+    return CONTRIB_COLORS[i % CONTRIB_COLORS.length];
+  }
+  const MEDAL_ICON = place => medalSvg(place, 'Place ' + place);
+
+  function highlightsHtml(){
+    const evs = TD.evs;                       // oldest first
+    if(!evs.length) return '';
+    if(!trend.hlEv || !evs.some(e => e.id === trend.hlEv)) trend.hlEv = evs[evs.length - 1].id;
+    const ei = evs.findIndex(e => e.id === trend.hlEv);
+    const cur = evs[ei], prev = ei > 0 ? evs[ei - 1] : null;
+    const players = hlP646();
+    const out = [];
+
+    out.push(`<div class="hl-ctl"><div class="field"><label for="hlEv">Event</label><select id="hlEv">${evs.slice().reverse().map(e => `<option value="${escapeHtml(e.id)}"${e.id === cur.id ? ' selected' : ''}>${escapeHtml(e.date)} · 646 vs ${escapeHtml(e.away)}</option>`).join('')}</select></div></div>`);
+
+    // 1) medal table
+    const mrows = players.map(p => {
+      const m = {1: 0, 2: 0, 3: 0}; const by = [];
+      p.evIds.forEach(id => { const v = hlPrep(p, id); if(v && v.rank <= 3){ m[v.rank]++; by.push({id, place: v.rank}); } });
+      return {p, m, by, n: m[1] + m[2] + m[3]};
+    }).filter(r => r.n).sort((a, b) => b.m[1] - a.m[1] || b.m[2] - a.m[2] || b.m[3] - a.m[3] || a.p.latest.name.localeCompare(b.p.latest.name));
+    const aMed = [...TD.allies.values()].filter(a => a.state === '646').map(a => {
+      const m = {1: 0, 2: 0, 3: 0};
+      a.evIds.forEach(id => { const v = a.byEvent[id].phases['Prep Total']; if(v && v.rank <= 3) m[v.rank]++; });
+      return {a, m, n: m[1] + m[2] + m[3]};
+    }).filter(r => r.n).sort((x, y) => y.m[1] - x.m[1] || y.m[2] - x.m[2] || y.m[3] - x.m[3]);
+    const medRow = (label, m, extra) => `<tr><td class="nm2">${label}</td><td class="ctr">${m[1] || '–'}</td><td class="ctr">${m[2] || '–'}</td><td class="ctr">${m[3] || '–'}</td>${extra || ''}</tr>`;
+    out.push(`<div class="hl-sec"><h3>Hall of fame</h3><p class="hl-sub">Places 1–3 in the overall Prep Total ranking, all events, State 646 only.</p>
+      <div class="hl-grid">
+      <div class="sx-card hl-card"><div class="sx-card-head"><b>Players</b></div><div class="sx-scroll"><table><thead><tr><th>Player</th><th class="ctr">${MEDAL_ICON(1)}</th><th class="ctr">${MEDAL_ICON(2)}</th><th class="ctr">${MEDAL_ICON(3)}</th><th>Events</th></tr></thead><tbody>${
+        mrows.length ? mrows.slice(0, 15).map(r => medRow(hlName(r.p), r.m, `<td>${r.by.map(b => medalSvg(b.place, b.id + ' · place ' + b.place)).join(' ')}</td>`)).join('') : '<tr><td colspan="5" class="sx-na">No medals yet</td></tr>'}</tbody></table></div></div>
+      <div class="sx-card hl-card"><div class="sx-card-head"><b>Alliances</b></div><div class="sx-scroll"><table><thead><tr><th>Alliance</th><th class="ctr">${MEDAL_ICON(1)}</th><th class="ctr">${MEDAL_ICON(2)}</th><th class="ctr">${MEDAL_ICON(3)}</th></tr></thead><tbody>${
+        aMed.length ? aMed.map(r => medRow(tagChip(r.a.latest.tag, '646'), r.m)).join('') : '<tr><td colspan="4" class="sx-na">No medals yet</td></tr>'}</tbody></table></div></div>
+      </div></div>`);
+
+    // 2) risers / fallers + 8) new / gone
+    if(prev){
+      const rows = [];
+      players.forEach(p => {
+        const a = hlPrep(p, prev.id), b = hlPrep(p, cur.id);
+        if(a && b) rows.push({p, d: b.points - a.points, pct: a.points ? (b.points - a.points) / a.points * 100 : null, rk: a.rank - b.rank, a, b});
+      });
+      const up = rows.filter(r => r.d > 0).sort((x, y) => y.d - x.d).slice(0, 10);
+      const down = rows.filter(r => r.d < 0).sort((x, y) => x.d - y.d).slice(0, 10);
+      const dRow = r => `<tr><td class="nm2">${hlName(r.p)}</td><td class="num">${fmt(r.b.points)}</td><td class="num ${r.d >= 0 ? 'hl-up' : 'hl-down'}">${r.d >= 0 ? '+' : '−'}${fmt(Math.abs(r.d))}${r.pct != null ? `<div class="sx-d ${r.d >= 0 ? 'up' : 'down'}">${r.d >= 0 ? '▲ +' : '▼ −'}${Math.abs(r.pct).toFixed(1).replace('.', ',')} %</div>` : ''}</td><td class="num">#${r.a.rank} → #${r.b.rank}</td></tr>`;
+      const tbl = (title, list) => `<div class="sx-card hl-card"><div class="sx-card-head"><b>${title}</b></div><div class="sx-scroll"><table><thead><tr><th>Player</th><th class="num">Prep Total</th><th class="num">Change</th><th class="num">Rank</th></tr></thead><tbody>${list.length ? list.map(dRow).join('') : '<tr><td colspan="4" class="sx-na">–</td></tr>'}</tbody></table></div></div>`;
+      out.push(`<div class="hl-sec"><h3>Risers and fallers</h3><p class="hl-sub">Prep Total of ${escapeHtml(cur.date)} compared with ${escapeHtml(prev.date)}; only State 646 players listed in both events (${rows.length}).</p><div class="hl-grid">${tbl('Biggest gain', up)}${tbl('Biggest drop', down)}</div></div>`);
+
+      const earlier = new Set();
+      players.forEach(p => { if(p.evIds.some(id => evs.findIndex(e => e.id === id) < ei)) earlier.add(p.key); });
+      const nu = [], back = [], gone = [];
+      players.forEach(p => {
+        const a = hlPrep(p, prev.id), b = hlPrep(p, cur.id);
+        if(b && !a){ (earlier.has(p.key) ? back : nu).push({p, v: b}); }
+        else if(a && !b) gone.push({p, v: a});
+      });
+      const byPts = (x, y) => y.v.points - x.v.points;
+      const lst = (title, list, note) => `<div class="sx-card hl-card"><div class="sx-card-head"><b>${title}</b><span class="sx-id">${list.length}</span></div><div class="sx-scroll"><table><thead><tr><th>Player</th><th class="num">Prep Total</th><th class="num">Rank</th></tr></thead><tbody>${list.length ? list.sort(byPts).slice(0, 10).map(r => `<tr><td class="nm2">${hlName(r.p)}</td><td class="num">${fmt(r.v.points)}</td><td class="num">#${r.v.rank}</td></tr>`).join('') : '<tr><td colspan="3" class="sx-na">–</td></tr>'}</tbody></table></div>${list.length > 10 ? `<div class="sx-share-note">Top 10 of ${list.length} by points</div>` : ''}</div>`;
+      out.push(`<div class="hl-sec"><h3>New and gone</h3><p class="hl-sub">State 646 players in the Prep Total list of ${escapeHtml(cur.date)} versus ${escapeHtml(prev.date)}. “Gone” shows the points they had in ${escapeHtml(prev.date)}.</p><div class="hl-grid">${lst('New in the list', nu)}${lst('Gone from the list', gone)}</div>${back.length ? `<p class="hl-sub" style="margin-top:8px">${back.length} more returned after missing at least one earlier event.</p>` : ''}</div>`);
+    } else {
+      out.push(`<div class="hl-sec"><h3>Risers, fallers, new and gone</h3><p class="hl-sub">Needs an earlier event to compare with – pick a later event above.</p></div>`);
+    }
+
+    // 3) consistency
+    const upto = evs.slice(0, ei + 1);
+    const cons = players.map(p => {
+      const rk = upto.map(e => hlPrep(p, e.id)).filter(Boolean).map(v => v.rank);
+      return {p, n: rk.length, avg: rk.length ? rk.reduce((a, b) => a + b, 0) / rk.length : null, best: rk.length ? Math.min(...rk) : null};
+    }).filter(r => r.n).sort((a, b) => b.n - a.n || a.avg - b.avg).slice(0, 15);
+    out.push(`<div class="hl-sec"><h3>Consistency</h3><p class="hl-sub">How often a State 646 player is in the Prep Total list (Top 200), up to ${escapeHtml(cur.date)}, with average and best rank. Sorted by appearances, then average rank.</p>
+      <div class="sx-card hl-card"><div class="sx-scroll"><table><thead><tr><th>Player</th><th class="num">Events</th><th class="num">Avg rank</th><th class="num">Best rank</th></tr></thead><tbody>${cons.map(r => `<tr><td class="nm2">${hlName(r.p)}</td><td class="num">${r.n} / ${upto.length}</td><td class="num">#${r.avg.toFixed(1).replace('.', ',')}</td><td class="num">#${r.best}</td></tr>`).join('')}</tbody></table></div></div></div>`);
+
+    // 5) alliance contribution per event (share of the listed 646 alliances)
+    const a646 = [...TD.allies.values()].filter(a => a.state === '646');
+    const totals = evs.map(e => a646.reduce((s, a) => { const v = a.byEvent[e.id] && a.byEvent[e.id].phases['Prep Total']; return s + (v ? v.points : 0); }, 0));
+    const order = a646.slice().sort((x, y) => { const ptsOf = a => { const e = a.byEvent[cur.id] && a.byEvent[cur.id].phases['Prep Total']; return e ? e.points : -1; }; return ptsOf(y) - ptsOf(x); })
+      .filter(a => evs.some(e => a.byEvent[e.id] && a.byEvent[e.id].phases['Prep Total']));
+    const shareOf = (a, i) => { const v = a.byEvent[evs[i].id] && a.byEvent[evs[i].id].phases['Prep Total']; return v && totals[i] ? v.points / totals[i] * 100 : 0; };
+    const isMain = a => evs.some((e, i) => shareOf(a, i) >= 1);
+    const mainA = order.filter(isMain), restA = order.filter(a => !isMain(a));
+    const unas = mainA.filter(a => !TAG_COLORS[a.latest.tag]).map(a => a.key);
+    const colOf = a => TAG_COLORS[a.latest.tag] || CONTRIB_COLORS[unas.indexOf(a.key) % CONTRIB_COLORS.length];
+    const barRows = evs.map((e, i) => {
+      if(!totals[i]) return '';
+      const segs = mainA.map(a => { const v = a.byEvent[e.id] && a.byEvent[e.id].phases['Prep Total']; return v ? {a, p: v.points / totals[i] * 100, pts: v.points} : null; }).filter(Boolean);
+      const restP = restA.reduce((s, a) => s + shareOf(a, i), 0);
+      return `<div class="hl-bar-row"><span>${escapeHtml(e.date)}</span><div class="contrib-bar">${segs.map(s => { const c = colOf(s.a); return `<div class="cseg" title="${escapeHtml(s.a.byEvent[e.id].tag)} · ${fmt(s.pts)}" style="width:${s.p}%;background:${c.bg};color:${c.fg}">${s.p >= 7 ? s.p.toFixed(0) + '%' : ''}</div>`; }).join('')}${restP > 0 ? `<div class="cseg" title="Other alliances" style="width:${restP}%;background:${CONTRIB_OTHER.bg};color:${CONTRIB_OTHER.fg}">${restP >= 7 ? restP.toFixed(0) + '%' : ''}</div>` : ''}</div></div>`;
+    }).reverse().join('');
+    const legend = mainA.map(a => { const c = colOf(a); return `<span class="citem"><i style="background:${c.bg}"></i><b>${escapeHtml(a.latest.tag)}</b></span>`; }).join('') + (restA.length ? `<span class="citem"><i style="background:${CONTRIB_OTHER.bg}"></i><b>Other (${restA.length})</b></span>` : '');
+    const otherRow = restA.length ? `<tr><td><span class="tag">Other (${restA.length})</span></td>${evs.slice().reverse().map(e => { const i = evs.indexOf(e); return totals[i] ? `<td class="num">${pctStr(restA.reduce((s, a) => s + shareOf(a, i), 0))}</td>` : '<td class="num sx-na">–</td>'; }).join('')}</tr>` : '';
+    const tRows = mainA.map(a => `<tr><td>${tagChip(a.latest.tag, '646')}</td>${evs.slice().reverse().map(e => { const i = evs.indexOf(e); const v = a.byEvent[e.id] && a.byEvent[e.id].phases['Prep Total']; return v && totals[i] ? `<td class="num">${pctStr(v.points / totals[i] * 100)}</td>` : '<td class="num sx-na">–</td>'; }).join('')}</tr>`).join('') + otherRow;
+    out.push(`<div class="hl-sec"><h3>Alliance contribution</h3><p class="hl-sub">Share of each alliance in the Prep Total points of all listed State 646 alliances, per event (not the official state score).</p>
+      <div class="hl-bars">${barRows}</div><div class="contrib-legend">${legend}</div>
+      <div class="sx-card hl-card" style="margin-top:12px"><div class="sx-scroll"><table><thead><tr><th>Alliance</th>${evs.slice().reverse().map(e => `<th class="num">${escapeHtml(e.date)}</th>`).join('')}</tr></thead><tbody>${tRows}</tbody></table></div></div></div>`);
+
+    // 6) Top-100 development
+    const t100 = order.filter(a => evs.some(e => a.byEvent[e.id] && a.byEvent[e.id].prepTop100));
+    out.push(`<div class="hl-sec"><h3>Players in the Top 100</h3><p class="hl-sub">Number of State 646 players per alliance in the Prep Total Top 100, per event (home alliance).</p>
+      <div class="sx-card hl-card"><div class="sx-scroll"><table><thead><tr><th>Alliance</th>${evs.slice().reverse().map(e => `<th class="num">${escapeHtml(e.date)}</th>`).join('')}</tr></thead><tbody>${t100.map(a => `<tr><td>${tagChip(a.latest.tag, '646')}</td>${evs.slice().reverse().map(e => { const v = a.byEvent[e.id] ? a.byEvent[e.id].prepTop100 : null; return v == null ? '<td class="num sx-na">–</td>' : `<td class="num">${v || '–'}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div></div></div>`);
+
+    // 7) 646 share over events (chart)
+    const labels = evs.map(e => e.date);
+    out.push(`<div class="hl-sec"><h3>646 share over the events</h3><p class="hl-sub">Share of 646 in the sum of both states' listed alliances (Prep and Battle). Not the official state score.</p>${trendChart(labels, [
+      {label: 'Prep', color: TREND_COLORS[0], vals: TD.stateRows.map(r => r.prepShare)},
+      {label: 'Battle', color: TREND_COLORS[1], vals: TD.stateRows.map(r => r.battleShare)}], {pct: true, fixedMax: 100})}
+      <div class="contrib-legend"><span class="citem"><i style="background:${TREND_COLORS[0]}"></i><b>Prep</b></span><span class="citem"><i style="background:${TREND_COLORS[1]}"></i><b>Battle</b></span></div></div>`);
+
+    return out.join('');
+  }
+
+  // phase profile of the selected players (share of their own phase 1-5 points)
+  function phaseProfileHtml(picks){
+    const ents = picks.map(k => TD.people.get(k)).filter(Boolean);
+    const COL = ['#6fe3ff', '#5fb4ff', '#9b8cff', '#ffb400', '#ff8f6b'];
+    const rows = ents.map(e => {
+      const id = [...e.evIds].reverse().find(i => [1,2,3,4,5].some(d => e.byEvent[i].phases['Day ' + d]));
+      if(!id) return `<div class="pm-row"><b>${escapeHtml(e.latest.name)}</b><span class="sx-na">no phase data</span></div>`;
+      const vals = [1,2,3,4,5].map(d => { const v = e.byEvent[id].phases['Day ' + d]; return v ? v.points : 0; });
+      const sum = vals.reduce((a, b) => a + b, 0);
+      const known = vals.map((v, i) => e.byEvent[id].phases['Day ' + (i + 1)] ? v : 0);
+      return `<div class="pm-row"><span><b>${escapeHtml(e.latest.name)}</b><br><span class="sx-id">${escapeHtml(id)}</span></span><div class="pm-bar">${known.map((v, i) => sum ? `<div style="width:${v / sum * 100}%;background:${COL[i]}" title="${escapeHtml(pl('Day ' + (i + 1)))} · ${fmt(v)}">${v / sum >= 0.08 ? Math.round(v / sum * 100) + '%' : ''}</div>` : '').join('')}</div></div>`;
+    }).join('');
+    const legend = COL.map((c, i) => `<span class="citem"><i style="background:${c}"></i><b>${plHtml('Day ' + (i + 1))}</b></span>`).join('');
+    return `<div class="sx-card"><div class="sx-card-head"><b>Phase profile</b><span class="sx-id">distribution of Phase 1–5 points per player, latest event with data</span></div>${rows}<div class="sx-share-note"><div class="contrib-legend" style="margin:0">${legend}</div></div></div>`;
   }
 
   function cellHtml(pts, rank, prevPts, opts){
