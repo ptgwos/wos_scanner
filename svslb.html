@@ -180,6 +180,9 @@
   td.num{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;text-align:right;color:var(--text);}
   .namecell{display:flex;align-items:center;justify-content:space-between;gap:16px;}
   .days{display:inline-flex;gap:4px;flex:none;}
+  .rt{display:inline-flex;align-items:center;gap:10px;flex:none;}
+  .wins{display:inline-flex;gap:1px;align-items:center;}
+  .ws{width:14px;height:14px;display:block;}
   .nm{display:inline-flex;align-items:center;gap:6px;min-width:0;}
   .medals{display:inline-flex;gap:3px;flex:none;}
   .medal{width:17px;height:17px;display:block;}
@@ -617,7 +620,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-15 · b32</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-15 · b34</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1167,7 +1170,7 @@
         ${showSel ? `<td class="selcol"><input type="checkbox" class="rowsel" data-k="${escapeHtml(selKeyOf(r))}" aria-label="Select ${escapeHtml(r.name)}"${isSel ? ' checked' : ''}></td>` : ''}
         <td class="rank">${r.rank}</td>
         <td class="rank srank">${r.srank < 99999 ? r.srank : '—'}</td>
-        <td class="name">${state.tab === 'castle' ? escapeHtml(r.name) : `<div class="namecell"><span class="nm"><span class="nt">${escapeHtml(r.name)}</span>${medalsHtml(r)}${(state.tab === 'alliance' && state.phase === 'Battle Phase' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</span>${dayDots(r)}</div>`}</td>
+        <td class="name">${state.tab === 'castle' ? escapeHtml(r.name) : `<div class="namecell"><span class="nm"><span class="nt">${escapeHtml(r.name)}</span>${medalsHtml(r)}${(state.tab === 'alliance' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</span><span class="rt">${winsHtml(r)}${dayDots(r)}</span></div>`}</td>
         <td>${tagChip(r.alliance, r.state || allianceStateMap[r.alliance])}</td>
         ${showState ? `<td class="state">${r.state||'—'}</td>` : ''}
         <td class="num">${fmt(r.points)}</td>
@@ -1204,13 +1207,27 @@
   // ---------- ALLIANCE TAG COLORS ----------
   // main alliance = darker, sister/alt alliance = lighter (case-sensitive tags). OSM = old tag of BLP.
   const TAG_RED = {bg:'#b8283a', fg:'#ffffff', bd:'#b8283a'};
+  const TAG_GOLD = {bg:'#f2b705', fg:'#2a1b00', bd:'#f2b705'};
   const TAG_COLORS = {
     BLP: TAG_RED, OSM: TAG_RED,
     osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'},
     AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'},
     TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'},
-    TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}
+    TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'},
+    PKB: TAG_GOLD, GYN: TAG_GOLD   // battle alliances
   };
+  // banner symbols won by the battle alliances (moons = gold crescents, stars = blue stars); update after won events
+  const WIN_SYMBOLS = {PKB: {moon: 4, star: 2}, GYN: {star: 1}};
+  const MOON_SVG = '<svg class="ws" viewBox="0 0 20 20" aria-hidden="true"><path d="M13.6 2.2a8 8 0 1 0 4.2 12.6 6.6 6.6 0 0 1-4.2-12.6z" fill="#f7c948" stroke="#a97400" stroke-width="1"/></svg>';
+  const STAR_SVG = '<svg class="ws" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.8l2.4 5.1 5.6.7-4.1 3.9 1 5.5L10 14.3 5.1 17l1-5.5L2 7.6l5.6-.7z" fill="#5aa9ff" stroke="#2a5fa8" stroke-width="1" stroke-linejoin="round"/></svg>';
+  function winsHtml(r){
+    if(state.tab !== 'alliance' || r.state !== '646') return '';
+    const w = WIN_SYMBOLS[r.alliance];
+    if(!w) return '';
+    const m = w.moon || 0, s = w.star || 0;
+    const title = [m ? m + ' gold moon' + (m > 1 ? 's' : '') : '', s ? s + ' blue star' + (s > 1 ? 's' : '') : ''].filter(Boolean).join(', ') + ' on the alliance banner';
+    return `<span class="wins" title="${title}" role="img" aria-label="${title}">${MOON_SVG.repeat(m)}${STAR_SVG.repeat(s)}</span>`;
+  }
   const TAG_HOME_PLAIN = {bg:'#3a4357', fg:'#dfe6f2', bd:'#4d5873'};   // 646 alliances without own color: grey
   function tagChip(tag, st){
     const label = escapeHtml(tag || '—');
