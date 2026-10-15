@@ -620,7 +620,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-15 · b34</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-15 · b35</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -2351,11 +2351,11 @@
         const a = hlPrep(p, prev.id), b = hlPrep(p, cur.id);
         if(a && b) rows.push({p, d: b.points - a.points, pct: a.points ? (b.points - a.points) / a.points * 100 : null, rk: a.rank - b.rank, a, b});
       });
-      const up = rows.filter(r => r.d > 0).sort((x, y) => y.d - x.d).slice(0, 10);
-      const down = rows.filter(r => r.d < 0).sort((x, y) => x.d - y.d).slice(0, 10);
+      const up = rows.filter(r => r.pct != null && r.pct > 0).sort((x, y) => y.pct - x.pct).slice(0, 10);
+      const down = rows.filter(r => r.pct != null && r.pct < 0).sort((x, y) => x.pct - y.pct).slice(0, 10);
       const dRow = r => `<tr><td class="nm2">${hlName(r.p)}</td><td class="num">${fmt(r.b.points)}</td><td class="num ${r.d >= 0 ? 'hl-up' : 'hl-down'}">${r.d >= 0 ? '+' : '−'}${fmt(Math.abs(r.d))}${r.pct != null ? `<div class="sx-d ${r.d >= 0 ? 'up' : 'down'}">${r.d >= 0 ? '▲ +' : '▼ −'}${Math.abs(r.pct).toFixed(1).replace('.', ',')} %</div>` : ''}</td><td class="num">#${r.a.rank} → #${r.b.rank}</td></tr>`;
       const tbl = (title, list) => `<div class="sx-card hl-card"><div class="sx-card-head"><b>${title}</b></div><div class="sx-scroll"><table><thead><tr><th>Player</th><th class="num">Prep Total</th><th class="num">Change</th><th class="num">Rank</th></tr></thead><tbody>${list.length ? list.map(dRow).join('') : '<tr><td colspan="4" class="sx-na">–</td></tr>'}</tbody></table></div></div>`;
-      out.push(`<div class="hl-sec"><h3>Risers and fallers</h3><p class="hl-sub">Prep Total of ${escapeHtml(cur.date)} compared with ${escapeHtml(prev.date)}; only State 646 players listed in both events (${rows.length}).</p><div class="hl-grid">${tbl('Biggest gain', up)}${tbl('Biggest drop', down)}</div></div>`);
+      out.push(`<div class="hl-sec"><h3>Risers and fallers</h3><p class="hl-sub">Prep Total of ${escapeHtml(cur.date)} compared with ${escapeHtml(prev.date)}; only State 646 players listed in both events (${rows.length}). Sorted by percentage change.</p><div class="hl-grid">${tbl('Biggest gain', up)}${tbl('Biggest drop', down)}</div></div>`);
 
       const earlier = new Set();
       players.forEach(p => { if(p.evIds.some(id => evs.findIndex(e => e.id === id) < ei)) earlier.add(p.key); });
