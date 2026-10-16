@@ -603,18 +603,13 @@
         <label for="chestAlliance">Alliance</label>
         <select id="chestAlliance"></select>
       </div>
-      <label class="switch" id="chestTop200Wrap" title="Also list players ranked 101-200 in Prep Total">
-        <input type="checkbox" id="chestTop200">
-        <span class="switch-track"><span class="switch-thumb"></span></span>
-        <span class="switch-label">Include Top 200</span>
-      </label>
       <div class="slider-block">
         <div class="slider-labels">
           <span class="a" id="prepLabel">Prep Total: 70%</span>
           <span class="b" id="castleLabel">Castle Battle: 30%</span>
         </div>
         <input type="range" id="weightSlider" min="0" max="100" value="70">
-        <div class="formula-note">Includes all players <span id="chestScope">Top 100</span> in Prep Total or Top 100 in Castle Battle · Chest Score = Prep Total × weight + Castle Battle × (100% − weight) · missing value = 0</div>
+        <div class="formula-note">Includes all players Top 200 in Prep Total or Top 100 in Castle Battle · Chest Score = Prep Total × weight + Castle Battle × (100% − weight) · missing value = 0</div>
       </div>
     </div>
     <div id="chestTableWrap"></div>
@@ -625,7 +620,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b37</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b38</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -825,9 +820,8 @@
   window.addEventListener('hashchange', () => applyHash());
 
   const chestState = {
-    alliance: ALLIANCES_646[0] || '',
+    alliance: '',
     weight: 70,
-    top200: false,
     picks: new Map() // name -> 'big' | 'small'
   };
 
@@ -1408,18 +1402,25 @@
   const copyBtn = document.getElementById('copyBtn');
   const copyStatus = document.getElementById('copyStatus');
 
-  chestAllianceSel.innerHTML = ALLIANCES_646.map(a => `<option value="${a}">${a}</option>`).join('');
-  chestAllianceSel.value = chestState.alliance;
+  // only alliances with at least one candidate (Prep Total Top 200 or Castle Top 100)
+  function chestAlliances(){
+    const has = new Set();
+    (DATA.player['Prep Total'] || []).forEach(r => { if(r.rank <= 200 && r.alliance) has.add(r.alliance); });
+    (DATA.castle['Castle Battle'] || []).forEach(r => { if(r.rank <= 100 && r.alliance) has.add(r.alliance); });
+    const list = ALLIANCES_646.filter(a => has.has(a));
+    return list.length ? list : ALLIANCES_646;
+  }
+  function fillChestAlliances(){
+    const list = chestAlliances();
+    chestAllianceSel.innerHTML = list.map(a => `<option value="${a}">${a}</option>`).join('');
+    if(!list.includes(chestState.alliance)) chestState.alliance = list[0] || '';
+    chestAllianceSel.value = chestState.alliance;
+  }
+  fillChestAlliances();
   weightSlider.value = chestState.weight;
 
   chestAllianceSel.addEventListener('change', () => {
     chestState.alliance = chestAllianceSel.value;
-    renderChests();
-  });
-  const chestTop200 = document.getElementById('chestTop200');
-  chestTop200.addEventListener('change', () => {
-    chestState.top200 = chestTop200.checked;
-    document.getElementById('chestScope').textContent = chestState.top200 ? 'Top 200' : 'Top 100';
     renderChests();
   });
   weightSlider.addEventListener('input', () => {
@@ -1440,7 +1441,7 @@
     const castleByName = new Map(castleAll.map(r => [r.name, r]));
 
     const candidateNames = new Set();
-    prepAll.filter(r => r.rank <= (chestState.top200 ? 200 : 100) && r.alliance === chestState.alliance).forEach(r => candidateNames.add(r.name));
+    prepAll.filter(r => r.rank <= 200 && r.alliance === chestState.alliance).forEach(r => candidateNames.add(r.name));
     castleAll.filter(r => r.rank <= 100 && r.alliance === chestState.alliance).forEach(r => candidateNames.add(r.name));
 
     const w = chestState.weight / 100;
@@ -2668,10 +2669,9 @@
     hideTip();
     closeTop100Modal();
     // chests: new event -> new alliance list, assignments start empty
-    chestState.alliance = ALLIANCES_646[0] || '';
+    chestState.alliance = '';
     chestState.picks = new Map();
-    chestAllianceSel.innerHTML = ALLIANCES_646.map(a => `<option value="${a}">${a}</option>`).join('');
-    chestAllianceSel.value = chestState.alliance;
+    fillChestAlliances();
     state.allianceFilter = '';
     state.sel.player.clear(); state.sel.alliance.clear();
     if(state.tab === 'player' || state.tab === 'alliance' || state.tab === 'castle'){
