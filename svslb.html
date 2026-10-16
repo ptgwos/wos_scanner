@@ -184,6 +184,8 @@
   td.num{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;text-align:right;color:var(--text);}
   .namecell{display:flex;align-items:center;justify-content:space-between;gap:16px;}
   .days{display:inline-flex;gap:4px;flex:none;}
+  body.nodots .days{display:none;}
+  @media (max-width:640px){ .switch.dots-sw{justify-content:flex-start;align-self:flex-start;width:auto;padding:2px 0;} }
   .rt{display:inline-flex;align-items:center;gap:10px;flex:none;}
   .wins{display:inline-flex;gap:1px;align-items:center;}
   .ws{width:14px;height:14px;display:block;}
@@ -636,7 +638,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b47</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b48</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -756,6 +758,7 @@
     search: '',
     sortKey: 'rank',
     sortDir: 'asc',
+    showDots: (() => { try { return localStorage.getItem('svs646_dots') !== '0'; } catch(e){ return true; } })(),   // five phase dots next to the names
     stateFilter: 'all',   // 'all' | '646' | 'away'
     animate: true,
     sel: {player: new Set(), alliance: new Set()}
@@ -979,10 +982,19 @@
           <button data-st="away" class="${state.stateFilter === 'away' ? 'active' : ''}">Opponent</button>
         </div>
       </div>`}
+      ${state.tab === 'castle' ? '' : `<label class="switch dots-sw" title="Show or hide the five dots that mark in which prep phases a player or alliance is listed"><input type="checkbox" id="dotsSwitch"${state.showDots ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Phase dots</span></label>`}
       ${top100ButtonHtml}
       <div class="count-pill" id="countPill"></div>
     `;
 
+    document.body.classList.toggle('nodots', !state.showDots);
+    const dotsSw = controlsEl.querySelector('#dotsSwitch');
+    if(dotsSw) dotsSw.addEventListener('change', () => {
+      state.showDots = dotsSw.checked;
+      document.body.classList.toggle('nodots', !state.showDots);
+      try { localStorage.setItem('svs646_dots', state.showDots ? '1' : '0'); } catch(e){}
+      if(tableWrap.querySelector('table')) applySticky();
+    });
     const stateSegEl = controlsEl.querySelector('#stateSeg');
     if(stateSegEl) stateSegEl.addEventListener('click', e => {
       const btn = e.target.closest('button[data-st]');
@@ -1903,6 +1915,21 @@
   // OSM was renamed BLP at the end of September 2026 -> keep both tags in one alliance history
   const ALLIANCE_ALIASES = {'BLP': 'OSM'};
   const TREND_COLORS = ['#6fe3ff', '#ffb400', '#a78bfa', '#43e6a0', '#ff7ab6'];
+  // alliances use their tag color (AIR blue, BLP red, ...) in chart, chips and cards; a color already taken (e.g. BLP/OSM, PKB/GYN) or an alliance without one falls back to the palette
+  function pickColors(picks, mode){
+    const used = [];
+    const fixed = picks.map(k => {
+      if(mode !== 'alliance') return null;
+      const e = entityOf(k), t = e && TAG_COLORS[e.latest.tag];
+      if(t && !used.includes(t.bg)){ used.push(t.bg); return t.bg; }
+      return null;
+    });
+    return fixed.map(c => {
+      if(c) return c;
+      const f = TREND_COLORS.find(x => !used.includes(x) && !(used.includes('#f2b705') && x === '#ffb400')) || TREND_COLORS[used.length % TREND_COLORS.length];
+      used.push(f); return f;
+    });
+  }
   const MAX_PICKS = 5;
   const PLAYER_METRICS = ['Prep Total', 'Battle Phase', 'Castle Battle', 'Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
   const ALLY_METRICS = [
@@ -2388,10 +2415,11 @@
     // chips + quick picks
     const picks = currentPicks().filter(k => entityOf(k));
     trend.picks[mode] = picks;
+    const colors = pickColors(picks, mode);
     const chips = trendPanel.querySelector('#sxChips');
     chips.innerHTML = isState ? '' : picks.map((k, i) => {
       const e = entityOf(k);
-      return `<span class="sx-chip" style="--c:${TREND_COLORS[i % TREND_COLORS.length]}"><i></i>${escapeHtml(entityName(e))}<button data-rm="${escapeHtml(k)}" aria-label="Remove">×</button></span>`;
+      return `<span class="sx-chip" style="--c:${colors[i]}"><i></i>${escapeHtml(entityName(e))}<button data-rm="${escapeHtml(k)}" aria-label="Remove">×</button></span>`;
     }).join('');
     const quick = trendPanel.querySelector('#sxQuick');
     quick.innerHTML = (isState || picks.length) ? '' : `<span class="sx-q-title">Quick picks · top 646 ${mode === 'player' ? 'players' : 'alliances'} (latest event)</span>` + quickPicks().map(hitHtml).join('');
@@ -2411,12 +2439,12 @@
       const reverse = trend.value === 'rank' && rankable;
       const series = picks.map((k, i) => {
         const e = entityOf(k);
-        return {label: entityName(e), color: TREND_COLORS[i % TREND_COLORS.length],
+        return {label: entityName(e), color: colors[i],
                 vals: TD.evs.map(ev => entityValue(mode, e, ev.id, def, reverse ? 'rank' : 'points'))};
       });
       chart.innerHTML = `<div class="sx-chart-title">${escapeHtml(def.label || def.key)}${reverse ? ' · rank (1 = best)' : ''}</div>` +
         trendChart(labels, series, {reverse, count: !!def.count});
-      tables.innerHTML = picks.map((k, i) => entityTableHtml(entityOf(k), TREND_COLORS[i % TREND_COLORS.length])).join('');
+      tables.innerHTML = picks.map((k, i) => entityTableHtml(entityOf(k), colors[i])).join('');
     }
 
     trendPanel.querySelector('#sxShare').innerHTML = (!isState && mode === 'player' && picks.length) ? groupShareHtml(picks) + phaseProfileHtml(picks) : '';
