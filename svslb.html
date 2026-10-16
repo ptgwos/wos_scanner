@@ -459,6 +459,10 @@
   .citem{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;}
   .citem i{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none;}
   .citem b{color:var(--text);}
+  .cbtn{background:none;border:1px solid transparent;border-radius:12px;padding:2px 8px;margin:-2px -8px;color:inherit;font:inherit;cursor:pointer;}
+  .cbtn:hover{border-color:var(--border);}
+  .cbtn.on{border-color:var(--ice-dim);background:rgba(111,227,255,.08);}
+  .cbtn:focus-visible{outline:2px solid var(--ice-dim);outline-offset:1px;}
   .citem em{font-style:normal;color:var(--text-faint);}
   .aflag{display:inline-block;margin-left:8px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:3px;color:var(--gold);border:1px solid rgba(255,180,0,.45);background:rgba(255,180,0,.08);vertical-align:middle;}
 
@@ -638,7 +642,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b48</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b49</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1960,7 +1964,8 @@
     only646: true,
     query: '',
     browse: {player: '', alliance: ''},
-    hlEv: ''
+    hlEv: '',
+    hlFirst: ''   // alliance key shown first in the contribution bars (click in the legend)
   };
   let TD = null;
   let trendBuilt = false;
@@ -2390,6 +2395,7 @@
     if(isHl){
       const sel = trendPanel.querySelector('#hlEv');
       if(sel) sel.addEventListener('change', e => { trend.hlEv = e.target.value; renderTrendParts(); });
+      trendPanel.querySelectorAll('.cbtn').forEach(b => b.addEventListener('click', () => { trend.hlFirst = trend.hlFirst === b.dataset.first ? '' : b.dataset.first; renderTrendParts(); }));
       trendPanel.querySelector('#sxNote').innerHTML = `${TD.evs.length} events loaded. All figures use the listed rankings only (players: Top 200 of both states, alliances: the listed alliance rows); alliance sums are not the official state score. Players are matched across events by Public ID.`;
       return;
     }
@@ -2553,13 +2559,14 @@
     const barRows = evs.map((e, i) => {
       if(!totals[i]) return '';
       const segs = mainA.map(a => { const v = a.byEvent[e.id] && a.byEvent[e.id].phases['Prep Total']; return v ? {a, p: v.points / totals[i] * 100, pts: v.points} : null; }).filter(Boolean);
+      if(trend.hlFirst) segs.sort((x, y) => (y.a.key === trend.hlFirst) - (x.a.key === trend.hlFirst));   // clicked alliance first, the rest keeps its order (stable sort)
       const restP = restA.reduce((s, a) => s + shareOf(a, i), 0);
       return `<div class="hl-bar-row"><span>${escapeHtml(e.date)}</span><div class="contrib-bar">${segs.map(s => { const c = colOf(s.a); return `<div class="cseg" title="${escapeHtml(s.a.byEvent[e.id].tag)} · ${fmt(s.pts)}" style="width:${s.p}%;background:${c.bg};color:${c.fg}">${s.p >= 7 ? s.p.toFixed(0) + '%' : ''}</div>`; }).join('')}${restP > 0 ? `<div class="cseg" title="Other alliances" style="width:${restP}%;background:${CONTRIB_OTHER.bg};color:${CONTRIB_OTHER.fg}">${restP >= 7 ? restP.toFixed(0) + '%' : ''}</div>` : ''}</div></div>`;
     }).reverse().join('');
-    const legend = mainA.map(a => { const c = colOf(a); return `<span class="citem"><i style="background:${c.bg}"></i><b>${escapeHtml(a.latest.tag)}</b></span>`; }).join('') + (restA.length ? `<span class="citem"><i style="background:${CONTRIB_OTHER.bg}"></i><b>Other (${restA.length})</b></span>` : '');
+    const legend = mainA.map(a => { const c = colOf(a); return `<button type="button" class="citem cbtn${trend.hlFirst === a.key ? ' on' : ''}" data-first="${escapeHtml(a.key)}" aria-pressed="${trend.hlFirst === a.key}" title="${trend.hlFirst === a.key ? 'Click to restore the original order' : 'Show first in the bars'}"><i style="background:${c.bg}"></i><b>${escapeHtml(a.latest.tag)}</b></button>`; }).join('') + (restA.length ? `<span class="citem"><i style="background:${CONTRIB_OTHER.bg}"></i><b>Other (${restA.length})</b></span>` : '');
     const otherRow = restA.length ? `<tr><td><span class="tag">Other (${restA.length})</span></td>${evs.slice().reverse().map(e => { const i = evs.indexOf(e); return totals[i] ? `<td class="num">${pctStr(restA.reduce((s, a) => s + shareOf(a, i), 0))}</td>` : '<td class="num sx-na">–</td>'; }).join('')}</tr>` : '';
     const tRows = mainA.map(a => `<tr><td>${tagChip(a.latest.tag, '646')}</td>${evs.slice().reverse().map(e => { const i = evs.indexOf(e); const v = a.byEvent[e.id] && a.byEvent[e.id].phases['Prep Total']; return v && totals[i] ? `<td class="num">${pctStr(v.points / totals[i] * 100)}</td>` : '<td class="num sx-na">–</td>'; }).join('')}</tr>`).join('') + otherRow;
-    out.push(`<div class="hl-sec"><h3>Alliance contribution</h3><p class="hl-sub">Share of each alliance in the Prep Total points of all listed State 646 alliances, per event (not the official state score).</p>
+    out.push(`<div class="hl-sec"><h3>Alliance contribution</h3><p class="hl-sub">Share of each alliance in the Prep Total points of all listed State 646 alliances, per event (not the official state score). Click an alliance in the legend to show it first.</p>
       <div class="hl-bars">${barRows}</div><div class="contrib-legend">${legend}</div>
       <div class="sx-card hl-card" style="margin-top:12px"><div class="sx-scroll"><table><thead><tr><th>Alliance</th>${evs.slice().reverse().map(e => `<th class="num">${escapeHtml(e.date)}</th>`).join('')}</tr></thead><tbody>${tRows}</tbody></table></div></div></div>`);
 
