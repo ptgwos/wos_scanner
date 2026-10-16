@@ -603,13 +603,18 @@
         <label for="chestAlliance">Alliance</label>
         <select id="chestAlliance"></select>
       </div>
+      <label class="switch" id="chestTop200Wrap" title="Also list players ranked 101-200 in Prep Total">
+        <input type="checkbox" id="chestTop200">
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+        <span class="switch-label">Include Top 200</span>
+      </label>
       <div class="slider-block">
         <div class="slider-labels">
           <span class="a" id="prepLabel">Prep Total: 70%</span>
           <span class="b" id="castleLabel">Castle Battle: 30%</span>
         </div>
         <input type="range" id="weightSlider" min="0" max="100" value="70">
-        <div class="formula-note">Includes all players Top 100 in Prep Total or Castle Battle · Chest Score = Prep Total × weight + Castle Battle × (100% − weight) · missing value = 0</div>
+        <div class="formula-note">Includes all players <span id="chestScope">Top 100</span> in Prep Total or Top 100 in Castle Battle · Chest Score = Prep Total × weight + Castle Battle × (100% − weight) · missing value = 0</div>
       </div>
     </div>
     <div id="chestTableWrap"></div>
@@ -620,7 +625,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-15 · b35</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b37</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -745,9 +750,84 @@
     sel: {player: new Set(), alliance: new Set()}
   };
 
+
+  // ---------- LINKS (URL hash) ----------
+  // #player | #alliance | #castle | #chests | #statistics/(players|alliances|state|highlights)
+  // optional: ?ev=<event id>  ?ph=<prep|p1..p5|battle|castle>  ?p=<public ids>  ?a=<alliance keys>
+  const INITIAL_HASH = location.hash;   // read before the first render rewrites the address
+  let hashApplying = false;
+  const TAB_SLUG = {player: 'player', alliance: 'alliance', castle: 'castle', chests: 'chests', trends: 'statistics'};
+  const SUB_SLUG = {player: 'players', alliance: 'alliances', state: 'state', hl: 'highlights'};
+  const PH_SLUG = {'Prep Total': 'prep', 'Day 1': 'p1', 'Day 2': 'p2', 'Day 3': 'p3', 'Day 4': 'p4', 'Day 5': 'p5', 'Battle Phase': 'battle', 'Castle Battle': 'castle'};
+  function buildHash(){
+    const tab = state.tab;
+    let path = TAB_SLUG[tab] || 'player';
+    const q = [];
+    if(tab === 'trends'){
+      path += '/' + (SUB_SLUG[trend.mode] || 'players');
+      if(trend.mode === 'player'){
+        const ids = (trend.picks.player || []).filter(k => k.startsWith('id:')).map(k => k.slice(3));
+        if(ids.length) q.push('p=' + ids.join(','));
+      } else if(trend.mode === 'alliance'){
+        const ks = trend.picks.alliance || [];
+        if(ks.length) q.push('a=' + ks.map(encodeURIComponent).join(','));
+      } else if(trend.mode === 'hl' && trend.hlEv && trend.hlEv !== EVENTS[0].id){
+        q.push('ev=' + encodeURIComponent(trend.hlEv));
+      }
+    } else {
+      if(CUR.id !== EVENTS[0].id) q.push('ev=' + encodeURIComponent(CUR.id));
+      if(tab !== 'chests' && PH_SLUG[state.phase] && state.phase !== defaultPhase(tab)) q.push('ph=' + PH_SLUG[state.phase]);
+    }
+    return (path === 'player' && !q.length) ? '' : '#' + path + (q.length ? '?' + q.join('&') : '');
+  }
+  function writeHash(){
+    if(hashApplying) return;
+    try { history.replaceState(null, '', location.pathname + location.search + buildHash()); } catch(e) {}
+  }
+  function applyHash(hash){
+    const raw = (typeof hash === 'string' ? hash : location.hash).replace(/^#/, '');
+    if(!raw) return;
+    const parts = raw.split('?');
+    const seg = parts[0].split('/');
+    const tab = Object.keys(TAB_SLUG).find(k => TAB_SLUG[k] === seg[0]);
+    if(!tab) return;
+    const q = new URLSearchParams(parts.slice(1).join('?'));
+    hashApplying = true;
+    try {
+      if(tab === 'trends'){
+        if(!TD) TD = buildTrendData();
+        const mode = Object.keys(SUB_SLUG).find(k => SUB_SLUG[k] === seg[1]) || 'player';
+        trend.mode = mode;
+        trend.query = '';
+        if(mode === 'player'){
+          const keys = (q.get('p') || '').split(',').filter(Boolean).map(x => 'id:' + x).filter(k => TD.people.has(k));
+          if(keys.length) trend.picks.player = keys.slice(0, MAX_PICKS);
+        } else if(mode === 'alliance'){
+          const keys = (q.get('a') || '').split(',').filter(Boolean).map(x => { try { return decodeURIComponent(x); } catch(e) { return x; } }).filter(k => TD.allies.has(k));
+          if(keys.length) trend.picks.alliance = keys.slice(0, MAX_PICKS);
+        } else if(mode === 'hl'){
+          const ev = q.get('ev');
+          trend.hlEv = EVENTS.some(e => e.id === ev) ? ev : '';
+        }
+      } else {
+        const target = EVENTS.find(e => e.id === q.get('ev')) || EVENTS[0];
+        if(target.id !== CUR.id) switchEvent(target.id);
+        const valid = tab === 'castle' ? PHASES_CASTLE : PHASES_MAIN;
+        const ph = Object.keys(PH_SLUG).find(k => PH_SLUG[k] === q.get('ph'));
+        state.phase = (ph && valid.includes(ph)) ? ph : defaultPhase(tab);
+      }
+      tabsEl.querySelector('.tab[data-tab="' + tab + '"]').click();
+    } finally {
+      hashApplying = false;
+      writeHash();
+    }
+  }
+  window.addEventListener('hashchange', () => applyHash());
+
   const chestState = {
     alliance: ALLIANCES_646[0] || '',
     weight: 70,
+    top200: false,
     picks: new Map() // name -> 'big' | 'small'
   };
 
@@ -1106,6 +1186,7 @@
   }
 
   function renderTable(){
+    writeHash();
     updateSelTotal();
     renderStateStats();
     renderPhaseExtras();
@@ -1306,6 +1387,7 @@
       chestPanel.style.display = 'block';
       renderChests();
       replayFade(chestPanel);
+      writeHash();
     } else {
       chestPanel.style.display = 'none';
       tablePanel.style.display = 'block';
@@ -1334,6 +1416,12 @@
     chestState.alliance = chestAllianceSel.value;
     renderChests();
   });
+  const chestTop200 = document.getElementById('chestTop200');
+  chestTop200.addEventListener('change', () => {
+    chestState.top200 = chestTop200.checked;
+    document.getElementById('chestScope').textContent = chestState.top200 ? 'Top 200' : 'Top 100';
+    renderChests();
+  });
   weightSlider.addEventListener('input', () => {
     chestState.weight = parseInt(weightSlider.value, 10);
     updateWeightLabels();
@@ -1352,7 +1440,7 @@
     const castleByName = new Map(castleAll.map(r => [r.name, r]));
 
     const candidateNames = new Set();
-    prepAll.filter(r => r.rank <= 100 && r.alliance === chestState.alliance).forEach(r => candidateNames.add(r.name));
+    prepAll.filter(r => r.rank <= (chestState.top200 ? 200 : 100) && r.alliance === chestState.alliance).forEach(r => candidateNames.add(r.name));
     castleAll.filter(r => r.rank <= 100 && r.alliance === chestState.alliance).forEach(r => candidateNames.add(r.name));
 
     const w = chestState.weight / 100;
@@ -2099,6 +2187,7 @@
           <span class="switch-track"><span class="switch-thumb"></span></span>
           <span class="switch-label">Only 646</span>
         </label>
+        <button class="btn-secondary" id="sxLink" type="button" title="Copy a link to this view">Copy link</button>
       </div>
       <div id="sxPickArea">
         <div class="sx-picker">
@@ -2130,6 +2219,15 @@
       trend.query = '';
       trendPanel.querySelector('#sxQuery').value = '';
       renderTrends();
+    });
+    trendPanel.querySelector('#sxLink').addEventListener('click', () => {
+      const btn = trendPanel.querySelector('#sxLink');
+      const done = ok => { btn.textContent = ok ? 'Link copied' : 'Copy the address bar'; setTimeout(() => { btn.textContent = 'Copy link'; }, 1800); };
+      const url = location.href;
+      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(() => done(true), () => done(false)); }
+      else {
+        try { const t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove(); done(ok); } catch(e) { done(false); }
+      }
     });
     trendPanel.querySelector('#sxOnly').addEventListener('change', e => { trend.only646 = e.target.checked; renderTrendParts(); });
     trendPanel.querySelector('#sxQuery').addEventListener('input', e => { trend.query = e.target.value; renderTrendHits(); });
@@ -2227,6 +2325,7 @@
   }
 
   function renderTrendParts(){
+    writeHash();
     const mode = trend.mode;
     const isState = mode === 'state';
     trendPanel.querySelectorAll('#sxMode button').forEach(b => b.classList.toggle('active', b.dataset.m === mode));
@@ -2583,6 +2682,7 @@
     setHeader();
     if(state.tab === 'chests'){ renderChests(); }
     else if(state.tab !== 'trends'){ renderControls(); renderTable(); }
+    writeHash();
   }
 
   eventSel.addEventListener('change', () => switchEvent(eventSel.value));
@@ -2592,6 +2692,7 @@
   setHeader();
   renderControls();
   renderTable();
+  applyHash(INITIAL_HASH);   // open the tab / event / players given in the link
 })();
 
 </script>
