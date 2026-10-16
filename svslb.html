@@ -623,7 +623,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b43</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b44</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -916,7 +916,7 @@
   }
 
   function stateMatch(r){
-    if(state.stateFilter === 'all') return true;
+    if(state.tab === 'castle' || state.stateFilter === 'all') return true;   // Castle lists only State 646: no state filter there
     const s = r.state || allianceStateMap[r.alliance] || '';
     return state.stateFilter === '646' ? s === '646' : (s !== '' && s !== '646');
   }
@@ -958,19 +958,20 @@
         <label for="searchBox">Search</label>
         <input type="text" id="searchBox" placeholder="Player name…" value="${state.search.replace(/"/g,'&quot;')}">
       </div>
-      <div class="field">
+      ${state.tab === 'castle' ? '' : `<div class="field">
         <label>State</label>
         <div class="seg" id="stateSeg" title="Show everyone, only State 646, or only the opponent state">
           <button data-st="all" class="${state.stateFilter === 'all' ? 'active' : ''}">All</button>
           <button data-st="646" class="${state.stateFilter === '646' ? 'active' : ''}">Only 646</button>
           <button data-st="away" class="${state.stateFilter === 'away' ? 'active' : ''}">Opponent</button>
         </div>
-      </div>
+      </div>`}
       ${top100ButtonHtml}
       <div class="count-pill" id="countPill"></div>
     `;
 
-    controlsEl.querySelector('#stateSeg').addEventListener('click', e => {
+    const stateSegEl = controlsEl.querySelector('#stateSeg');
+    if(stateSegEl) stateSegEl.addEventListener('click', e => {
       const btn = e.target.closest('button[data-st]');
       if(!btn) return;
       state.stateFilter = btn.dataset.st;
