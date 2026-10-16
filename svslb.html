@@ -510,6 +510,15 @@
   .sx-card td em, .sx-card td .sx-flag{font-style:normal;color:var(--text-faint);font-size:11.5px;}
   .sx-card td .sx-flag{border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:0;}
   .sx-card td.num{text-align:right;white-space:nowrap;}
+  .sx-card th{white-space:normal;line-height:1.25;vertical-align:bottom;}
+  /* alliance table: 7 columns need room, swipe sideways on phones, Event column stays visible */
+  .sx-card.sx-al table{min-width:940px;}
+  .sx-card.sx-al th:first-child{width:112px;}
+  .sx-card.sx-al th.tagc{width:84px;}
+  @media (max-width:640px){
+    .sx-card.sx-al th:first-child, .sx-card.sx-al td:first-child{position:sticky;left:0;z-index:1;background:var(--panel);}
+    .sx-card.sx-al th:first-child{background:var(--panel);}
+  }
   .sx-na{color:var(--text-faint);}
   .sx-miss td{color:var(--text-faint);font-size:12.5px;}
   .sx-d{font-size:11px;font-variant-numeric:tabular-nums;margin-top:1px;}
@@ -627,7 +636,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b45</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b47</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -2576,7 +2585,14 @@
     }
     const cols = player
       ? ['Event', 'Alliance', 'Prep Total', 'Battle Phase', 'Castle Battle']
-      : ['Event', 'Tag', 'Prep Total', 'Battle Phase', 'Prep Top 100', 'Battle (home, listed)', 'Castle (home, Top 100)'];
+      : ['Event', 'Tag', 'Prep Total', 'Battle (as alliance)', 'Prep Top 100', 'Battle (members)', 'Castle (members)'];
+    const colTips = {
+      'Prep Total': 'Points of the alliance in the Prep Total alliance ranking (and its rank)',
+      'Battle (as alliance)': 'Points under this alliance\'s own banner in the Battle Phase alliance ranking (and its rank). Most 646 players fight for PKB or GYN, so their points count there.',
+      'Prep Top 100': 'Number of players carrying this tag in the Prep Total Top 100 player list',
+      'Battle (members)': 'Sum of the Battle Phase points of the listed players (Top 200) with this tag. The player lists show the home alliance, so this includes points made while fighting for PKB or GYN; the export does not say how much.',
+      'Castle (members)': 'Sum of the Castle Battle points of the listed players (Top 100) with this tag (home alliance, as in the player list).'
+    };
     const prevOf = (i, getter) => { for(let j = i - 1; j >= 0; j--){ const v = getter(evs[j].id); if(v != null) return v; } return null; };
     const rows = [];
     for(let i = evs.length - 1; i >= 0; i--){
@@ -2600,7 +2616,7 @@
           ${cellHtml(ev.castleHome || null, null, prevOf(i, av('castleHome')))}</tr>`);
       }
     }
-    return `<div class="sx-card">${head}<div class="sx-scroll"><table><thead><tr>${cols.map((c, i) => `<th class="${i === 0 ? '' : (i === 1 ? 'tagc' : 'num')}">${c}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div></div>`;
+    return `<div class="sx-card${player ? '' : ' sx-al'}">${head}<div class="sx-scroll"><table><thead><tr>${cols.map((c, i) => `<th class="${i === 0 ? '' : (i === 1 ? 'tagc' : 'num')}"${colTips[c] ? ` title="${colTips[c]}"` : ''}>${c}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div></div>`;
   }
 
   // share of the State 646 points made together by the selected players (per event and phase)
