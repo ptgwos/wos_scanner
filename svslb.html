@@ -243,6 +243,25 @@
   .hl-bars{display:flex;flex-direction:column;gap:10px;}
   .hl-bar-row{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;font-size:12px;color:var(--text-dim);}
   .hl-bar-row .cseg{transition:none;}
+  .linkbtn{background:none;border:0;padding:0;color:var(--ice);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+  .linkbtn:hover{color:#fff;}
+  .cons-ctl{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:flex-end;margin:14px 0 10px;}
+  .cons-ctl .field input{min-width:160px;}
+  .cons-count{font-size:12px;color:var(--text-faint);margin:2px 0 8px;}
+  .sx-card.cons-card table{min-width:760px;table-layout:auto;}
+  .sx-card.cons-card th:first-child{width:auto;}
+  .cons-card td.nm2{max-width:230px;}
+  .cons-card td.nm2 .hl-nm{min-width:0;}
+  .cons-open{background:none;border:0;padding:0;margin:0;color:var(--text);font:inherit;font-weight:600;cursor:pointer;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+  .cons-open:hover{color:var(--ice);text-decoration:underline;}
+  .cons-card td.cons-top{color:var(--ice);font-weight:600;}
+  .cons-more{margin-top:12px;text-align:center;}
+  @media (max-width:640px){
+    .cons-ctl .field{flex:1 1 calc(50% - 8px);min-width:130px;}
+    .cons-ctl .field input, .cons-ctl .field select{width:100%;}
+    .cons-card th:first-child, .cons-card td:first-child{position:sticky;left:0;z-index:1;background:var(--panel);max-width:150px;}
+    .cons-card th:first-child{background:var(--panel-2);}
+  }
   .hl-ctl{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:4px;}
   .pm-row{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;padding:7px 14px;border-top:1px solid var(--border-soft);font-size:12.5px;}
   .pm-row:first-of-type{border-top:0;}
@@ -642,7 +661,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-16 · b49</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-17 · b50</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -775,7 +794,7 @@
   const INITIAL_HASH = location.hash;   // read before the first render rewrites the address
   let hashApplying = false;
   const TAB_SLUG = {player: 'player', alliance: 'alliance', castle: 'castle', chests: 'chests', trends: 'statistics'};
-  const SUB_SLUG = {player: 'players', alliance: 'alliances', state: 'state', hl: 'highlights'};
+  const SUB_SLUG = {player: 'players', alliance: 'alliances', state: 'state', hl: 'highlights', cons: 'consistency'};
   const PH_SLUG = {'Prep Total': 'prep', 'Day 1': 'p1', 'Day 2': 'p2', 'Day 3': 'p3', 'Day 4': 'p4', 'Day 5': 'p5', 'Battle Phase': 'battle', 'Castle Battle': 'castle'};
   function buildHash(){
     const tab = state.tab;
@@ -791,6 +810,14 @@
         if(ks.length) q.push('a=' + ks.map(encodeURIComponent).join(','));
       } else if(trend.mode === 'hl' && trend.hlEv && trend.hlEv !== EVENTS[0].id){
         q.push('ev=' + encodeURIComponent(trend.hlEv));
+      } else if(trend.mode === 'cons'){
+        const c = trend.cons;
+        if(c.list !== 'Prep Total') q.push('l=' + PH_SLUG[c.list]);
+        if(c.alliance) q.push('al=' + encodeURIComponent(c.alliance));
+        if(c.min > 1) q.push('min=' + c.min);
+        if(c.active) q.push('act=1');
+        if(c.sort !== 'n') q.push('sort=' + c.sort);
+        if(c.q) q.push('q=' + encodeURIComponent(c.q));
       }
     } else {
       if(CUR.id !== EVENTS[0].id) q.push('ev=' + encodeURIComponent(CUR.id));
@@ -826,6 +853,16 @@
         } else if(mode === 'hl'){
           const ev = q.get('ev');
           trend.hlEv = EVENTS.some(e => e.id === ev) ? ev : '';
+        } else if(mode === 'cons'){
+          const c = trend.cons;
+          const l = Object.keys(PH_SLUG).find(k => PH_SLUG[k] === q.get('l'));
+          c.list = (l && ['Prep Total', 'Battle Phase', 'Castle Battle'].includes(l)) ? l : 'Prep Total';
+          c.alliance = q.get('al') || '';
+          c.min = Math.max(1, parseInt(q.get('min') || '1', 10) || 1);
+          c.active = q.get('act') === '1';
+          c.sort = ['n', 'avg', 'best', 'pts', 'streak', 'name'].includes(q.get('sort')) ? q.get('sort') : 'n';
+          c.q = q.get('q') || '';
+          c.limit = 50;
         }
       } else {
         const target = EVENTS.find(e => e.id === q.get('ev')) || EVENTS[0];
@@ -1965,6 +2002,7 @@
     query: '',
     browse: {player: '', alliance: ''},
     hlEv: '',
+    cons: {list: 'Prep Total', alliance: '', min: 1, active: false, sort: 'n', q: '', limit: 50},   // Consistency page
     hlFirst: ''   // alliance key shown first in the contribution bars (click in the legend)
   };
   let TD = null;
@@ -2241,6 +2279,7 @@
           <button data-m="alliance">Alliances</button>
           <button data-m="state">State 646</button>
           <button data-m="hl">Highlights</button>
+          <button data-m="cons">Consistency</button>
         </div>
         <label class="switch" id="sxOnlyWrap" title="Hide players and alliances of the other states">
           <input type="checkbox" id="sxOnly" checked>
@@ -2389,14 +2428,20 @@
     const mode = trend.mode;
     const isState = mode === 'state';
     trendPanel.querySelectorAll('#sxMode button').forEach(b => b.classList.toggle('active', b.dataset.m === mode));
-    const isHl = mode === 'hl';
-    ['#sxPickArea', '#sxOnlyWrap', '.sx-ctrl', '#sxChart', '#sxTables', '#sxShare'].forEach(s => { const e = trendPanel.querySelector(s); if(e) e.style.display = isHl ? 'none' : (s === '#sxPickArea' && isState ? 'none' : ''); });
-    trendPanel.querySelector('#sxHl').innerHTML = isHl ? highlightsHtml() : '';
+    const isHl = mode === 'hl', isCons = mode === 'cons';
+    ['#sxPickArea', '#sxOnlyWrap', '.sx-ctrl', '#sxChart', '#sxTables', '#sxShare'].forEach(s => { const e = trendPanel.querySelector(s); if(e) e.style.display = (isHl || isCons) ? 'none' : (s === '#sxPickArea' && isState ? 'none' : ''); });
+    trendPanel.querySelector('#sxHl').innerHTML = isHl ? highlightsHtml() : (isCons ? consHtml() : '');
     if(isHl){
       const sel = trendPanel.querySelector('#hlEv');
       if(sel) sel.addEventListener('change', e => { trend.hlEv = e.target.value; renderTrendParts(); });
       trendPanel.querySelectorAll('.cbtn').forEach(b => b.addEventListener('click', () => { trend.hlFirst = trend.hlFirst === b.dataset.first ? '' : b.dataset.first; renderTrendParts(); }));
+      trendPanel.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => { trend.mode = b.dataset.goto; renderTrendParts(); trendPanel.scrollIntoView({block: 'start'}); }));
       trendPanel.querySelector('#sxNote').innerHTML = `${TD.evs.length} events loaded. All figures use the listed rankings only (players: Top 200 of both states, alliances: the listed alliance rows); alliance sums are not the official state score. Players are matched across events by Public ID.`;
+      return;
+    }
+    if(isCons){
+      wireCons();
+      trendPanel.querySelector('#sxNote').innerHTML = `Only State 646 players, matched across events by Public ID (by exact name when an ID is missing). Rank = position in the chosen list (Prep Total and Battle Phase: Top 200 of both states, Castle Battle: Top 100 of State 646). A player counts as "listed" when he appears in that list; events without that list are not counted.`;
       return;
     }
     trendPanel.querySelector('#sxPickArea').style.display = isState ? 'none' : '';
@@ -2543,7 +2588,7 @@
       const rk = upto.map(e => hlPrep(p, e.id)).filter(Boolean).map(v => v.rank);
       return {p, n: rk.length, avg: rk.length ? rk.reduce((a, b) => a + b, 0) / rk.length : null, best: rk.length ? Math.min(...rk) : null};
     }).filter(r => r.n).sort((a, b) => b.n - a.n || a.avg - b.avg).slice(0, 15);
-    out.push(`<div class="hl-sec"><h3>Consistency</h3><p class="hl-sub">How often a State 646 player is in the Prep Total list (Top 200), up to ${escapeHtml(cur.date)}, with average and best rank. Sorted by appearances, then average rank.</p>
+    out.push(`<div class="hl-sec"><h3>Consistency</h3><p class="hl-sub">How often a State 646 player is in the Prep Total list (Top 200), up to ${escapeHtml(cur.date)}, with average and best rank. Sorted by appearances, then average rank. <button type="button" class="linkbtn" data-goto="cons">Open the full Consistency page →</button></p>
       <div class="sx-card hl-card"><div class="sx-scroll"><table><thead><tr><th>Player</th><th class="num">Events</th><th class="num">Avg rank</th><th class="num">Best rank</th></tr></thead><tbody>${cons.map(r => `<tr><td class="nm2">${hlName(r.p)}</td><td class="num">${r.n} / ${upto.length}</td><td class="num">#${r.avg.toFixed(1).replace('.', ',')}</td><td class="num">#${r.best}</td></tr>`).join('')}</tbody></table></div></div></div>`);
 
     // 5) alliance contribution per event (share of the listed 646 alliances)
@@ -2707,6 +2752,105 @@
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(renderTrendParts, 180);
   });
+
+
+  // ---------- CONSISTENCY (own Statistics page) ----------
+  const CONS_LISTS = [
+    {key: 'Prep Total', label: 'Prep Total (Top 200)'},
+    {key: 'Battle Phase', label: 'Battle Phase (Top 200)'},
+    {key: 'Castle Battle', label: 'Castle Battle (Top 100)'}];
+  const CONS_SORTS = [['n', 'Appearances, then avg rank'], ['avg', 'Avg rank'], ['best', 'Best rank'], ['pts', 'Avg points'], ['streak', 'Current streak'], ['name', 'Name']];
+  const dispTag = t => t === 'OSM' ? 'BLP' : (t || '');   // OSM is the old tag of BLP
+  function consData(listKey){
+    const evs = TD.evs.filter(ev => listKey === 'Castle Battle' ? (ev.data.castle['Castle Battle'] || []).length : (ev.data.player[listKey] || []).length);
+    const rows = [];
+    hlP646().forEach(p => {
+      const cells = evs.map(ev => { const e = p.byEvent[ev.id]; return e && e.phases[listKey] ? e.phases[listKey] : null; });
+      const hits = cells.filter(Boolean);
+      if(!hits.length) return;
+      let streak = 0;
+      for(let i = cells.length - 1; i >= 0 && cells[i]; i--) streak++;
+      const ranks = hits.map(v => v.rank), n = hits.length;
+      rows.push({p, cells, n, streak, avg: ranks.reduce((a, b) => a + b, 0) / n, best: Math.min(...ranks), worst: Math.max(...ranks),
+                 pts: hits.reduce((a, v) => a + v.points, 0) / n, tag: dispTag(p.latest.alliance)});
+    });
+    return {evs, rows};
+  }
+  function consHtml(){
+    const c = trend.cons;
+    const {evs, rows} = consData(c.list);
+    const tags = {};
+    rows.forEach(r => { if(r.tag) tags[r.tag] = (tags[r.tag] || 0) + 1; });
+    const tagList = Object.keys(tags).sort((a, b) => tags[b] - tags[a] || a.localeCompare(b));
+    if(c.alliance && !tags[c.alliance]) c.alliance = '';
+    if(c.min > evs.length) c.min = Math.max(1, evs.length);
+    const minOpts = evs.map((e, i) => { const k = i + 1; return `<option value="${k}"${c.min === k ? ' selected' : ''}>${k === 1 ? 'Any' : (k === evs.length ? 'All ' + k + ' events' : k + '+ events')}</option>`; }).join('');
+    return `<div class="hl-sec" style="margin-top:0"><h3>Consistency</h3>
+      <p class="hl-sub">How reliably State 646 players show up in the rankings, over all ${evs.length} event${evs.length === 1 ? '' : 's'} with this list. Click a name to open the player in Players.</p>
+      <div class="cons-ctl">
+        <div class="field"><label for="consList">List</label><select id="consList">${CONS_LISTS.map(l => `<option value="${escapeHtml(l.key)}"${c.list === l.key ? ' selected' : ''}>${escapeHtml(l.label)}</option>`).join('')}</select></div>
+        <div class="field"><label for="consAlly">Alliance</label><select id="consAlly"><option value="">All alliances</option>${tagList.map(t => `<option value="${escapeHtml(t)}"${c.alliance === t ? ' selected' : ''}>${escapeHtml(t)} (${tags[t]})</option>`).join('')}</select></div>
+        <div class="field"><label for="consQ">Search</label><input type="text" id="consQ" autocomplete="off" placeholder="Name or ID…" value="${escapeHtml(c.q)}"></div>
+        <div class="field"><label for="consMin">Listed in</label><select id="consMin">${minOpts}</select></div>
+        <div class="field"><label for="consSort">Sort by</label><select id="consSort">${CONS_SORTS.map(s => `<option value="${s[0]}"${c.sort === s[0] ? ' selected' : ''}>${s[1]}</option>`).join('')}</select></div>
+        <label class="switch" title="Only players who are listed in the newest event"><input type="checkbox" id="consAct"${c.active ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Active in latest event</span></label>
+      </div>
+      <div id="consBody"></div></div>`;
+  }
+  function renderConsBody(){
+    const body = trendPanel.querySelector('#consBody');
+    if(!body) return;
+    writeHash();
+    const c = trend.cons;
+    const {evs, rows} = consData(c.list);
+    if(!evs.length){ body.innerHTML = '<div class="sx-empty">No event has this list yet.</div>'; return; }
+    const q = c.q.trim().toLowerCase();
+    const list = rows.filter(r => r.n >= c.min && (!c.alliance || r.tag === c.alliance) && (!c.active || r.cells[r.cells.length - 1]) && (!q || r.p.search.includes(q)));
+    const cmp = {
+      n: (a, b) => b.n - a.n || a.avg - b.avg,
+      avg: (a, b) => a.avg - b.avg || b.n - a.n,
+      best: (a, b) => a.best - b.best || b.n - a.n,
+      pts: (a, b) => b.pts - a.pts,
+      streak: (a, b) => b.streak - a.streak || b.n - a.n || a.avg - b.avg,
+      name: (a, b) => a.p.latest.name.localeCompare(b.p.latest.name)
+    }[c.sort];
+    list.sort(cmp);
+    const shown = list.slice(0, c.limit);
+    const dec = x => x.toFixed(1).replace('.', ',');
+    const evHead = evs.slice().reverse().map(e => `<th class="num" title="${escapeHtml(e.date)}">${escapeHtml(e.date)}</th>`).join('');
+    const trs = shown.map(r => `<tr>
+        <td class="nm2"><span class="hl-nm"><button type="button" class="cons-open" data-key="${escapeHtml(r.p.key)}" title="Open in Players">${escapeHtml(r.p.latest.name)}</button>${r.tag ? tagChip(r.tag, '646') : ''}</span></td>
+        <td class="num">${r.n} / ${evs.length}</td>
+        <td class="num">${r.streak || '–'}</td>
+        <td class="num">#${dec(r.avg)}</td><td class="num">#${r.best}</td><td class="num">#${r.worst}</td>
+        <td class="num">${fmt(Math.round(r.pts))}</td>
+        ${r.cells.slice().reverse().map(v => v ? `<td class="num${v.rank <= 10 ? ' cons-top' : ''}" title="${fmt(v.points)}">#${v.rank}</td>` : '<td class="num sx-na">–</td>').join('')}</tr>`).join('');
+    const more = list.length - shown.length;
+    body.innerHTML = `<div class="cons-count">${list.length} player${list.length === 1 ? '' : 's'}${list.length !== rows.length ? ' (of ' + rows.length + ')' : ''}</div>` + (list.length ? `
+      <div class="sx-card cons-card"><div class="sx-scroll"><table><thead><tr><th>Player</th><th class="num" title="Events in which the player is listed">Events</th><th class="num" title="Consecutive events up to the latest one in which the player is listed">Streak</th><th class="num" title="Average rank in the events he is listed in">Avg rank</th><th class="num">Best</th><th class="num">Worst</th><th class="num" title="Average points in the events he is listed in">Avg points</th>${evHead}</tr></thead><tbody>${trs}</tbody></table></div></div>` +
+      (more > 0 ? `<div class="cons-more"><button type="button" class="btn-secondary" id="consMore">Show ${Math.min(50, more)} more (${more} left)</button></div>` : '') : '<div class="sx-empty">No player matches these filters.</div>');
+  }
+  function wireCons(){
+    const c = trend.cons, root = trendPanel.querySelector('#sxHl');
+    const on = (id, ev, fn) => { const el = root.querySelector(id); if(el) el.addEventListener(ev, fn); };
+    on('#consList', 'change', e => { c.list = e.target.value; c.limit = 50; renderTrendParts(); });   // rebuilds alliance list and minimum
+    on('#consAlly', 'change', e => { c.alliance = e.target.value; c.limit = 50; renderConsBody(); });
+    on('#consQ', 'input', e => { c.q = e.target.value; c.limit = 50; renderConsBody(); });
+    on('#consMin', 'change', e => { c.min = parseInt(e.target.value, 10) || 1; c.limit = 50; renderConsBody(); });
+    on('#consSort', 'change', e => { c.sort = e.target.value; c.limit = 50; renderConsBody(); });
+    on('#consAct', 'change', e => { c.active = e.target.checked; c.limit = 50; renderConsBody(); });
+    if(!root._consWired) root.addEventListener('click', e => {
+      if(e.target.closest('#consMore')){ c.limit += 50; renderConsBody(); return; }
+      const b = e.target.closest('.cons-open');
+      if(b){
+        trend.mode = 'player'; trend.picks.player = [b.dataset.key]; trend.query = '';
+        trendPanel.querySelector('#sxQuery').value = '';
+        renderTrendParts(); trendPanel.scrollIntoView({block: 'start'});
+      }
+    });
+    root._consWired = true;
+    renderConsBody();
+  }
 
   function renderTrends(){
     if(!TD) TD = buildTrendData();
