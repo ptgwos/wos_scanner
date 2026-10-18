@@ -312,6 +312,16 @@
   .cons-open:hover{color:var(--ice);text-decoration:underline;}
   .cons-card .cons-ev{text-align:center;white-space:nowrap;}
   .cons-card td.cons-top{color:var(--ice);font-weight:600;}
+  .hof-by{white-space:nowrap;}
+  .hof-pts{color:var(--text-dim);}
+  .hof-pts.on{color:var(--ice);font-weight:700;}
+  .hof-ptsh{color:var(--ice);}
+  .sx-card.hof-med table{min-width:0;}
+  @media (max-width:640px){ .hof-med th:first-child, .hof-med td:first-child{width:150px;max-width:150px;} }
+  .hof-pod table{min-width:640px;}
+  .hof-pod td.nm2{max-width:240px;}
+  .hof-opp{opacity:.7;}
+  .hof-pod th .medal, .hof-pod th svg{vertical-align:middle;}
   .cons-more{margin-top:12px;text-align:center;}
   @media (max-width:640px){
     .cons-ctl .field{flex:1 1 calc(50% - 8px);min-width:130px;}
@@ -719,7 +729,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-18 · b54</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-18 · b56</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -852,7 +862,7 @@
   const INITIAL_HASH = location.hash;   // read before the first render rewrites the address
   let hashApplying = false;
   const TAB_SLUG = {player: 'player', alliance: 'alliance', castle: 'castle', chests: 'chests', trends: 'statistics'};
-  const SUB_SLUG = {player: 'players', alliance: 'alliances', state: 'state', hl: 'highlights', cons: 'consistency'};
+  const SUB_SLUG = {player: 'players', alliance: 'alliances', state: 'state', hl: 'highlights', cons: 'consistency', hof: 'hall-of-fame'};
   const PH_SLUG = {'Prep Total': 'prep', 'Day 1': 'p1', 'Day 2': 'p2', 'Day 3': 'p3', 'Day 4': 'p4', 'Day 5': 'p5', 'Battle Phase': 'battle', 'Castle Battle': 'castle'};
   function buildHash(){
     const tab = state.tab;
@@ -876,6 +886,13 @@
         if(c.active) q.push('act=1');
         if(c.sort !== 'n') q.push('sort=' + c.sort);
         if(c.q) q.push('q=' + encodeURIComponent(c.q));
+      } else if(trend.mode === 'hof'){
+        const h = trend.hof;
+        if(h.list !== 'Prep Total') q.push('l=' + PH_SLUG[h.list]);
+        if(h.who === 'ally') q.push('w=ally');
+        if(h.alliance && h.who === 'player') q.push('al=' + encodeURIComponent(h.alliance));
+        if(h.q) q.push('q=' + encodeURIComponent(h.q));
+        if(h.sort === 'weighted') q.push('s=w');
       }
     } else {
       if(CUR.id !== EVENTS[0].id) q.push('ev=' + encodeURIComponent(CUR.id));
@@ -921,6 +938,14 @@
           c.sort = ['n', 'avg', 'best', 'pts', 'streak', 'name'].includes(q.get('sort')) ? q.get('sort') : 'n';
           c.q = q.get('q') || '';
           c.limit = 50;
+        } else if(mode === 'hof'){
+          const h = trend.hof;
+          const l = Object.keys(PH_SLUG).find(k => PH_SLUG[k] === q.get('l'));
+          h.list = (l && ['Prep Total', 'Battle Phase', 'Castle Battle'].includes(l)) ? l : 'Prep Total';
+          h.who = (q.get('w') === 'ally' && h.list !== 'Castle Battle') ? 'ally' : 'player';
+          h.alliance = h.who === 'player' ? (q.get('al') || '') : '';
+          h.q = q.get('q') || '';
+          h.sort = q.get('s') === 'w' ? 'weighted' : 'olympic';
         }
       } else {
         const target = EVENTS.find(e => e.id === q.get('ev')) || EVENTS[0];
@@ -2070,7 +2095,8 @@
     query: '',
     browse: {player: '', alliance: ''},
     hlEv: '',
-    cons: {list: 'Prep Total', alliance: '', min: 1, active: false, sort: 'n', q: '', limit: 50},   // Consistency page
+    cons: {list: 'Prep Total', alliance: '', min: 1, active: false, sort: 'n', q: '', limit: 50},
+    hof: {list: 'Prep Total', who: 'player', alliance: '', q: '', sort: 'olympic'},   // Hall of Fame page   // Consistency page
     hlFirst: ''   // alliance key shown first in the contribution bars (click in the legend)
   };
   let TD = null;
@@ -2348,6 +2374,7 @@
           <button data-m="state">State 646</button>
           <button data-m="hl">Highlights</button>
           <button data-m="cons">Consistency</button>
+          <button data-m="hof">Hall of Fame</button>
         </div>
         <label class="switch" id="sxOnlyWrap" title="Hide players and alliances of the other states">
           <input type="checkbox" id="sxOnly" checked>
@@ -2496,15 +2523,20 @@
     const mode = trend.mode;
     const isState = mode === 'state';
     trendPanel.querySelectorAll('#sxMode button').forEach(b => b.classList.toggle('active', b.dataset.m === mode));
-    const isHl = mode === 'hl', isCons = mode === 'cons';
-    ['#sxPickArea', '#sxOnlyWrap', '.sx-ctrl', '#sxChart', '#sxTables', '#sxShare'].forEach(s => { const e = trendPanel.querySelector(s); if(e) e.style.display = (isHl || isCons) ? 'none' : (s === '#sxPickArea' && isState ? 'none' : ''); });
-    trendPanel.querySelector('#sxHl').innerHTML = isHl ? highlightsHtml() : (isCons ? consHtml() : '');
+    const isHl = mode === 'hl', isCons = mode === 'cons', isHof = mode === 'hof';
+    ['#sxPickArea', '#sxOnlyWrap', '.sx-ctrl', '#sxChart', '#sxTables', '#sxShare'].forEach(s => { const e = trendPanel.querySelector(s); if(e) e.style.display = (isHl || isCons || isHof) ? 'none' : (s === '#sxPickArea' && isState ? 'none' : ''); });
+    trendPanel.querySelector('#sxHl').innerHTML = isHl ? highlightsHtml() : (isCons ? consHtml() : (isHof ? hofHtml() : ''));
     if(isHl){
       const sel = trendPanel.querySelector('#hlEv');
       if(sel) sel.addEventListener('change', e => { trend.hlEv = e.target.value; renderTrendParts(); });
       trendPanel.querySelectorAll('.cbtn').forEach(b => b.addEventListener('click', () => { trend.hlFirst = trend.hlFirst === b.dataset.first ? '' : b.dataset.first; renderTrendParts(); }));
       trendPanel.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => { trend.mode = b.dataset.goto; renderTrendParts(); trendPanel.scrollIntoView({block: 'start'}); }));
       trendPanel.querySelector('#sxNote').innerHTML = `${TD.evs.length} events loaded. All figures use the listed rankings only (players: Top 200 of both states, alliances: the listed alliance rows); alliance sums are not the official state score. Players are matched across events by Public ID.`;
+      return;
+    }
+    if(isHof){
+      wireHof();
+      trendPanel.querySelector('#sxNote').innerHTML = `Places 1-3 in the chosen ranking of each event (players: Top 200 of both states in Prep Total and Battle Phase, Top 100 in Castle Battle; State 646 players only in the medal table, matched by Public ID, else by exact name). Alliances use the alliance ranking: in Battle Phase it shows points under the fighting banner (PKB, GYN), not the home alliance of the players.`;
       return;
     }
     if(isCons){
@@ -2614,7 +2646,7 @@
       return {a, m, n: m[1] + m[2] + m[3]};
     }).filter(r => r.n).sort((x, y) => y.m[1] - x.m[1] || y.m[2] - x.m[2] || y.m[3] - x.m[3]);
     const medRow = (label, m, extra) => `<tr><td class="nm2">${label}</td><td class="ctr">${m[1] || '–'}</td><td class="ctr">${m[2] || '–'}</td><td class="ctr">${m[3] || '–'}</td>${extra || ''}</tr>`;
-    out.push(`<div class="hl-sec"><h3>Hall of fame</h3><p class="hl-sub">Places 1–3 in the overall Prep Total ranking, all events, State 646 only.</p>
+    out.push(`<div class="hl-sec"><h3>Hall of fame</h3><p class="hl-sub">Places 1–3 in the overall Prep Total ranking, all events, State 646 only. <button type="button" class="linkbtn" data-goto="hof">Open the full Hall of Fame (also Battle Phase and Castle Battle) →</button></p>
       <div class="hl-grid">
       <div class="sx-card hl-card"><div class="sx-card-head"><b>Players</b></div><div class="sx-scroll"><table><thead><tr><th>Player</th><th class="ctr">${MEDAL_ICON(1)}</th><th class="ctr">${MEDAL_ICON(2)}</th><th class="ctr">${MEDAL_ICON(3)}</th><th>Events</th></tr></thead><tbody>${
         mrows.length ? mrows.slice(0, 15).map(r => medRow(hlName(r.p), r.m, `<td>${r.by.map(b => medalSvg(b.place, b.id + ' · place ' + b.place)).join(' ')}</td>`)).join('') : '<tr><td colspan="5" class="sx-na">No medals yet</td></tr>'}</tbody></table></div></div>
@@ -2918,6 +2950,98 @@
     });
     root._consWired = true;
     renderConsBody();
+  }
+
+  // ---------- HALL OF FAME page (Statistics mode 'hof') ----------
+  const HOF_LISTS = [{key: 'Prep Total', label: 'Prep Total'}, {key: 'Battle Phase', label: 'Battle Phase'}, {key: 'Castle Battle', label: 'Castle Battle'}];
+  function hofEvents(h){
+    return TD.evs.filter(ev => h.who === 'ally' ? (ev.data.alliance[h.list] || []).length : (h.list === 'Castle Battle' ? (ev.data.castle['Castle Battle'] || []).length : (ev.data.player[h.list] || []).length));
+  }
+  function hofData(){
+    const h = trend.hof;
+    if(h.list === 'Castle Battle') h.who = 'player';
+    const evs = hofEvents(h);
+    const rows = [];
+    if(h.who === 'ally'){
+      [...TD.allies.values()].filter(a => a.state === '646').forEach(a => {
+        const m = {1: 0, 2: 0, 3: 0}, by = []; let top10 = 0, n = 0;
+        evs.forEach(ev => { const v = a.byEvent[ev.id] && a.byEvent[ev.id].phases[h.list]; if(!v) return; n++; if(v.rank <= 10) top10++; if(v.rank <= 3){ m[v.rank]++; by.push({id: ev.id, place: v.rank}); } });
+        if(m[1] + m[2] + m[3]) rows.push({key: a.key, label: tagChip(a.latest.tag, '646'), name: a.latest.tag + ' ' + (a.latest.name || ''), tag: '', m, by, top10, n});
+      });
+    } else {
+      hlP646().forEach(p => {
+        const m = {1: 0, 2: 0, 3: 0}, by = []; let top10 = 0, n = 0;
+        evs.forEach(ev => { const e = p.byEvent[ev.id]; const v = e && e.phases[h.list]; if(!v) return; n++; if(v.rank <= 10) top10++; if(v.rank <= 3){ m[v.rank]++; by.push({id: ev.id, place: v.rank}); } });
+        if(m[1] + m[2] + m[3]) rows.push({key: p.key, label: hlName(p), pname: p.latest.name, tagChip: (p.latest.alliance ? tagChip(p.latest.alliance, '646') : ''), name: p.latest.name + ' ' + (p.id || ''), tag: dispTag(p.latest.alliance), m, by, top10, n});
+      });
+    }
+    rows.forEach(r => { r.pts = r.m[1] * 3 + r.m[2] * 2 + r.m[3]; });
+    const byMedals = (a, b) => b.m[1] - a.m[1] || b.m[2] - a.m[2] || b.m[3] - a.m[3] || b.top10 - a.top10 || a.name.localeCompare(b.name);
+    rows.sort(h.sort === 'weighted' ? (a, b) => b.pts - a.pts || byMedals(a, b) : byMedals);
+    return {evs, rows};
+  }
+  function hofHtml(){
+    const h = trend.hof;
+    if(h.list === 'Castle Battle') h.who = 'player';
+    const {rows} = hofData();
+    const tags = {};
+    if(h.who === 'player') rows.forEach(r => { if(r.tag) tags[r.tag] = (tags[r.tag] || 0) + 1; });
+    const tagList = Object.keys(tags).sort((a, b) => tags[b] - tags[a] || a.localeCompare(b));
+    if(h.alliance && !tags[h.alliance]) h.alliance = '';
+    const castle = h.list === 'Castle Battle';
+    return `<div class="hl-sec" style="margin-top:0"><h3>Hall of Fame</h3>
+      <p class="hl-sub">Places 1–3 in every event, State 646 only. Pick a ranking to see who dominated which part of the event.</p>
+      <div class="cons-ctl">
+        <div class="field"><label for="hofList">Ranking</label><select id="hofList">${HOF_LISTS.map(l => `<option value="${l.key}"${h.list === l.key ? ' selected' : ''}>${l.label}</option>`).join('')}</select></div>
+        <div class="field"><label for="hofWho">Show</label><select id="hofWho"><option value="player"${h.who === 'player' ? ' selected' : ''}>Players</option><option value="ally"${h.who === 'ally' ? ' selected' : ''}${castle ? ' disabled' : ''}>Alliances${castle ? ' (not in Castle)' : ''}</option></select></div>
+        <div class="field"><label for="hofSort" title="Olympic: most gold medals first, then silver, then bronze. Weighted: gold = 3, silver = 2, bronze = 1 point.">Count by</label><select id="hofSort"><option value="olympic"${h.sort !== 'weighted' ? ' selected' : ''}>Olympic (gold first)</option><option value="weighted"${h.sort === 'weighted' ? ' selected' : ''}>Weighted (3 · 2 · 1)</option></select></div>
+        ${h.who === 'player' ? `<div class="field"><label for="hofAlly">Alliance</label><select id="hofAlly"><option value="">All alliances</option>${tagList.map(t => `<option value="${escapeHtml(t)}"${h.alliance === t ? ' selected' : ''}>${escapeHtml(t)} (${tags[t]})</option>`).join('')}</select></div>
+        <div class="field"><label for="hofQ">Search</label><input type="text" id="hofQ" autocomplete="off" placeholder="Name or ID…" value="${escapeHtml(h.q)}"></div>` : ''}
+      </div>
+      <div id="hofBody"></div></div>`;
+  }
+  function renderHofBody(){
+    const body = trendPanel.querySelector('#hofBody'); if(!body) return;
+    const h = trend.hof, {evs, rows} = hofData();
+    const q = h.q.trim().toLowerCase();
+    const list = rows.filter(r => (!h.alliance || r.tag === h.alliance) && (!q || r.name.toLowerCase().includes(q)));
+    const ico = n => MEDAL_ICON(n);
+    const medalTbl = `<div class="sx-card hl-card cons-card hof-med"><div class="sx-card-head"><b>${h.who === 'ally' ? 'Alliances' : 'Players'}</b><span class="sx-id">${list.length}</span></div><div class="sx-scroll"><table><thead><tr><th>${h.who === 'ally' ? 'Alliance' : 'Player'}</th><th class="ctr">${ico(1)}</th><th class="ctr">${ico(2)}</th><th class="ctr">${ico(3)}</th><th class="ctr${h.sort === 'weighted' ? ' hof-ptsh' : ''}" title="Gold = 3, silver = 2, bronze = 1 point">Points</th><th class="ctr" title="Events in the Top 10">Top 10</th><th class="ctr" title="Events in which listed">Events</th><th>Podiums</th></tr></thead><tbody>${
+      list.length ? list.map(r => `<tr><td class="nm2">${h.who === 'player' ? `<span class="hl-nm"><button type="button" class="cons-open" data-key="${escapeHtml(r.key)}" title="Open in Players">${escapeHtml(r.pname)}</button>${r.tagChip}</span>` : r.label}</td><td class="ctr">${r.m[1] || '–'}</td><td class="ctr">${r.m[2] || '–'}</td><td class="ctr">${r.m[3] || '–'}</td><td class="ctr hof-pts${h.sort === 'weighted' ? ' on' : ''}">${r.pts}</td><td class="ctr">${r.top10 || '–'}</td><td class="ctr">${r.n} / ${evs.length}</td><td class="hof-by">${r.by.map(b => medalSvg(b.place, b.id + ' · place ' + b.place)).join(' ')}</td></tr>`).join('') : '<tr><td colspan="8" class="sx-na">No medals</td></tr>'}</tbody></table></div></div>`;
+    // podium per event (newest first), raw top 3 of the list including the opponent state
+    const pod = evs.slice().reverse().map(ev => {
+      const src = h.who === 'ally' ? (ev.data.alliance[h.list] || []) : (h.list === 'Castle Battle' ? (ev.data.castle['Castle Battle'] || []) : (ev.data.player[h.list] || []));
+      const cell = place => {
+        const r = src.find(x => x.rank === place);
+        if(!r) return '<td class="sx-na">–</td>';
+        const st = r.state || '646', own = st === '646';
+        const nm = h.who === 'ally' ? `<span class="hl-nm"><span class="hl-n">${escapeHtml(r.name || r.alliance)}</span>${tagChip(r.alliance, st)}</span>` : `<span class="hl-nm"><span class="hl-n">${escapeHtml(r.name)}</span>${r.alliance ? tagChip(r.alliance, st) : ''}</span>`;
+        return `<td class="nm2${own ? '' : ' hof-opp'}" title="${own ? '' : 'State ' + escapeHtml(st)}">${nm}${own ? '' : `<span class="sx-id">${escapeHtml(st)}</span>`}</td>`;
+      };
+      return `<tr><td class="cons-ev">${escapeHtml(ev.date)}</td>${cell(1)}${cell(2)}${cell(3)}</tr>`;
+    }).join('');
+    const podTbl = `<div class="sx-card hl-card cons-card hof-pod"><div class="sx-card-head"><b>Podium per event</b></div><div class="sx-scroll"><table><thead><tr><th class="cons-ev">Event</th><th>${ico(1)} 1st</th><th>${ico(2)} 2nd</th><th>${ico(3)} 3rd</th></tr></thead><tbody>${pod || '<tr><td colspan="4" class="sx-na">No data</td></tr>'}</tbody></table></div></div>`;
+    body.innerHTML = medalTbl + '<div style="height:14px"></div>' + podTbl;
+  }
+  function wireHof(){
+    const h = trend.hof, root = trendPanel.querySelector('#sxHl');
+    const on = (id, ev, fn) => { const el = root.querySelector(id); if(el) el.addEventListener(ev, fn); };
+    on('#hofList', 'change', e => { h.list = e.target.value; h.alliance = ''; renderTrendParts(); });
+    on('#hofWho', 'change', e => { h.who = e.target.value; h.alliance = ''; renderTrendParts(); });
+    on('#hofSort', 'change', e => { h.sort = e.target.value; renderHofBody(); writeHash(); });
+    on('#hofAlly', 'change', e => { h.alliance = e.target.value; renderHofBody(); writeHash(); });
+    on('#hofQ', 'input', e => { h.q = e.target.value; renderHofBody(); writeHash(); });
+    if(!root._hofWired) root.addEventListener('click', e => {
+      if(trend.mode !== 'hof') return;
+      const b = e.target.closest('.cons-open');
+      if(b){
+        trend.mode = 'player'; trend.picks.player = [b.dataset.key]; trend.query = '';
+        trendPanel.querySelector('#sxQuery').value = '';
+        renderTrendParts(); trendPanel.scrollIntoView({block: 'start'});
+      }
+    });
+    root._hofWired = true;
+    renderHofBody();
   }
 
   // ---------- THEME (dark / light) ----------
