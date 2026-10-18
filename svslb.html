@@ -708,7 +708,7 @@
           <span class="b" id="castleLabel">Castle Battle: 30%</span>
         </div>
         <input type="range" id="weightSlider" min="0" max="100" value="70">
-        <div class="formula-note">Includes all players Top 200 in Prep Total or Top 100 in Castle Battle · Chest Score = Prep Total × weight + Castle Battle × (100% − weight) · missing value = 0</div>
+        <div class="formula-note">Includes all players who were in the Top 200 of Prep Total or of any single phase (1-5), or in the Top 100 of Castle Battle · Chest Score = Prep Total × weight + Castle Battle × (100% − weight) · missing value = 0</div>
       </div>
     </div>
     <div id="chestTableWrap"></div>
@@ -719,7 +719,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-18 · b53</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-18 · b54</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1531,9 +1531,16 @@
   const copyStatus = document.getElementById('copyStatus');
 
   // only alliances with at least one candidate (Prep Total Top 200 or Castle Top 100)
+  // players are offered when they were in the Top 200 of Prep Total or of any single phase (1-5), or in the Castle Top 100
+  const CHEST_PREP_KEYS = ['Prep Total', 'Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+  function chestPrepRows(){
+    const out = [];
+    CHEST_PREP_KEYS.forEach(k => (DATA.player[k] || []).forEach(r => { if(r.rank <= 200) out.push(r); }));
+    return out;
+  }
   function chestAlliances(){
     const has = new Set();
-    (DATA.player['Prep Total'] || []).forEach(r => { if(r.rank <= 200 && r.alliance) has.add(r.alliance); });
+    chestPrepRows().forEach(r => { if(r.alliance) has.add(r.alliance); });
     (DATA.castle['Castle Battle'] || []).forEach(r => { if(r.rank <= 100 && r.alliance) has.add(r.alliance); });
     const list = ALLIANCES_646.filter(a => has.has(a));
     return list.length ? list : ALLIANCES_646;
@@ -1569,7 +1576,8 @@
     const castleByName = new Map(castleAll.map(r => [r.name, r]));
 
     const candidateNames = new Set();
-    prepAll.filter(r => r.rank <= 200 && r.alliance === chestState.alliance).forEach(r => candidateNames.add(r.name));
+    const stateByName = new Map();
+    chestPrepRows().filter(r => r.alliance === chestState.alliance).forEach(r => { candidateNames.add(r.name); if(!stateByName.has(r.name)) stateByName.set(r.name, r); });
     castleAll.filter(r => r.rank <= 100 && r.alliance === chestState.alliance).forEach(r => candidateNames.add(r.name));
 
     const w = chestState.weight / 100;
@@ -1581,8 +1589,8 @@
       const score = prepPts * w + castlePts * (1 - w);
       return {
         name: name,
-        state: (prepRow && prepRow.state) || '646',
-        id: (prepRow && prepRow.id) || (castleRow && castleRow.id),
+        state: (prepRow && prepRow.state) || (stateByName.get(name) && stateByName.get(name).state) || '646',
+        id: (prepRow && prepRow.id) || (castleRow && castleRow.id) || (stateByName.get(name) && stateByName.get(name).id),
         prep: prepPts,
         castle: castlePts,
         score: score
