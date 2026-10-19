@@ -338,6 +338,7 @@
   .inv-ring{display:inline-flex;align-items:center;justify-content:center;box-sizing:content-box;padding:3px;border:2.5px solid var(--danger);border-radius:50%;background:rgba(217,38,58,.14);vertical-align:middle;}
   .inv-w{color:var(--danger);font-weight:700;}
   .pres-card tr.pres-lost td .pres-off .inv-w{color:var(--danger);}
+  .pres-card .pres-no{text-align:center;color:var(--text-dim);font-variant-numeric:tabular-nums;width:48px;}
   .pres-off{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
   .sx-card.pres-card table{min-width:0;table-layout:auto;}
   .sx-card.pres-card th:first-child{width:56px;}
@@ -771,7 +772,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-19 · b66</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-19 · b67</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -2596,7 +2597,7 @@
     }
     if(isPres){
       wirePres();
-      trendPanel.querySelector('#sxNote').innerHTML = 'The office after each event is entered by hand (it cannot be read from the rankings). Name and alliance are looked up by Public ID in the event data; Prep Total rank and points come from the lists on this page (not available for KoI).';
+      trendPanel.querySelector('#sxNote').innerHTML = 'The office after each event is entered by hand (it cannot be read from the rankings). Name and alliance are looked up by Public ID in the event data.';
       return;
     }
     if(isHof){
@@ -3202,14 +3203,13 @@
     const rows = dates.map(d => {
       const x = PRESIDENTS[d], away = awayOf(d);
       const evLine = x.koi ? 'King of Icefield' : ('SvS' + (away ? ' · 646 vs ' + escapeHtml(away) : ''));
-      const no = x.no ? ` · No. ${x.no}` : '';
-      if(x.office === 'none') return `<tr class="pres-lost"><td class="pres">${invImg(26)}</td><td>${escapeHtml(d)}<br><em>${evLine}</em></td><td colspan="2"><b>${escapeHtml(x.name)}</b>${x.alliance ? ' ' + tagChip(x.alliance, away) : ''} <span class="pres-off"><b class="inv-w">Invader</b> from State ${escapeHtml(away)} ruled over 646${no}</span></td></tr>`;
-      const w = who(d, x), pe = w.p && w.p.byEvent[d], prep = !x.koi && pe && pe.phases['Prep Total'];
-      return `<tr${x.koi ? ' class="pres-koi"' : ''}><td class="pres" title="${PRES_TITLE[x.office]}">${img(x.office, 30)}</td><td>${escapeHtml(d)}<br><em>${evLine}</em></td><td>${nameHtml(d, x)}<div class="pres-off">${PRES_TITLE[x.office]}${no}</div></td><td class="num">${prep ? '#' + prep.rank + '<br><em>' + fmt(prep.points) + '</em>' : '<span class="sx-na">–</span>'}</td></tr>`;
+      const noTd = `<td class="pres-no">${x.no || ''}</td>`;
+      if(x.office === 'none') return `<tr class="pres-lost"><td class="pres">${invImg(26)}</td><td>${escapeHtml(d)}<br><em>${evLine}</em></td>${noTd}<td><b>${escapeHtml(x.name)}</b>${x.alliance ? ' ' + tagChip(x.alliance, away) : ''}<div class="pres-off"><b class="inv-w">Invader</b> from State ${escapeHtml(away)} ruled over 646</div></td></tr>`;
+      return `<tr${x.koi ? ' class="pres-koi"' : ''}><td class="pres" title="${PRES_TITLE[x.office]}">${img(x.office, 30)}</td><td>${escapeHtml(d)}<br><em>${evLine}</em></td>${noTd}<td>${nameHtml(d, x)}<div class="pres-off">${PRES_TITLE[x.office]}</div></td></tr>`;
     }).join('');
     return `<div class="sx-card pres-card"><div class="sx-card-head"><b>Presidents of State 646</b>
         <label class="switch pres-koi-sw" title="Also list the Presidents who were chosen after the King of Icefield event"><input type="checkbox" id="presKoi"${showKoi ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show KoI</span></label></div>${hero}${tiles}
-      <div class="sx-scroll"><table><thead><tr><th></th><th>Event</th><th>President</th><th class="num">Prep Total</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="sx-scroll"><table><thead><tr><th></th><th>Event</th><th class="pres-no">No.</th><th>President</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="sx-share-note">SvS has two parts: Prep (one week) and the Castle Battle on Saturday. If State 646 wins one of them it keeps its own President; if it wins both, the President becomes Supreme President; if it loses both, an invader of the winning state rules over 646. The King of Icefield (KoI) event, held two weeks before or after each SvS, also ends with a Castle Battle: there is always a President (it cannot be lost) and never a Supreme President.</div></div>`;
   }
   function wirePres(){
