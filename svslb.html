@@ -339,7 +339,12 @@
   .pres-card td:nth-child(2){white-space:nowrap;}
   @media (max-width:640px){ .pres-card .hl-nm{flex-wrap:wrap;gap:3px 6px;} .sx-card.pres-card th:first-child{width:38px;} .pres-card th,.pres-card td{padding-left:6px;padding-right:6px;} .pres-card td.pres img{height:26px;} }
   .pres-card tr.pres-lost td{color:var(--text-faint);font-size:12.5px;}
-  .sx-card.sx-st table{min-width:700px;}
+  .sx-card.sx-st table{min-width:1060px;}
+  .sx-card.sx-st th:nth-child(3){width:84px;}
+  @media (max-width:900px){
+    .sx-card.sx-st th:first-child, .sx-card.sx-st td:first-child{position:sticky;left:0;z-index:1;background:var(--panel);}
+    .sx-card.sx-st th:nth-child(2), .sx-card.sx-st td:nth-child(2){position:sticky;left:52px;z-index:1;background:var(--panel);box-shadow:1px 0 0 var(--border);}
+  }
   .sx-card.sx-st th:first-child{width:52px;}
   .sx-card.sx-st th:nth-child(2){width:116px;}
   .sx-card td.pres{text-align:center;padding-top:3px;padding-bottom:3px;}
@@ -760,7 +765,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-19 · b62</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-19 · b63</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
