@@ -917,6 +917,24 @@
   .ed-h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;}
   .ed-c{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text);}
   .ed-c input{width:16px;height:16px;accent-color:var(--ice);cursor:pointer;}
+
+  .fls{display:inline-flex;gap:8px;align-items:center;}
+  .cmp-sw{align-self:center;padding:0;}
+  @media (max-width:640px){ .cmp-sw{display:none;} }
+  @media (min-width:641px){
+    .ep-teams.cmp .team-b{gap:4px;padding:8px;}
+    .ep-teams.cmp .tile{display:grid;grid-template-columns:minmax(0,1fr) 104px calc(var(--n,6) * 8px) 58px 56px 19px;align-items:center;column-gap:8px;padding:4px 8px;}
+    .ep-teams.cmp .t1,.ep-teams.cmp .t2{display:contents;}
+    .ep-teams.cmp .t1 .nm{grid-column:1;grid-row:1;}
+    .ep-teams.cmp .t1 .nt{font-size:13px;}
+    .ep-teams.cmp .fls{grid-column:2;grid-row:1;justify-self:end;gap:4px;flex-wrap:nowrap;overflow:hidden;}
+    .ep-teams.cmp .hs{grid-column:3;grid-row:1;gap:2px;}
+    .ep-teams.cmp .hs i{width:6px;height:11px;}
+    .ep-teams.cmp .pw{grid-column:4;grid-row:1;text-align:right;}
+    .ep-teams.cmp .t1 .tag{grid-column:5;grid-row:1;justify-self:end;font-size:10px;padding:1px 7px;}
+    .ep-teams.cmp .st{grid-column:6;grid-row:1;width:17px;height:17px;font-size:11px;}
+    .ep-teams.cmp .av{width:18px;height:18px;margin-right:4px;}
+  }
 </style>
 </head>
 <body>
@@ -955,13 +973,13 @@
       <div class="ep-list" id="poolList"></div>
     </section>
     <section class="ep-teams">
-      <div class="ep-sec ep-teams-h"><div class="ep-h"><b>Teams</b><button type="button" class="btn" id="tNew" hidden>Add team</button><button type="button" class="btn" id="tStd" hidden>Standard teams (PKB / GYN)</button><button type="button" class="btn" id="tMiss">Missing players</button><button type="button" class="btn" id="tCopy">Copy list</button><span class="sx-id" id="teamN"></span></div></div>
+      <div class="ep-sec ep-teams-h"><div class="ep-h"><b>Teams</b><button type="button" class="btn" id="tNew" hidden>Add team</button><button type="button" class="btn" id="tStd" hidden>Standard teams (PKB / GYN)</button><button type="button" class="btn" id="tMiss">Missing players</button><button type="button" class="btn" id="tCopy">Copy list</button><label class="switch cmp-sw" title="Compact: one line per player (not on phones)"><input type="checkbox" id="cmpSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Compact</span></label><span class="sx-id" id="teamN"></span></div></div>
       <div id="teamsWrap" style="display:contents"></div>
     </section>
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p10</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p11</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1055,7 +1073,7 @@
   const api = MOCK ? mockApi() : (CFG.url && CFG.key ? restApi() : null);
 
   // ---- state ----
-  const S = {events: [], evId: null, teams: [], entries: [], role: null, alliance: '', code: '', q: '', pa: '', ps: ['power', 'name', 'avail'].includes(PREFS.eps) ? PREFS.eps : 'power', ap: {q: '', tag: ''}};
+  const S = {events: [], evId: null, teams: [], entries: [], role: null, alliance: '', code: '', cmp: PREFS.epc === true, q: '', pa: '', ps: ['power', 'name', 'avail'].includes(PREFS.eps) ? PREFS.eps : 'power', ap: {q: '', tag: ''}};
   let D = null;           // players.json
   let last = '';
   let dragPid = null;
@@ -1082,7 +1100,7 @@
   }
   function strip(h){ let s = ''; for(let i = 0; i < slotsOf(); i++) s += `<i class="${(h >> i) & 1 ? 'on' : ''}" title="${slotLabel(i)}"></i>`; return `<span class="hs">${s}</span>`; }
   const BASKET = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 11H5L3 9z"/><path d="M8 9l4-6 4 6"/><path d="M10 13v4M14 13v4"/></svg>';
-  function flags(e){ return (e.rl ? '<span class="fl rl" title="Rally leader">RL</span>' : '') + (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? `<span class="fl g" title="Gatherer (helps with loot)">${BASKET}</span>` : ''); }
+  function flags(e){ const h = (e.rl ? '<span class="fl rl" title="Rally leader">RL</span>' : '') + (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? `<span class="fl g" title="Gatherer (helps with loot)">${BASKET}</span>` : ''); return h ? `<span class="fls">${h}</span>` : ''; }
   function status(e, team){
     if(!team || !team.target) return '';
     const i = pinfo(e);
@@ -1131,7 +1149,8 @@
     // layout: one column per target alliance, the teams of each alliance in their order, so that PKB - Main | GYN - Main, PKB - Sub | GYN - Sub ... line up
     const groups = []; S.teams.forEach(t => { let g = groups.find(x => x.k === (t.target || '')); if(!g){ g = {k: t.target || '', l: []}; groups.push(g); } g.l.push(t); });
     const ordered = []; for(let r = 0; groups.some(g => r < g.l.length); r++) groups.forEach(g => { if(r < g.l.length) ordered.push(g.l[r]); });
-    $('teamsWrap').parentNode.style.setProperty('--cols', Math.max(1, Math.min(3, groups.length)));
+    const tsec = $('teamsWrap').parentNode; tsec.classList.toggle('cmp', S.cmp); tsec.style.setProperty('--n', slotsOf()); $('cmpSw').checked = S.cmp;
+    tsec.style.setProperty('--cols', Math.max(1, Math.min(3, groups.length)));
     $('teamsWrap').innerHTML = ordered.map(t => {
       const m = S.entries.filter(x => x.team_id === t.id).sort((a, b) => pinfo(b).power - pinfo(a).power);
       const tot = m.reduce((s, x) => s + pinfo(x).power, 0);
@@ -1261,6 +1280,7 @@
   $('evDel').addEventListener('click', async () => { const e = ev(); if(!e) return; if(!confirm('Delete the event "' + e.name + '" with all its teams and registrations? This cannot be undone.')) return;
     try { await api.rpc('ev_event_delete', {p_code: S.code, p_id: e.id}); S.evId = null; last = ''; await refresh(true); setHash(); toast('Event deleted.', true); } catch(err){ toast(err.message); } });
   $('tMiss').addEventListener('click', missingDialog);
+  $('cmpSw').addEventListener('change', () => { S.cmp = $('cmpSw').checked; prefSet('epc', S.cmp); render(); });
   $('evLock').addEventListener('click', async () => {
     const e = ev(); if(!e) return;
     if(!locked()){
