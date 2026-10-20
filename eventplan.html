@@ -818,6 +818,19 @@
   .t1{display:flex;align-items:center;gap:6px;min-width:0;}
   .t1 .nm{display:inline-flex;align-items:center;min-width:0;flex:1 1 auto;}
   .t1 .nt{font-weight:700;color:var(--strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .t1 .nm .nt{max-width:none;}
+  .ep-sums{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+  .ep-sum{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;}
+  .ep-sum .h{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
+  .ep-sum .big{font-size:22px;font-weight:700;color:var(--strong);font-variant-numeric:tabular-nums;}
+  .ep-sum .big small{font-size:13px;font-weight:500;color:var(--text-dim);margin-left:6px;}
+  .ep-sum .miss{font-size:12px;color:var(--danger);}
+  .ep-sum .okk{font-size:12px;color:var(--good);}
+  .ms-h{display:flex;align-items:center;gap:8px;margin:4px 0 2px;}
+  .ms-h b{font-size:14px;color:var(--strong);}
+  table.ms{width:100%;border-collapse:collapse;font-size:13px;}
+  table.ms td{padding:5px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  table.ms td.n{white-space:normal;font-weight:700;color:var(--strong);}
   .t2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--text-dim);}
   .t2 .pw{font-variant-numeric:tabular-nums;}
   .hs{display:inline-flex;gap:2px;}
@@ -856,6 +869,7 @@
   #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel-2);border:1px solid var(--danger);color:var(--text);padding:10px 16px;border-radius:8px;z-index:400;max-width:90vw;font-size:13px;display:none;}
   #toast.ok{border-color:var(--good);}
   .ep-note{margin-top:14px;}
+  @media (max-width:640px){ .t1 .nt{font-size:14.5px;} .ep-sums{gap:8px;} .ep-sum{padding:10px 12px;} .ep-sum .big{font-size:18px;} .ep-sum .big small{display:block;margin:0;} }
   @media (max-width:900px){
     .ep-grid{grid-template-columns:1fr;}
     .ep-pool{position:static;max-height:none;}
@@ -880,38 +894,42 @@
       <div class="field"><label for="evSel">Event</label><select id="evSel"></select></div>
       <button type="button" class="btn" id="evNew" hidden>New event</button>
       <button type="button" class="btn" id="evEdit" hidden>Edit event</button>
+      <button type="button" class="btn danger" id="evDel" hidden>Delete event</button>
       <span class="grow"></span>
       <span class="who" id="who"></span>
       <button type="button" class="btn" id="login">Log in to edit</button>
     </div>
   </div>
 
+  <div class="ep-sums" id="sums" hidden></div>
+
   <div class="ep-grid" id="board" hidden>
     <section class="ep-sec ep-pool" id="pool" data-drop="">
       <div class="ep-h"><b>Pool</b><button type="button" class="btn" id="addP" hidden>Add players</button><span class="sx-id" id="poolN"></span></div>
       <div class="ep-pf"><input type="text" id="pq" placeholder="Search …" autocomplete="off"><select id="pa" aria-label="Alliance"></select></div>
+      <div class="ep-pf" style="border-top:0;padding-top:0"><select id="ps" aria-label="Sort the pool by"><option value="power">Sort: Power</option><option value="name">Sort: Name</option><option value="avail">Sort: Availability</option></select></div>
       <div class="ep-list" id="poolList"></div>
     </section>
     <section class="ep-teams">
-      <div class="ep-sec ep-teams-h"><div class="ep-h"><b>Teams</b><button type="button" class="btn" id="tNew" hidden>Add team</button><button type="button" class="btn" id="tStd" hidden>Standard teams (PKB / GYN)</button><span class="sx-id" id="teamN"></span></div></div>
+      <div class="ep-sec ep-teams-h"><div class="ep-h"><b>Teams</b><button type="button" class="btn" id="tNew" hidden>Add team</button><button type="button" class="btn" id="tStd" hidden>Standard teams (PKB / GYN)</button><button type="button" class="btn" id="tMiss">Missing players</button><span class="sx-id" id="teamN"></span></div></div>
       <div id="teamsWrap" style="display:contents"></div>
     </section>
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p1</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p2</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
 <script>
 (function(){
   // ---- Supabase settings: fill in (Project settings > API: Project URL and the public "anon" key) ----
-  const CFG = {url: 'https://frrctfpsfxhysokgdqkt.supabase.co', key: 'sb_publishable_Bw0RPmmV-BNy1jx2r34qVQ_uDGu_ZBz'};
+  const CFG = {url: '', key: ''};
   const MOCK = /[?&]mock=1/.test(location.search);   // test mode without a database (data only in memory)
 
   const TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN'];
   const fmt = n => (n == null ? '–' : Number(n).toLocaleString('de-DE'));
-  const fmtM = n => (Number(n || 0) / 1e6).toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' M';
+  const fmtM = n => { n = Number(n || 0); return n >= 1e9 ? (n / 1e9).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' B' : (n / 1e6).toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' M'; };   // from 1 billion: 1,26 B
   function escapeHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   const $ = id => document.getElementById(id);
   const TAG_RED = {bg:'#b8283a', fg:'#ffffff', bd:'#b8283a'};
@@ -933,10 +951,12 @@
     if(!o){ try { const m = document.cookie.match(/(?:^|; )svs646_prefs=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
     return (o && typeof o === 'object') ? o : {}; })();
   const avOn = PREFS.av !== false;
+  function prefSet(k, v){ PREFS[k] = v; const s = JSON.stringify(PREFS); try { localStorage.setItem(PREF_KEY, s); } catch(e) {} try { document.cookie = 'svs646_prefs=' + encodeURIComponent(s) + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {} }
 
   // ---- backend: plain REST calls to Supabase (no library); in test mode an in-memory copy ----
   function restApi(){
-    const H = {apikey: CFG.key, Authorization: 'Bearer ' + CFG.key, 'Content-Type': 'application/json'};
+    const H = {apikey: CFG.key, 'Content-Type': 'application/json'};
+    if(/^eyJ/.test(CFG.key)) H.Authorization = 'Bearer ' + CFG.key;   // old-style anon key (JWT); the new publishable keys (sb_publishable_...) go in the apikey header only
     async function req(path, opt){
       const r = await fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/' + path, Object.assign({headers: H, cache: 'no-store'}, opt || {}));
       const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch(e) {}
@@ -987,7 +1007,7 @@
   const api = MOCK ? mockApi() : (CFG.url && CFG.key ? restApi() : null);
 
   // ---- state ----
-  const S = {events: [], evId: null, teams: [], entries: [], role: null, alliance: '', code: '', q: '', pa: '', ap: {q: '', tag: ''}};
+  const S = {events: [], evId: null, teams: [], entries: [], role: null, alliance: '', code: '', q: '', pa: '', ps: ['power', 'name', 'avail'].includes(PREFS.eps) ? PREFS.eps : 'power', ap: {q: '', tag: ''}};
   let D = null;           // players.json
   let last = '';
   let dragPid = null;
@@ -1029,7 +1049,7 @@
   function render(){
     $('login').textContent = canEdit() ? 'Log out' : 'Log in to edit';
     $('who').innerHTML = S.role === 'admin' ? 'Logged in as <b>Admin</b>' : (S.role === 'editor' ? 'Logged in as <b>Editor</b> ' + tagChip(S.alliance) : 'View only');
-    $('evNew').hidden = !isAdmin(); $('evEdit').hidden = !(isAdmin() && ev());
+    $('evNew').hidden = !isAdmin(); $('evEdit').hidden = !(isAdmin() && ev()); $('evDel').hidden = !(isAdmin() && ev());
     const sel = $('evSel'); const cur = S.evId;
     sel.innerHTML = S.events.map(e => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.name)}${e.starts_on ? ' · ' + escapeHtml(e.starts_on) : ''}</option>`).join('') || '<option value="">(no events yet)</option>';
     if(cur) sel.value = cur;
@@ -1044,7 +1064,8 @@
     pa.innerHTML = '<option value="">All alliances</option>' + tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join(''); pa.value = tags.includes(S.pa) ? S.pa : (S.pa = '');
     const q = S.q.toLowerCase();
     const pool = S.entries.filter(x => !x.team_id).filter(x => { const i = pinfo(x); return (!S.pa || i.tag === S.pa) && (!q || i.name.toLowerCase().includes(q) || String(x.pid).includes(q)); })
-      .sort((a, b) => pinfo(b).power - pinfo(a).power);
+      .sort(poolSort);
+    $('ps').value = S.ps;
     const poolAll = S.entries.filter(x => !x.team_id).length;
     $('poolN').textContent = poolAll + ' unassigned · ' + fmtM(S.entries.filter(x => !x.team_id).reduce((s, x) => s + pinfo(x).power, 0));
     $('poolList').innerHTML = pool.map(x => tile(x, null)).join('') || `<div class="ep-empty">${S.entries.length ? 'Nobody left in the pool.' : (canEdit() ? 'The pool is empty. Use "Add players".' : 'The pool is empty.')}</div>`;
@@ -1062,7 +1083,37 @@
         <div class="cov">${cov}</div></div>
         <div class="team-b">${m.map(x => tile(x, t)).join('') || '<div class="ep-empty">' + (isAdmin() ? 'Drag players here.' : 'No players yet.') + '</div>'}</div></div>`;
     }).join('') || (isAdmin() ? '' : '<div class="ep-sec ep-empty" style="grid-column:1/-1">No teams yet.</div>');
+    renderSums();
     $('note').innerHTML = 'Names, alliances and power come from the game data (updated every 2 hours, the API itself may be up to 60 minutes behind). The mark next to a member in a team: <span class="st ok">✓</span> already in the team\'s alliance, <span class="st bad">!</span> still in another alliance, <span class="st man">✓</span> confirmed manually by the admin, <span class="st unk">?</span> not in the game data. Gatherers (G) count towards the team power.';
+  }
+  const bits = h => { let c = 0; for(let x = h || 0; x; x >>= 1) c += x & 1; return c; };
+  function poolSort(a, b){
+    const A = pinfo(a), B = pinfo(b);
+    if(S.ps === 'name') return A.name.localeCompare(B.name, 'en', {sensitivity: 'base'});
+    if(S.ps === 'avail') return bits(b.hours) - bits(a.hours) || B.power - A.power;
+    return B.power - A.power;
+  }
+  function missingOf(tag){
+    return S.entries.filter(x => { const t = teamById(x.team_id); if(!t || t.target !== tag) return false; const i = pinfo(x); return !(i.known && i.tag === tag) && !x.joined; });
+  }
+  function renderSums(){
+    const box = $('sums'); const e = ev(); box.hidden = !e; if(!e) return;
+    box.innerHTML = ['PKB', 'GYN'].map(tag => {
+      const m = S.entries.filter(x => { const t = teamById(x.team_id); return t && t.target === tag; });
+      const tot = m.reduce((s, x) => s + pinfo(x).power, 0); const miss = missingOf(tag).length;
+      return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}</div>`;
+    }).join('');
+  }
+  function missingDialog(){
+    const part = tag => { const m = missingOf(tag).sort((a, b) => pinfo(b).power - pinfo(a).power);
+      return `<div class="ms-h">${tagChip(tag)}<b>${m.length} still to join</b>${m.length ? `<button type="button" class="btn" data-copy="${tag}" style="margin-left:auto">Copy names</button>` : ''}</div>` +
+        (m.length ? `<div class="ap-wrap"><table class="ms"><tbody>${m.map(x => { const i = pinfo(x); const t = teamById(x.team_id);
+          return `<tr><td class="n">${escapeHtml(i.name)}</td><td>${i.known ? 'now in ' + tagChip(i.tag) : '<span class="sx-id">not in the game data</span>'}</td><td>${escapeHtml(t ? t.name : '')}</td><td>${fmtM(i.power)}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="okk">Everybody assigned to a ' + tag + ' team is already in ' + tag + '.</div>');
+    };
+    openModal(`<div class="ep-box">${mhead('Missing players')}<div class="ep-mb"><div class="sx-id">Players in a team of the alliance who are not yet shown in it. The game data can be up to 60 minutes behind; players marked manually are not listed.</div>${part('PKB')}${part('GYN')}</div></div>`, m => {
+      m.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => { const txt = missingOf(b.dataset.copy).sort((x, y) => pinfo(y).power - pinfo(x).power).map(x => pinfo(x).name).join('\n');
+        try { navigator.clipboard.writeText(txt).then(() => toast('Names copied.', true), () => toast('Copy not possible here.')); } catch(e) { toast('Copy not possible here.'); } }));
+    }, () => { /* keep as opened */ });
   }
   function setData(events, teams, entries){
     const sig = JSON.stringify([events, teams, entries]);
@@ -1129,6 +1180,10 @@
   }
   $('evNew').addEventListener('click', () => eventDialog(null));
   $('evEdit').addEventListener('click', () => eventDialog(ev()));
+  $('evDel').addEventListener('click', async () => { const e = ev(); if(!e) return; if(!confirm('Delete the event "' + e.name + '" with all its teams and registrations? This cannot be undone.')) return;
+    try { await api.rpc('ev_event_delete', {p_code: S.code, p_id: e.id}); S.evId = null; last = ''; await refresh(true); setHash(); toast('Event deleted.', true); } catch(err){ toast(err.message); } });
+  $('tMiss').addEventListener('click', missingDialog);
+  $('ps').addEventListener('change', () => { S.ps = $('ps').value; prefSet('eps', S.ps); render(); });
   $('evSel').addEventListener('change', async () => { S.evId = $('evSel').value || null; last = ''; setHash(); await refresh(true); });
   function setHash(){ try { history.replaceState(null, '', S.evId ? '#ev=' + S.evId : location.pathname + location.search); } catch(e) {} }
 
@@ -1196,12 +1251,13 @@
     if(!D){ toast('The player data is not loaded yet.'); return; }
     const tags = isAdmin() ? TAGS.filter(t => D.alliances[t]) : [S.alliance].filter(t => D.alliances[t]);
     if(!tags.length){ toast('No player data found for your alliance.'); return; }
-    if(!S.ap.tag || !tags.includes(S.ap.tag)) S.ap.tag = tags[0];
+    if(isAdmin()) tags.unshift('*');
+    if(!S.ap.tag || !tags.includes(S.ap.tag)) S.ap.tag = isAdmin() ? '*' : tags[0];
     const n = slotsOf();
     openModal(`<div class="ep-box">${mhead('Add players and availability')}<div class="ep-mb">
-      <div class="row"><div class="field"><label for="apa">Alliance</label><select id="apa"${tags.length === 1 ? ' disabled' : ''}>${tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('')}</select></div>
+      <div class="row"><div class="field"><label for="apa">Alliance</label><select id="apa"${tags.length === 1 ? ' disabled' : ''}>${tags.map(t => `<option value="${escapeHtml(t)}">${t === '*' ? 'All alliances' : escapeHtml(t)}</option>`).join('')}</select></div>
       <div class="field"><label for="apq">Search</label><input type="text" id="apq" placeholder="Player name or ID …" autocomplete="off"></div></div>
-      <div class="ap-wrap"><table class="ap"><thead><tr><th class="c">In</th><th>Player</th><th>Power</th>${Array.from({length: n}, (_, i) => `<th class="c">${slotLabel(i)}</th>`).join('')}<th class="c">All</th><th class="c" title="Powerbooster">PB</th><th class="c" title="20% buff">20%</th><th class="c" title="Gathering">G</th></tr></thead><tbody id="apb"></tbody></table></div>
+      <div class="ap-wrap"><table class="ap"><thead><tr><th class="c">In</th><th>Player</th><th>Alliance</th><th>Power</th>${Array.from({length: n}, (_, i) => `<th class="c">${slotLabel(i)}</th>`).join('')}<th class="c">All</th><th class="c" title="Powerbooster">PB</th><th class="c" title="20% buff">20%</th><th class="c" title="Gathering">G</th></tr></thead><tbody id="apb"></tbody></table></div>
       <div class="sx-id">Ticking an hour, PB, 20% or G adds the player automatically. Changes are saved immediately.</div></div></div>`, m => {
       $('apa').value = S.ap.tag; $('apq').value = S.ap.q;
       $('apa').addEventListener('change', () => { S.ap.tag = $('apa').value; fill(); });
@@ -1224,10 +1280,11 @@
     function fill(){
       const body = $('apb'); if(!body) return;
       const tag = S.ap.tag, q = S.ap.q.toLowerCase();
-      const A = D.alliances[tag]; const ids = (A && A.m) ? A.m : Object.keys(D.players).filter(k => D.players[k].a === tag);
+      const idsOf = t => { const A = D.alliances[t]; return (A && A.m) ? A.m : Object.keys(D.players).filter(k => D.players[k].a === t); };
+      const ids = tag === '*' ? Array.from(new Set(TAGS.filter(t => D.alliances[t]).flatMap(idsOf))) : idsOf(tag);
       const rows = ids.filter(id => D.players[id]).map(id => ({id, p: D.players[id]})).filter(r => !q || r.p.n.toLowerCase().includes(q) || r.id.includes(q)).sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
       body.innerHTML = rows.map(r => { const o = S.entries.find(x => String(x.pid) === r.id); const h = o ? o.hours : 0;
-        return `<tr data-pid="${escapeHtml(r.id)}" class="${o ? 'in' : ''}"><td class="c"><input type="checkbox" data-k="in"${o ? ' checked' : ''}></td><td class="n"><b>${escapeHtml(r.p.n)}</b></td><td>${fmtM(r.p.p)}</td>${Array.from({length: n}, (_, i) => `<td class="c"><input type="checkbox" data-k="h" data-i="${i}"${(h >> i) & 1 ? ' checked' : ''}></td>`).join('')}<td class="c"><button type="button" class="lnk" data-all>all</button></td><td class="c"><input type="checkbox" data-k="pb"${o && o.pb ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="b20"${o && o.b20 ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="gather"${o && o.gather ? ' checked' : ''}></td></tr>`; }).join('') || `<tr><td colspan="${n + 7}" class="ep-empty">No players found.</td></tr>`;
+        return `<tr data-pid="${escapeHtml(r.id)}" class="${o ? 'in' : ''}"><td class="c"><input type="checkbox" data-k="in"${o ? ' checked' : ''}></td><td class="n"><b>${escapeHtml(r.p.n)}</b></td><td>${tagChip(r.p.a)}</td><td>${fmtM(r.p.p)}</td>${Array.from({length: n}, (_, i) => `<td class="c"><input type="checkbox" data-k="h" data-i="${i}"${(h >> i) & 1 ? ' checked' : ''}></td>`).join('')}<td class="c"><button type="button" class="lnk" data-all>all</button></td><td class="c"><input type="checkbox" data-k="pb"${o && o.pb ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="b20"${o && o.b20 ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="gather"${o && o.gather ? ' checked' : ''}></td></tr>`; }).join('') || `<tr><td colspan="${n + 8}" class="ep-empty">No players found.</td></tr>`;
     }
   }
   $('addP').addEventListener('click', addDialog);
