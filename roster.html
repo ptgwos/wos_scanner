@@ -744,10 +744,20 @@
   .sx-card-head .wins{margin-left:0;}
   .ro-rk{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);}
   .ro-rk.ro-Leader{color:var(--gold);border-color:var(--gold);}
-  .ro-rk.ro-R5, .ro-rk.ro-R4{color:var(--ice);border-color:var(--ice-dim);}
+  .ro-rk.ro-R4{color:var(--ice);border-color:var(--ice-dim);}
   #rosterPanel .controls{align-items:flex-end;}
   #rosterPanel .sx-id{flex:1 1 100%;}
   @media (max-width:640px){ .hide-s{display:none;} .ro-ov .aflag{display:none;} .ro-ov .wins{display:none;} .ro-t .ro-i{display:none;} }
+  .ro-head{cursor:pointer;user-select:none;}
+  .ro-head:hover{background:var(--hit-hover, rgba(120,140,190,.08));}
+  .ro-head:focus-visible{outline:2px solid var(--ice-dim);outline-offset:-2px;}
+  .ro-chev{display:inline-block;width:12px;color:var(--text-faint);transition:transform .15s;font-size:12px;}
+  .ro-card.is-open .ro-chev{transform:rotate(90deg);}
+  .ro-card:not(.is-open) .sx-card-head{border-bottom:0;}
+  .ro-t .nt{font-weight:700;color:var(--strong);}
+  .ro-ov .nm-col b{color:var(--strong);}
+  .ro-rk.ro-R5{color:var(--gold);border-color:var(--gold);}
+  #rosterPanel .controls .btn{align-self:flex-end;}
 </style>
 </head>
 <body>
@@ -767,6 +777,7 @@
       <div class="field"><label for="rq">Search</label><input type="text" id="rq" placeholder="Player name or ID …" autocomplete="off"></div>
       <div class="field"><label for="rs">Sort members by</label>
         <select id="rs"><option value="power">Power</option><option value="rank">Alliance rank</option><option value="name">Name</option></select></div>
+      <button type="button" class="btn" id="expAll">Expand all</button>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
     </div>
     <div id="ov"></div>
@@ -774,7 +785,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-20 · r1</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-20 · r2</footer>
 </div>
 <script>
 (function(){
@@ -823,6 +834,8 @@
     try { document.cookie = 'svs646_prefs=' + encodeURIComponent(s) + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
   }
   const st = {q: '', sort: 'power', av: PREFS.av !== false};
+  const open = new Set();   // expanded alliance cards (all collapsed at the start)
+  const rk = r => (r === 'Leader' ? 'R5' : (r || ''));   // the game calls rank 5 'Leader', the board says R5
   let D = null;
   const RANKN = {'Leader': 6, 'R5': 5, 'R4': 4, 'R3': 3, 'R2': 2, 'R1': 1};
 
@@ -853,7 +866,7 @@
   function nameChip(tag){ return tagChip(tag, '646'); }
   function render(){
     if(!D) return;
-    const tags = TAGS.filter(t => D.alliances[t]);
+    const tags = TAGS.filter(t => D.alliances[t]).sort((a, b) => (D.alliances[b].power || 0) - (D.alliances[a].power || 0));   // strongest alliance first
     let totalM = 0, totalP = 0;
     tags.forEach(t => { const A = D.alliances[t]; totalM += (A.m || []).length || A.count || 0; });
     // overview
@@ -861,7 +874,7 @@
       const A = D.alliances[t], n = (A.m || []).length || A.count || 0;
       const isB = BATTLE.includes(t);
       totalP += A.power || 0;
-      return `<tr data-go="${escapeHtml(t)}"><td>${nameChip(t)}${winsHtml(t)}${isB ? '<span class="aflag">Battle alliance</span>' : ''}</td><td class="nm-col hide-s">${escapeHtml(A.name || '')}</td><td class="num">${fmt(n)}</td><td class="num">${fmt(A.power)}</td><td class="num hide-s">${A.power_rank ? '#' + A.power_rank : '–'}</td><td class="hide-s">${escapeHtml(A.leader || '')}</td></tr>`;
+      return `<tr data-go="${escapeHtml(t)}"><td>${nameChip(t)}${winsHtml(t)}${isB ? '<span class="aflag">Battle alliance</span>' : ''}</td><td class="nm-col hide-s"><b>${escapeHtml(A.name || '')}</b></td><td class="num">${fmt(n)}</td><td class="num">${fmt(A.power)}</td><td class="num hide-s">${A.power_rank ? '#' + A.power_rank : '–'}</td><td class="hide-s">${escapeHtml(A.leader || '')}</td></tr>`;
     }).join('');
     document.getElementById('ov').innerHTML = `<div class="sx-card"><div class="sx-card-head"><b>Alliances</b><span class="sx-id">${tags.length} alliances · ${fmt(totalM)} members · power ${fmt(totalP)}</span></div>
       <div class="sx-scroll"><table class="ro-ov"><thead><tr><th>Alliance</th><th class="hide-s">Name</th><th class="num">Members</th><th class="num">Power</th><th class="num hide-s">State rank</th><th class="hide-s">Leader</th></tr></thead><tbody>${ovRows}</tbody></table></div></div>`;
@@ -874,16 +887,28 @@
       if(st.q && !rows.length) return '';
       shown += rows.length;
       const isB = BATTLE.includes(t);
-      const body = rows.map((r, i) => `<tr><td class="ro-i">${i + 1}</td><td class="name"><span class="nm">${av(r.id, r)}<span class="nt">${escapeHtml(r.n)}</span></span></td><td><span class="ro-rk ro-${escapeHtml(r.r || '')}">${escapeHtml(r.r || '')}</span></td><td class="num">${fmt(r.p)}</td><td class="num hide-s">${r.f != null ? r.f : '–'}</td></tr>`).join('');
-      return `<div class="sx-card" id="al-${escapeHtml(t)}"><div class="sx-card-head">${nameChip(t)}${winsHtml(t)}${isB ? '<span class="aflag">Battle alliance</span>' : ''}<b>${escapeHtml(A.name || t)}</b><span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${A.leader ? ' · leader ' + escapeHtml(A.leader) : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span></div>
-        <div class="sx-scroll"><table class="ro-t"><thead><tr><th class="ro-i">#</th><th>Member</th><th>Rank</th><th class="num">Power</th><th class="num hide-s">Furnace</th></tr></thead><tbody>${body}</tbody></table></div></div>`;
+      const isOpen = open.has(t) || !!st.q;
+      const body = !isOpen ? '' : rows.map((r, i) => `<tr><td class="ro-i">${i + 1}</td><td class="name"><span class="nm">${av(r.id, r)}<span class="nt">${escapeHtml(r.n)}</span></span></td><td><span class="ro-rk ro-${escapeHtml(rk(r.r))}">${escapeHtml(rk(r.r))}</span></td><td class="num">${fmt(r.p)}</td><td class="num hide-s">${r.f != null ? r.f : '–'}</td></tr>`).join('');
+      return `<div class="sx-card ro-card${isOpen ? ' is-open' : ''}" id="al-${escapeHtml(t)}"><div class="sx-card-head ro-head" role="button" tabindex="0" aria-expanded="${isOpen}" data-t="${escapeHtml(t)}" title="Show or hide the members"><span class="ro-chev" aria-hidden="true">▸</span>${nameChip(t)}${winsHtml(t)}${isB ? '<span class="aflag">Battle alliance</span>' : ''}<b>${escapeHtml(A.name || t)}</b><span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${A.leader ? ' · leader ' + escapeHtml(A.leader) : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span></div>
+        ${isOpen ? `<div class="sx-scroll"><table class="ro-t"><thead><tr><th class="ro-i">#</th><th>Member</th><th>Rank</th><th class="num">Power</th><th class="num hide-s">Furnace</th></tr></thead><tbody>${body}</tbody></table></div>` : ''}</div>`;
     }).join('');
     document.getElementById('cards').innerHTML = cards || '<div class="sx-card"><div class="sx-card-head"><b>No player found</b></div></div>';
     const missing = TAGS.filter(t => !D.alliances[t]);
     document.getElementById('note').innerHTML = 'Current members as of the last data update; power and furnace level are the values in the game, not event points. Players keep their place in the SvS leaderboards of the events they played in.' + (missing.length ? ' Not available yet: ' + missing.map(escapeHtml).join(', ') + '.' : '') + ' Profile pictures © Century Games.';
     document.getElementById('sub').textContent = tags.length + ' alliances · ' + fmt(totalM) + ' members' + (D.updated ? ' · last change ' + D.updated : '');
-    document.querySelectorAll('#ov tr[data-go]').forEach(tr => tr.addEventListener('click', () => { const el = document.getElementById('al-' + tr.dataset.go); if(el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); }));
+    document.querySelectorAll('#ov tr[data-go]').forEach(tr => tr.addEventListener('click', () => { open.add(tr.dataset.go); render(); const el = document.getElementById('al-' + tr.dataset.go); if(el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); }));
+    const eb = document.getElementById('expAll'); if(eb) eb.textContent = (tags.length && tags.every(t => open.has(t))) ? 'Collapse all' : 'Expand all';
   }
+  // ---- expand / collapse ----
+  const cardsEl = document.getElementById('cards');
+  function toggle(t){ if(open.has(t)) open.delete(t); else open.add(t); render(); }
+  cardsEl.addEventListener('click', e => { const h = e.target.closest('.ro-head'); if(h) toggle(h.dataset.t); });
+  cardsEl.addEventListener('keydown', e => { if((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('ro-head')){ e.preventDefault(); toggle(e.target.dataset.t); } });
+  document.getElementById('expAll').addEventListener('click', () => {
+    const tags = TAGS.filter(t => D && D.alliances[t]);
+    if(tags.every(t => open.has(t))) open.clear(); else tags.forEach(t => open.add(t));
+    render();
+  });
   // ---- controls ----
   const rq = document.getElementById('rq'), rs = document.getElementById('rs'), avSw = document.getElementById('avSw');
   avSw.checked = st.av;
