@@ -3,6 +3,7 @@
 and write data/players.json + avatars/<id>.webp (small copies of the profile pictures).
 
 - one API request per alliance (the roster holds all members), 8 requests per run
+- data/players.json feeds svslb.html (avatars) and roster.html (members, power)
 - API key comes from the environment variable WOS_API_KEY (never from a file)
 - players that are not in any fetched alliance keep their last known entry
 - if an alliance cannot be fetched, its players keep their last known entry
@@ -18,7 +19,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / 'data' / 'players.json'
 AV = ROOT / 'avatars'
 SIZE = 64          # px, square
-MISS_LIMIT = 3     # runs in a row without a picture before the stored one is removed
+MISS_LIMIT = 3     # days in a row without a picture before the stored one is removed
 PAUSE = 1.2        # seconds between API requests (limit is 60 per minute)
 
 key = os.environ.get('WOS_API_KEY', '').strip()
@@ -63,8 +64,10 @@ for n, tag in enumerate(TAGS):
         print(f'{tag}: FAILED ({e}) - keeping the old entries', flush=True); failed.append(tag); continue
     a = d.get('alliance') or {}
     members = d.get('members') or []
+    ids = [str(m.get('chief_id') or m.get('fid')) for m in members if (m.get('chief_id') or m.get('fid'))]
     alliances[tag] = {'name': a.get('name', ''), 'aid': a.get('aid'), 'count': d.get('member_count', len(members)),
-                      'power_rank': a.get('power_rank')}
+                      'power': a.get('power'), 'power_rank': a.get('power_rank'), 'leader': a.get('leader_name', ''),
+                      'm': ids}   # m = current members (ids) as of the last successful fetch
     for m in members:
         cid = str(m.get('chief_id') or m.get('fid') or '')
         if not cid: continue
@@ -73,12 +76,13 @@ for n, tag in enumerate(TAGS):
         p.update({'n': m.get('nick_name', p.get('n', '')), 'a': tag, 'r': m.get('alliance_rank_label', ''),
                   'p': m.get('power'), 'f': m.get('furnace_level'), 's': now})
         if m.get('avatar_url'):
-            p['u'] = m['avatar_url']; p.pop('nm', None)
+            p['u'] = m['avatar_url']; p.pop('nm', None); p.pop('nd', None)
         elif p.get('u'):
-            # the API sends no picture (default in-game avatar): keep the old one for 2 runs, drop it at the 3rd run in a row
-            p['nm'] = p.get('nm', 0) + 1
+            # the API sends no picture (default in-game avatar): keep the old one for 2 days, drop it on the 3rd day in a row
+            if p.get('nd') != now:          # count each missing picture once per day, however often the script runs
+                p['nm'] = p.get('nm', 0) + 1; p['nd'] = now
             if p['nm'] >= MISS_LIMIT:
-                for k in ('u', 'au', 'nm'): p.pop(k, None)
+                for k in ('u', 'au', 'nm', 'nd'): p.pop(k, None)
                 try: (AV / f'{cid}.webp').unlink()
                 except FileNotFoundError: pass
                 print(f'  avatar removed: {cid} {p.get("n")}', flush=True)
