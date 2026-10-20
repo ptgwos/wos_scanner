@@ -243,7 +243,7 @@
   body.nodots .days{display:none;}
   .sw-pair{display:inline-flex;align-items:center;gap:22px;align-self:flex-end;flex-wrap:wrap;}
   .sw-pair .switch{width:auto !important;align-self:center;}
-  @media (max-width:640px){ .sw-pair{align-self:flex-start;} .switch.dots-sw, .switch.whale-sw{justify-content:flex-start;align-self:flex-start;width:auto;padding:2px 0;} }
+  @media (max-width:640px){ .sw-pair{align-self:flex-start;} .switch.dots-sw, .switch.whale-sw, .switch.av-sw{justify-content:flex-start;align-self:flex-start;width:auto;padding:2px 0;} }
   .rt{display:inline-flex;align-items:center;gap:10px;flex:none;}
   .wins{display:inline-flex;gap:1px;align-items:center;padding:2px 8px;border:1px solid var(--border);border-radius:999px;vertical-align:middle;}
   .ws{width:14px;height:14px;display:block;}
@@ -321,6 +321,10 @@
   .wt{display:inline-flex;vertical-align:middle;background:none;border:0;padding:0 0 0 4px;cursor:help;}
   .wt svg{display:block;}
   .wt-pop{position:fixed;z-index:300;padding:10px 12px;background:var(--panel);border:1px solid #d9263a;border-radius:8px;color:var(--text);font-size:12.5px;line-height:1.45;box-shadow:0 10px 30px rgba(0,0,0,.4);pointer-events:none;}
+  .av{width:22px;height:22px;border-radius:50%;object-fit:cover;flex:none;vertical-align:middle;margin-right:6px;background:var(--border);}
+  .tt-head .av{width:36px;height:36px;margin-right:2px;}
+  .pres-big .av{width:40px;height:40px;}
+  body.whale-on tr.row-whale .av{display:none;}
   .whale-i{display:none;height:26px;width:auto;vertical-align:middle;}
   body.whale-on tr .whale-i{display:inline-block;}
   body.whale-on tr.row-whale .nt{display:none;}
@@ -785,7 +789,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-19 · b70</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-19 · b72</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -905,6 +909,7 @@
     search: '',
     sortKey: 'rank',
     sortDir: 'asc',
+    avatars: true,   // profile pictures from data/players.json (Player tab switch; Castle and Chests follow it)
     whale: false,   // joke switch: shows a whale instead of one player's name (Player tab)
     showDots: (() => { try { return localStorage.getItem('svs646_dots') !== '0'; } catch(e){ return true; } })(),   // five phase dots next to the names
     stateFilter: 'all',   // 'all' | '646' | 'away'
@@ -1081,6 +1086,13 @@
     const x = d && PRESIDENTS[d];
     return (x && x.office !== 'none') ? Object.assign({date: d}, x) : null;
   }
+  // data/players.json is written by the GitHub Action (tools/update_players.py); the page works without it
+  let PD = null;
+  function avHtml(id, size){
+    const p = PD && id && PD[id];
+    if(!p || !p.au || !state.avatars) return '';
+    return `<img class="av" loading="lazy" decoding="async" width="${size || 22}" height="${size || 22}" src="avatars/${escapeHtml(String(id))}.webp" alt="" onerror="this.remove()">`;
+  }
   function presIconHtml(r){
     if(!r.id) return '';
     const c = currentPres();
@@ -1184,7 +1196,8 @@
         </div>
       </div>`}
       <div class="sw-pair">${state.tab === 'castle' ? '' : `<label class="switch dots-sw" title="Show or hide the five dots that mark in which prep phases a player or alliance is listed"><input type="checkbox" id="dotsSwitch"${state.showDots ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Phase dots</span></label>`}
-      ${state.tab === 'player' ? `<label class="switch whale-sw" title="Whale mode"><input type="checkbox" id="whaleSwitch"${state.whale ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label"><img src="${WHALE_IMG}" alt="Whale" class="whale-lbl"></span></label>` : ''}</div>
+      ${state.tab === 'player' ? `<label class="switch whale-sw" title="Whale mode"><input type="checkbox" id="whaleSwitch"${state.whale ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label"><img src="${WHALE_IMG}" alt="Whale" class="whale-lbl"></span></label>` : ''}
+      ${(state.tab === 'player' && PD) ? `<label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSwitch"${state.avatars ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>` : ''}</div>
       ${top100ButtonHtml}
       <div class="count-pill" id="countPill"></div>
     `;
@@ -1192,6 +1205,8 @@
     document.body.classList.toggle('nodots', !state.showDots);
     document.body.classList.toggle('whale-on', state.whale);
     const whaleSw = controlsEl.querySelector('#whaleSwitch');
+    const avSw = controlsEl.querySelector('#avSwitch');
+    if(avSw) avSw.addEventListener('change', () => { state.avatars = avSw.checked; renderTable(); });
     if(whaleSw) whaleSw.addEventListener('change', () => { state.whale = whaleSw.checked; document.body.classList.toggle('whale-on', state.whale); writeHash(); });
     const dotsSw = controlsEl.querySelector('#dotsSwitch');
     if(dotsSw) dotsSw.addEventListener('change', () => {
@@ -1479,7 +1494,7 @@
         ${showSel ? `<td class="selcol"><input type="checkbox" class="rowsel" data-k="${escapeHtml(selKeyOf(r))}" aria-label="Select ${escapeHtml(r.name)}"${isSel ? ' checked' : ''}></td>` : ''}
         <td class="rank">${r.rank}</td>
         <td class="rank srank">${r.srank < 99999 ? r.srank : '—'}</td>
-        <td class="name">${state.tab === 'castle' ? escapeHtml(r.name) + presIconHtml(r) : `<div class="namecell"><span class="nm"><span class="nt">${escapeHtml(r.name)}</span>${(state.tab === 'player' && r.id === WHALE_ID) ? `<img class="whale-i" src="${WHALE_IMG}" alt="Whale">` : ''}${medalsHtml(r)}${presIconHtml(r)}${(state.tab === 'alliance' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</span><span class="rt">${winsHtml(r)}${dayDots(r)}</span></div>`}</td>
+        <td class="name">${state.tab === 'castle' ? avHtml(r.id) + escapeHtml(r.name) + presIconHtml(r) : `<div class="namecell"><span class="nm">${state.tab === 'player' ? avHtml(r.id) : ''}<span class="nt">${escapeHtml(r.name)}</span>${(state.tab === 'player' && r.id === WHALE_ID) ? `<img class="whale-i" src="${WHALE_IMG}" alt="Whale">` : ''}${medalsHtml(r)}${presIconHtml(r)}${(state.tab === 'alliance' && r.state === '646' && BATTLE_ALLIANCES.includes(r.alliance)) ? '<span class="aflag">Battle alliance</span>' : ''}</span><span class="rt">${winsHtml(r)}${dayDots(r)}</span></div>`}</td>
         <td>${tagChip(r.alliance, r.state || allianceStateMap[r.alliance])}</td>
         ${showState ? `<td class="state">${r.state||'—'}</td>` : ''}
         <td class="num">${fmt(r.points)}</td>
@@ -1728,7 +1743,7 @@
       const stateCls = r.state === '646' ? 'row-646' : (r.state ? 'row-away' : '');
       return `<tr class="${stateCls}" data-tip="${escapeHtml('p::' + r.name)}">
         <td class="rank">${r.rank}</td>
-        <td class="name">${escapeHtml(r.name)}${presIconHtml(r)}</td>
+        <td class="name">${avHtml(r.id)}${escapeHtml(r.name)}${presIconHtml(r)}</td>
         <td class="num">${fmt(Math.round(r.prep))}</td>
         <td class="num">${fmt(Math.round(r.castle))}</td>
         <td class="num">${fmt(Math.round(r.score))}</td>
@@ -2041,7 +2056,7 @@
     const state = e.state || allianceStateMap[e.alliance] || '';
     return `
       <div class="tt-head">
-        <b>${escapeHtml(e.name)}</b>
+        ${(kind === 'player' && !(state.whale && e.id === WHALE_ID)) ? avHtml(e.id, 36) : ''}<b>${escapeHtml(e.name)}</b>
         ${tagChip(e.alliance, state)}
         ${state ? `<span class="tt-state${state === '646' ? ' home' : ''}">${escapeHtml(state)}</span>` : ''}
       </div>
@@ -3231,7 +3246,7 @@
     };
     const nameHtml = (d, x) => { const w = who(d, x);
       if(!w.name) return '<span class="pres-unk">unknown</span>';
-      return `<span class="hl-nm">${w.p ? `<button type="button" class="pres-open" data-key="${escapeHtml(w.p.key)}" title="Open in Players">${escapeHtml(w.name)}</button>` : `<b>${escapeHtml(w.name)}</b>`}${w.tag ? tagChip(w.tag, '646') : ''}</span>`; };
+      return `<span class="hl-nm">${avHtml(x.id, 22)}${w.p ? `<button type="button" class="pres-open" data-key="${escapeHtml(w.p.key)}" title="Open in Players">${escapeHtml(w.name)}</button>` : `<b>${escapeHtml(w.name)}</b>`}${w.tag ? tagChip(w.tag, '646') : ''}</span>`; };
     const img = (k, h) => `<img src="${PRES_IMG[k]}" alt="${PRES_TITLE[k]}" title="${PRES_TITLE[k]}" style="height:${h}px;width:auto">`;
     const cur = currentPres();
     const newest = all[0];
@@ -3354,6 +3369,13 @@
   setHeader();
   renderControls();
   renderTable();
+  try {
+    fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).then(j => {
+      if(!j || !j.players) return;
+      PD = j.players; renderControls(); renderTable();
+      if(state.tab === 'trends') renderTrendParts();
+    }).catch(() => {});
+  } catch(e) {}
   applyHash(INITIAL_HASH);   // open the tab / event / players given in the link
 })();
 
