@@ -921,10 +921,11 @@
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
+<script src="eventplan-config.js"></script>
 <script>
 (function(){
   // ---- Supabase settings: fill in (Project settings > API: Project URL and the public "anon" key) ----
-  const CFG = {url: '', key: ''};
+  const CFG = Object.assign({url: '', key: ''}, window.EP_CONFIG || {});   // normally set in eventplan-config.js (so a new eventplan.html never wipes the settings)
   const MOCK = /[?&]mock=1/.test(location.search);   // test mode without a database (data only in memory)
 
   const TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN'];
