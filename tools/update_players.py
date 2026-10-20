@@ -18,6 +18,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / 'data' / 'players.json'
 AV = ROOT / 'avatars'
 SIZE = 64          # px, square
+MISS_LIMIT = 3     # runs in a row without a picture before the stored one is removed
 PAUSE = 1.2        # seconds between API requests (limit is 60 per minute)
 
 key = os.environ.get('WOS_API_KEY', '').strip()
@@ -71,7 +72,16 @@ for n, tag in enumerate(TAGS):
         p = players.get(cid, {})
         p.update({'n': m.get('nick_name', p.get('n', '')), 'a': tag, 'r': m.get('alliance_rank_label', ''),
                   'p': m.get('power'), 'f': m.get('furnace_level'), 's': now})
-        if m.get('avatar_url'): p['u'] = m['avatar_url']       # keep the old URL when the API sends none
+        if m.get('avatar_url'):
+            p['u'] = m['avatar_url']; p.pop('nm', None)
+        elif p.get('u'):
+            # the API sends no picture (default in-game avatar): keep the old one for 2 runs, drop it at the 3rd run in a row
+            p['nm'] = p.get('nm', 0) + 1
+            if p['nm'] >= MISS_LIMIT:
+                for k in ('u', 'au', 'nm'): p.pop(k, None)
+                try: (AV / f'{cid}.webp').unlink()
+                except FileNotFoundError: pass
+                print(f'  avatar removed: {cid} {p.get("n")}', flush=True)
         players[cid] = p
     print(f'{tag}: {len(members)} members', flush=True); ok.append(tag)
 
