@@ -842,9 +842,15 @@
   .ep-sum .okk{font-size:12px;color:var(--good);}
   .dur{display:grid;grid-template-columns:auto 1fr auto;gap:3px 8px;align-items:center;margin-top:8px;font-size:12px;font-variant-numeric:tabular-nums;}
   .dur .l{color:var(--text-dim);white-space:nowrap;}
-  .dur .b{height:7px;border-radius:4px;background:rgba(127,160,220,.14);overflow:hidden;}
-  .dur .b i{display:block;height:100%;background:var(--ice);border-radius:4px;}
-  .dur .b i.w{background:var(--gold);}
+  .dur .b{height:8px;border-radius:4px;background:rgba(127,160,220,.14);overflow:hidden;display:flex;}
+  .dur .b i{display:block;height:100%;flex:none;}
+  .t-main{background:#ef5b5b;}
+  .t-sub{background:#4f8cff;}
+  .t-boost{background:#36c275;}
+  .t-other{background:#9aa6bd;}
+  .dleg{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px;font-size:11px;color:var(--text-faint);}
+  .dleg span{display:inline-flex;align-items:center;gap:5px;}
+  .dleg i{display:inline-block;width:10px;height:10px;border-radius:2px;}
   .dur .v{color:var(--text);text-align:right;white-space:nowrap;}
   .dur .z{opacity:.5;}
   .ms-h{display:flex;align-items:center;gap:8px;margin:4px 0 2px;}
@@ -905,7 +911,6 @@
   :root[data-theme="light"] .tile.rl{background:rgba(255,90,90,.13);}
   .fl.rl{color:var(--danger);border-color:var(--danger);}
   .fl.g{display:inline-flex;align-items:center;padding:1px 4px;}
-  .dur .b i.g{background:var(--good);}
   .dur .gl{display:inline-flex;vertical-align:middle;color:var(--good);}
   .dur .gl svg{width:12px;height:12px;}
   .dur .dg{grid-column:1/-1;height:1px;background:var(--border);margin:3px 0;}
@@ -956,7 +961,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p8</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p9</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1142,6 +1147,8 @@
     renderSums();
     $('note').innerHTML = 'Names, alliances and power come from the game data (updated every 2 hours, the API itself may be up to 60 minutes behind). The mark next to a member in a team: <span class="st ok">✓</span> already in the team\'s alliance, <span class="st bad">!</span> still in another alliance, <span class="st man">✓</span> confirmed manually by the admin, <span class="st unk">?</span> not in the game data. Gatherers (G) count towards the team power.';
   }
+  // team type from its name: Main / Sub / Booster (Powerbooster, PB), everything else = Other
+  function teamType(t){ const n = t ? String(t.name).toLowerCase() : ''; if(/main/.test(n)) return 'main'; if(/\bsub/.test(n)) return 'sub'; if(/boost|\bpb\b/.test(n)) return 'boost'; return 'other'; }
   const bits = h => { let c = 0; for(let x = h || 0; x; x >>= 1) c += x & 1; return c; };
   function poolSort(a, b){
     const A = pinfo(a), B = pinfo(b);
@@ -1157,16 +1164,21 @@
     box.innerHTML = ['PKB', 'GYN'].map(tag => {
       const m = S.entries.filter(x => { const t = teamById(x.team_id); return t && t.target === tag; });
       const tot = m.reduce((s, x) => s + pinfo(x).power, 0); const miss = missingOf(tag).length;
-      const n = slotsOf(), MAXP = 100, cnt = new Array(n + 1).fill(0);
-      m.forEach(x => { cnt[Math.min(n, bits(x.hours))]++; });
+      const n = slotsOf(), MAXP = 100;
+      const TY = ['main', 'sub', 'boost', 'other'], TN = {main: 'Main', sub: 'Sub', boost: 'Booster', other: 'Other'};
+      const cnt = Array.from({length: n + 1}, () => ({main: 0, sub: 0, boost: 0, other: 0, all: 0}));
+      m.forEach(x => { const c = cnt[Math.min(n, bits(x.hours))], ty = teamType(teamById(x.team_id)); c[ty]++; c.all++; });
+      const seg = (c, what) => TY.filter(ty => c[ty]).map(ty => `<i class="t-${ty}" style="width:${Math.min(100, c[ty] / MAXP * 100)}%" title="${TN[ty]}: ${c[ty]}"></i>`).join('');
       let dur = '';
       for(let k = n; k >= 0; k--){
-        if(k === 0 && !cnt[0]) continue;
+        const c = cnt[k]; if(k === 0 && !c.all) continue;
         const lab = k === n ? '<span class="d-only">whole time</span><span class="m-only">whole</span>' : (k === 0 ? '<span class="d-only">no hour set</span><span class="m-only">none</span>' : `<span class="d-only">${k} hour${k === 1 ? '' : 's'}</span><span class="m-only">${k}h</span>`);
-        dur += `<span class="l${cnt[k] ? '' : ' z'}">${lab}</span><span class="b"><i class="${k === n ? 'w' : ''}" style="width:${Math.min(100, cnt[k] / MAXP * 100)}%"></i></span><span class="v${cnt[k] ? '' : ' z'}">${cnt[k]}/${MAXP}</span>`;
+        dur += `<span class="l${c.all ? '' : ' z'}">${lab}</span><span class="b">${seg(c)}</span><span class="v${c.all ? '' : ' z'}">${c.all}/${MAXP}</span>`;
       }
-      const gc = m.filter(x => x.gather).length;
-      dur += `<span class="dg"></span><span class="l${gc ? '' : ' z'}" style="grid-column:1"><span class="gl">${BASKET}</span><span class="d-only"> gatherers</span><span class="m-only"> G</span></span><span class="b"><i class="g" style="width:${Math.min(100, gc / MAXP * 100)}%"></i></span><span class="v${gc ? '' : ' z'}">${gc}/${MAXP}</span>`;
+      const gx = {main: 0, sub: 0, boost: 0, other: 0, all: 0}; m.filter(x => x.gather).forEach(x => { gx[teamType(teamById(x.team_id))]++; gx.all++; });
+      dur += `<span class="dg"></span><span class="l${gx.all ? '' : ' z'}" style="grid-column:1"><span class="gl">${BASKET}</span><span class="d-only"> gatherers</span><span class="m-only"> G</span></span><span class="b">${seg(gx)}</span><span class="v${gx.all ? '' : ' z'}">${gx.all}/${MAXP}</span>`;
+      const used = TY.filter(ty => m.some(x => teamType(teamById(x.team_id)) === ty));
+      dur += `<span class="dleg">${used.map(ty => `<span><i class="t-${ty}"></i>${TN[ty]}</span>`).join('')}</span>`;
       return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}<div class="dur" title="Players by the number of hours they ticked (each player is counted once)">${dur}</div></div>`;
     }).join('');
   }
