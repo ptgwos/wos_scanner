@@ -733,6 +733,12 @@
   .ro-t th, .ro-ov th{white-space:nowrap;}
   .ro-ov td:first-child{white-space:nowrap;}
   .ro-ov td:first-child .aflag{margin-left:8px;}
+  .ro-head .wins,.ro-ov td:first-child .wins{margin-left:8px;}
+  .ro-head b{margin-left:8px;}
+  #toTop{position:fixed;right:22px;bottom:22px;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text-dim);opacity:0;pointer-events:none;transition:opacity .2s,color .15s,border-color .15s;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;z-index:60;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+  #toTop svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  #toTop:hover{color:var(--strong);border-color:var(--text-dim)}
+  @media (min-width:900px) and (hover:hover){ #toTop{display:flex} #toTop.show{opacity:.55;pointer-events:auto} #toTop.show:hover{opacity:1} }
   .ro-t .ro-i{width:34px;color:var(--text-faint);text-align:right;font-variant-numeric:tabular-nums;}
   .ro-t td.name{width:auto;}
   .ro-t .nm{display:inline-flex;align-items:center;gap:0;min-width:0;}
@@ -798,7 +804,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-20 · r4</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-20 · r5</footer>
 </div>
 <script>
 (function(){
@@ -900,7 +906,7 @@
       const A = D.alliances[t], n = (A.m || []).length || A.count || 0;
       const isB = BATTLE.includes(t);
       totalP += A.power || 0;
-      return `<tr data-go="${escapeHtml(t)}"><td>${nameChip(t)}${winsHtml(t)}${isB ? '<span class="aflag">Battle alliance</span>' : ''}</td><td class="nm-col hide-s"><b>${escapeHtml(A.name || '')}</b></td><td class="num">${fmt(n)}</td><td class="num">${fmt(A.power)}</td><td class="num hide-s">${A.power_rank ? '#' + A.power_rank : '–'}</td><td class="hide-s">${escapeHtml(A.leader || '')}</td></tr>`;
+      return `<tr data-go="${escapeHtml(t)}"><td>${nameChip(t)}${isB ? '<span class="aflag">Battle alliance</span>' : ''}${winsHtml(t)}</td><td class="nm-col hide-s"><b>${escapeHtml(A.name || '')}</b></td><td class="num">${fmt(n)}</td><td class="num">${fmt(A.power)}</td><td class="num hide-s">${A.power_rank ? '#' + A.power_rank : '–'}</td><td class="hide-s">${escapeHtml(A.leader || '')}</td></tr>`;
     }).join('');
     document.getElementById('ov').innerHTML = `<div class="sx-card"><div class="sx-card-head"><b>Alliances</b><span class="sx-id">${tags.length} alliances · ${fmt(totalM)} members · power ${fmt(totalP)}</span></div>
       <div class="sx-scroll"><table class="ro-ov"><thead><tr><th>Alliance</th><th class="hide-s">Name</th><th class="num">Members</th><th class="num">Power</th><th class="num hide-s">State rank</th><th class="hide-s">Leader</th></tr></thead><tbody>${ovRows}</tbody></table></div></div>`;
@@ -915,7 +921,7 @@
       const isB = BATTLE.includes(t);
       const isOpen = open.has(t) || !!st.q;
       const body = !isOpen ? '' : rows.map((r, i) => `<tr><td class="ro-i">${i + 1}</td><td class="name"><span class="nm">${av(r.id, r)}<span class="nt">${escapeHtml(r.n)}</span></span></td><td><span class="ro-rk ro-${escapeHtml(rk(r.r))}">${escapeHtml(rk(r.r))}</span></td><td class="num">${fmt(r.p)}</td><td class="num fc-col">${fcHtml(r.f)}</td></tr>`).join('');
-      return `<div class="sx-card ro-card${isOpen ? ' is-open' : ''}" id="al-${escapeHtml(t)}"><div class="sx-card-head ro-head" role="button" tabindex="0" aria-expanded="${isOpen}" data-t="${escapeHtml(t)}" title="Show or hide the members"><span class="ro-chev" aria-hidden="true">▸</span>${nameChip(t)}${winsHtml(t)}${isB ? '<span class="aflag">Battle alliance</span>' : ''}<b>${escapeHtml(A.name || t)}</b><span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${A.leader ? ' · leader ' + escapeHtml(A.leader) : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span></div>
+      return `<div class="sx-card ro-card${isOpen ? ' is-open' : ''}" id="al-${escapeHtml(t)}"><div class="sx-card-head ro-head" role="button" tabindex="0" aria-expanded="${isOpen}" data-t="${escapeHtml(t)}" title="Show or hide the members"><span class="ro-chev" aria-hidden="true">▸</span>${nameChip(t)}<b>${escapeHtml(A.name || t)}</b>${isB ? '<span class="aflag">Battle alliance</span>' : ''}${winsHtml(t)}<span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${A.leader ? ' · leader ' + escapeHtml(A.leader) : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span></div>
         ${isOpen ? `<div class="sx-scroll"><table class="ro-t"><thead><tr><th class="ro-i">#</th><th>Member</th><th>Rank</th><th class="num">Power</th><th class="num fc-col" title="Furnace level"><span class="d-only">Furnace</span><span class="m-only">FC</span></th></tr></thead><tbody>${body}</tbody></table></div>` : ''}</div>`;
     }).join('');
     document.getElementById('cards').innerHTML = cards || '<div class="sx-card"><div class="sx-card-head"><b>No player found</b></div></div>';
@@ -962,6 +968,10 @@
   fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()).then(j => { D = j; D.alliances = D.alliances || {}; D.players = D.players || {}; render(); })
     .catch(() => { document.getElementById('sub').textContent = 'No data available (data/players.json not found).'; });
 })();
+</script>
+<button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<script>
+(function(){var b=document.getElementById('toTop');if(!b)return;function u(){b.classList.toggle('show',(window.pageYOffset||document.documentElement.scrollTop)>400)}window.addEventListener('scroll',u,{passive:true});u();b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})})})();
 </script>
 </body>
 </html>
