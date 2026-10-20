@@ -819,6 +819,9 @@
   .t1 .nm{display:inline-flex;align-items:center;min-width:0;flex:1 1 auto;}
   .t1 .nt{font-weight:700;color:var(--strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .t1 .nm .nt{max-width:none;}
+  .lockb{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--gold);border:1px solid var(--gold);border-radius:6px;padding:4px 9px;align-self:center;}
+  .sync{margin:6px 0 0;font-size:12px;color:var(--text-faint);}
+  textarea.cp{width:100%;min-height:260px;font:13px/1.45 ui-monospace,Consolas,monospace;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;resize:vertical;}
   .ep-sums{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
   .ep-sum{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;}
   .ep-sum .h{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
@@ -826,6 +829,13 @@
   .ep-sum .big small{font-size:13px;font-weight:500;color:var(--text-dim);margin-left:6px;}
   .ep-sum .miss{font-size:12px;color:var(--danger);}
   .ep-sum .okk{font-size:12px;color:var(--good);}
+  .dur{display:grid;grid-template-columns:auto 1fr auto;gap:3px 8px;align-items:center;margin-top:8px;font-size:12px;font-variant-numeric:tabular-nums;}
+  .dur .l{color:var(--text-dim);white-space:nowrap;}
+  .dur .b{height:7px;border-radius:4px;background:rgba(127,160,220,.14);overflow:hidden;}
+  .dur .b i{display:block;height:100%;background:var(--ice);border-radius:4px;}
+  .dur .b i.w{background:var(--gold);}
+  .dur .v{color:var(--text);text-align:right;white-space:nowrap;}
+  .dur .z{opacity:.5;}
   .ms-h{display:flex;align-items:center;gap:8px;margin:4px 0 2px;}
   .ms-h b{font-size:14px;color:var(--strong);}
   table.ms{width:100%;border-collapse:collapse;font-size:13px;}
@@ -885,6 +895,7 @@
     <div class="eyebrow">State 646 — Events</div>
     <h1>Event <span>Planner</span></h1>
     <p class="subtitle" id="sub">Loading …</p>
+    <p class="sync" id="sync"></p>
   </header>
 
   <div class="divider"></div>
@@ -894,7 +905,9 @@
       <div class="field"><label for="evSel">Event</label><select id="evSel"></select></div>
       <button type="button" class="btn" id="evNew" hidden>New event</button>
       <button type="button" class="btn" id="evEdit" hidden>Edit event</button>
+      <button type="button" class="btn" id="evLock" hidden>Lock event</button>
       <button type="button" class="btn danger" id="evDel" hidden>Delete event</button>
+      <span class="lockb" id="lockB" hidden>🔒 Locked</span>
       <span class="grow"></span>
       <span class="who" id="who"></span>
       <button type="button" class="btn" id="login">Log in to edit</button>
@@ -911,13 +924,13 @@
       <div class="ep-list" id="poolList"></div>
     </section>
     <section class="ep-teams">
-      <div class="ep-sec ep-teams-h"><div class="ep-h"><b>Teams</b><button type="button" class="btn" id="tNew" hidden>Add team</button><button type="button" class="btn" id="tStd" hidden>Standard teams (PKB / GYN)</button><button type="button" class="btn" id="tMiss">Missing players</button><span class="sx-id" id="teamN"></span></div></div>
+      <div class="ep-sec ep-teams-h"><div class="ep-h"><b>Teams</b><button type="button" class="btn" id="tNew" hidden>Add team</button><button type="button" class="btn" id="tStd" hidden>Standard teams (PKB / GYN)</button><button type="button" class="btn" id="tMiss">Missing players</button><button type="button" class="btn" id="tCopy">Copy list</button><span class="sx-id" id="teamN"></span></div></div>
       <div id="teamsWrap" style="display:contents"></div>
     </section>
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p2</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p5</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -972,11 +985,12 @@
     };
   }
   function mockApi(){
-    const db = {events: [{id: 'e1', name: 'FDT', kind: 'FDT', starts_on: '2026-10-25', start_hour: 11, slots: 6, created_at: ''}], teams: [], entries: []};
+    const db = {events: [{id: 'e1', name: 'FDT', kind: 'FDT', starts_on: '2026-10-25', start_hour: 11, slots: 6, created_at: '', locked: false, locked_at: null}], teams: [], entries: []};
     const codes = {admin: {role: 'admin', alliance: ''}}; TAGS.forEach(t => codes['ed-' + t] = {role: 'editor', alliance: t});
     let n = 1; const nid = () => 'm' + (n++);
     const cl = o => JSON.parse(JSON.stringify(o));
     function need(c, adm){ const w = codes[c]; if(!w) throw new Error('Invalid code'); if(adm && w.role !== 'admin') throw new Error('Admin code required'); return w; }
+    const open = id => { const e = db.events.find(x => x.id === id); if(e && e.locked) throw new Error('This event is locked. Unlock it first to make changes.'); };
     const find = (e, p) => db.entries.find(x => x.event_id === e && String(x.pid) === String(p));
     const F = {
       ev_login: a => codes[a.p_code] || null,
@@ -984,19 +998,21 @@
         if(!o){ o = {id: nid(), created_at: ''}; db.events.push(o); }
         Object.assign(o, {name: a.p_name, kind: a.p_kind, starts_on: a.p_starts_on, start_hour: a.p_start_hour, slots: a.p_slots}); return o.id; },
       ev_event_delete: a => { need(a.p_code, true); db.events = db.events.filter(x => x.id !== a.p_id); db.teams = db.teams.filter(x => x.event_id !== a.p_id); db.entries = db.entries.filter(x => x.event_id !== a.p_id); },
-      ev_team_save: a => { need(a.p_code, true); let o = a.p_id && db.teams.find(x => x.id === a.p_id);
+      ev_event_lock: a => { need(a.p_code, true); const e = db.events.find(x => x.id === a.p_id); if(a.p_locked){ (a.p_snap || []).forEach(s => { const o = find(a.p_id, s.pid); if(o){ o.name = s.name; o.power = s.power; o.snap_alliance = s.alliance; } }); e.locked = true; e.locked_at = '2026-10-20T12:00:00Z'; } else { e.locked = false; e.locked_at = null; } },
+      ev_entry_home: a => { need(a.p_code, true); open(a.p_event); const o = find(a.p_event, a.p_pid); if(o) o.alliance = a.p_alliance; },
+      ev_team_save: a => { need(a.p_code, true); if(!a.p_id) open(a.p_event); let o = a.p_id && db.teams.find(x => x.id === a.p_id);
         if(!o){ o = {id: nid(), event_id: a.p_event}; db.teams.push(o); }
         Object.assign(o, {name: a.p_name, target: a.p_target || '', sort: a.p_sort == null ? (o.sort || 0) : a.p_sort}); return o.id; },
       ev_team_delete: a => { need(a.p_code, true); db.teams = db.teams.filter(x => x.id !== a.p_id); db.entries.forEach(x => { if(x.team_id === a.p_id) x.team_id = null; }); },
-      ev_entry_save: a => { const w = need(a.p_code, false); const o = find(a.p_event, a.p_pid);
+      ev_entry_save: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid);
         if(w.role === 'editor' && (a.p_alliance !== w.alliance || (o && o.alliance !== w.alliance))) throw new Error('Editors may only edit players of their own alliance (' + w.alliance + ')');
-        const v = {name: a.p_name, alliance: a.p_alliance, power: a.p_power, hours: a.p_hours, pb: a.p_pb, b20: a.p_b20, gather: a.p_gather};
-        if(o) Object.assign(o, v); else db.entries.push(Object.assign({event_id: a.p_event, pid: a.p_pid, team_id: null, joined: false}, v)); },
-      ev_entry_delete: a => { const w = need(a.p_code, false); const o = find(a.p_event, a.p_pid); if(!o) return;
+        const v = {name: a.p_name, power: a.p_power, hours: a.p_hours, pb: a.p_pb, b20: a.p_b20, gather: a.p_gather};
+        if(o) Object.assign(o, v); else db.entries.push(Object.assign({event_id: a.p_event, pid: a.p_pid, team_id: null, joined: false, alliance: a.p_alliance, snap_alliance: ''}, v)); },
+      ev_entry_delete: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid); if(!o) return;
         if(w.role === 'editor' && o.alliance !== w.alliance) throw new Error('Editors may only edit players of their own alliance');
         db.entries = db.entries.filter(x => x !== o); },
-      ev_entry_assign: a => { need(a.p_code, true); const o = find(a.p_event, a.p_pid); if(o && o.team_id !== a.p_team){ o.team_id = a.p_team; o.joined = false; } },
-      ev_entry_joined: a => { need(a.p_code, true); const o = find(a.p_event, a.p_pid); if(o) o.joined = !!a.p_joined; }
+      ev_entry_assign: a => { need(a.p_code, true); open(a.p_event); const o = find(a.p_event, a.p_pid); if(o && o.team_id !== a.p_team){ o.team_id = a.p_team; o.joined = false; } },
+      ev_entry_joined: a => { need(a.p_code, true); open(a.p_event); const o = find(a.p_event, a.p_pid); if(o) o.joined = !!a.p_joined; }
     };
     return {
       events: async () => cl(db.events),
@@ -1015,11 +1031,15 @@
   const ev = () => S.events.find(e => e.id === S.evId) || null;
   const isAdmin = () => S.role === 'admin';
   const canEdit = () => S.role === 'admin' || S.role === 'editor';
+  const locked = () => !!(ev() && ev().locked);
+  const adm = () => isAdmin() && !locked();      // admin actions (not possible while the event is locked)
+  const canW = () => canEdit() && !locked();
   const slotsOf = () => { const e = ev(); return e ? e.slots : 6; };
   const slotLabel = i => { const e = ev(); const h = ((e ? e.start_hour : 11) + i) % 24; return h + '–' + ((h + 1) % 24); };
   const teamById = id => S.teams.find(t => t.id === id);
   function pinfo(e){
     const p = D && D.players && D.players[String(e.pid)];
+    if(locked()) return {p, name: e.name || (p ? p.n : String(e.pid)), power: Number(e.power || 0), tag: e.snap_alliance || e.alliance || '', known: true};   // frozen values
     return {p, name: p ? p.n : (e.name || String(e.pid)), power: p ? (p.p || 0) : Number(e.power || 0), tag: p ? p.a : (e.alliance || ''), known: !!p};
   }
 
@@ -1041,7 +1061,7 @@
   }
   function tile(e, team){
     const i = pinfo(e);
-    return `<div class="tile${isAdmin() ? ' drag clickable' : ''}" data-pid="${escapeHtml(e.pid)}"${isAdmin() ? ' draggable="true"' : ''}>
+    return `<div class="tile${adm() ? ' drag clickable' : ''}" data-pid="${escapeHtml(e.pid)}"${adm() ? ' draggable="true"' : ''}>
       <div class="t1"><span class="nm">${avHtml(e, i.p)}<span class="nt" title="${escapeHtml(i.name)}">${escapeHtml(i.name)}</span></span>${tagChip(i.tag)}${status(e, team)}</div>
       <div class="t2"><span class="pw" title="${fmt(i.power)}">${fmtM(i.power)}</span>${strip(e.hours)}${flags(e)}</div></div>`;
   }
@@ -1056,10 +1076,14 @@
     if(cur) sel.value = cur;
     const e = ev();
     $('board').hidden = !e;
+    $('sync').textContent = locked() ? 'This event is locked: names, power and alliances are frozen at the time of locking.' : (D && D.updated ? 'Player data: last change ' + D.updated + ' (the game data itself can be up to 60 minutes older)' : '');
     $('sub').textContent = e ? `${e.kind || 'Event'} · ${slotsOf()} hours from ${e.start_hour}:00 · ${S.entries.length} players registered` : (S.events.length ? '' : (isAdmin() ? 'Create the first event with "New event".' : 'No event has been created yet.'));
     if(!e) return;
-    $('addP').hidden = !canEdit();
-    $('tNew').hidden = !isAdmin(); $('tStd').hidden = !(isAdmin() && !S.teams.length);
+    $('addP').hidden = !canW();
+    $('tNew').hidden = !adm(); $('tStd').hidden = !(adm() && !S.teams.length);
+    $('evLock').hidden = !isAdmin(); $('evLock').textContent = locked() ? 'Unlock event' : 'Lock event'; $('lockB').hidden = !locked();
+    $('lockB').textContent = '🔒 Locked' + (e.locked_at ? ' · ' + String(e.locked_at).replace('T', ' ').slice(0, 16) + ' UTC' : '');
+    $('evEdit').hidden = !(adm() && ev());
     // pool
     const pa = $('pa'); const tags = Array.from(new Set(S.entries.map(x => pinfo(x).tag))).filter(Boolean).sort();
     pa.innerHTML = '<option value="">All alliances</option>' + tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join(''); pa.value = tags.includes(S.pa) ? S.pa : (S.pa = '');
@@ -1078,7 +1102,7 @@
       const g = m.filter(x => x.gather); const gp = g.reduce((s, x) => s + pinfo(x).power, 0);
       let cov = ''; for(let i = 0; i < slotsOf(); i++){ const c = m.filter(x => (x.hours >> i) & 1).length; cov += `<span class="${c ? '' : 'z'}" title="${slotLabel(i)}: ${c} available">${slotLabel(i).split('–')[0]}<b>${c}</b></span>`; }
       return `<div class="team" data-drop="${escapeHtml(t.id)}"><div class="team-h">
-        <div class="team-t"><b title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</b>${t.target ? tagChip(t.target) : ''}${isAdmin() ? `<button type="button" class="ic" data-edit-team="${escapeHtml(t.id)}" title="Edit team">✎</button>` : ''}</div>
+        <div class="team-t"><b title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</b>${t.target ? tagChip(t.target) : ''}${adm() ? `<button type="button" class="ic" data-edit-team="${escapeHtml(t.id)}" title="Edit team">✎</button>` : ''}</div>
         <div class="team-sum"><b>${m.length}</b> players · <b title="${fmt(tot)}">${fmtM(tot)}</b> power</div>
         <div class="team-sub">${g.length ? `incl. ${g.length} gatherer${g.length === 1 ? '' : 's'} (${fmtM(gp)}) · ` : ''}${m.filter(x => x.pb).length ? m.filter(x => x.pb).length + ' PB · ' : ''}${m.filter(x => x.b20).length ? m.filter(x => x.b20).length + ' with 20% · ' : ''}available per hour:</div>
         <div class="cov">${cov}</div></div>
@@ -1102,7 +1126,15 @@
     box.innerHTML = ['PKB', 'GYN'].map(tag => {
       const m = S.entries.filter(x => { const t = teamById(x.team_id); return t && t.target === tag; });
       const tot = m.reduce((s, x) => s + pinfo(x).power, 0); const miss = missingOf(tag).length;
-      return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}</div>`;
+      const n = slotsOf(), MAXP = 100, cnt = new Array(n + 1).fill(0);
+      m.forEach(x => { cnt[Math.min(n, bits(x.hours))]++; });
+      let dur = '';
+      for(let k = n; k >= 0; k--){
+        if(k === 0 && !cnt[0]) continue;
+        const lab = k === n ? '<span class="d-only">whole time</span><span class="m-only">whole</span>' : (k === 0 ? '<span class="d-only">no hour set</span><span class="m-only">none</span>' : `<span class="d-only">${k} hour${k === 1 ? '' : 's'}</span><span class="m-only">${k}h</span>`);
+        dur += `<span class="l${cnt[k] ? '' : ' z'}">${lab}</span><span class="b"><i class="${k === n ? 'w' : ''}" style="width:${Math.min(100, cnt[k] / MAXP * 100)}%"></i></span><span class="v${cnt[k] ? '' : ' z'}">${cnt[k]}/${MAXP}</span>`;
+      }
+      return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}<div class="dur" title="Players by the number of hours they ticked (each player is counted once)">${dur}</div></div>`;
     }).join('');
   }
   function missingDialog(){
@@ -1184,6 +1216,41 @@
   $('evDel').addEventListener('click', async () => { const e = ev(); if(!e) return; if(!confirm('Delete the event "' + e.name + '" with all its teams and registrations? This cannot be undone.')) return;
     try { await api.rpc('ev_event_delete', {p_code: S.code, p_id: e.id}); S.evId = null; last = ''; await refresh(true); setHash(); toast('Event deleted.', true); } catch(err){ toast(err.message); } });
   $('tMiss').addEventListener('click', missingDialog);
+  $('evLock').addEventListener('click', async () => {
+    const e = ev(); if(!e) return;
+    if(!locked()){
+      if(!confirm('Lock "' + e.name + '"? The current names, power values and alliances are saved and nothing can be changed any more until you unlock it.')) return;
+      const snap = S.entries.map(x => { const i = pinfo(x); return {pid: Number(x.pid), name: i.name, alliance: i.tag, power: i.power}; });
+      await call('ev_event_lock', {p_id: e.id, p_locked: true, p_snap: snap}, 'Event locked.');
+    } else {
+      if(!confirm('Unlock this event? Names and power values are updated from the game data again.')) return;
+      await call('ev_event_lock', {p_id: e.id, p_locked: false, p_snap: null}, 'Event unlocked.');
+    }
+  });
+  function copyDialog(){
+    const e = ev(); if(!e) return;
+    const build = (only, fm) => {
+      const es = S.entries.filter(x => !only || x.team_id); const g = {};
+      es.forEach(x => { const h = x.alliance || 'Unknown'; (g[h] = g[h] || []).push(pinfo(x).name); });
+      const rk = a => TAGS.indexOf(a) < 0 ? 99 : TAGS.indexOf(a);
+      const blocks = Object.keys(g).sort((a, b) => rk(a) - rk(b) || a.localeCompare(b)).map(h => { const n = g[h].sort((a, b) => a.localeCompare(b, 'en', {sensitivity: 'base'}));
+        return fm === 'comma' ? `${h} (${n.length}): ${n.join(', ')}` : `${h} (${n.length})\n${n.join('\n')}`; });
+      return `${e.name}${e.starts_on ? ' · ' + e.starts_on : ''} (${es.length} players)\n\n` + blocks.join(fm === 'comma' ? '\n' : '\n\n');
+    };
+    openModal(`<div class="ep-box sm" style="width:min(560px,100%)">${mhead('Copy list by home alliance')}<div class="ep-mb">
+      <div class="row"><label class="switch" style="align-self:center"><input type="checkbox" id="cpo" checked><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Only players in a team</span></label>
+      <div class="field"><label for="cpf">Format</label><select id="cpf"><option value="lines">One name per line</option><option value="comma">Comma separated</option></select></div></div>
+      <textarea class="cp" id="cpt" readonly></textarea>
+      <div class="sx-id">Players are grouped by the alliance they were registered from (their home alliance), not by PKB / GYN. The admin can correct it on a player's card.</div>
+      <div class="acts"><button type="button" class="btn" id="cpb">Copy</button></div></div></div>`, () => {
+      const upd = () => { $('cpt').value = build($('cpo').checked, $('cpf').value); };
+      $('cpo').addEventListener('change', upd); $('cpf').addEventListener('change', upd); upd();
+      $('cpb').addEventListener('click', () => { const t = $('cpt'); t.select();
+        const ok = () => toast('List copied.', true);
+        try { navigator.clipboard.writeText(t.value).then(ok, () => { try { document.execCommand('copy'); ok(); } catch(x) { toast('Please copy the text by hand.'); } }); } catch(x) { try { document.execCommand('copy'); ok(); } catch(y) { toast('Please copy the text by hand.'); } } });
+    });
+  }
+  $('tCopy').addEventListener('click', copyDialog);
   $('ps').addEventListener('change', () => { S.ps = $('ps').value; prefSet('eps', S.ps); render(); });
   $('evSel').addEventListener('change', async () => { S.evId = $('evSel').value || null; last = ''; setHash(); await refresh(true); });
   function setHash(){ try { history.replaceState(null, '', S.evId ? '#ev=' + S.evId : location.pathname + location.search); } catch(e) {} }
@@ -1218,19 +1285,29 @@
     call('ev_entry_assign', {p_event: S.evId, p_pid: Number(pid), p_team: teamId || null});
   }
   const board = $('board');
-  board.addEventListener('dragstart', e => { const t = e.target.closest && e.target.closest('.tile'); if(!t || !isAdmin()) return; dragPid = t.dataset.pid; t.classList.add('dragging'); try { e.dataTransfer.setData('text/plain', dragPid); e.dataTransfer.effectAllowed = 'move'; } catch(x) {} });
+  board.addEventListener('dragstart', e => { const t = e.target.closest && e.target.closest('.tile'); if(!t || !adm()) return; dragPid = t.dataset.pid; t.classList.add('dragging'); try { e.dataTransfer.setData('text/plain', dragPid); e.dataTransfer.effectAllowed = 'move'; } catch(x) {} });
+  // while dragging: scroll the page when the pointer is near the top / bottom edge, and let the mouse wheel work
+  let scrollDir = 0, raf = 0;
+  function autoScroll(){ if(!dragPid || !scrollDir){ raf = 0; return; } window.scrollBy(0, scrollDir); raf = requestAnimationFrame(autoScroll); }
+  document.addEventListener('dragover', e => { if(!dragPid) return; const h = window.innerHeight, y = e.clientY, z = 110;
+    scrollDir = y < z ? -Math.ceil((z - y) / 5) : (y > h - z ? Math.ceil((y - (h - z)) / 5) : 0);
+    if(scrollDir && !raf) raf = requestAnimationFrame(autoScroll); });
+  window.addEventListener('wheel', e => { if(dragPid) window.scrollBy(0, e.deltaY); }, {passive: true});
+  board.addEventListener('dragend', () => { scrollDir = 0; });
   board.addEventListener('dragend', () => { dragPid = null; document.querySelectorAll('.dragging,.over').forEach(x => x.classList.remove('dragging', 'over')); });
   board.addEventListener('dragover', e => { const d = e.target.closest && e.target.closest('[data-drop]'); if(!d || !dragPid) return; e.preventDefault(); document.querySelectorAll('.over').forEach(x => { if(x !== d) x.classList.remove('over'); }); d.classList.add('over'); });
   board.addEventListener('drop', e => { const d = e.target.closest && e.target.closest('[data-drop]'); if(!d || !dragPid) return; e.preventDefault(); const pid = dragPid; dragPid = null; document.querySelectorAll('.over').forEach(x => x.classList.remove('over')); assign(pid, d.dataset.drop || null); });
   board.addEventListener('click', e => {
     const te = e.target.closest('[data-edit-team]'); if(te){ teamDialog(teamById(te.dataset.editTeam)); return; }
-    const t = e.target.closest('.tile'); if(!t || !isAdmin()) return;
+    const t = e.target.closest('.tile'); if(!t || !adm()) return;
     const o = S.entries.find(x => String(x.pid) === t.dataset.pid); if(!o) return; const i = pinfo(o);
     openModal(`<div class="ep-box sm">${mhead(escapeHtml(i.name))}<div class="ep-mb"><div class="t2">${tagChip(i.tag)}<span class="pw">${fmtM(i.power)}</span>${strip(o.hours)}${flags(o)}</div>
+      <div class="field"><label for="hm">Registered from (home alliance)</label><select id="hm">${Array.from(new Set(TAGS.concat([o.alliance]))).filter(Boolean).map(t => `<option value="${escapeHtml(t)}"${t === o.alliance ? ' selected' : ''}>${escapeHtml(t)}</option>`).join('')}</select></div>
       <div class="mv">${S.teams.map(x => `<button type="button" class="btn" data-mv="${escapeHtml(x.id)}"${o.team_id === x.id ? ' disabled' : ''}>→ ${escapeHtml(x.name)}</button>`).join('')}<button type="button" class="btn" data-mv=""${o.team_id ? '' : ' disabled'}>→ Back to the pool</button></div>
       ${o.team_id ? `<label class="switch" style="align-self:flex-start"><input type="checkbox" id="jn"${o.joined ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Already joined the team's alliance (manual)</span></label>` : ''}
       <div class="acts"><button type="button" class="btn danger" id="rmv">Remove from event</button></div></div></div>`, m => {
       m.querySelectorAll('[data-mv]').forEach(b => b.addEventListener('click', () => { closeModal(); assign(o.pid, b.dataset.mv || null); }));
+      $('hm').addEventListener('change', () => { o.alliance = $('hm').value; last = ''; render(); call('ev_entry_home', {p_event: S.evId, p_pid: Number(o.pid), p_alliance: $('hm').value}, 'Home alliance changed.'); });
       const jn = $('jn'); if(jn) jn.addEventListener('change', () => { o.joined = jn.checked; last = ''; render(); call('ev_entry_joined', {p_event: S.evId, p_pid: Number(o.pid), p_joined: jn.checked}); });
       $('rmv').addEventListener('click', () => { if(!confirm('Remove ' + i.name + ' from this event?')) return; closeModal(); call('ev_entry_delete', {p_event: S.evId, p_pid: Number(o.pid)}); });
     });
@@ -1245,9 +1322,10 @@
     const v = Object.assign(base, patch);
     if(o) Object.assign(o, v); else { o = Object.assign({event_id: S.evId, pid: Number(p.id), name: p.n, alliance: p.a, power: p.p || 0, team_id: null, joined: false}, v); S.entries.push(o); }
     last = '';
-    return api.rpc('ev_entry_save', {p_code: S.code, p_event: S.evId, p_pid: Number(p.id), p_name: p.n, p_alliance: p.a, p_power: p.p || 0, p_hours: v.hours, p_pb: v.pb, p_b20: v.b20, p_gather: v.gather})
+    return api.rpc('ev_entry_save', {p_code: S.code, p_event: S.evId, p_pid: Number(p.id), p_name: p.n, p_alliance: o.alliance, p_power: p.p || 0, p_hours: v.hours, p_pb: v.pb, p_b20: v.b20, p_gather: v.gather})
       .then(() => refresh(true)).catch(err => { toast(err.message); refresh(true); });
   }
+  const pobj = pid => { const d = D && D.players[pid]; if(d) return Object.assign({id: pid}, d); const o = S.entries.find(x => String(x.pid) === String(pid)); return {id: pid, n: o ? o.name : pid, a: o ? o.alliance : '', p: o ? o.power : 0}; };
   function addDialog(){
     if(!D){ toast('The player data is not loaded yet.'); return; }
     const tags = isAdmin() ? TAGS.filter(t => D.alliances[t]) : [S.alliance].filter(t => D.alliances[t]);
@@ -1264,7 +1342,7 @@
       $('apa').addEventListener('change', () => { S.ap.tag = $('apa').value; fill(); });
       $('apq').addEventListener('input', () => { S.ap.q = $('apq').value.trim(); fill(); });
       $('apb').addEventListener('change', e => {
-        const tr = e.target.closest('tr'); if(!tr) return; const p = Object.assign({id: tr.dataset.pid}, D.players[tr.dataset.pid]); const o = S.entries.find(x => String(x.pid) === tr.dataset.pid);
+        const tr = e.target.closest('tr'); if(!tr) return; const p = pobj(tr.dataset.pid); const o = S.entries.find(x => String(x.pid) === tr.dataset.pid);
         const k = e.target.dataset.k; let patch = null;
         if(k === 'in'){
           if(!e.target.checked){ if(o && o.team_id && !confirm('This player is already in a team. Remove anyway?')){ e.target.checked = true; return; }
@@ -1274,7 +1352,7 @@
         } else { patch = {[k]: e.target.checked}; }
         saveEntry(p, patch); fill();
       });
-      $('apb').addEventListener('click', e => { const b = e.target.closest('[data-all]'); if(!b) return; const tr = b.closest('tr'); const p = Object.assign({id: tr.dataset.pid}, D.players[tr.dataset.pid]); const o = S.entries.find(x => String(x.pid) === tr.dataset.pid);
+      $('apb').addEventListener('click', e => { const b = e.target.closest('[data-all]'); if(!b) return; const tr = b.closest('tr'); const p = pobj(tr.dataset.pid); const o = S.entries.find(x => String(x.pid) === tr.dataset.pid);
         const full = (1 << n) - 1; saveEntry(p, {hours: o && o.hours === full ? 0 : full}); fill(); });
       fill();
     }, () => fill());
@@ -1283,7 +1361,8 @@
       const tag = S.ap.tag, q = S.ap.q.toLowerCase();
       const idsOf = t => { const A = D.alliances[t]; return (A && A.m) ? A.m : Object.keys(D.players).filter(k => D.players[k].a === t); };
       const ids = tag === '*' ? Array.from(new Set(TAGS.filter(t => D.alliances[t]).flatMap(idsOf))) : idsOf(tag);
-      const rows = ids.filter(id => D.players[id]).map(id => ({id, p: D.players[id]})).filter(r => !q || r.p.n.toLowerCase().includes(q) || r.id.includes(q)).sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
+      const mine = S.entries.filter(x => tag === '*' || x.alliance === tag).map(x => String(x.pid));   // registered from this alliance, even if they moved meanwhile
+      const rows = Array.from(new Set(ids.concat(mine))).map(id => ({id, p: pobj(id)})).filter(r => !q || r.p.n.toLowerCase().includes(q) || r.id.includes(q)).sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
       body.innerHTML = rows.map(r => { const o = S.entries.find(x => String(x.pid) === r.id); const h = o ? o.hours : 0;
         return `<tr data-pid="${escapeHtml(r.id)}" class="${o ? 'in' : ''}"><td class="c"><input type="checkbox" data-k="in"${o ? ' checked' : ''}></td><td class="n"><b>${escapeHtml(r.p.n)}</b></td><td>${tagChip(r.p.a)}</td><td>${fmtM(r.p.p)}</td>${Array.from({length: n}, (_, i) => `<td class="c"><input type="checkbox" data-k="h" data-i="${i}"${(h >> i) & 1 ? ' checked' : ''}></td>`).join('')}<td class="c"><button type="button" class="lnk" data-all>all</button></td><td class="c"><input type="checkbox" data-k="pb"${o && o.pb ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="b20"${o && o.b20 ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="gather"${o && o.gather ? ' checked' : ''}></td></tr>`; }).join('') || `<tr><td colspan="${n + 8}" class="ep-empty">No players found.</td></tr>`;
     }
