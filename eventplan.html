@@ -900,6 +900,18 @@
     .ep-pool{position:static;max-height:none;}
     .ep-list{max-height:60vh;}
   }
+
+  .tile.rl{background:rgba(255,90,90,.15);border-color:rgba(255,90,90,.5);}
+  :root[data-theme="light"] .tile.rl{background:rgba(255,90,90,.13);}
+  .fl.rl{color:var(--danger);border-color:var(--danger);}
+  .fl.g{display:inline-flex;align-items:center;padding:1px 4px;}
+  .dur .b i.g{background:var(--good);}
+  .dur .gl{display:inline-flex;vertical-align:middle;color:var(--good);}
+  .dur .gl svg{width:12px;height:12px;}
+  .dur .dg{grid-column:1/-1;height:1px;background:var(--border);margin:3px 0;}
+  .ed-h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;}
+  .ed-c{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text);}
+  .ed-c input{width:16px;height:16px;accent-color:var(--ice);cursor:pointer;}
 </style>
 </head>
 <body>
@@ -944,7 +956,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p7</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p8</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1020,7 +1032,7 @@
       ev_team_delete: a => { need(a.p_code, true); db.teams = db.teams.filter(x => x.id !== a.p_id); db.entries.forEach(x => { if(x.team_id === a.p_id) x.team_id = null; }); },
       ev_entry_save: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid);
         if(w.role === 'editor' && (a.p_alliance !== w.alliance || (o && o.alliance !== w.alliance))) throw new Error('Editors may only edit players of their own alliance (' + w.alliance + ')');
-        const v = {name: a.p_name, power: a.p_power, hours: a.p_hours, pb: a.p_pb, b20: a.p_b20, gather: a.p_gather};
+        const v = {name: a.p_name, power: a.p_power, hours: a.p_hours, pb: a.p_pb, b20: a.p_b20, gather: a.p_gather, rl: !!a.p_rl};
         if(o) Object.assign(o, v); else db.entries.push(Object.assign({event_id: a.p_event, pid: a.p_pid, team_id: null, joined: false, alliance: a.p_alliance, snap_alliance: ''}, v)); },
       ev_entry_delete: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid); if(!o) return;
         if(w.role === 'editor' && o.alliance !== w.alliance) throw new Error('Editors may only edit players of their own alliance');
@@ -1064,7 +1076,8 @@
     return `<span class="av ph" aria-hidden="true">${escapeHtml((Array.from(String(p.n || '?'))[0] || '?').toUpperCase())}</span>`;
   }
   function strip(h){ let s = ''; for(let i = 0; i < slotsOf(); i++) s += `<i class="${(h >> i) & 1 ? 'on' : ''}" title="${slotLabel(i)}"></i>`; return `<span class="hs">${s}</span>`; }
-  function flags(e){ return (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? '<span class="fl g" title="Gathering (helps with loot)">G</span>' : ''); }
+  const BASKET = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 11H5L3 9z"/><path d="M8 9l4-6 4 6"/><path d="M10 13v4M14 13v4"/></svg>';
+  function flags(e){ return (e.rl ? '<span class="fl rl" title="Rally leader">RL</span>' : '') + (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? `<span class="fl g" title="Gatherer (helps with loot)">${BASKET}</span>` : ''); }
   function status(e, team){
     if(!team || !team.target) return '';
     const i = pinfo(e);
@@ -1075,7 +1088,7 @@
   }
   function tile(e, team){
     const i = pinfo(e);
-    return `<div class="tile${adm() ? ' drag clickable' : ''}" data-pid="${escapeHtml(e.pid)}"${adm() ? ' draggable="true"' : ''}>
+    return `<div class="tile${adm() ? ' drag' : ''}${(adm() || (canW() && e.alliance === S.alliance)) ? ' clickable' : ''}${e.rl ? ' rl' : ''}" data-pid="${escapeHtml(e.pid)}"${adm() ? ' draggable="true"' : ''}>
       <div class="t1"><span class="nm">${avHtml(e, i.p)}<span class="nt" title="${escapeHtml(i.name)}">${escapeHtml(i.name)}</span></span>${tagChip(i.tag)}${status(e, team)}</div>
       <div class="t2"><span class="pw" title="${fmt(i.power)}">${fmtM(i.power)}</span>${strip(e.hours)}${flags(e)}</div></div>`;
   }
@@ -1152,6 +1165,8 @@
         const lab = k === n ? '<span class="d-only">whole time</span><span class="m-only">whole</span>' : (k === 0 ? '<span class="d-only">no hour set</span><span class="m-only">none</span>' : `<span class="d-only">${k} hour${k === 1 ? '' : 's'}</span><span class="m-only">${k}h</span>`);
         dur += `<span class="l${cnt[k] ? '' : ' z'}">${lab}</span><span class="b"><i class="${k === n ? 'w' : ''}" style="width:${Math.min(100, cnt[k] / MAXP * 100)}%"></i></span><span class="v${cnt[k] ? '' : ' z'}">${cnt[k]}/${MAXP}</span>`;
       }
+      const gc = m.filter(x => x.gather).length;
+      dur += `<span class="dg"></span><span class="l${gc ? '' : ' z'}" style="grid-column:1"><span class="gl">${BASKET}</span><span class="d-only"> gatherers</span><span class="m-only"> G</span></span><span class="b"><i class="g" style="width:${Math.min(100, gc / MAXP * 100)}%"></i></span><span class="v${gc ? '' : ' z'}">${gc}/${MAXP}</span>`;
       return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}<div class="dur" title="Players by the number of hours they ticked (each player is counted once)">${dur}</div></div>`;
     }).join('');
   }
@@ -1318,17 +1333,24 @@
   board.addEventListener('drop', e => { const d = e.target.closest && e.target.closest('[data-drop]'); if(!d || !dragPid) return; e.preventDefault(); const pid = dragPid; dragPid = null; document.querySelectorAll('.over').forEach(x => x.classList.remove('over')); assign(pid, d.dataset.drop || null); });
   board.addEventListener('click', e => {
     const te = e.target.closest('[data-edit-team]'); if(te){ teamDialog(teamById(te.dataset.editTeam)); return; }
-    const t = e.target.closest('.tile'); if(!t || !adm()) return;
-    const o = S.entries.find(x => String(x.pid) === t.dataset.pid); if(!o) return; const i = pinfo(o);
-    openModal(`<div class="ep-box sm">${mhead(escapeHtml(i.name))}<div class="ep-mb"><div class="t2">${tagChip(i.tag)}<span class="pw">${fmtM(i.power)}</span>${strip(o.hours)}${flags(o)}</div>
-      <div class="field"><label for="hm">Registered from (home alliance)</label><select id="hm">${Array.from(new Set(TAGS.concat([o.alliance]))).filter(Boolean).map(t => `<option value="${escapeHtml(t)}"${t === o.alliance ? ' selected' : ''}>${escapeHtml(t)}</option>`).join('')}</select></div>
-      <div class="mv">${S.teams.map(x => `<button type="button" class="btn" data-mv="${escapeHtml(x.id)}"${o.team_id === x.id ? ' disabled' : ''}>→ ${escapeHtml(x.name)}</button>`).join('')}<button type="button" class="btn" data-mv=""${o.team_id ? '' : ' disabled'}>→ Back to the pool</button></div>
-      ${o.team_id ? `<label class="switch" style="align-self:flex-start"><input type="checkbox" id="jn"${o.joined ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Already joined the team's alliance (manual)</span></label>` : ''}
+    const t = e.target.closest('.tile'); if(!t || !canW()) return;
+    const pid = t.dataset.pid; const cur = () => S.entries.find(x => String(x.pid) === pid);
+    const o0 = cur(); if(!o0 || !(adm() || o0.alliance === S.alliance)) return; const i = pinfo(o0); const n = slotsOf();
+    const edit = `<div class="field"><label>Availability (saved immediately)</label><div class="ed-h">${Array.from({length: n}, (_, k) => `<label class="ed-c"><input type="checkbox" data-eh="${k}"${(o0.hours >> k) & 1 ? ' checked' : ''}> ${slotLabel(k)}</label>`).join('')}</div>
+      <div class="ed-h" style="margin-top:6px"><label class="ed-c"><input type="checkbox" data-ef="pb"${o0.pb ? ' checked' : ''}> PB</label><label class="ed-c"><input type="checkbox" data-ef="b20"${o0.b20 ? ' checked' : ''}> 20%</label><label class="ed-c"><input type="checkbox" data-ef="gather"${o0.gather ? ' checked' : ''}> ${BASKET} Gatherer</label><label class="ed-c"><input type="checkbox" data-ef="rl"${o0.rl ? ' checked' : ''}> RL (rally leader)</label><button type="button" class="lnk" id="eall">all hours</button></div></div>`;
+    const adminPart = adm() ? `<div class="field"><label for="hm">Registered from (home alliance)</label><select id="hm">${Array.from(new Set(TAGS.concat([o0.alliance]))).filter(Boolean).map(x => `<option value="${escapeHtml(x)}"${x === o0.alliance ? ' selected' : ''}>${escapeHtml(x)}</option>`).join('')}</select></div>
+      <div class="mv">${S.teams.map(x => `<button type="button" class="btn" data-mv="${escapeHtml(x.id)}"${o0.team_id === x.id ? ' disabled' : ''}>→ ${escapeHtml(x.name)}</button>`).join('')}<button type="button" class="btn" data-mv=""${o0.team_id ? '' : ' disabled'}>→ Back to the pool</button></div>
+      ${o0.team_id ? `<label class="switch" style="align-self:flex-start"><input type="checkbox" id="jn"${o0.joined ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Already joined the team's alliance (manual)</span></label>` : ''}` : '';
+    openModal(`<div class="ep-box sm">${mhead(escapeHtml(i.name))}<div class="ep-mb"><div class="t2">${tagChip(i.tag)}<span class="pw">${fmtM(i.power)}</span></div>${edit}${adminPart}
       <div class="acts"><button type="button" class="btn danger" id="rmv">Remove from event</button></div></div></div>`, m => {
-      m.querySelectorAll('[data-mv]').forEach(b => b.addEventListener('click', () => { closeModal(); assign(o.pid, b.dataset.mv || null); }));
-      $('hm').addEventListener('change', () => { o.alliance = $('hm').value; last = ''; render(); call('ev_entry_home', {p_event: S.evId, p_pid: Number(o.pid), p_alliance: $('hm').value}, 'Home alliance changed.'); });
-      const jn = $('jn'); if(jn) jn.addEventListener('change', () => { o.joined = jn.checked; last = ''; render(); call('ev_entry_joined', {p_event: S.evId, p_pid: Number(o.pid), p_joined: jn.checked}); });
-      $('rmv').addEventListener('click', () => { if(!confirm('Remove ' + i.name + ' from this event?')) return; closeModal(); call('ev_entry_delete', {p_event: S.evId, p_pid: Number(o.pid)}); });
+      const saveP = patch => { const o = cur(); if(o) saveEntry(pobj(pid), patch); };
+      m.querySelectorAll('[data-eh]').forEach(c => c.addEventListener('change', () => { const o = cur(); if(!o) return; const k = +c.dataset.eh; saveP({hours: c.checked ? (o.hours | (1 << k)) : (o.hours & ~(1 << k))}); }));
+      m.querySelectorAll('[data-ef]').forEach(c => c.addEventListener('change', () => saveP({[c.dataset.ef]: c.checked})));
+      $('eall').addEventListener('click', () => { const full = (1 << n) - 1; const o = cur(); const on = !(o && o.hours === full); saveP({hours: on ? full : 0}); m.querySelectorAll('[data-eh]').forEach(c => c.checked = on); });
+      m.querySelectorAll('[data-mv]').forEach(b => b.addEventListener('click', () => { closeModal(); assign(pid, b.dataset.mv || null); }));
+      const hm = $('hm'); if(hm) hm.addEventListener('change', () => { const o = cur(); if(o){ o.alliance = hm.value; last = ''; render(); } call('ev_entry_home', {p_event: S.evId, p_pid: Number(pid), p_alliance: hm.value}, 'Home alliance changed.'); });
+      const jn = $('jn'); if(jn) jn.addEventListener('change', () => { const o = cur(); if(o){ o.joined = jn.checked; last = ''; render(); } call('ev_entry_joined', {p_event: S.evId, p_pid: Number(pid), p_joined: jn.checked}); });
+      $('rmv').addEventListener('click', () => { if(!confirm('Remove ' + i.name + ' from this event?')) return; closeModal(); call('ev_entry_delete', {p_event: S.evId, p_pid: Number(pid)}); });
     });
   });
   $('pq').addEventListener('input', () => { S.q = $('pq').value.trim(); render(); });
@@ -1337,11 +1359,11 @@
   // adding players / availability
   function saveEntry(p, patch){
     let o = S.entries.find(x => String(x.pid) === String(p.id));
-    const base = o ? {hours: o.hours, pb: o.pb, b20: o.b20, gather: o.gather} : {hours: 0, pb: false, b20: false, gather: false};
+    const base = o ? {hours: o.hours, pb: o.pb, b20: o.b20, gather: o.gather, rl: !!o.rl} : {hours: 0, pb: false, b20: false, gather: false, rl: false};
     const v = Object.assign(base, patch);
     if(o) Object.assign(o, v); else { o = Object.assign({event_id: S.evId, pid: Number(p.id), name: p.n, alliance: p.a, power: p.p || 0, team_id: null, joined: false}, v); S.entries.push(o); }
     last = '';
-    return api.rpc('ev_entry_save', {p_code: S.code, p_event: S.evId, p_pid: Number(p.id), p_name: p.n, p_alliance: o.alliance, p_power: p.p || 0, p_hours: v.hours, p_pb: v.pb, p_b20: v.b20, p_gather: v.gather})
+    return api.rpc('ev_entry_save', {p_code: S.code, p_event: S.evId, p_pid: Number(p.id), p_name: p.n, p_alliance: o.alliance, p_power: p.p || 0, p_hours: v.hours, p_pb: v.pb, p_b20: v.b20, p_gather: v.gather, p_rl: v.rl})
       .then(() => refresh(true)).catch(err => { toast(err.message); refresh(true); });
   }
   const pobj = pid => { const d = D && D.players[pid]; if(d) return Object.assign({id: pid}, d); const o = S.entries.find(x => String(x.pid) === String(pid)); return {id: pid, n: o ? o.name : pid, a: o ? o.alliance : '', p: o ? o.power : 0}; };
@@ -1355,8 +1377,8 @@
     openModal(`<div class="ep-box">${mhead('Add players and availability')}<div class="ep-mb">
       <div class="row"><div class="field"><label for="apa">Alliance</label><select id="apa"${tags.length === 1 ? ' disabled' : ''}>${tags.map(t => `<option value="${escapeHtml(t)}">${t === '*' ? 'All alliances' : escapeHtml(t)}</option>`).join('')}</select></div>
       <div class="field"><label for="apq">Search</label><input type="text" id="apq" placeholder="Player name or ID …" autocomplete="off"></div></div>
-      <div class="ap-wrap"><table class="ap"><thead><tr><th class="c">In</th><th>Player</th><th>Alliance</th><th>Power</th>${Array.from({length: n}, (_, i) => `<th class="c">${slotLabel(i)}</th>`).join('')}<th class="c">All</th><th class="c" title="Powerbooster">PB</th><th class="c" title="20% buff">20%</th><th class="c" title="Gathering">G</th></tr></thead><tbody id="apb"></tbody></table></div>
-      <div class="sx-id">Ticking an hour, PB, 20% or G adds the player automatically. Changes are saved immediately.</div></div></div>`, m => {
+      <div class="ap-wrap"><table class="ap"><thead><tr><th class="c">In</th><th>Player</th><th>Alliance</th><th>Power</th>${Array.from({length: n}, (_, i) => `<th class="c">${slotLabel(i)}</th>`).join('')}<th class="c">All</th><th class="c" title="Powerbooster">PB</th><th class="c" title="20% buff">20%</th><th class="c" title="Gatherer">G</th><th class="c" title="Rally leader">RL</th></tr></thead><tbody id="apb"></tbody></table></div>
+      <div class="sx-id">Ticking an hour, PB, 20%, G or RL adds the player automatically. Changes are saved immediately.</div></div></div>`, m => {
       $('apa').value = S.ap.tag; $('apq').value = S.ap.q;
       $('apa').addEventListener('change', () => { S.ap.tag = $('apa').value; fill(); });
       $('apq').addEventListener('input', () => { S.ap.q = $('apq').value.trim(); fill(); });
@@ -1383,7 +1405,7 @@
       const mine = S.entries.filter(x => tag === '*' || x.alliance === tag).map(x => String(x.pid));   // registered from this alliance, even if they moved meanwhile
       const rows = Array.from(new Set(ids.concat(mine))).map(id => ({id, p: pobj(id)})).filter(r => !q || r.p.n.toLowerCase().includes(q) || r.id.includes(q)).sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
       body.innerHTML = rows.map(r => { const o = S.entries.find(x => String(x.pid) === r.id); const h = o ? o.hours : 0;
-        return `<tr data-pid="${escapeHtml(r.id)}" class="${o ? 'in' : ''}"><td class="c"><input type="checkbox" data-k="in"${o ? ' checked' : ''}></td><td class="n"><b>${escapeHtml(r.p.n)}</b></td><td>${tagChip(r.p.a)}</td><td>${fmtM(r.p.p)}</td>${Array.from({length: n}, (_, i) => `<td class="c"><input type="checkbox" data-k="h" data-i="${i}"${(h >> i) & 1 ? ' checked' : ''}></td>`).join('')}<td class="c"><button type="button" class="lnk" data-all>all</button></td><td class="c"><input type="checkbox" data-k="pb"${o && o.pb ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="b20"${o && o.b20 ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="gather"${o && o.gather ? ' checked' : ''}></td></tr>`; }).join('') || `<tr><td colspan="${n + 8}" class="ep-empty">No players found.</td></tr>`;
+        return `<tr data-pid="${escapeHtml(r.id)}" class="${o ? 'in' : ''}"><td class="c"><input type="checkbox" data-k="in"${o ? ' checked' : ''}></td><td class="n"><b>${escapeHtml(r.p.n)}</b></td><td>${tagChip(r.p.a)}</td><td>${fmtM(r.p.p)}</td>${Array.from({length: n}, (_, i) => `<td class="c"><input type="checkbox" data-k="h" data-i="${i}"${(h >> i) & 1 ? ' checked' : ''}></td>`).join('')}<td class="c"><button type="button" class="lnk" data-all>all</button></td><td class="c"><input type="checkbox" data-k="pb"${o && o.pb ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="b20"${o && o.b20 ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="gather"${o && o.gather ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="rl"${o && o.rl ? ' checked' : ''}></td></tr>`; }).join('') || `<tr><td colspan="${n + 9}" class="ep-empty">No players found.</td></tr>`;
     }
   }
   $('addP').addEventListener('click', addDialog);
