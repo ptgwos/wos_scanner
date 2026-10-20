@@ -775,6 +775,16 @@
     .ro-t .nt{display:inline-block;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}
     .ro-t .nm{max-width:100%;}
   }
+  .av.xl{width:54px;height:54px;margin:0;}
+  .av.ph.xl{font-size:22px;}
+  #tooltip .tt-head{align-items:center;gap:12px;flex-wrap:nowrap;margin-bottom:8px;}
+  #tooltip .tt-head b{font-size:15px;line-height:1.25;word-break:break-word;}
+  #tooltip .tt-id{margin-bottom:0;margin-top:2px;}
+  #tooltip .tt-table td{padding:4px 0;font-size:12.5px;vertical-align:middle;}
+  #tooltip .tt-table td.r{padding-right:14px;white-space:nowrap;}
+  #tooltip .tt-fc{display:flex;align-items:center;gap:8px;}
+  #tooltip .tt-fc .fc{height:44px;}
+  .ro-t tbody tr[data-pid]{cursor:default;}
   .m-only{display:none;}
   @media (max-width:640px){ .d-only{display:none;} .m-only{display:inline;} }
 </style>
@@ -804,7 +814,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-20 · r5</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-20 · r6</footer>
 </div>
 <script>
 (function(){
@@ -920,7 +930,7 @@
       shown += rows.length;
       const isB = BATTLE.includes(t);
       const isOpen = open.has(t) || !!st.q;
-      const body = !isOpen ? '' : rows.map((r, i) => `<tr><td class="ro-i">${i + 1}</td><td class="name"><span class="nm">${av(r.id, r)}<span class="nt">${escapeHtml(r.n)}</span></span></td><td><span class="ro-rk ro-${escapeHtml(rk(r.r))}">${escapeHtml(rk(r.r))}</span></td><td class="num">${fmt(r.p)}</td><td class="num fc-col">${fcHtml(r.f)}</td></tr>`).join('');
+      const body = !isOpen ? '' : rows.map((r, i) => `<tr data-pid="${escapeHtml(r.id)}"><td class="ro-i">${i + 1}</td><td class="name"><span class="nm">${av(r.id, r)}<span class="nt">${escapeHtml(r.n)}</span></span></td><td><span class="ro-rk ro-${escapeHtml(rk(r.r))}">${escapeHtml(rk(r.r))}</span></td><td class="num">${fmt(r.p)}</td><td class="num fc-col">${fcHtml(r.f)}</td></tr>`).join('');
       return `<div class="sx-card ro-card${isOpen ? ' is-open' : ''}" id="al-${escapeHtml(t)}"><div class="sx-card-head ro-head" role="button" tabindex="0" aria-expanded="${isOpen}" data-t="${escapeHtml(t)}" title="Show or hide the members"><span class="ro-chev" aria-hidden="true">▸</span>${nameChip(t)}<b>${escapeHtml(A.name || t)}</b>${isB ? '<span class="aflag">Battle alliance</span>' : ''}${winsHtml(t)}<span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${A.leader ? ' · leader ' + escapeHtml(A.leader) : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span></div>
         ${isOpen ? `<div class="sx-scroll"><table class="ro-t"><thead><tr><th class="ro-i">#</th><th>Member</th><th>Rank</th><th class="num">Power</th><th class="num fc-col" title="Furnace level"><span class="d-only">Furnace</span><span class="m-only">FC</span></th></tr></thead><tbody>${body}</tbody></table></div>` : ''}</div>`;
     }).join('');
@@ -948,6 +958,51 @@
   rq.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = rq.value.trim(); render(); }, 150); });
   rs.addEventListener('change', () => { st.sort = rs.value; render(); });
   avSw.addEventListener('change', () => { st.av = avSw.checked; prefSet('av', st.av); render(); });
+  // ---- hover popup (desktop) / bottom sheet on tap (touch), same look as on the board ----
+  const NO_HOVER = window.matchMedia && window.matchMedia('(hover: none)').matches;
+  const tipEl = document.createElement('div'); tipEl.id = 'tooltip'; tipEl.setAttribute('role', 'tooltip'); document.body.appendChild(tipEl);
+  let tipKey = '', tipTimer = null, pendKey = '', lx = 0, ly = 0;
+  function memberTip(id){
+    const p = D && D.players[id]; if(!p) return '';
+    const big = st.av ? (p.au ? `<img class="av xl" src="avatars/${escapeHtml(id)}.webp" alt="" onerror="this.remove()">` : `<span class="av ph xl" aria-hidden="true">${escapeHtml((Array.from(String(p.n || '?'))[0] || '?').toUpperCase())}</span>`) : '';
+    const lv = Number(p.f);
+    return `<div class="tt-head">${big}<div><b>${escapeHtml(p.n)}</b><div class="tt-id">ID: ${escapeHtml(id)}</div></div></div>
+      <table class="tt-table">
+        <tr><td class="r">Alliance</td><td>${tagChip(p.a)}</td></tr>
+        <tr><td class="r">Rank</td><td><span class="ro-rk ro-${escapeHtml(rk(p.r))}">${escapeHtml(rk(p.r))}</span></td></tr>
+        <tr><td class="r">Power</td><td class="p">${fmt(p.p)}</td></tr>
+        <tr><td class="r">Furnace</td><td><span class="tt-fc">${fcHtml(p.f)}${lv ? `<span>Level ${lv}${lv >= 35 ? ' (FC' + Math.min(10, Math.floor(lv / 5) - 6) + ')' : ''}</span>` : ''}</span></td></tr>
+      </table>${NO_HOVER ? '<div class="tt-note">Tap outside to close</div>' : ''}`;
+  }
+  function placeTip(x, y){
+    if(NO_HOVER) return;
+    const pad = 14, w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    let left = x + pad, top = y + pad;
+    if(left + w > window.innerWidth - 8) left = x - w - pad;
+    if(left < 8) left = 8;
+    if(top + h > window.innerHeight - 8) top = Math.max(8, window.innerHeight - 8 - h);
+    tipEl.style.left = left + 'px'; tipEl.style.top = top + 'px';
+  }
+  function showTip(id, x, y){
+    if(id !== tipKey){ const h = memberTip(id); if(!h){ hideTip(); return; } tipEl.innerHTML = h; tipEl.scrollTop = 0; tipKey = id; }
+    tipEl.classList.add('show'); placeTip(x, y);
+  }
+  function hideTip(){ clearTimeout(tipTimer); pendKey = ''; tipEl.classList.remove('show'); tipKey = ''; }
+  function schedTip(id, x, y){
+    lx = x; ly = y;
+    if(tipEl.classList.contains('show')){ showTip(id, x, y); return; }
+    if(pendKey === id) return;
+    clearTimeout(tipTimer); pendKey = id;
+    tipTimer = setTimeout(() => { pendKey = ''; showTip(id, lx, ly); }, 400);
+  }
+  if(!NO_HOVER){
+    cardsEl.addEventListener('mousemove', e => { const tr = e.target.closest('.ro-t tbody tr[data-pid]'); if(!tr){ hideTip(); return; } schedTip(tr.dataset.pid, e.clientX, e.clientY); });
+    cardsEl.addEventListener('mouseleave', hideTip);
+  } else {
+    cardsEl.addEventListener('click', e => { const tr = e.target.closest('.ro-t tbody tr[data-pid]'); if(!tr) return; e.stopPropagation(); showTip(tr.dataset.pid, 0, 0); });
+    document.addEventListener('click', e => { if(!tipEl.contains(e.target)) hideTip(); });
+  }
+  window.addEventListener('scroll', hideTip, {passive: true});
   // ---- theme (same keys as svslb.html) ----
   (function(){
     const root = document.documentElement;

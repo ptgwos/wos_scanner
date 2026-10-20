@@ -775,6 +775,16 @@
     .ro-t .nt{display:inline-block;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}
     .ro-t .nm{max-width:100%;}
   }
+  .av.xl{width:54px;height:54px;margin:0;}
+  .av.ph.xl{font-size:22px;}
+  #tooltip .tt-head{align-items:center;gap:12px;flex-wrap:nowrap;margin-bottom:8px;}
+  #tooltip .tt-head b{font-size:15px;line-height:1.25;word-break:break-word;}
+  #tooltip .tt-id{margin-bottom:0;margin-top:2px;}
+  #tooltip .tt-table td{padding:4px 0;font-size:12.5px;vertical-align:middle;}
+  #tooltip .tt-table td.r{padding-right:14px;white-space:nowrap;}
+  #tooltip .tt-fc{display:flex;align-items:center;gap:8px;}
+  #tooltip .tt-fc .fc{height:44px;}
+  .ro-t tbody tr[data-pid]{cursor:default;}
   .m-only{display:none;}
   @media (max-width:640px){ .d-only{display:none;} .m-only{display:inline;} }
   /* ---- event planner ---- */
@@ -793,7 +803,8 @@
   .ep-pf input,.ep-pf select{flex:1 1 0;min-width:0;}
   .ep-list{padding:10px;display:flex;flex-direction:column;gap:7px;overflow:auto;min-height:60px;}
   .ep-empty{color:var(--text-faint);font-size:12.5px;padding:12px 6px;text-align:center;}
-  .ep-teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;align-items:start;}
+  .ep-teams{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:14px;align-items:start;}
+  @media (max-width:1150px){ .ep-teams{grid-template-columns:minmax(0,1fr);} }
   .ep-teams-h{grid-column:1/-1;}
   .team{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
   .team.over,.ep-pool.over{border-color:var(--ice);box-shadow:0 0 0 2px rgba(111,227,255,.25);}
@@ -933,7 +944,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p6</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p7</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1099,7 +1110,11 @@
     $('poolList').innerHTML = pool.map(x => tile(x, null)).join('') || `<div class="ep-empty">${S.entries.length ? 'Nobody left in the pool.' : (canEdit() ? 'The pool is empty. Use "Add players".' : 'The pool is empty.')}</div>`;
     // teams
     $('teamN').textContent = S.teams.length + ' team' + (S.teams.length === 1 ? '' : 's');
-    $('teamsWrap').innerHTML = S.teams.map(t => {
+    // layout: one column per target alliance, the teams of each alliance in their order, so that PKB - Main | GYN - Main, PKB - Sub | GYN - Sub ... line up
+    const groups = []; S.teams.forEach(t => { let g = groups.find(x => x.k === (t.target || '')); if(!g){ g = {k: t.target || '', l: []}; groups.push(g); } g.l.push(t); });
+    const ordered = []; for(let r = 0; groups.some(g => r < g.l.length); r++) groups.forEach(g => { if(r < g.l.length) ordered.push(g.l[r]); });
+    $('teamsWrap').parentNode.style.setProperty('--cols', Math.max(1, Math.min(3, groups.length)));
+    $('teamsWrap').innerHTML = ordered.map(t => {
       const m = S.entries.filter(x => x.team_id === t.id).sort((a, b) => pinfo(b).power - pinfo(a).power);
       const tot = m.reduce((s, x) => s + pinfo(x).power, 0);
       const g = m.filter(x => x.gather); const gp = g.reduce((s, x) => s + pinfo(x).power, 0);
@@ -1267,7 +1282,8 @@
       <div class="field"><label for="to">Order</label><input type="number" id="to" value="${t ? (t.sort || 0) : S.teams.length + 1}"></div></div>
       <div class="acts">${isNew ? '' : '<button type="button" class="btn danger" id="tdel">Delete team</button>'}<button type="button" class="btn" id="tsv">Save</button></div></div></div>`, () => {
       $('tsv').addEventListener('click', async () => { const name = $('tn').value.trim(); if(!name){ toast('Please enter a name.'); return; }
-        closeModal(); await call('ev_team_save', {p_id: t ? t.id : null, p_event: S.evId, p_name: name, p_target: $('tt').value, p_sort: +$('to').value || 0}); });
+        const args = {p_id: t ? t.id : null, p_event: S.evId, p_name: name, p_target: $('tt').value, p_sort: +$('to').value || 0};   // read the fields BEFORE the dialog closes
+        closeModal(); await call('ev_team_save', args); });
       if(!isNew) $('tdel').addEventListener('click', async () => { if(!confirm('Delete this team? Its players go back to the pool.')) return; closeModal(); await call('ev_team_delete', {p_id: t.id}); });
       $('tn').focus();
     });
