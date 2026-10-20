@@ -24,9 +24,13 @@ key = os.environ.get('WOS_API_KEY', '').strip()
 if not key:
     sys.exit('WOS_API_KEY is not set')
 
+UA = 'state646-board/1.0 (+https://www.state646.com)'
+
 def get(url, headers=None, tries=4):
     for i in range(tries):
-        req = urllib.request.Request(url, headers=headers or {})
+        h = {'User-Agent': UA}
+        h.update(headers or {})
+        req = urllib.request.Request(url, headers=h)
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
                 return r.read()
@@ -34,6 +38,9 @@ def get(url, headers=None, tries=4):
             if e.code == 429 and i < tries - 1:
                 wait = int(e.headers.get('Retry-After') or 20)
                 print(f'  429, waiting {wait}s', flush=True); time.sleep(min(wait, 90)); continue
+            try: body = e.read().decode('utf-8', 'replace')[:300]
+            except Exception: body = ''
+            print(f'  HTTP {e.code}: {body}', flush=True)
             raise
         except urllib.error.URLError:
             if i < tries - 1: time.sleep(5); continue
