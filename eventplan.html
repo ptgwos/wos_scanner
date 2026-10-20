@@ -961,7 +961,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p9</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p10</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1357,7 +1357,7 @@
       <div class="acts"><button type="button" class="btn danger" id="rmv">Remove from event</button></div></div></div>`, m => {
       const saveP = patch => { const o = cur(); if(o) saveEntry(pobj(pid), patch); };
       m.querySelectorAll('[data-eh]').forEach(c => c.addEventListener('change', () => { const o = cur(); if(!o) return; const k = +c.dataset.eh; saveP({hours: c.checked ? (o.hours | (1 << k)) : (o.hours & ~(1 << k))}); }));
-      m.querySelectorAll('[data-ef]').forEach(c => c.addEventListener('change', () => saveP({[c.dataset.ef]: c.checked})));
+      m.querySelectorAll('[data-ef]').forEach(c => c.addEventListener('change', () => { saveP({[c.dataset.ef]: c.checked}); if(c.dataset.ef === 'pb' && c.checked) m.querySelectorAll('[data-eh]').forEach(h => h.checked = false); }));
       $('eall').addEventListener('click', () => { const full = (1 << n) - 1; const o = cur(); const on = !(o && o.hours === full); saveP({hours: on ? full : 0}); m.querySelectorAll('[data-eh]').forEach(c => c.checked = on); });
       m.querySelectorAll('[data-mv]').forEach(b => b.addEventListener('click', () => { closeModal(); assign(pid, b.dataset.mv || null); }));
       const hm = $('hm'); if(hm) hm.addEventListener('change', () => { const o = cur(); if(o){ o.alliance = hm.value; last = ''; render(); } call('ev_entry_home', {p_event: S.evId, p_pid: Number(pid), p_alliance: hm.value}, 'Home alliance changed.'); });
@@ -1373,6 +1373,7 @@
     let o = S.entries.find(x => String(x.pid) === String(p.id));
     const base = o ? {hours: o.hours, pb: o.pb, b20: o.b20, gather: o.gather, rl: !!o.rl} : {hours: 0, pb: false, b20: false, gather: false, rl: false};
     const v = Object.assign(base, patch);
+    if(patch.pb === true) v.hours = 0;     // powerbooster only help to reach the registration power, they do not play the event
     if(o) Object.assign(o, v); else { o = Object.assign({event_id: S.evId, pid: Number(p.id), name: p.n, alliance: p.a, power: p.p || 0, team_id: null, joined: false}, v); S.entries.push(o); }
     last = '';
     return api.rpc('ev_entry_save', {p_code: S.code, p_event: S.evId, p_pid: Number(p.id), p_name: p.n, p_alliance: o.alliance, p_power: p.p || 0, p_hours: v.hours, p_pb: v.pb, p_b20: v.b20, p_gather: v.gather, p_rl: v.rl})
