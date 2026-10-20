@@ -2,7 +2,7 @@
 """Fetch the member lists of the State 646 alliances from the Whiteout Stats API
 and write data/players.json + avatars/<id>.webp (small copies of the profile pictures).
 
-- one API request per alliance (the roster holds all members), 8 requests per run
+- one API request per alliance (the roster holds all members), 15 requests per run
 - data/players.json feeds svslb.html (avatars) and roster.html (members, power)
 - API key comes from the environment variable WOS_API_KEY (never from a file)
 - players that are not in any fetched alliance keep their last known entry
@@ -13,8 +13,8 @@ import io, json, os, sys, time, urllib.parse, urllib.request, urllib.error, date
 
 API = os.environ.get('WOS_API_BASE', 'https://api.whiteoutstats.com/v1')
 KID = 646
-# case sensitive on purpose: TBR and TbR are two different alliances
-TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN']
+# case sensitive on purpose: TBR, TbR and tbr are three different alliances
+TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN', 'EVL', 'HYg', 'KOJ', 'NEW', 'DFT', 'HOS', 'tbr']
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / 'data' / 'players.json'
 AV = ROOT / 'avatars'
