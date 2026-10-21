@@ -1020,8 +1020,9 @@
   <div class="panel ep-bar">
     <div class="controls">
       <div class="field ev-only"><label for="evSel">Event</label><select id="evSel"></select></div>
-      <span class="ev-btns ev-only"><button type="button" class="btn" id="evNew" title="New event" hidden>New</button><button type="button" class="btn" id="evEdit" title="Edit this event" hidden>Edit</button><button type="button" class="btn" id="evLock" title="Lock or unlock this event" hidden>Lock</button><button type="button" class="btn danger" id="evDel" title="Delete this event" hidden>Delete</button></span>
+      <span class="ev-btns ev-only"><button type="button" class="btn" id="evNew" title="New event" hidden>New</button><button type="button" class="btn" id="evEdit" title="Edit this event" hidden>Edit</button><button type="button" class="btn" id="evSnap" title="Save the current alliance of all players as their home alliance (Stammallianz) for this event" hidden>Snapshot</button><button type="button" class="btn" id="evLock" title="Lock or unlock this event" hidden>Lock</button><button type="button" class="btn danger" id="evDel" title="Delete this event" hidden>Delete</button></span>
       <span class="lockb ev-only" id="lockB" hidden>🔒 Locked</span>
+      <span class="lockb snapb ev-only" id="snapB" hidden></span>
       <span class="grow"></span>
       <span class="who" id="who"></span>
       <button type="button" class="btn" id="usersBtn" hidden>Users</button>
@@ -1046,7 +1047,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-21 · p19</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-21 · p20</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1101,7 +1102,7 @@
     };
   }
   function mockApi(){
-    const db = {events: [{id: 'e1', name: 'FDT', kind: 'FDT', starts_on: '2026-10-25', start_hour: 11, slots: 6, created_at: '', locked: false, locked_at: null}], teams: [], entries: []};
+    const db = {events: [{id: 'e1', name: 'FDT', kind: 'FDT', starts_on: '2026-10-25', start_hour: 11, slots: 6, created_at: '', locked: false, locked_at: null, home_snap: null, home_snap_at: null}], teams: [], entries: []};
     const users = [{id: 'u1', name: 'Peter', role: 'super', alliances: [], active: true, token: 'super.mock', created_at: '2026-10-01T10:00:00Z', last_login: null, last_active: null},
       {id: 'u2', name: 'Anna', role: 'editor', alliances: ['PKB', 'GYN'], active: true, token: 'anna.mock', created_at: '2026-10-02T10:00:00Z', last_login: null, last_active: null}];
     const logs = [];
@@ -1130,7 +1131,8 @@
       ev_event_save: a => { need(a.p_code, true); let o = a.p_id && db.events.find(x => x.id === a.p_id);
         if(!o){ o = {id: nid(), created_at: ''}; db.events.push(o); }
         Object.assign(o, {name: a.p_name, kind: a.p_kind, starts_on: a.p_starts_on, start_hour: a.p_start_hour, slots: a.p_slots}); return o.id; },
-      ev_event_delete: a => { need(a.p_code, true); db.events = db.events.filter(x => x.id !== a.p_id); db.teams = db.teams.filter(x => x.event_id !== a.p_id); db.entries = db.entries.filter(x => x.event_id !== a.p_id); },
+      ev_event_homesnap: a => { const w = need(a.p_code, true); open(a.p_id); const e = db.events.find(x => x.id === a.p_id); e.home_snap = a.p_snap; e.home_snap_at = iso(); db.entries.forEach(x => { if(x.event_id === a.p_id && a.p_snap[String(x.pid)]) x.alliance = a.p_snap[String(x.pid)]; }); lg(w, e.name, 'home_snap', 'saved the home alliances'); },
+      ev_event_delete: a => { needSuper(a.p_code); db.events = db.events.filter(x => x.id !== a.p_id); db.teams = db.teams.filter(x => x.event_id !== a.p_id); db.entries = db.entries.filter(x => x.event_id !== a.p_id); },
       ev_event_lock: a => { need(a.p_code, true); const e = db.events.find(x => x.id === a.p_id); if(a.p_locked){ (a.p_snap || []).forEach(s => { const o = find(a.p_id, s.pid); if(o){ o.name = s.name; o.power = s.power; o.snap_alliance = s.alliance; } }); e.locked = true; e.locked_at = '2026-10-20T12:00:00Z'; } else { e.locked = false; e.locked_at = null; } },
       ev_entry_home: a => { need(a.p_code, true); open(a.p_event); const o = find(a.p_event, a.p_pid); if(o) o.alliance = a.p_alliance; },
       ev_team_save: a => { need(a.p_code, true); if(!a.p_id) open(a.p_event); let o = a.p_id && db.teams.find(x => x.id === a.p_id);
@@ -1138,6 +1140,7 @@
         Object.assign(o, {name: a.p_name, target: a.p_target || '', sort: a.p_sort == null ? (o.sort || 0) : a.p_sort}); return o.id; },
       ev_team_delete: a => { need(a.p_code, true); db.teams = db.teams.filter(x => x.id !== a.p_id); db.entries.forEach(x => { if(x.team_id === a.p_id) x.team_id = null; }); },
       ev_entry_save: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid);
+        const evn = db.events.find(x => x.id === a.p_event); a = Object.assign({}, a, {p_alliance: (evn && evn.home_snap && evn.home_snap[String(a.p_pid)]) || a.p_alliance});
         if(w.role === 'editor' && (!w.alliances.includes(a.p_alliance) || (o && !w.alliances.includes(o.alliance)))) throw new Error('You may only edit players of your own alliances (' + w.alliances.join(', ') + ')');
         const v = {name: a.p_name, power: a.p_power, hours: a.p_hours, pb: a.p_pb, b20: a.p_b20, gather: a.p_gather, rl: !!a.p_rl};
         if(o) Object.assign(o, v); else db.entries.push(Object.assign({event_id: a.p_event, pid: a.p_pid, team_id: null, joined: false, alliance: a.p_alliance, snap_alliance: ''}, v)); },
@@ -1171,6 +1174,8 @@
   const canW = () => canEdit() && !locked();
   const slotsOf = () => { const e = ev(); return e ? e.slots : 6; };
   const slotLabel = i => { const e = ev(); const h = ((e ? e.start_hour : 11) + i) % 24; return h + '–' + ((h + 1) % 24); };
+  const snapOf = () => { const e = ev(); return (e && e.home_snap) || null; };
+  const homeOf = (pid, live) => { const s = snapOf(); return (s && s[String(pid)]) || live || ''; };   // home alliance (Stammallianz): the saved one if a snapshot exists
   const teamById = id => S.teams.find(t => t.id === id);
   function pinfo(e){
     const p = D && D.players && D.players[String(e.pid)];
@@ -1219,6 +1224,7 @@
     if(!e) return;
     $('addP').hidden = !canW();
     $('tNew').hidden = !adm(); $('tStd').hidden = !(adm() && !S.teams.length);
+    $('evSnap').hidden = !adm(); { const sa = e.home_snap_at ? new Date(e.home_snap_at) : null; $('snapB').hidden = !sa; if(sa) $('snapB').textContent = 'Home alliances fixed · ' + sa.toLocaleString('de-AT', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}); }
     $('evLock').hidden = !isAdmin(); $('evLock').textContent = locked() ? 'Unlock' : 'Lock'; $('lockB').hidden = !locked();
     $('lockB').textContent = '🔒 Locked' + (e.locked_at ? ' · ' + String(e.locked_at).replace('T', ' ').slice(0, 16) + ' UTC' : '');
     $('evEdit').hidden = !(adm() && ev());
@@ -1369,6 +1375,13 @@
     try { await api.rpc('ev_event_delete', {p_code: S.code, p_id: e.id}); S.evId = null; last = ''; await refresh(true); setHash(); toast('Event deleted.', true); } catch(err){ toast(err.message); } });
   $('tMiss').addEventListener('click', missingDialog);
   $('cmpSw').addEventListener('change', () => { S.cmp = $('cmpSw').checked; prefSet('epc', S.cmp); render(); });
+  $('evSnap').addEventListener('click', async () => {
+    const e = ev(); if(!e) return; if(!D){ toast('The player data is not loaded yet.'); return; }
+    const keys = Object.keys(D.players);
+    if(!confirm((e.home_snap ? 'Overwrite the saved home alliances? ' : '') + 'Save the current alliance of all ' + keys.length + ' players as their home alliance for this event? Players who change alliance later keep the saved one, and players already registered are set to it.')) return;
+    const map = {}; keys.forEach(k => { if(D.players[k].a) map[k] = D.players[k].a; });
+    await call('ev_event_homesnap', {p_id: e.id, p_snap: map}, 'Home alliances saved.');
+  });
   $('evLock').addEventListener('click', async () => {
     const e = ev(); if(!e) return;
     if(!locked()){
@@ -1482,7 +1495,7 @@
     const base = o ? {hours: o.hours, pb: o.pb, b20: o.b20, gather: o.gather, rl: !!o.rl} : {hours: 0, pb: false, b20: false, gather: false, rl: false};
     const v = Object.assign(base, patch);
     if(patch.pb === true) v.hours = 0;     // powerbooster only help to reach the registration power, they do not play the event
-    if(o) Object.assign(o, v); else { o = Object.assign({event_id: S.evId, pid: Number(p.id), name: p.n, alliance: p.a, power: p.p || 0, team_id: null, joined: false}, v); S.entries.push(o); }
+    if(o) Object.assign(o, v); else { o = Object.assign({event_id: S.evId, pid: Number(p.id), name: p.n, alliance: homeOf(p.id, p.a), power: p.p || 0, team_id: null, joined: false}, v); S.entries.push(o); }
     last = '';
     return api.rpc('ev_entry_save', {p_code: S.code, p_event: S.evId, p_pid: Number(p.id), p_name: p.n, p_alliance: o.alliance, p_power: p.p || 0, p_hours: v.hours, p_pb: v.pb, p_b20: v.b20, p_gather: v.gather, p_rl: v.rl})
       .then(() => refresh(true)).catch(err => { toast(err.message); refresh(true); });
@@ -1521,12 +1534,12 @@
     function fill(){
       const body = $('apb'); if(!body) return;
       const tag = S.ap.tag, q = S.ap.q.toLowerCase();
-      const idsOf = t => { const A = D.alliances[t]; return (A && A.m) ? A.m : Object.keys(D.players).filter(k => D.players[k].a === t); };
+      const idsOf = t => { if(snapOf()) return Object.keys(D.players).filter(k => homeOf(k, D.players[k].a) === t); const A = D.alliances[t]; return (A && A.m) ? A.m : Object.keys(D.players).filter(k => D.players[k].a === t); };
       const ids = tag === '*' ? Array.from(new Set(TAGS.filter(t => D.alliances[t] && mayEd(t)).flatMap(idsOf))) : idsOf(tag);
       const mine = S.entries.filter(x => tag === '*' ? mayEd(x.alliance) : x.alliance === tag).map(x => String(x.pid));   // registered from this alliance, even if they moved meanwhile
       const rows = Array.from(new Set(ids.concat(mine))).map(id => ({id, p: pobj(id)})).filter(r => !q || r.p.n.toLowerCase().includes(q) || r.id.includes(q)).sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
       body.innerHTML = rows.map(r => { const o = S.entries.find(x => String(x.pid) === r.id); const h = o ? o.hours : 0;
-        return `<tr data-pid="${escapeHtml(r.id)}" class="${o ? 'in' : ''}"><td class="c"><input type="checkbox" data-k="in"${o ? ' checked' : ''}></td><td class="n"><b>${escapeHtml(r.p.n)}</b></td><td>${tagChip(r.p.a)}</td><td>${fmtM(r.p.p)}</td>${Array.from({length: n}, (_, i) => `<td class="c"><input type="checkbox" data-k="h" data-i="${i}"${(h >> i) & 1 ? ' checked' : ''}></td>`).join('')}<td class="c"><button type="button" class="lnk" data-all>all</button></td><td class="c"><input type="checkbox" data-k="pb"${o && o.pb ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="b20"${o && o.b20 ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="gather"${o && o.gather ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="rl"${o && o.rl ? ' checked' : ''}></td></tr>`; }).join('') || `<tr><td colspan="${n + 9}" class="ep-empty">No players found.</td></tr>`;
+        return `<tr data-pid="${escapeHtml(r.id)}" class="${o ? 'in' : ''}"><td class="c"><input type="checkbox" data-k="in"${o ? ' checked' : ''}></td><td class="n"><b>${escapeHtml(r.p.n)}</b></td><td>${tagChip(homeOf(r.id, r.p.a))}${(snapOf() && homeOf(r.id, r.p.a) !== r.p.a) ? `<span class="sx-id" title="Home alliance from the snapshot; currently in ${escapeHtml(r.p.a)}"> now ${escapeHtml(r.p.a)}</span>` : ''}</td><td>${fmtM(r.p.p)}</td>${Array.from({length: n}, (_, i) => `<td class="c"><input type="checkbox" data-k="h" data-i="${i}"${(h >> i) & 1 ? ' checked' : ''}></td>`).join('')}<td class="c"><button type="button" class="lnk" data-all>all</button></td><td class="c"><input type="checkbox" data-k="pb"${o && o.pb ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="b20"${o && o.b20 ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="gather"${o && o.gather ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="rl"${o && o.rl ? ' checked' : ''}></td></tr>`; }).join('') || `<tr><td colspan="${n + 9}" class="ep-empty">No players found.</td></tr>`;
     }
   }
   $('addP').addEventListener('click', addDialog);
