@@ -798,10 +798,22 @@
   #tooltip .tt-fc .fc{height:44px;}
   .ro-t tbody tr[data-pid]{cursor:default;}
   .m-only{display:none;}
+  .ex-panel{max-width:520px;}
+  .ex-body{padding:6px 22px 4px;overflow:auto;}
+  .ex-h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin:10px 0 8px;}
+  .ex-h span{text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-faint);}
+  .ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px 12px;}
+  .ex-grid label{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--text);cursor:pointer;padding:3px 0;}
+  .ex-grid input{accent-color:var(--ice);width:16px;height:16px;margin:0;}
+  .ex-grid.ex-fmt{grid-template-columns:1fr;}
+  .ex-hr{border:0;border-top:1px solid var(--border);margin:14px 0 4px;}
+  .ex-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px 18px;}
+  .ex-foot span{color:var(--text-faint);font-size:12.5px;}
   @media (max-width:640px){ .d-only{display:none;} .m-only{display:inline;} }
 </style>
 </head>
 <body>
+<div class="modal-overlay" id="expModal" role="dialog" aria-modal="true" aria-labelledby="expTitle"><div class="modal-panel ex-panel"><div class="modal-header"><h2 id="expTitle">Export members</h2><button type="button" class="modal-close" id="expClose" aria-label="Close">×</button></div><div class="ex-body"><div class="ex-h">Alliances</div><div class="ex-grid" id="exAl"></div><hr class="ex-hr"><div class="ex-h">Values <span>(the player name is always included)</span></div><div class="ex-grid" id="exCols"></div><hr class="ex-hr"><div class="ex-h">Format</div><div class="ex-grid" id="exFmt"></div></div><div class="ex-foot"><span id="exInfo"></span><button type="button" class="btn" id="exGo">Download</button></div></div></div>
 <div class="wrap">
 
   <header>
@@ -819,6 +831,7 @@
       <div class="field"><label for="rs">Sort members by</label>
         <select id="rs"><option value="power">Power</option><option value="rank">Alliance rank</option><option value="fc">Furnace</option><option value="name">Name</option></select></div>
       <button type="button" class="btn" id="expAll">Expand all</button>
+      <button type="button" class="btn" id="expBtn" title="Download member lists as CSV or Excel">Export …</button>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
     </div>
     <div id="ov"></div>
@@ -826,7 +839,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-20 · r8</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-20 · r9</footer>
 </div>
 <script>
 (function(){
@@ -988,6 +1001,92 @@
   cardsEl.addEventListener('click', e => { const h = e.target.closest('th.srt'); if(h){ e.stopPropagation(); sortBy(h.dataset.s); } });
   cardsEl.addEventListener('keydown', e => { if((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('srt')){ e.preventDefault(); sortBy(e.target.dataset.s); } });
   avSw.addEventListener('change', () => { st.av = avSw.checked; prefSet('av', st.av); render(); });
+
+  // ---- export (CSV / XLSX) ----
+  const EXC = [['id','ID'],['alliance','Alliance'],['rank','Rank'],['power','Power'],['fc','Furnace'],['avatar','Avatar URL']];
+  const EXF = [['xlsx','Excel (.xlsx)'],['csv-c','CSV, comma separated'],['csv-s','CSV, semicolon separated (German Excel)']];
+  const expM = document.getElementById('expModal');
+  function exTags(){ return TAGS.filter(t => D && D.alliances[t]).sort((a, b) => (D.alliances[b].power || 0) - (D.alliances[a].power || 0)); }
+  function exOpen(){
+    if(!D) return;
+    const tags = exTags();
+    document.getElementById('exAl').innerHTML = `<label><input type="checkbox" id="exAll" checked><b>All</b></label>` + tags.map(t => `<label><input type="checkbox" class="exa" value="${escapeHtml(t)}" checked>${escapeHtml(t)}</label>`).join('');
+    document.getElementById('exCols').innerHTML = EXC.map(c => `<label><input type="checkbox" class="exc" value="${c[0]}"${c[0] === 'avatar' ? '' : ' checked'}>${c[1]}</label>`).join('');
+    document.getElementById('exFmt').className = 'ex-grid ex-fmt';
+    document.getElementById('exFmt').innerHTML = EXF.map((f, i) => `<label><input type="radio" name="exf" value="${f[0]}"${i === 0 ? ' checked' : ''}>${f[1]}</label>`).join('');
+    expM.classList.add('open'); exInfo();
+  }
+  function exClose(){ expM.classList.remove('open'); }
+  function exSel(){ return [...expM.querySelectorAll('.exa:checked')].map(i => i.value); }
+  function exInfo(){
+    const n = exSel().reduce((a, t) => a + members(t).length, 0);
+    document.getElementById('exInfo').textContent = n + ' players';
+    document.getElementById('exGo').disabled = !n;
+  }
+  expM.addEventListener('change', e => {
+    if(e.target.id === 'exAll') expM.querySelectorAll('.exa').forEach(i => i.checked = e.target.checked);
+    else if(e.target.classList.contains('exa')){ const all = [...expM.querySelectorAll('.exa')]; document.getElementById('exAll').checked = all.every(i => i.checked); }
+    exInfo();
+  });
+  document.getElementById('expBtn').addEventListener('click', exOpen);
+  document.getElementById('expClose').addEventListener('click', exClose);
+  expM.addEventListener('click', e => { if(e.target === expM) exClose(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && expM.classList.contains('open')) exClose(); });
+  function exRows(){
+    const cols = [...expM.querySelectorAll('.exc:checked')].map(i => i.value);
+    const head = ['Name'].concat(cols.map(c => EXC.find(x => x[0] === c)[1]));
+    const rows = [];
+    exSel().forEach(t => members(t).sort((a, b) => (b.p || 0) - (a.p || 0)).forEach(r => {
+      rows.push([r.n].concat(cols.map(c => c === 'id' ? r.id : c === 'alliance' ? t : c === 'rank' ? rk(r.r) : c === 'power' ? (r.p == null ? '' : Number(r.p)) : c === 'fc' ? (r.f == null || r.f === '' ? '' : Number(r.f)) : (r.au ? new URL('avatars/' + r.id + '.webp', location.href).href : ''))));
+    }));
+    return {head, rows, cols};
+  }
+  function dl(name, blob){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+  function toCsv(head, rows, sep){
+    const q = v => { v = String(v == null ? '' : v); return /[",;\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    return '﻿' + [head].concat(rows).map(r => r.map(q).join(sep)).join('\r\n') + '\r\n';
+  }
+  // minimal xlsx writer: a zip without compression (store) around a handful of xml files
+  const CRC = (() => { const t = []; for(let n = 0; n < 256; n++){ let c = n; for(let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(b){ let c = 0xFFFFFFFF; for(let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function zip(files){
+    const enc = new TextEncoder(), parts = [], cen = []; let off = 0;
+    const u16 = n => [n & 255, (n >> 8) & 255], u32 = n => [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255];
+    files.forEach(f => {
+      const nm = enc.encode(f[0]), d = enc.encode(f[1]), c = crc32(d);
+      const lh = Uint8Array.from([0x50,0x4b,3,4, 20,0, 0,8, 0,0, 0,0, 0x21,0, ...u32(c), ...u32(d.length), ...u32(d.length), ...u16(nm.length), 0,0]);
+      parts.push(lh, nm, d);
+      cen.push(Uint8Array.from([0x50,0x4b,1,2, 20,0, 20,0, 0,8, 0,0, 0,0, 0x21,0, ...u32(c), ...u32(d.length), ...u32(d.length), ...u16(nm.length), 0,0, 0,0, 0,0, 0,0, 0,0,0,0, ...u32(off)]), nm);
+      off += lh.length + nm.length + d.length;
+    });
+    const cs = cen.reduce((a, b) => a + b.length, 0);
+    parts.push(...cen, Uint8Array.from([0x50,0x4b,5,6, 0,0, 0,0, ...u16(files.length), ...u16(files.length), ...u32(cs), ...u32(off), 0,0]));
+    return new Blob(parts, {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  }
+  function colName(i){ let s = ''; i++; while(i > 0){ const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; }
+  function toXlsx(head, rows, cols){
+    const x = v => String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+    const cell = (v, r, c, num) => { const ref = colName(c) + (r + 1); return (num && v !== '' && v != null && !isNaN(v)) ? `<c r="${ref}"><v>${v}</v></c>` : `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${x(v == null ? '' : v)}</t></is></c>`; };
+    const numCol = ['Name'].concat(cols).map(c => c === 'power' || c === 'fc');
+    const sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>' + head.map((h, i) => `<col min="${i + 1}" max="${i + 1}" width="${i === 0 ? 24 : h === 'Avatar URL' ? 50 : 14}" customWidth="1"/>`).join('') + '</cols><sheetData>' +
+      [head].concat(rows).map((r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) => cell(v, ri, ci, ri > 0 && numCol[ci])).join('') + '</row>').join('') + '</sheetData></worksheet>';
+    const H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+    return zip([
+      ['[Content_Types].xml', H + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'],
+      ['_rels/.rels', H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+      ['xl/workbook.xml', H + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Roster" sheetId="1" r:id="rId1"/></sheets></workbook>'],
+      ['xl/_rels/workbook.xml.rels', H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'],
+      ['xl/worksheets/sheet1.xml', sheet]
+    ]);
+  }
+  document.getElementById('exGo').addEventListener('click', () => {
+    const {head, rows, cols} = exRows(); if(!rows.length) return;
+    const f = (expM.querySelector('input[name=exf]:checked') || {}).value || 'xlsx';
+    const day = new Date().toISOString().slice(0, 10), base = 'state646-roster-' + day;
+    if(f === 'xlsx') dl(base + '.xlsx', toXlsx(head, rows, cols));
+    else dl(base + '.csv', new Blob([toCsv(head, rows, f === 'csv-s' ? ';' : ',')], {type: 'text/csv;charset=utf-8'}));
+    exClose();
+  });
   // ---- hover popup (desktop) / bottom sheet on tap (touch), same look as on the board ----
   const NO_HOVER = window.matchMedia && window.matchMedia('(hover: none)').matches;
   const tipEl = document.createElement('div'); tipEl.id = 'tooltip'; tipEl.setAttribute('role', 'tooltip'); document.body.appendChild(tipEl);
