@@ -735,6 +735,18 @@
   .ro-ov td:first-child .aflag{margin-left:8px;}
   .ro-head .wins,.ro-ov td:first-child .wins{margin-left:8px;}
   .ro-head b{margin-left:8px;}
+  .ro-head{flex-wrap:nowrap;align-items:center;gap:12px;}
+  .ro-hl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;flex:1 1 auto;min-width:0;}
+  .ro-r5{display:flex;align-items:center;gap:10px;flex:none;margin-left:auto;max-width:45%;}
+  .ro-head .r5n{margin-left:0;font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .av.r5av{width:52px;height:52px;margin:0;border:1px solid var(--border);}
+  .av.ph.r5av{font-size:22px;}
+  @media (max-width:640px){ .av.r5av{width:40px;height:40px;} .av.ph.r5av{font-size:17px;} .ro-r5{max-width:42%;gap:8px;} }
+  .ro-t th.srt{cursor:pointer;user-select:none;}
+  .ro-t th.srt:hover{color:var(--strong);}
+  .ro-t th.srt.on{color:var(--strong);}
+  .ro-t th .sa{width:9px;height:9px;margin-left:5px;fill:currentColor;vertical-align:baseline;}
+  .ro-t th.srt:focus-visible{outline:2px solid var(--ice-dim);outline-offset:-2px;}
   #toTop{position:fixed;right:22px;bottom:22px;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text-dim);opacity:0;pointer-events:none;transition:opacity .2s,color .15s,border-color .15s;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;z-index:60;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
   #toTop svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   #toTop:hover{color:var(--strong);border-color:var(--text-dim)}
@@ -865,8 +877,9 @@
   .t2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--text-dim);}
   .t2 .pw{font-variant-numeric:tabular-nums;}
   .hs{display:inline-flex;gap:2px;}
-  .hs i{display:block;width:8px;height:13px;border-radius:2px;border:1px solid var(--border);}
-  .hs i.on{background:var(--ice);border-color:var(--ice);}
+  .hs i{display:block;width:8px;height:13px;border-radius:2px;border:1px solid var(--text-faint);background:rgba(128,140,170,.14);}
+  :root[data-theme="light"] .hs i{border-color:var(--border);background:transparent;}
+  .hs i.on,:root[data-theme="light"] .hs i.on{background:var(--ice);border-color:var(--ice);}
   .fl{font-size:9.5px;font-weight:700;letter-spacing:.03em;padding:1px 5px;border-radius:3px;border:1px solid var(--border);color:var(--text-dim);}
   .fl.pb{color:var(--gold);border-color:var(--gold);}
   .fl.b20{color:var(--ice);border-color:var(--ice);}
@@ -979,7 +992,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p11</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p12</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
