@@ -798,6 +798,17 @@
   #tooltip .tt-fc .fc{height:44px;}
   .ro-t tbody tr[data-pid]{cursor:default;}
   .m-only{display:none;}
+  .ex-panel{max-width:520px;}
+  .ex-body{padding:6px 22px 4px;overflow:auto;}
+  .ex-h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin:10px 0 8px;}
+  .ex-h span{text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-faint);}
+  .ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px 12px;}
+  .ex-grid label{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--text);cursor:pointer;padding:3px 0;}
+  .ex-grid input{accent-color:var(--ice);width:16px;height:16px;margin:0;}
+  .ex-grid.ex-fmt{grid-template-columns:1fr;}
+  .ex-hr{border:0;border-top:1px solid var(--border);margin:14px 0 4px;}
+  .ex-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px 18px;}
+  .ex-foot span{color:var(--text-faint);font-size:12.5px;}
   @media (max-width:640px){ .d-only{display:none;} .m-only{display:inline;} }
   /* ---- event planner ---- */
   [hidden]{display:none !important;}
@@ -948,6 +959,34 @@
     .ep-teams.cmp .st{grid-column:6;grid-row:1;width:17px;height:17px;font-size:11px;}
     .ep-teams.cmp .av{width:18px;height:18px;margin-right:4px;}
   }
+
+  .ev-btns{display:flex;gap:6px;flex-wrap:nowrap;}
+  .ev-btns .btn{padding:8px 12px;}
+  @media (max-width:640px){ .ep-bar .controls .field.ev-only{flex:1 1 100%;} .ev-btns .btn{padding:7px 10px;} }
+  body.view-users .ev-only,body.view-users #sums,body.view-users #board,body.view-users .ep-note{display:none !important;}
+  #usersView{margin-top:16px;}
+  .uv{padding:12px;}
+  .uv-tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .uv-tabs .grow{flex:1 1 auto;}
+  .uv-tabs .btn.on{background:rgba(111,227,255,.22);}
+  .uv-t{width:100%;border-collapse:collapse;font-size:13px;}
+  .uv-t th{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);font-weight:600;text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  .uv-t td{padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;vertical-align:middle;}
+  .uv-t th.c,.uv-t td.c{text-align:center;}
+  .uv-t td.r{text-align:right;}
+  .uv-t td.dim{color:var(--text-dim);}
+  .uv-t td.wrap{white-space:normal;min-width:260px;}
+  .uv-t input[type=text]{width:150px;}
+  .uv-t input[type=checkbox]{accent-color:var(--ice);width:16px;height:16px;}
+  .uv-t input[type=checkbox]:disabled{opacity:.45;}
+  .uv-t tr.off td{opacity:.5;}
+  .uv-t .btn{padding:5px 10px;font-size:12px;}
+  .uv-su{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:middle;}
+  .uv-ago{font-size:11px;color:var(--text-faint);}
+  .uv-note{margin-top:10px;}
+  .uv-f{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+  .uv-f select{min-width:160px;}
+  .uv-t th.al{text-transform:none;letter-spacing:0;font-size:12.5px;}
 </style>
 </head>
 <body>
@@ -965,17 +1004,17 @@
 
   <div class="panel ep-bar">
     <div class="controls">
-      <div class="field"><label for="evSel">Event</label><select id="evSel"></select></div>
-      <button type="button" class="btn" id="evNew" hidden>New event</button>
-      <button type="button" class="btn" id="evEdit" hidden>Edit event</button>
-      <button type="button" class="btn" id="evLock" hidden>Lock event</button>
-      <button type="button" class="btn danger" id="evDel" hidden>Delete event</button>
-      <span class="lockb" id="lockB" hidden>🔒 Locked</span>
+      <div class="field ev-only"><label for="evSel">Event</label><select id="evSel"></select></div>
+      <span class="ev-btns ev-only"><button type="button" class="btn" id="evNew" title="New event" hidden>New</button><button type="button" class="btn" id="evEdit" title="Edit this event" hidden>Edit</button><button type="button" class="btn" id="evLock" title="Lock or unlock this event" hidden>Lock</button><button type="button" class="btn danger" id="evDel" title="Delete this event" hidden>Delete</button></span>
+      <span class="lockb ev-only" id="lockB" hidden>🔒 Locked</span>
       <span class="grow"></span>
       <span class="who" id="who"></span>
+      <button type="button" class="btn" id="usersBtn" hidden>Users</button>
       <button type="button" class="btn" id="login">Log in to edit</button>
     </div>
   </div>
+
+  <div id="usersView" hidden></div>
 
   <div class="ep-sums" id="sums" hidden></div>
 
@@ -992,7 +1031,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-20 · p12</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-21 · p13</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1048,14 +1087,31 @@
   }
   function mockApi(){
     const db = {events: [{id: 'e1', name: 'FDT', kind: 'FDT', starts_on: '2026-10-25', start_hour: 11, slots: 6, created_at: '', locked: false, locked_at: null}], teams: [], entries: []};
-    const codes = {admin: {role: 'admin', alliance: ''}}; TAGS.forEach(t => codes['ed-' + t] = {role: 'editor', alliance: t});
+    const users = [{id: 'u1', name: 'Peter', role: 'super', alliances: [], active: true, token: 'super.mock', created_at: '2026-10-01T10:00:00Z', last_login: null, last_active: null},
+      {id: 'u2', name: 'Anna', role: 'editor', alliances: ['PKB', 'GYN'], active: true, token: 'anna.mock', created_at: '2026-10-02T10:00:00Z', last_login: null, last_active: null}];
+    const logs = [];
+    const legacy = {admin: {role: 'admin', name: 'Code admin', alliances: []}}; TAGS.forEach(t => legacy['ed-' + t] = {role: 'editor', name: 'Code editor ' + t, alliances: [t]});
+    const who = c => { const u = users.find(x => x.token === c && x.active); if(u) return {uid: u.id, name: u.name, role: u.role, alliances: u.alliances}; return legacy[c] || null; };
+    const iso = () => new Date().toISOString();
+    const lg = (w, event, action, detail) => logs.unshift({at: iso(), user_name: w.name, event_name: event || '', action, detail});
     let n = 1; const nid = () => 'm' + (n++);
     const cl = o => JSON.parse(JSON.stringify(o));
-    function need(c, adm){ const w = codes[c]; if(!w) throw new Error('Invalid code'); if(adm && w.role !== 'admin') throw new Error('Admin code required'); return w; }
+    function need(c, adm){ const w = who(c); if(!w) throw new Error('Invalid code'); if(adm && !['admin', 'super'].includes(w.role)) throw new Error('Admin rights required'); const u = users.find(x => x.id === w.uid); if(u) u.last_active = iso(); return w; }
+    function needSuper(c){ const w = who(c); if(!w) throw new Error('Invalid code'); if(w.role !== 'super') throw new Error('Only the super admin may do this'); return w; }
+    const evName = id => { const e = db.events.find(x => x.id === id); return e ? e.name : ''; };
     const open = id => { const e = db.events.find(x => x.id === id); if(e && e.locked) throw new Error('This event is locked. Unlock it first to make changes.'); };
     const find = (e, p) => db.entries.find(x => x.event_id === e && String(x.pid) === String(p));
     const F = {
-      ev_login: a => codes[a.p_code] || null,
+      ev_login: a => { const w = who(a.p_code); if(!w) return null; const u = users.find(x => x.id === w.uid); if(u) u.last_login = iso(); return {role: w.role, name: w.name, alliances: w.alliances, alliance: w.alliances[0] || ''}; },
+      ev_user_list: a => { needSuper(a.p_code); return users.map(u => ({id: u.id, name: u.name, role: u.role, alliances: u.alliances.slice(), active: u.active, created_at: u.created_at, last_login: u.last_login, last_active: u.last_active})); },
+      ev_user_save: a => { const w = needSuper(a.p_code); if(!String(a.p_name || '').trim()) throw new Error('Please enter a name');
+        if(!a.p_id){ const id = nid(), tok = 'new' + id + '.mock'; users.push({id, name: a.p_name.trim(), role: a.p_role, alliances: a.p_alliances || [], active: a.p_active !== false, token: tok, created_at: iso(), last_login: null, last_active: null}); lg(w, '', 'user_new', 'created user ' + a.p_name); return {id, token: tok}; }
+        const u = users.find(x => x.id === a.p_id); if(!u) throw new Error('User not found');
+        if(u.role === 'super' && (a.p_role !== 'super' || a.p_active === false) && !users.some(x => x.role === 'super' && x.active && x.id !== u.id)) throw new Error('There must be at least one active super admin');
+        Object.assign(u, {name: a.p_name.trim(), role: a.p_role, alliances: a.p_alliances || [], active: a.p_active !== false}); lg(w, '', 'user_edit', u.name + ': ' + u.role + (u.alliances.length ? ', ' + u.alliances.join('/') : '') + (u.active ? '' : ', blocked')); return {id: u.id}; },
+      ev_user_token: a => { const w = needSuper(a.p_code); const u = users.find(x => x.id === a.p_id); if(!u) throw new Error('User not found'); u.token = u.id + '.' + Math.random().toString(36).slice(2) + '.mock'; lg(w, '', 'user_link', 'renewed the link of ' + u.name); return {id: u.id, token: u.token}; },
+      ev_user_delete: a => { const w = needSuper(a.p_code); const u = users.find(x => x.id === a.p_id); if(!u) return; if(u.role === 'super' && !users.some(x => x.role === 'super' && x.active && x.id !== u.id)) throw new Error('There must be at least one active super admin'); users.splice(users.indexOf(u), 1); lg(w, '', 'user_delete', 'deleted user ' + u.name); },
+      ev_log_list: a => { needSuper(a.p_code); return logs.slice(0, a.p_limit || 300); },
       ev_event_save: a => { need(a.p_code, true); let o = a.p_id && db.events.find(x => x.id === a.p_id);
         if(!o){ o = {id: nid(), created_at: ''}; db.events.push(o); }
         Object.assign(o, {name: a.p_name, kind: a.p_kind, starts_on: a.p_starts_on, start_hour: a.p_start_hour, slots: a.p_slots}); return o.id; },
@@ -1067,11 +1123,11 @@
         Object.assign(o, {name: a.p_name, target: a.p_target || '', sort: a.p_sort == null ? (o.sort || 0) : a.p_sort}); return o.id; },
       ev_team_delete: a => { need(a.p_code, true); db.teams = db.teams.filter(x => x.id !== a.p_id); db.entries.forEach(x => { if(x.team_id === a.p_id) x.team_id = null; }); },
       ev_entry_save: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid);
-        if(w.role === 'editor' && (a.p_alliance !== w.alliance || (o && o.alliance !== w.alliance))) throw new Error('Editors may only edit players of their own alliance (' + w.alliance + ')');
+        if(w.role === 'editor' && (!w.alliances.includes(a.p_alliance) || (o && !w.alliances.includes(o.alliance)))) throw new Error('You may only edit players of your own alliances (' + w.alliances.join(', ') + ')');
         const v = {name: a.p_name, power: a.p_power, hours: a.p_hours, pb: a.p_pb, b20: a.p_b20, gather: a.p_gather, rl: !!a.p_rl};
         if(o) Object.assign(o, v); else db.entries.push(Object.assign({event_id: a.p_event, pid: a.p_pid, team_id: null, joined: false, alliance: a.p_alliance, snap_alliance: ''}, v)); },
       ev_entry_delete: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid); if(!o) return;
-        if(w.role === 'editor' && o.alliance !== w.alliance) throw new Error('Editors may only edit players of their own alliance');
+        if(w.role === 'editor' && !w.alliances.includes(o.alliance)) throw new Error('You may only edit players of your own alliances (' + w.alliances.join(', ') + ')');
         db.entries = db.entries.filter(x => x !== o); },
       ev_entry_assign: a => { need(a.p_code, true); open(a.p_event); const o = find(a.p_event, a.p_pid); if(o && o.team_id !== a.p_team){ o.team_id = a.p_team; o.joined = false; } },
       ev_entry_joined: a => { need(a.p_code, true); open(a.p_event); const o = find(a.p_event, a.p_pid); if(o) o.joined = !!a.p_joined; }
@@ -1086,13 +1142,15 @@
   const api = MOCK ? mockApi() : (CFG.url && CFG.key ? restApi() : null);
 
   // ---- state ----
-  const S = {events: [], evId: null, teams: [], entries: [], role: null, alliance: '', code: '', cmp: PREFS.epc === true, q: '', pa: '', ps: ['power', 'name', 'avail'].includes(PREFS.eps) ? PREFS.eps : 'power', ap: {q: '', tag: ''}};
+  const S = {events: [], evId: null, teams: [], entries: [], role: null, alliances: [], uname: '', code: '', view: 'board', cmp: PREFS.epc === true, q: '', pa: '', ps: ['power', 'name', 'avail'].includes(PREFS.eps) ? PREFS.eps : 'power', ap: {q: '', tag: ''}};
   let D = null;           // players.json
   let last = '';
   let dragPid = null;
   const ev = () => S.events.find(e => e.id === S.evId) || null;
-  const isAdmin = () => S.role === 'admin';
-  const canEdit = () => S.role === 'admin' || S.role === 'editor';
+  const isSuper = () => S.role === 'super';
+  const isAdmin = () => S.role === 'admin' || S.role === 'super';
+  const canEdit = () => !!S.role;
+  const mayEd = a => isAdmin() || S.alliances.includes(a);   // may this person edit players of alliance a?
   const locked = () => !!(ev() && ev().locked);
   const adm = () => isAdmin() && !locked();      // admin actions (not possible while the event is locked)
   const canW = () => canEdit() && !locked();
@@ -1124,7 +1182,7 @@
   }
   function tile(e, team){
     const i = pinfo(e);
-    return `<div class="tile${adm() ? ' drag' : ''}${(adm() || (canW() && e.alliance === S.alliance)) ? ' clickable' : ''}${e.rl ? ' rl' : ''}" data-pid="${escapeHtml(e.pid)}"${adm() ? ' draggable="true"' : ''}>
+    return `<div class="tile${adm() ? ' drag' : ''}${(adm() || (canW() && mayEd(e.alliance))) ? ' clickable' : ''}${e.rl ? ' rl' : ''}" data-pid="${escapeHtml(e.pid)}"${adm() ? ' draggable="true"' : ''}>
       <div class="t1"><span class="nm">${avHtml(e, i.p)}<span class="nt" title="${escapeHtml(i.name)}">${escapeHtml(i.name)}</span></span>${tagChip(i.tag)}${status(e, team)}</div>
       <div class="t2"><span class="pw" title="${fmt(i.power)}">${fmtM(i.power)}</span>${strip(e.hours)}${flags(e)}</div></div>`;
   }
@@ -1132,7 +1190,9 @@
   // ---- rendering ----
   function render(){
     $('login').textContent = canEdit() ? 'Log out' : 'Log in to edit';
-    $('who').innerHTML = S.role === 'admin' ? 'Logged in as <b>Admin</b>' : (S.role === 'editor' ? 'Logged in as <b>Editor</b> ' + tagChip(S.alliance) : 'View only');
+    $('who').innerHTML = S.role ? 'Logged in as <b>' + escapeHtml(S.uname || S.role) + '</b> · ' + (S.role === 'super' ? 'Super admin' : S.role === 'admin' ? 'Admin' : 'Editor ' + (S.alliances.map(tagChip).join(' ') || '(no alliance yet)')) : 'View only';
+    $('usersBtn').hidden = !isSuper(); if(!isSuper() && S.view === 'users') S.view = 'board';
+    document.body.classList.toggle('view-users', S.view === 'users'); $('usersView').hidden = S.view !== 'users'; $('usersBtn').textContent = S.view === 'users' ? 'Back to planner' : 'Users';
     $('evNew').hidden = !isAdmin(); $('evEdit').hidden = !(isAdmin() && ev()); $('evDel').hidden = !(isAdmin() && ev());
     const sel = $('evSel'); const cur = S.evId;
     sel.innerHTML = S.events.map(e => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.name)}${e.starts_on ? ' · ' + escapeHtml(e.starts_on) : ''}</option>`).join('') || '<option value="">(no events yet)</option>';
@@ -1144,7 +1204,7 @@
     if(!e) return;
     $('addP').hidden = !canW();
     $('tNew').hidden = !adm(); $('tStd').hidden = !(adm() && !S.teams.length);
-    $('evLock').hidden = !isAdmin(); $('evLock').textContent = locked() ? 'Unlock event' : 'Lock event'; $('lockB').hidden = !locked();
+    $('evLock').hidden = !isAdmin(); $('evLock').textContent = locked() ? 'Unlock' : 'Lock'; $('lockB').hidden = !locked();
     $('lockB').textContent = '🔒 Locked' + (e.locked_at ? ' · ' + String(e.locked_at).replace('T', ' ').slice(0, 16) + ' UTC' : '');
     $('evEdit').hidden = !(adm() && ev());
     // pool
@@ -1260,13 +1320,13 @@
 
   // login
   function setLogin(res, code){
-    if(res){ S.role = res.role; S.alliance = res.alliance || ''; S.code = code; try { localStorage.setItem('ep_code', code); } catch(e) {} }
-    else { S.role = null; S.alliance = ''; S.code = ''; try { localStorage.removeItem('ep_code'); } catch(e) {} }
+    if(res){ S.role = res.role; S.alliances = res.alliances || (res.alliance ? [res.alliance] : []); S.uname = res.name || ''; S.code = code; try { localStorage.setItem('ep_code', code); } catch(e) {} }
+    else { S.role = null; S.alliances = []; S.uname = ''; S.code = ''; S.view = 'board'; try { localStorage.removeItem('ep_code'); } catch(e) {} }
   }
   $('login').addEventListener('click', () => {
     if(canEdit()){ setLogin(null); render(); return; }
-    openModal(`<div class="ep-box sm">${mhead('Log in')}<div class="ep-mb"><div class="field"><label for="lc">Code</label><input type="password" id="lc" autocomplete="off" placeholder="Admin or alliance editor code"></div><div class="acts"><button type="button" class="btn" id="lgo">Log in</button></div></div></div>`, m => {
-      const go = async () => { try { const r = await api.rpc('ev_login', {p_code: $('lc').value}); if(!r){ toast('This code is not valid.'); return; } setLogin(r, $('lc').value); closeModal(); render(); } catch(err){ toast(err.message); } };
+    openModal(`<div class="ep-box sm">${mhead('Log in')}<div class="ep-mb"><div class="field"><label for="lc">Your personal link or code</label><input type="password" id="lc" autocomplete="off" placeholder="Paste your invitation link"></div><div class="acts"><button type="button" class="btn" id="lgo">Log in</button></div></div></div>`, m => {
+      const go = async () => { try { let c = $('lc').value.trim(); const mm = c.match(/invite=([^&\s#]+)/); if(mm) c = decodeURIComponent(mm[1]); const r = await api.rpc('ev_login', {p_code: c}); if(!r){ toast('This code is not valid.'); return; } setLogin(r, c); closeModal(); render(); } catch(err){ toast(err.message); } };
       $('lgo').addEventListener('click', go); $('lc').addEventListener('keydown', e => { if(e.key === 'Enter') go(); }); $('lc').focus();
     });
   });
@@ -1380,7 +1440,7 @@
     const te = e.target.closest('[data-edit-team]'); if(te){ teamDialog(teamById(te.dataset.editTeam)); return; }
     const t = e.target.closest('.tile'); if(!t || !canW()) return;
     const pid = t.dataset.pid; const cur = () => S.entries.find(x => String(x.pid) === pid);
-    const o0 = cur(); if(!o0 || !(adm() || o0.alliance === S.alliance)) return; const i = pinfo(o0); const n = slotsOf();
+    const o0 = cur(); if(!o0 || !(adm() || mayEd(o0.alliance))) return; const i = pinfo(o0); const n = slotsOf();
     const edit = `<div class="field"><label>Availability (saved immediately)</label><div class="ed-h">${Array.from({length: n}, (_, k) => `<label class="ed-c"><input type="checkbox" data-eh="${k}"${(o0.hours >> k) & 1 ? ' checked' : ''}> ${slotLabel(k)}</label>`).join('')}</div>
       <div class="ed-h" style="margin-top:6px"><label class="ed-c"><input type="checkbox" data-ef="pb"${o0.pb ? ' checked' : ''}> PB</label><label class="ed-c"><input type="checkbox" data-ef="b20"${o0.b20 ? ' checked' : ''}> 20%</label><label class="ed-c"><input type="checkbox" data-ef="gather"${o0.gather ? ' checked' : ''}> ${BASKET} Gatherer</label><label class="ed-c"><input type="checkbox" data-ef="rl"${o0.rl ? ' checked' : ''}> RL (rally leader)</label><button type="button" class="lnk" id="eall">all hours</button></div></div>`;
     const adminPart = adm() ? `<div class="field"><label for="hm">Registered from (home alliance)</label><select id="hm">${Array.from(new Set(TAGS.concat([o0.alliance]))).filter(Boolean).map(x => `<option value="${escapeHtml(x)}"${x === o0.alliance ? ' selected' : ''}>${escapeHtml(x)}</option>`).join('')}</select></div>
@@ -1415,10 +1475,10 @@
   const pobj = pid => { const d = D && D.players[pid]; if(d) return Object.assign({id: pid}, d); const o = S.entries.find(x => String(x.pid) === String(pid)); return {id: pid, n: o ? o.name : pid, a: o ? o.alliance : '', p: o ? o.power : 0}; };
   function addDialog(){
     if(!D){ toast('The player data is not loaded yet.'); return; }
-    const tags = isAdmin() ? TAGS.filter(t => D.alliances[t]) : [S.alliance].filter(t => D.alliances[t]);
-    if(!tags.length){ toast('No player data found for your alliance.'); return; }
-    if(isAdmin()) tags.unshift('*');
-    if(!S.ap.tag || !tags.includes(S.ap.tag)) S.ap.tag = isAdmin() ? '*' : tags[0];
+    const tags = isAdmin() ? TAGS.filter(t => D.alliances[t]) : S.alliances.filter(t => D.alliances[t]);
+    if(!tags.length){ toast('No player data found for your alliances.'); return; }
+    if(isAdmin() || tags.length > 1) tags.unshift('*');
+    if(!S.ap.tag || !tags.includes(S.ap.tag)) S.ap.tag = tags[0];
     const n = slotsOf();
     openModal(`<div class="ep-box">${mhead('Add players and availability')}<div class="ep-mb">
       <div class="row"><div class="field"><label for="apa">Alliance</label><select id="apa"${tags.length === 1 ? ' disabled' : ''}>${tags.map(t => `<option value="${escapeHtml(t)}">${t === '*' ? 'All alliances' : escapeHtml(t)}</option>`).join('')}</select></div>
@@ -1447,8 +1507,8 @@
       const body = $('apb'); if(!body) return;
       const tag = S.ap.tag, q = S.ap.q.toLowerCase();
       const idsOf = t => { const A = D.alliances[t]; return (A && A.m) ? A.m : Object.keys(D.players).filter(k => D.players[k].a === t); };
-      const ids = tag === '*' ? Array.from(new Set(TAGS.filter(t => D.alliances[t]).flatMap(idsOf))) : idsOf(tag);
-      const mine = S.entries.filter(x => tag === '*' || x.alliance === tag).map(x => String(x.pid));   // registered from this alliance, even if they moved meanwhile
+      const ids = tag === '*' ? Array.from(new Set(TAGS.filter(t => D.alliances[t] && mayEd(t)).flatMap(idsOf))) : idsOf(tag);
+      const mine = S.entries.filter(x => tag === '*' ? mayEd(x.alliance) : x.alliance === tag).map(x => String(x.pid));   // registered from this alliance, even if they moved meanwhile
       const rows = Array.from(new Set(ids.concat(mine))).map(id => ({id, p: pobj(id)})).filter(r => !q || r.p.n.toLowerCase().includes(q) || r.id.includes(q)).sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
       body.innerHTML = rows.map(r => { const o = S.entries.find(x => String(x.pid) === r.id); const h = o ? o.hours : 0;
         return `<tr data-pid="${escapeHtml(r.id)}" class="${o ? 'in' : ''}"><td class="c"><input type="checkbox" data-k="in"${o ? ' checked' : ''}></td><td class="n"><b>${escapeHtml(r.p.n)}</b></td><td>${tagChip(r.p.a)}</td><td>${fmtM(r.p.p)}</td>${Array.from({length: n}, (_, i) => `<td class="c"><input type="checkbox" data-k="h" data-i="${i}"${(h >> i) & 1 ? ' checked' : ''}></td>`).join('')}<td class="c"><button type="button" class="lnk" data-all>all</button></td><td class="c"><input type="checkbox" data-k="pb"${o && o.pb ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="b20"${o && o.b20 ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="gather"${o && o.gather ? ' checked' : ''}></td><td class="c"><input type="checkbox" data-k="rl"${o && o.rl ? ' checked' : ''}></td></tr>`; }).join('') || `<tr><td colspan="${n + 9}" class="ep-empty">No players found.</td></tr>`;
@@ -1467,12 +1527,98 @@
       try { localStorage.setItem('svs-theme', next); } catch(e) {} try { document.cookie = 'svs_theme=' + next + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {} });
   })();
 
+  // ---- users (super admin) ----
+  const UV = {tab: 'users', users: null, log: null, uf: ''};
+  const fmtT = iso => { if(!iso) return '–'; const d = new Date(iso); return isNaN(d) ? '–' : d.toLocaleString('de-AT', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}); };
+  const fmtTY = iso => { if(!iso) return '–'; const d = new Date(iso); return isNaN(d) ? '–' : d.toLocaleString('de-AT', {day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'}); };
+  function ago(iso){ if(!iso) return ''; const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000); if(isNaN(m)) return ''; if(m < 2) return 'just now'; if(m < 90) return m + ' min ago'; const h = Math.round(m / 60); if(h < 36) return h + ' h ago'; return Math.round(h / 24) + ' days ago'; }
+  async function usersLoad(){
+    try { UV.users = await api.rpc('ev_user_list', {p_code: S.code}); if(UV.tab === 'log') UV.log = await api.rpc('ev_log_list', {p_code: S.code, p_limit: 300}); } catch(err){ toast(err.message); }
+    usersRender();
+  }
+  function usersRender(){
+    const el = $('usersView'); if(!isSuper() || S.view !== 'users'){ return; }
+    const tabs = `<div class="uv-tabs"><button type="button" class="btn${UV.tab === 'users' ? ' on' : ''}" data-tab="users">People</button><button type="button" class="btn${UV.tab === 'log' ? ' on' : ''}" data-tab="log">Change log</button><span class="grow"></span><button type="button" class="btn" id="uvReload">Reload</button>${UV.tab === 'users' ? '<button type="button" class="btn" id="uvNew">+ New person</button>' : ''}</div>`;
+    let body = '';
+    if(UV.tab === 'users'){
+      const us = UV.users || [];
+      body = `<div class="ap-wrap"><table class="uv-t"><thead><tr><th>Name</th><th class="c" title="May manage events, teams and all players">Admin</th>${TAGS.map(t => `<th class="c al">${escapeHtml(t)}</th>`).join('')}<th class="c" title="Untick to block this person">Active</th><th>Last login</th><th>Last change</th><th></th></tr></thead><tbody>` +
+        us.map(u => { const adm = u.role !== 'editor', sup = u.role === 'super';
+          return `<tr data-id="${escapeHtml(u.id)}" data-role="${escapeHtml(u.role)}" class="${u.active ? '' : 'off'}"><td><input type="text" class="un" value="${escapeHtml(u.name)}" maxlength="40" aria-label="Name">${sup ? ' <span class="uv-su">SUPER</span>' : ''}</td>` +
+          `<td class="c"><input type="checkbox" class="ua"${adm ? ' checked' : ''}${sup ? ' disabled' : ''} aria-label="Admin"></td>` +
+          TAGS.map(t => `<td class="c"><input type="checkbox" class="ut" data-t="${escapeHtml(t)}"${(adm || u.alliances.includes(t)) ? ' checked' : ''}${adm ? ' disabled' : ''} aria-label="${escapeHtml(t)}"></td>`).join('') +
+          `<td class="c"><input type="checkbox" class="uact"${u.active ? ' checked' : ''}${sup ? ' disabled' : ''} aria-label="Active"></td>` +
+          `<td title="${escapeHtml(fmtTY(u.last_login))}">${escapeHtml(fmtT(u.last_login))}<div class="uv-ago">${escapeHtml(ago(u.last_login))}</div></td><td title="${escapeHtml(fmtTY(u.last_active))}">${escapeHtml(fmtT(u.last_active))}<div class="uv-ago">${escapeHtml(ago(u.last_active))}</div></td>` +
+          `<td class="r"><button type="button" class="btn" data-link title="Create a new link (the old one stops working)">New link</button>${sup ? '' : ' <button type="button" class="ic" data-del title="Delete this person">✕</button>'}</td></tr>`; }).join('') +
+        `</tbody></table></div><div class="sx-id uv-note">Admins may edit everything, so their alliance boxes are fixed. Editors see everything but may only change players of the alliances ticked here. Changes apply immediately.</div>`;
+    } else {
+      const lg = UV.log || [], names = Array.from(new Set(lg.map(x => x.user_name))).sort();
+      const rows = lg.filter(x => !UV.uf || x.user_name === UV.uf);
+      body = `<div class="uv-f"><label for="uvf">Person</label><select id="uvf"><option value="">Everybody</option>${names.map(n => `<option value="${escapeHtml(n)}"${n === UV.uf ? ' selected' : ''}>${escapeHtml(n)}</option>`).join('')}</select><span class="sx-id">${rows.length} of the last ${lg.length} entries</span></div>` +
+        `<div class="ap-wrap"><table class="uv-t uv-l"><thead><tr><th>When</th><th>Who</th><th>Event</th><th>What</th></tr></thead><tbody>${rows.map(x => `<tr><td class="dim">${escapeHtml(fmtTY(x.at))}</td><td><b>${escapeHtml(x.user_name)}</b></td><td class="dim">${escapeHtml(x.event_name || '')}</td><td class="wrap">${escapeHtml(x.detail)}</td></tr>`).join('') || '<tr><td colspan="4" class="ep-empty">Nothing logged yet.</td></tr>'}</tbody></table></div><div class="sx-id uv-note">Only changes made with the new personal links are logged. Entries older than about six months are removed automatically.</div>`;
+    }
+    el.innerHTML = `<div class="ep-sec uv">${tabs}${body}</div>`;
+  }
+  function linkDialog(name, token, isNew){
+    const url = location.origin + location.pathname + '?invite=' + encodeURIComponent(token);
+    openModal(`<div class="ep-box sm">${mhead(isNew ? 'Link for ' + escapeHtml(name) : 'New link for ' + escapeHtml(name))}<div class="ep-mb"><div class="sx-id">Send this link to ${escapeHtml(name)}. It is the personal key: whoever has it can log in as this person. It is shown only now; if it gets lost, create a new link.</div>
+      <div class="field"><input type="text" id="lku" readonly value="${escapeHtml(url)}"></div><div class="acts"><button type="button" class="btn" id="lkc">Copy link</button></div></div></div>`, m => {
+      $('lku').addEventListener('focus', () => $('lku').select());
+      $('lkc').addEventListener('click', () => { const t = $('lku'); t.select(); const ok = () => toast('Link copied.', true);
+        try { navigator.clipboard.writeText(t.value).then(ok, () => { try { document.execCommand('copy'); ok(); } catch(x) { toast('Please copy the link by hand.'); } }); } catch(x) { try { document.execCommand('copy'); ok(); } catch(y) { toast('Please copy the link by hand.'); } } });
+    });
+  }
+  function newUserDialog(){
+    openModal(`<div class="ep-box sm">${mhead('New person')}<div class="ep-mb"><div class="field"><label for="nun">Name</label><input type="text" id="nun" maxlength="40" autocomplete="off"></div>
+      <label class="ed-c"><input type="checkbox" id="nua"> Admin (may edit everything)</label>
+      <div class="field"><label>Alliances this person may edit</label><div class="ed-h" id="nut">${TAGS.map(t => `<label class="ed-c"><input type="checkbox" value="${escapeHtml(t)}"> ${escapeHtml(t)}</label>`).join('')}</div></div>
+      <div class="acts"><button type="button" class="btn" id="nuc">Create and show link</button></div></div></div>`, m => {
+      $('nua').addEventListener('change', () => m.querySelectorAll('#nut input').forEach(i => { i.disabled = $('nua').checked; }));
+      $('nuc').addEventListener('click', async () => {
+        const name = $('nun').value.trim(); if(!name){ toast('Please enter a name.'); return; }
+        const adm = $('nua').checked, al = adm ? [] : Array.from(m.querySelectorAll('#nut input:checked')).map(i => i.value);
+        try { const r = await api.rpc('ev_user_save', {p_code: S.code, p_id: null, p_name: name, p_role: adm ? 'admin' : 'editor', p_alliances: al, p_active: true}); closeModal(); linkDialog(name, r.token, true); usersLoad(); } catch(err){ toast(err.message); }
+      }); $('nun').focus();
+    });
+  }
+  $('usersView').addEventListener('click', async e => {
+    const tb = e.target.closest('[data-tab]'); if(tb){ UV.tab = tb.dataset.tab; usersLoad(); return; }
+    if(e.target.closest('#uvReload')){ usersLoad(); return; }
+    if(e.target.closest('#uvNew')){ newUserDialog(); return; }
+    const tr = e.target.closest('tr[data-id]'); if(!tr) return;
+    const u = (UV.users || []).find(x => x.id === tr.dataset.id); if(!u) return;
+    if(e.target.closest('[data-link]')){
+      if(!confirm('Create a new link for ' + u.name + '? The old link stops working immediately.' + (u.role === 'super' ? ' This is YOUR link: you will be logged out and need the new link.' : ''))) return;
+      try { const r = await api.rpc('ev_user_token', {p_code: S.code, p_id: u.id}); linkDialog(u.name, r.token, false); if(u.role === 'super'){ setLogin(null); } } catch(err){ toast(err.message); }
+      usersLoad(); return; }
+    if(e.target.closest('[data-del]')){
+      if(!confirm('Delete ' + u.name + '? Their link stops working. Their entries in the change log stay.')) return;
+      try { await api.rpc('ev_user_delete', {p_code: S.code, p_id: u.id}); toast('Deleted.', true); } catch(err){ toast(err.message); }
+      usersLoad(); }
+  });
+  $('usersView').addEventListener('change', async e => {
+    if(e.target.id === 'uvf'){ UV.uf = e.target.value; usersRender(); return; }
+    const tr = e.target.closest('tr[data-id]'); if(!tr) return;
+    const u = (UV.users || []).find(x => x.id === tr.dataset.id); if(!u) return;
+    const sup = u.role === 'super', adm = sup || tr.querySelector('.ua').checked;
+    const role = sup ? 'super' : (adm ? 'admin' : 'editor');
+    const al = (adm && u.role === 'editor') ? [] : (adm ? u.alliances : Array.from(tr.querySelectorAll('.ut:checked')).map(i => i.dataset.t));
+    const name = tr.querySelector('.un').value.trim() || u.name;
+    try { await api.rpc('ev_user_save', {p_code: S.code, p_id: u.id, p_name: name, p_role: role, p_alliances: al, p_active: sup ? true : tr.querySelector('.uact').checked}); toast('Saved.', true); } catch(err){ toast(err.message); }
+    usersLoad();
+  });
+  $('usersBtn').addEventListener('click', () => { S.view = S.view === 'users' ? 'board' : 'users'; render(); if(S.view === 'users') usersLoad(); });
+
   // ---- start ----
   function loadPlayers(){ return fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()).then(j => { j.alliances = j.alliances || {}; j.players = j.players || {}; const first = !D; D = j; if(first) last = ''; render(); }).catch(() => {}); }
   (async function(){
     if(!api){ $('sub').textContent = 'Not set up yet: enter the Supabase URL and key at the top of the script (see the setup notes).'; return; }
     const m = location.hash.match(/ev=([\w-]+)/); if(m) S.evId = m[1];
-    try { const c = localStorage.getItem('ep_code'); if(c){ const r = await api.rpc('ev_login', {p_code: c}); if(r) setLogin(r, c); else setLogin(null); } } catch(e) {}
+    const inv = new URLSearchParams(location.search).get('invite');
+    if(inv){
+      try { const r = await api.rpc('ev_login', {p_code: inv}); if(r){ setLogin(r, inv); toast('Welcome, ' + (r.name || '') + '!', true); } else toast('This link is not valid (any more). Please ask for a new one.'); } catch(e) { toast(e.message); }
+      try { const u = new URL(location.href); u.searchParams.delete('invite'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch(e) {}
+    } else try { const c = localStorage.getItem('ep_code'); if(c){ const r = await api.rpc('ev_login', {p_code: c}); if(r) setLogin(r, c); else setLogin(null); } } catch(e) {}
     await loadPlayers(); await refresh(true); setHash();
     setInterval(() => { if(!document.hidden && !dragPid) refresh(false); }, 10000);
     setInterval(loadPlayers, 300000);
