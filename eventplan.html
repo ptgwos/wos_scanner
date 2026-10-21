@@ -946,12 +946,13 @@
   .cmp-sw{align-self:center;padding:0;}
   @media (max-width:640px){ .cmp-sw{display:none;} }
   @media (min-width:641px){
-    .ep-teams.cmp .team-b{gap:4px;padding:8px;}
-    .ep-teams.cmp .tile{display:grid;grid-template-columns:minmax(0,1fr) 104px calc(var(--n,6) * 8px) 58px 56px 19px;align-items:center;column-gap:8px;padding:4px 8px;}
+    .ep-teams.cmp .team-b{display:grid;grid-template-columns:minmax(96px,1fr) auto auto auto auto auto;column-gap:8px;row-gap:4px;padding:8px;}
+    .ep-teams.cmp .team-b .ep-empty{grid-column:1/-1;}
+    .ep-teams.cmp .tile{display:grid;grid-template-columns:subgrid;grid-column:1/-1;align-items:center;padding:4px 8px;}
     .ep-teams.cmp .t1,.ep-teams.cmp .t2{display:contents;}
-    .ep-teams.cmp .t1 .nm{grid-column:1;grid-row:1;}
+    .ep-teams.cmp .t1 .nm{grid-column:1;grid-row:1;min-width:0;}
     .ep-teams.cmp .t1 .nt{font-size:13px;}
-    .ep-teams.cmp .fls{grid-column:2;grid-row:1;justify-self:end;gap:4px;flex-wrap:nowrap;overflow:hidden;}
+    .ep-teams.cmp .fls{grid-column:2;grid-row:1;justify-self:end;gap:4px;flex-wrap:nowrap;}
     .ep-teams.cmp .hs{grid-column:3;grid-row:1;gap:2px;}
     .ep-teams.cmp .hs i{width:6px;height:11px;}
     .ep-teams.cmp .pw{grid-column:4;grid-row:1;text-align:right;}
@@ -1031,7 +1032,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-21 · p13</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-21 · p14</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
