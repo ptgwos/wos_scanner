@@ -889,6 +889,7 @@
   .dur .v{color:var(--text);text-align:right;white-space:nowrap;}
   .dur .z{opacity:.5;}
   .ms-h{display:flex;align-items:center;gap:8px;margin:4px 0 2px;}
+  .ms-ok{font-size:12px;color:var(--good);margin:2px 0 6px;}
   .ms-h b{font-size:14px;color:var(--strong);}
   table.ms{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
   table.ms td{padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
@@ -1047,7 +1048,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-21 · p20</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build p21</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1298,8 +1299,8 @@
   function missingDialog(){
     const part = tag => { const m = missingOf(tag).sort((a, b) => pinfo(b).power - pinfo(a).power);
       return `<div class="ms-h">${tagChip(tag)}<b>${m.length} still to join</b>${m.length ? `<button type="button" class="btn" data-copy="${tag}" style="margin-left:auto">Copy names</button>` : ''}</div>` +
-        (m.length ? `<div class="ap-wrap"><table class="ms"><colgroup><col style="width:32%"><col style="width:24%"><col style="width:26%"><col style="width:18%"></colgroup><tbody>${m.map(x => { const i = pinfo(x); const t = teamById(x.team_id);
-          return `<tr><td class="n">${escapeHtml(i.name)}</td><td>${i.known ? 'now in ' + tagChip(i.tag) : '<span class="sx-id">not in the game data</span>'}</td><td>${escapeHtml(t ? t.name : '')}</td><td class="pw">${fmtM(i.power)}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="okk">Everybody assigned to a ' + tag + ' team is already in ' + tag + '.</div>');
+        (m.length ? `<div class="ap-wrap"><table class="ms"><colgroup><col style="width:62%"><col style="width:38%"></colgroup><tbody>${m.map(x => { const i = pinfo(x); const t = teamById(x.team_id);
+          return `<tr><td class="n">${escapeHtml(i.name)}</td><td>${i.known ? '→ ' + tagChip(i.tag) : '<span class="sx-id">not in the game data</span>'}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="ms-ok">Everybody assigned to a ' + tag + ' team is already in ' + tag + '.</div>');
     };
     openModal(`<div class="ep-box">${mhead('Missing players')}<div class="ep-mb"><div class="sx-id">Players in a team of the alliance who are not yet shown in it. The game data can be up to 60 minutes behind; players marked manually are not listed.</div>${part('PKB')}${part('GYN')}</div></div>`, m => {
       m.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => { const txt = missingOf(b.dataset.copy).sort((x, y) => pinfo(y).power - pinfo(x).power).map(x => pinfo(x).name).join('\n');
