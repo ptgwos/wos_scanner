@@ -914,6 +914,8 @@
   .ep-sums{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
   .ep-sum{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;}
   .ep-sum .h{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
+  .shot-btn{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--panel-2);color:var(--text-dim);cursor:pointer;padding:0;}
+  .shot-btn:hover{color:var(--ice);border-color:var(--ice-dim);}
   .ep-sum .big{font-size:22px;font-weight:700;color:var(--strong);font-variant-numeric:tabular-nums;}
   .ep-sum .big small{font-size:13px;font-weight:500;color:var(--text-dim);margin-left:6px;}
   .ep-sum .miss{font-size:12px;color:var(--danger);}
@@ -1097,7 +1099,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-22 · p26</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-22 · p27</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1342,9 +1344,26 @@
       dur += `<span class="dg"></span><span class="l${gx.all ? '' : ' z'}" style="grid-column:1"><span class="gl">${BASKET}</span><span class="d-only"> gatherers</span><span class="m-only"> G</span></span><span class="b">${seg(gx)}</span><span class="v${gx.all ? '' : ' z'}">${gx.all}/${MAXP}</span>`;
       const used = TY.filter(ty => m.some(x => teamType(teamById(x.team_id)) === ty));
       dur += `<span class="dleg">${used.map(ty => `<span><i class="t-${ty}"></i>${TN[ty]}</span>`).join('')}</span>`;
-      return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}<div class="dur" title="Players by the number of hours they ticked (each player is counted once)">${dur}</div></div>`;
+      return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span><button type="button" class="shot-btn no-shot" title="Copy this block as an image" aria-label="Copy this block as an image">${CAM_SVG}</button></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}<div class="dur" title="Players by the number of hours they ticked (each player is counted once)">${dur}</div></div>`;
     }).join('');
   }
+  // ---- block as an image (library html-to-image is loaded on the first click) ----
+  const CAM_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+  let h2iP = null;
+  const loadH2I = () => h2iP || (h2iP = new Promise((res, rej) => {
+    if(window.htmlToImage) return res(window.htmlToImage);
+    const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+    sc.onload = () => window.htmlToImage ? res(window.htmlToImage) : rej(new Error('lib')); sc.onerror = () => { h2iP = null; rej(new Error('lib')); }; document.head.appendChild(sc);
+  }));
+  function shotCopy(el, name){
+    const bg = getComputedStyle(document.body).backgroundColor;
+    const png = loadH2I().then(h => h.toBlob(el, {pixelRatio: 2, backgroundColor: bg, filter: n => !(n.classList && n.classList.contains('no-shot'))})).then(b => { if(!b) throw new Error('empty'); return b; });
+    const save = () => png.then(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name + '.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast('Image saved as a file (the clipboard did not accept it).', true); }).catch(() => toast('The image could not be created.'));
+    if(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      try { navigator.clipboard.write([new ClipboardItem({'image/png': png})]).then(() => toast('Image copied.', true), save); } catch(x) { save(); }
+    } else save();
+  }
+  $('sums').addEventListener('click', e => { const b = e.target.closest && e.target.closest('.shot-btn'); if(!b) return; const el = b.closest('.ep-sum'); const t = el && el.querySelector('.h span'); shotCopy(el, (t ? t.textContent : 'block').replace(/\W+/g, '-')); });
   function clip(txt, okMsg){
     const fb = () => { try { const t = document.createElement('textarea'); t.value = txt; t.style.cssText = 'position:fixed;left:-999px;top:0'; document.body.appendChild(t); t.select(); const r = document.execCommand('copy'); t.remove(); r ? toast(okMsg, true) : toast('Please copy the text by hand.'); } catch(x) { toast('Please copy the text by hand.'); } };
     try { navigator.clipboard.writeText(txt).then(() => toast(okMsg, true), fb); } catch(x) { fb(); }
