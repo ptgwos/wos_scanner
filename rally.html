@@ -993,7 +993,7 @@
     </div>
   </div>
 
-  <footer>State 646 · Rally Planning — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y3</footer>
+  <footer>State 646 · Rally Planning — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y4</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div></div></div></div>
@@ -1207,10 +1207,30 @@
     if(window.htmlToImage) return Promise.resolve();
     return new Promise((res, rej) => { const s = document.createElement('script'); s.src = window.__rpLib || LIB; s.onload = res; s.onerror = () => rej(new Error('lib')); document.head.appendChild(s); });
   }
+  // Safari/iOS: html-to-image cannot re-fetch images inside its SVG snapshot -> inline them as data URIs first
+  function inlineImgs(root){
+    const undo = [];
+    root.querySelectorAll('img').forEach(im => {
+      try {
+        if(!im.complete || !im.naturalWidth) return;
+        const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+        c.getContext('2d').drawImage(im, 0, 0);
+        const old = im.getAttribute('src'); im.removeAttribute('loading');
+        im.src = c.toDataURL('image/png'); undo.push([im, old]);
+      } catch(e) {}
+    });
+    return Promise.all(undo.map(u => u[0].decode ? u[0].decode().catch(() => {}) : 0)).then(() => () => undo.forEach(u => u[0].setAttribute('src', u[1])));
+  }
   async function shotBlob(){
     await loadLib();
+    const el = $('shot');
     const bg = getComputedStyle(document.documentElement).getPropertyValue('--panel').trim() || '#0f1626';
-    return window.htmlToImage.toBlob($('shot'), {pixelRatio: 2, backgroundColor: bg, cacheBust: false, filter: n => !(n.classList && n.classList.contains('no-shot'))});
+    const opt = {pixelRatio: 2, backgroundColor: bg, cacheBust: false, filter: n => !(n.classList && n.classList.contains('no-shot'))};
+    const restore = await inlineImgs(el);
+    try {
+      if(/iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent)) { try { await window.htmlToImage.toBlob(el, opt); } catch(e) {} } // warm-up render (Safari draws images only on the 2nd pass)
+      return await window.htmlToImage.toBlob(el, opt);
+    } finally { restore(); }
   }
   async function copyImage(btn){
     btn.disabled = true;
