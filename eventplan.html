@@ -841,6 +841,30 @@
   .st-foot span{font-size:12px;color:var(--text-faint);}
   .st-foot button{white-space:nowrap;flex:none;font:inherit;font-size:12.5px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--panel-2);color:var(--text-dim);cursor:pointer;}
   .st-foot button:hover{color:var(--text);}
+  /* alliance-change history */
+  .hi-panel{max-width:640px;}
+  .hi-body{padding:8px 22px 18px;overflow:auto;}
+  .hi-note{font-size:12px;color:var(--text-faint);margin:0 0 10px;}
+  .hi-q{width:100%;box-sizing:border-box;margin-bottom:10px;}
+  .hi-t{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .hi-t td{padding:7px 6px;border-top:1px solid var(--border);vertical-align:middle;}
+  .hi-t td.hn{font-weight:600;color:var(--text);word-break:break-word;}
+  .hi-t td.hm{white-space:nowrap;}
+  .hi-t td.hd{white-space:nowrap;text-align:right;color:var(--text-dim);font-size:12.5px;}
+  .hi-ar{margin:0 4px;color:var(--text-faint);}
+  #tooltip .tt-h{margin:10px 0 2px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);}
+  .hi-more{display:block;margin:12px auto 0;}
+  @media (max-width:640px){ .hi-body{padding:8px 14px 16px;} .hi-t td{padding:7px 3px;} .hi-t td.hd{white-space:normal;} }
+  /* alliance overview folds away while searching */
+  #ov{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s ease,opacity .3s ease,visibility 0s linear 0s;}
+  #ov .ov-in{overflow:hidden;min-height:0;}
+  #ov.is-collapsed{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows .4s ease,opacity .25s ease,visibility 0s linear .4s;}
+  @media (prefers-reduced-motion:reduce){ #ov,#ov.is-collapsed{transition:none;} }
+  .rq-box{position:relative;display:block;}
+  .rq-box input{width:100%;box-sizing:border-box;padding-right:34px;}
+  .rq-x{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:0;background:var(--panel-2);color:var(--text-dim);font-size:17px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;}
+  .rq-x:hover{color:var(--text);}
+  .rq-x[hidden]{display:none;}
   /* ---- event planner ---- */
   [hidden]{display:none !important;}
   .ep-bar .controls{align-items:flex-end;}
@@ -914,6 +938,9 @@
   .ms-h b{white-space:nowrap;font-size:14px;color:var(--strong);}
   table.ms{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
   table.ms td{padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
+  table.ms td.ms-mail{text-align:right;padding-right:4px;overflow:visible;}
+  .ms-env{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:var(--panel-2);color:var(--text-dim);cursor:pointer;padding:0;}
+  .ms-env:hover{color:var(--ice);border-color:var(--ice-dim);}
   table.ms td.n{font-weight:700;color:var(--strong);}
   table.ms td.pw{text-align:right;font-variant-numeric:tabular-nums;}
   .ep-pf select#ps{flex:1 1 100%;}
@@ -1070,7 +1097,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-21 · p24</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-22 · p26</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1318,15 +1345,22 @@
       return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}<div class="dur" title="Players by the number of hours they ticked (each player is counted once)">${dur}</div></div>`;
     }).join('');
   }
+  function clip(txt, okMsg){
+    const fb = () => { try { const t = document.createElement('textarea'); t.value = txt; t.style.cssText = 'position:fixed;left:-999px;top:0'; document.body.appendChild(t); t.select(); const r = document.execCommand('copy'); t.remove(); r ? toast(okMsg, true) : toast('Please copy the text by hand.'); } catch(x) { toast('Please copy the text by hand.'); } };
+    try { navigator.clipboard.writeText(txt).then(() => toast(okMsg, true), fb); } catch(x) { fb(); }
+  }
+  const MAIL_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
   function missingDialog(){
     const part = tag => { const m = missingOf(tag).sort((a, b) => pinfo(b).power - pinfo(a).power);
       return `<div class="ms-h">${tagChip(tag)}<b>${m.length} still to join</b>${m.length ? `<button type="button" class="btn ms-copy" data-copy="${tag}">Copy names</button>` : ''}</div>` +
-        (m.length ? `<div class="ap-wrap"><table class="ms"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><tbody>${m.map(x => { const i = pinfo(x); const t = teamById(x.team_id);
-          return `<tr><td class="n">${escapeHtml(i.name)}</td><td class="ms-mv">${i.known ? (i.tag ? tagChip(i.tag) : '<span class="sx-id">none</span>') : '<span class="sx-id">?</span>'} → ${tagChip(tag)}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="ms-ok">Everybody assigned to a ' + tag + ' team is already in ' + tag + '.</div>');
+        (m.length ? `<div class="ap-wrap"><table class="ms"><colgroup><col style="width:42%"><col style="width:46%"><col style="width:12%"></colgroup><tbody>${m.map(x => { const i = pinfo(x); const t = teamById(x.team_id);
+          return `<tr><td class="n">${escapeHtml(i.name)}</td><td class="ms-mv">${i.known ? (i.tag ? tagChip(i.tag) : '<span class="sx-id">none</span>') : '<span class="sx-id">?</span>'} → ${tagChip(tag)}</td><td class="ms-mail"><button type="button" class="ms-env" data-msg="${escapeHtml(String(x.pid))}" data-tag="${escapeHtml(tag)}" aria-label="Copy a message for ${escapeHtml(i.name)}" title="Copy a message for ${escapeHtml(i.name)}">${MAIL_SVG}</button></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="ms-ok">Everybody assigned to a ' + tag + ' team is already in ' + tag + '.</div>');
     };
     openModal(`<div class="ep-box">${mhead('Missing players')}<div class="ep-mb"><div class="sx-id">Players in a team of the alliance who are not yet shown in it. The game data can be up to 60 minutes behind; players marked manually are not listed.</div>${part('PKB')}${part('GYN')}</div></div>`, m => {
       m.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => { const txt = missingOf(b.dataset.copy).sort((x, y) => pinfo(y).power - pinfo(x).power).map(x => { const i = pinfo(x); return i.name + ' (' + (i.known ? (i.tag || '-') : '?') + '->' + b.dataset.copy + ')'; }).join('\n');
         try { navigator.clipboard.writeText(txt).then(() => toast('Names copied.', true), () => toast('Copy not possible here.')); } catch(e) { toast('Copy not possible here.'); } }));
+      m.querySelectorAll('[data-msg]').forEach(b => b.addEventListener('click', () => { const x = missingOf(b.dataset.tag).find(y => String(y.pid) === b.dataset.msg); if(!x) return;
+        clip('Hey ' + pinfo(x).name + '!\nPlease join ' + b.dataset.tag + ' as soon as possible. We need you!', 'Message copied.'); }));
     }, () => { /* keep as opened */ });
   }
   function setData(events, teams, entries){
@@ -1418,25 +1452,27 @@
   });
   function copyDialog(){
     const e = ev(); if(!e) return;
-    const build = (only, fm) => {
-      const es = S.entries.filter(x => !only || x.team_id); const g = {};
-      es.forEach(x => { const h = x.alliance || 'Unknown'; (g[h] = g[h] || []).push(pinfo(x).name); });
-      const rk = a => TAGS.indexOf(a) < 0 ? 99 : TAGS.indexOf(a);
-      const blocks = Object.keys(g).sort((a, b) => rk(a) - rk(b) || a.localeCompare(b)).map(h => { const n = g[h].sort((a, b) => a.localeCompare(b, 'en', {sensitivity: 'base'}));
-        return fm === 'comma' ? `${h} (${n.length}): ${n.join(', ')}` : `${h} (${n.length})\n${n.join('\n')}`; });
-      return `${e.name}${e.starts_on ? ' · ' + e.starts_on : ''} (${es.length} players)\n\n` + blocks.join(fm === 'comma' ? '\n' : '\n\n');
+    const inTeam = S.entries.filter(x => { const t = teamById(x.team_id); return t && t.target; });
+    const homes = [...new Set(inTeam.map(x => x.alliance || 'Unknown'))];
+    const rk = a => TAGS.indexOf(a) < 0 ? 99 : TAGS.indexOf(a);
+    homes.sort((a, b) => rk(a) - rk(b) || a.localeCompare(b));
+    const cnt = h => new Set(inTeam.filter(x => (x.alliance || 'Unknown') === h).map(x => String(x.pid))).size;
+    const build = home => {
+      const g = {};
+      inTeam.filter(x => (x.alliance || 'Unknown') === home).forEach(x => { const tg = teamById(x.team_id).target; const o = (g[tg] = g[tg] || {}); o[String(x.pid)] = pinfo(x).name; });
+      const ord = tg => { const i = ['PKB', 'GYN'].indexOf(tg); return i < 0 ? 9 : i; };
+      return Object.keys(g).sort((a, b) => ord(a) - ord(b) || a.localeCompare(b)).map(tg => '*' + tg + '*\n' + Object.values(g[tg]).sort((a, b) => a.localeCompare(b, 'en', {sensitivity: 'base'})).join('\n')).join('\n-----\n');
     };
-    openModal(`<div class="ep-box sm" style="width:min(560px,100%)">${mhead('Copy list by home alliance')}<div class="ep-mb">
-      <div class="row"><label class="switch" style="align-self:center"><input type="checkbox" id="cpo" checked><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Only players in a team</span></label>
-      <div class="field"><label for="cpf">Format</label><select id="cpf"><option value="lines">One name per line</option><option value="comma">Comma separated</option></select></div></div>
-      <textarea class="cp" id="cpt" readonly></textarea>
-      <div class="sx-id">Players are grouped by the alliance they were registered from (their home alliance), not by PKB / GYN. The admin can correct it on a player's card.</div>
+    if(!homes.length){ toast('No players in a team yet.'); return; }
+    const mine = (S.alliances || []).find(a => homes.includes(a)) || homes[0];
+    openModal(`<div class="ep-box sm" style="width:min(520px,100%)">${mhead('Copy list for an alliance')}<div class="ep-mb">
+      <div class="field"><label for="cpa">Home alliance</label><select id="cpa">${homes.map(h => `<option value="${escapeHtml(h)}"${h === mine ? ' selected' : ''}>${escapeHtml(h)} (${cnt(h)})</option>`).join('')}</select></div>
+      <textarea class="cp" id="cpt" readonly style="min-height:170px"></textarea>
+      <div class="sx-id">Only the players whose home alliance is the chosen one, grouped by the alliance of their team. Short on purpose, for the in-game chat.</div>
       <div class="acts"><button type="button" class="btn" id="cpb">Copy</button></div></div></div>`, () => {
-      const upd = () => { $('cpt').value = build($('cpo').checked, $('cpf').value); };
-      $('cpo').addEventListener('change', upd); $('cpf').addEventListener('change', upd); upd();
-      $('cpb').addEventListener('click', () => { const t = $('cpt'); t.select();
-        const ok = () => toast('List copied.', true);
-        try { navigator.clipboard.writeText(t.value).then(ok, () => { try { document.execCommand('copy'); ok(); } catch(x) { toast('Please copy the text by hand.'); } }); } catch(x) { try { document.execCommand('copy'); ok(); } catch(y) { toast('Please copy the text by hand.'); } } });
+      const upd = () => { $('cpt').value = build($('cpa').value); };
+      $('cpa').addEventListener('change', upd); upd();
+      $('cpb').addEventListener('click', () => { $('cpt').select(); clip($('cpt').value, 'List copied.'); });
     });
   }
   $('tCopy').addEventListener('click', copyDialog);
