@@ -7,9 +7,12 @@ and write data/players.json + avatars/<id>.webp (small copies of the profile pic
 - API key comes from the environment variable WOS_API_KEY (never from a file)
 - players that are not in any fetched alliance keep their last known entry
 - if an alliance cannot be fetched, its players keep their last known entry
+- data/history.json: log of alliance changes (who moved from which alliance to which, when)
 - nothing is written when nothing changed, so there is no commit noise
 """
 import io, json, os, sys, time, urllib.parse, urllib.request, urllib.error, datetime, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import wos_history
 
 API = os.environ.get('WOS_API_BASE', 'https://api.whiteoutstats.com/v1')
 KID = 646
@@ -17,6 +20,7 @@ KID = 646
 TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN', 'EVL', 'HYg', 'KOJ', 'NEW', 'DFT', 'HOS', 'tbr']
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / 'data' / 'players.json'
+HIST = ROOT / 'data' / 'history.json'
 AV = ROOT / 'avatars'
 SIZE = 64          # px, square
 MISS_LIMIT = 3     # days in a row without a picture before the stored one is removed
@@ -114,6 +118,19 @@ if ok:
             time.sleep(0.05)
 
 new = {'alliances': alliances, 'players': players}
+
+# alliance-change log (alliances that failed keep their old member list, so they produce no entries)
+try:
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    first_time = [t for t in ok if t not in old.get('alliances', {})]
+    ents = wos_history.diff(old.get('alliances', {}), alliances, {k: v.get('n', '') for k, v in players.items()},
+                            now_dt.strftime('%Y-%m-%dT%H:%MZ'), TAGS, first_time) if old.get('alliances') else []
+    oldlog = json.loads(HIST.read_text(encoding='utf-8')).get('log', []) if HIST.exists() else []
+    if ents or not HIST.exists():
+        wos_history.dump(HIST, wos_history.merge(oldlog, ents, now_dt))
+    print(f'history: {len(ents)} change(s)', flush=True)
+except Exception as e:
+    print(f'history skipped: {e}', flush=True)
 def stable(x): return json.dumps({'alliances': x.get('alliances'), 'players': x.get('players')}, sort_keys=True, ensure_ascii=False)
 if stable(new) != stable(old):
     new['updated'] = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
