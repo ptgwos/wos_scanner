@@ -934,6 +934,17 @@
   .rb{width:fit-content;min-width:min(380px,100%);max-width:min(640px,100%);box-sizing:border-box;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px 18px;}
   .rb-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ice-dim);font-weight:600;}
   .rb-top span:last-child{color:var(--text-faint);}
+  .rb-sec{display:flex;flex-direction:column;}
+  .rb-sec > .rb-ratio{margin-top:auto;}
+  @media (min-width:900px){
+    .rb.two{max-width:min(1240px,100%);}
+    .rb.two .rb-grid{display:grid;grid-template-columns:repeat(2,minmax(340px,1fr));}
+    .rb.two .rb-sec + .rb-sec{margin-top:0;padding-top:0;border-top:0;}
+    .rb.two .rb-sec{padding:0 20px;}
+    .rb.two .rb-sec:nth-child(odd){padding-left:0;}
+    .rb.two .rb-sec:nth-child(even){padding-right:0;border-left:1px solid var(--border-soft);}
+    .rb.two .rb-sec:nth-child(n+3){margin-top:16px;padding-top:16px;border-top:1px solid var(--border-soft);}
+  }
   .rb-sec + .rb-sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-soft);}
   .rb-sec h3{margin:0 0 12px;font-size:17px;letter-spacing:.1em;color:var(--gold);font-weight:800;text-align:center;}
   .rb-row{display:block;text-align:center;margin-bottom:12px;}
@@ -1004,7 +1015,7 @@
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y7</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y8</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div></div></div></div>
@@ -1131,8 +1142,9 @@
   }
   window.addEventListener('resize', markRows);
   function renderResult(){
-    $('shot').innerHTML = `<div class="rb-top"><span>State 646 · Formations</span></div>` + S.blocks.map(x =>
-      `<div class="rb-sec">${x.title ? `<h3>${esc(x.title)}</h3>` : ''}${rowHtml('Leads', x.l)}${rowHtml('Joiners', x.j, true)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div></div>`).join('');
+    $('shot').classList.toggle('two', S.blocks.length > 1);   // 2 boxes side by side on wide screens (CSS)
+    $('shot').innerHTML = `<div class="rb-top"><span>State 646 · Formations</span></div><div class="rb-grid">` + S.blocks.map(x =>
+      `<div class="rb-sec">${x.title ? `<h3>${esc(x.title)}</h3>` : ''}${rowHtml('Leads', x.l)}${rowHtml('Joiners', x.j, true)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div></div>`).join('') + '</div>';
     markRows();
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(markRows);
   }
