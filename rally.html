@@ -931,7 +931,7 @@
   .rp-actions svg{width:16px;height:16px;flex:none;}
   .rp-actions .rp-reset{margin-left:auto;}
   @media (max-width:640px){ .rp-actions .btn{width:auto;flex:1 1 calc(50% - 10px);justify-content:center;} .rp-actions .rp-reset{margin-left:0;flex:1 1 100%;} }
-  .rb{max-width:640px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px 18px;}
+  .rb{width:fit-content;min-width:min(380px,100%);max-width:min(640px,100%);box-sizing:border-box;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px 18px;}
   .rb-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ice-dim);font-weight:600;}
   .rb-top span:last-child{color:var(--text-faint);}
   .rb-sec + .rb-sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-soft);}
@@ -1004,7 +1004,7 @@
     </div>
   </div>
 
-  <footer>State 646 · Rally Planning — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y5</footer>
+  <footer>State 646 · Rally Planning — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y6</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div></div></div></div>
