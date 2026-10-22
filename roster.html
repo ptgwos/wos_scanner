@@ -841,6 +841,19 @@
   .st-foot span{font-size:12px;color:var(--text-faint);}
   .st-foot button{white-space:nowrap;flex:none;font:inherit;font-size:12.5px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--panel-2);color:var(--text-dim);cursor:pointer;}
   .st-foot button:hover{color:var(--text);}
+  /* alliance-change history */
+  .hi-panel{max-width:640px;}
+  .hi-body{padding:8px 22px 18px;overflow:auto;}
+  .hi-note{font-size:12px;color:var(--text-faint);margin:0 0 10px;}
+  .hi-q{width:100%;box-sizing:border-box;margin-bottom:10px;}
+  .hi-t{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .hi-t td{padding:7px 6px;border-top:1px solid var(--border);vertical-align:middle;}
+  .hi-t td.hn{font-weight:600;color:var(--text);word-break:break-word;}
+  .hi-t td.hm{white-space:nowrap;}
+  .hi-t td.hd{white-space:nowrap;text-align:right;color:var(--text-dim);font-size:12.5px;}
+  .hi-ar{margin:0 4px;color:var(--text-faint);}
+  .hi-more{display:block;margin:12px auto 0;}
+  @media (max-width:640px){ .hi-body{padding:8px 14px 16px;} .hi-t td{padding:7px 3px;} .hi-t td.hd{white-space:normal;} }
 </style>
 </head>
 <body>
@@ -865,6 +878,7 @@
       <div class="field"><label for="rs">Sort members by</label>
         <select id="rs"><option value="power">Power</option><option value="rank">Alliance rank</option><option value="fc">Furnace</option><option value="name">Name</option></select></div>
       <button type="button" class="btn" id="expAll">Expand all</button>
+      <button type="button" class="btn" id="hisBtn" title="Who moved from which alliance to which, and when">History</button>
       <button type="button" class="btn" id="expBtn" title="Download member lists as CSV or Excel">Export …</button>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
     </div>
@@ -873,7 +887,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-21 · r14</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-22 · r15</footer>
 </div>
 <script>
 (function(){
@@ -1062,6 +1076,31 @@
     else if(e.target.classList.contains('exa')){ const all = [...expM.querySelectorAll('.exa')]; document.getElementById('exAll').checked = all.every(i => i.checked); }
     exInfo();
   });
+  // ---- alliance-change history (data/history.json, written by tools/update_players.py) ----
+  const hiM = document.createElement('div'); hiM.className = 'modal-overlay'; hiM.id = 'hiModal';
+  hiM.setAttribute('role', 'dialog'); hiM.setAttribute('aria-modal', 'true'); hiM.setAttribute('aria-labelledby', 'hiTitle');
+  hiM.innerHTML = '<div class="modal-panel hi-panel"><div class="modal-header"><h2 id="hiTitle">Alliance changes</h2><button type="button" class="modal-close" id="hiClose" aria-label="Close">×</button></div><div class="hi-body"><p class="hi-note" id="hiNote"></p><input type="search" class="hi-q" id="hiQ" placeholder="Filter by name or alliance …" autocomplete="off"><div id="hiList"></div></div></div>';
+  document.body.appendChild(hiM);
+  let HI = null, hiShown = 150;
+  const hiChip = t => t === 'unknown' ? '<span class="sx-id">unknown</span>' : nameChip(t);
+  const hiTime = t => { const m = /^(\d{4})-(\d\d)-(\d\d)T(\d\d:\d\d)/.exec(t || ''); if(!m) return ''; return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m[2] - 1] + ' ' + (+m[3]) + ' · ' + m[4]; };
+  function hiRender(){
+    const q = document.getElementById('hiQ').value.trim().toLowerCase();
+    const all = (HI || []).filter(e => !q || (e.n || '').toLowerCase().includes(q) || e.f.toLowerCase() === q || e.a.toLowerCase() === q || String(e.i) === q);
+    const part = all.slice(0, hiShown);
+    document.getElementById('hiNote').textContent = all.length + ' change' + (all.length === 1 ? '' : 's') + (q ? ' found' : ' in the log') + ' · times are UTC · the game data can be up to 60 minutes behind · "unknown" = not visible in any of our alliances';
+    document.getElementById('hiList').innerHTML = all.length ? '<table class="hi-t"><tbody>' + part.map(e => '<tr><td class="hn">' + escapeHtml(e.n || e.i) + '</td><td class="hm">' + hiChip(e.f) + '<span class="hi-ar">→</span>' + hiChip(e.a) + '</td><td class="hd" title="' + escapeHtml(e.t) + '">' + hiTime(e.t) + '</td></tr>').join('') + '</tbody></table>' + (all.length > part.length ? '<button type="button" class="btn hi-more" id="hiMore">Show more (' + (all.length - part.length) + ')</button>' : '') : '<p class="hi-note">' + (HI ? 'Nothing found.' : 'No history available yet.') + '</p>';
+  }
+  function hiOpen(){
+    hiShown = 150; document.getElementById('hiQ').value = ''; hiM.classList.add('open'); hiRender();
+    fetch('data/history.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()).then(j => { HI = Array.isArray(j.log) ? j.log : []; hiRender(); }).catch(() => { document.getElementById('hiList').innerHTML = '<p class="hi-note">No history available yet.</p>'; });
+  }
+  const hiClose = () => hiM.classList.remove('open');
+  document.getElementById('hisBtn').addEventListener('click', hiOpen);
+  document.getElementById('hiClose').addEventListener('click', hiClose);
+  hiM.addEventListener('click', e => { if(e.target === hiM) hiClose(); else if(e.target.id === 'hiMore'){ hiShown += 150; hiRender(); } });
+  document.getElementById('hiQ').addEventListener('input', () => { hiShown = 150; hiRender(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && hiM.classList.contains('open')) hiClose(); });
   document.getElementById('expBtn').addEventListener('click', exOpen);
   document.getElementById('expClose').addEventListener('click', exClose);
   expM.addEventListener('click', e => { if(e.target === expM) exClose(); });
