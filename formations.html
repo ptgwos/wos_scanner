@@ -983,6 +983,20 @@
   #rpToast.show{opacity:1;transform:translate(-50%,0);}
   @media (max-width:640px){ .rp-pbody{padding:0 14px 14px;} .rp-body{padding:12px 10px 14px;} .rp-slots{gap:6px;} .rp-main,.rp-empty{min-height:84px;} .rp-img{width:46px;height:46px;} }
 
+  /* share-as-text dialog */
+  .rp-ta{display:block;width:100%;box-sizing:border-box;min-height:210px;resize:vertical;margin:0 0 12px;padding:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;}
+  .rp-ta:focus{outline:2px solid var(--ice-dim);outline-offset:1px;}
+  .rp-tbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px;}
+  .rp-segs{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .rp-seg{background:none;border:0;color:var(--text-dim);font:inherit;font-size:12px;padding:8px 12px;cursor:pointer;}
+  .rp-seg + .rp-seg{border-left:1px solid var(--border);}
+  .rp-seg.on{background:var(--panel-2);color:var(--ice);font-weight:700;}
+  .rp-count{font-variant-numeric:tabular-nums;font-size:14px;color:var(--text-dim);}
+  .rp-count #txtCnt{font-weight:800;color:var(--good);}
+  .rp-count #txtCnt.over{color:var(--danger);}
+  .rp-tact{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .rp-tact .rp-norm{margin-left:auto;}
+
 </style>
 </head>
 <body>
@@ -1015,10 +1029,11 @@
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y8</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y9</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div></div></div></div>
+<div class="modal-overlay" id="txtModal" role="dialog" aria-modal="true" aria-labelledby="txtTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="txtTitle">Share as text</h2><button type="button" class="modal-close" id="txtClose" aria-label="Close">×</button></div><p class="modal-sub">Edit the text or add your own, then copy it.</p><div class="rp-pbody"><textarea class="rp-ta" id="txtArea" spellcheck="false" aria-label="Message text"></textarea><div class="rp-tbar"><div class="rp-segs" role="group" aria-label="Character limit"><button type="button" class="rp-seg" data-lim="msg" aria-pressed="true">Message</button><button type="button" class="rp-seg" data-lim="notice" aria-pressed="false">Alliance Notice</button></div><div class="rp-count" id="txtCount"><span id="txtCnt">0</span>/<span id="txtMax">512</span></div></div><div class="rp-tact"><button type="button" class="btn" id="txtCopy">Copy text</button><button type="button" class="rp-norm" id="txtReset">Reset to plan text</button></div></div></div></div>
 <div id="rpToast" role="status" aria-live="polite"></div>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>
@@ -1083,7 +1098,7 @@
   const slotText = s => s.join(' or ');
   const rowText = a => a.filter(s => s.length).map(slotText).join(' | ') || '–';
   function buildText(){
-    return S.blocks.map(x => (x.title ? x.title + '\n' : '') + `Leads: ${rowText(x.l)}\n${x.j.some(s => s.length) ? 'Joiners: ' + rowText(x.j) + '\n' : ''}Ratio: ${x.ratio.join(':')}`).join('\n\n');
+    return S.blocks.map(x => (x.title ? x.title + '\n' : '') + `Leads: ${rowText(x.l)}\n${x.j.some(s => s.length) ? 'Joiners: ' + rowText(x.j) + '\n' : ''}Ratio: ${x.ratio.join(' : ')}`).join('\n\n');
   }
 
   // ---- ratio helpers ----
@@ -1248,8 +1263,7 @@
   // ---- sharing ----
   let tt = null;
   function toast(msg){ const t = $('rpToast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2400); }
-  async function copyText(){
-    const text = buildText();
+  async function copyTextOf(text){
     try { await navigator.clipboard.writeText(text); toast('Text copied'); return; } catch(e) {}
     try {
       const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0;';
@@ -1257,6 +1271,35 @@
       toast(ok ? 'Text copied' : 'Copy failed');
     } catch(e) { toast('Copy failed'); }
   }
+  // ---- text editor dialog (share as text) ----
+  const LIMITS = {msg: 512, notice: 300};
+  let lim = 'msg';
+  try { const v = localStorage.getItem('rally646_lim'); if(LIMITS[v]) lim = v; } catch(e) {}
+  const tm = $('txtModal'), ta = $('txtArea');
+  const clen = t => Array.from(t).length;   // counts every character (letters, symbols, spaces, line breaks) once; an emoji counts as 1
+  function updCount(){
+    const n = clen(ta.value), max = LIMITS[lim];
+    $('txtCnt').textContent = n; $('txtMax').textContent = max;
+    $('txtCnt').classList.toggle('over', n > max);
+    $('txtCount').title = n > max ? (n - max) + ' characters too many' : (max - n) + ' characters left';
+    document.querySelectorAll('#txtModal .rp-seg').forEach(b => { const on = b.dataset.lim === lim; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  }
+  function openText(){
+    ta.value = buildText(); updCount();
+    tm.classList.add('open');
+    if(!window.matchMedia('(hover: none)').matches){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  }
+  function closeText(){ tm.classList.remove('open'); }
+  ta.addEventListener('input', updCount);
+  tm.addEventListener('click', e => {
+    if(e.target === tm){ closeText(); return; }
+    const b = e.target.closest('.rp-seg');
+    if(b){ lim = b.dataset.lim; try { localStorage.setItem('rally646_lim', lim); } catch(x) {} updCount(); }
+  });
+  $('txtClose').addEventListener('click', closeText);
+  $('txtReset').addEventListener('click', () => { ta.value = buildText(); updCount(); });
+  $('txtCopy').addEventListener('click', async () => { await copyTextOf(ta.value); closeText(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && tm.classList.contains('open')) closeText(); });
   const LIB = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
   function loadLib(){
     if(window.htmlToImage) return Promise.resolve();
@@ -1300,7 +1343,7 @@
     } catch(e) { toast('Could not create the picture'); }
     finally { btn.disabled = false; }
   }
-  $('btnText').addEventListener('click', copyText);
+  $('btnText').addEventListener('click', openText);
   $('btnImg').addEventListener('click', e => copyImage(e.currentTarget));
   $('btnReset').addEventListener('click', () => {
     if(!confirm('Clear everything and start with one empty box? (Your own added heroes stay in the pool.)')) return;
