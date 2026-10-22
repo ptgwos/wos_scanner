@@ -860,6 +860,11 @@
   #ov .ov-in{overflow:hidden;min-height:0;}
   #ov.is-collapsed{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows .4s ease,opacity .25s ease,visibility 0s linear .4s;}
   @media (prefers-reduced-motion:reduce){ #ov,#ov.is-collapsed{transition:none;} }
+  .rq-box{position:relative;display:block;}
+  .rq-box input{width:100%;box-sizing:border-box;padding-right:34px;}
+  .rq-x{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:0;background:var(--panel-2);color:var(--text-dim);font-size:17px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;}
+  .rq-x:hover{color:var(--text);}
+  .rq-x[hidden]{display:none;}
 </style>
 </head>
 <body>
@@ -880,7 +885,7 @@
 
   <div class="panel" id="rosterPanel">
     <div class="controls" id="rc">
-      <div class="field"><label for="rq">Search</label><input type="text" id="rq" placeholder="Player name or ID …" autocomplete="off"></div>
+      <div class="field"><label for="rq">Search</label><span class="rq-box"><input type="text" id="rq" placeholder="Player name or ID …" autocomplete="off"><button type="button" class="rq-x" id="rqx" aria-label="Clear the search" title="Clear the search" hidden>×</button></span></div>
       <div class="field"><label for="rs">Sort members by</label>
         <select id="rs"><option value="power">Power</option><option value="rank">Alliance rank</option><option value="fc">Furnace</option><option value="name">Name</option></select></div>
       <button type="button" class="btn" id="expAll">Expand all</button>
@@ -893,7 +898,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-22 · r17</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-10-22 · r18</footer>
 </div>
 <script>
 (function(){
@@ -1050,7 +1055,11 @@
   const rq = document.getElementById('rq'), rs = document.getElementById('rs'), avSw = document.getElementById('avSw');
   avSw.checked = st.av;
   let tm = null;
-  rq.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { st.q = rq.value.trim(); render(); }, 150); });
+  const rqx = document.getElementById('rqx');
+  rq.addEventListener('input', () => { rqx.hidden = !rq.value; clearTimeout(tm); tm = setTimeout(() => { st.q = rq.value.trim(); render(); }, 150); });
+  function rqClear(){ rq.value = ''; rqx.hidden = true; clearTimeout(tm); st.q = ''; render(); rq.focus(); }
+  rqx.addEventListener('click', rqClear);
+  rq.addEventListener('keydown', e => { if(e.key === 'Escape' && rq.value){ e.preventDefault(); rqClear(); } });
   rs.addEventListener('change', () => { st.sort = rs.value; st.dir = DEF_DIR[st.sort]; render(); });
   function sortBy(k){ if(st.sort === k) st.dir = st.dir === 'asc' ? 'desc' : 'asc'; else { st.sort = k; st.dir = DEF_DIR[k]; } rs.value = k; render(); }
   cardsEl.addEventListener('click', e => { const h = e.target.closest('th.srt'); if(h){ e.stopPropagation(); sortBy(h.dataset.s); } });
