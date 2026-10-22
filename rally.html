@@ -869,8 +869,15 @@
   /* ===== Rally planning ===== */
   .set-btn{right:46px;}
   .rp-intro{font-size:13px;color:var(--text-dim);margin:0 0 16px;line-height:1.5;}
-  .rp-edit{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-  @media (max-width:900px){ .rp-edit{grid-template-columns:1fr;} }
+  .rp-edit{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),520px));gap:16px;}
+  .rp-addrow{margin-top:14px;}
+  .rp-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);}
+  .rp-title{flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--border);color:var(--gold);font-family:'Inter',sans-serif;font-weight:800;font-size:15px;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;border-radius:6px;}
+  .rp-title::placeholder{color:var(--text-faint);font-weight:500;letter-spacing:.04em;}
+  .rp-title:focus{outline:2px solid var(--ice-dim);outline-offset:1px;}
+  .rp-delblk{flex:none;width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text-dim);font-size:18px;line-height:1;cursor:pointer;}
+  .rp-delblk:hover{color:var(--danger);border-color:var(--danger);}
+  .rp-plus{border-color:var(--border);}
   .rp-card{margin-top:0;}
   .rp-card .sx-card-head b{letter-spacing:.08em;}
   .rp-body{padding:14px 14px 16px;}
@@ -879,6 +886,7 @@
   .rp-slots{display:grid;gap:8px;}
   .rp-slots.l{grid-template-columns:repeat(3,minmax(0,1fr));}
   .rp-slots.j{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .rp-slots.j .rp-plus{opacity:.8;}
   .rp-slot{position:relative;display:flex;flex-direction:column;gap:5px;min-width:0;}
   .rp-main,.rp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:100%;min-height:92px;padding:8px 4px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font:inherit;font-size:12px;cursor:pointer;transition:border-color .12s,background .12s;}
   .rp-main:hover,.rp-empty:hover{border-color:var(--ice-dim);}
@@ -927,11 +935,13 @@
   .rb-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ice-dim);font-weight:600;}
   .rb-top span:last-child{color:var(--text-faint);}
   .rb-sec + .rb-sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-soft);}
-  .rb-sec h3{margin:0 0 10px;font-size:17px;letter-spacing:.1em;color:var(--gold);font-weight:800;}
-  .rb-row{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:center;margin-bottom:10px;}
-  .rb-l{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text-dim);}
-  .rb-hs{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;min-width:0;}
-  .rb-slot{display:inline-flex;align-items:center;gap:7px;}
+  .rb-sec h3{margin:0 0 12px;font-size:17px;letter-spacing:.1em;color:var(--gold);font-weight:800;text-align:center;}
+  .rb-row{display:block;text-align:center;margin-bottom:12px;}
+  .rb-l{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;}
+  .rb-hs{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-start;justify-content:center;min-width:0;}
+  .rb-slot{position:relative;display:inline-flex;align-items:flex-start;gap:7px;}
+  .rb-slot + .rb-slot:not(.rf)::before{content:'';position:absolute;left:-8px;top:2px;bottom:2px;width:1px;background:var(--border);}
+  .rb-slot .rb-or{align-self:center;}
   .rb-or{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--gold);font-weight:700;}
   .rb-h{display:flex;flex-direction:column;align-items:center;gap:3px;width:62px;}
   .rb-h .rp-img{width:46px;height:46px;border-radius:9px;font-size:19px;}
@@ -939,10 +949,10 @@
   .rb-none{color:var(--text-faint);}
   .rb-ratio .rb-bar{flex:1;min-width:0;}
   .rb-ratio .rp-bar{margin-top:0;}
-  .rb-nums{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;color:var(--strong);margin-bottom:5px;letter-spacing:.04em;}
-  .rb-leg{display:flex;flex-wrap:wrap;gap:3px 12px;margin-top:6px;font-size:11px;color:var(--text-dim);}
+  .rb-nums{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;color:var(--strong);margin-bottom:5px;letter-spacing:.04em;text-align:center;}
+  .rb-leg{display:flex;flex-wrap:wrap;justify-content:center;gap:3px 12px;margin-top:6px;font-size:11px;color:var(--text-dim);}
   .rb-leg i{display:inline-flex;align-items:center;gap:5px;font-style:normal;}
-  @media (max-width:640px){ .rb{padding:14px 12px 16px;} .rb-row{grid-template-columns:1fr;gap:6px;} .rb-h{width:58px;} }
+  @media (max-width:640px){ .rb{padding:14px 12px 16px;} .rb-h{width:62px;} .rb-h span{font-size:10.5px;} .rb-hs{gap:10px 12px;} .rb-slot + .rb-slot:not(.rf)::before{left:-7px;} }
   /* hero picker */
   .rp-panel{max-width:640px;}
   .rp-pbody{padding:0 22px 18px;overflow:auto;}
@@ -979,8 +989,9 @@
   <div class="divider"></div>
 
   <div class="panel">
-    <p class="rp-intro">Tap a slot to pick a hero from the pool. “+ or” adds an alternative (“A or B”). Your plan is saved in this browser.</p>
+    <p class="rp-intro">Type a title for the box, then tap a slot to pick a hero. “+ or” adds an alternative (“A or B”), “+” adds more joiner slots, “Add another box” gives you e.g. a second block. Your plan is saved in this browser.</p>
     <div class="rp-edit" id="edit"></div>
+    <div class="rp-addrow"><button type="button" class="btn-secondary" id="btnAddBlk">＋ Add another box</button></div>
 
     <div class="rp-res">
       <div class="rp-lbl">Result</div>
@@ -993,7 +1004,7 @@
     </div>
   </div>
 
-  <footer>State 646 · Rally Planning — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y4</footer>
+  <footer>State 646 · Rally Planning — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y5</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div></div></div></div>
@@ -1003,15 +1014,15 @@
 (function(){
   // Hero pool (names only; classes/generations are not stored). Missing ones can be added in the picker.
   const HEROES = ['Natalia','Jeronimo','Molly','Zinman','Bahiti','Sergey','Charlie','Cloris','Gina','Jasser','Ling Xue','Lumak Bokan','Seo-Yoon','Smith','Jessie','Patrick','Flint','Philly','Alonso','Logan','Mia','Greg','Ahmose','Reina','Lynn','Hector','Norah','Gwen','Eugene','Wu Ming','Renee','Wayne','Edith','Gordon','Bradley','Gatot','Sonya','Hendrik','Magnus','Fred','Xura','Blanchette','Gregory','Freya','Eleonora','Lloyd','Rufus','Hervor','Karol','Ligeia','Gisela','Flora','Vulcanus','Cara','Dominic','Elif'];
-  const MODES = [{k: 'g', t: 'GARRISON'}, {k: 'r', t: 'RALLY'}];
-  const NL = 3, NJ = 4;
+  const MAXB = 6, NL = 3, NJ0 = 4, NJMAX = 12, DR = [50, 20, 30];
   const RN = [['inf', 'Infantry'], ['lan', 'Lancer'], ['mar', 'Marksman']];
   const KEY = 'rally646_state';
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   function blank(n){ return Array.from({length: n}, () => []); }
-  function def(){ return {g: {l: blank(NL), j: blank(NJ), ratio: [50, 20, 30]}, r: {l: blank(NL), j: blank(NJ), ratio: [54, 18, 28]}, custom: []}; }
+  function blankBlock(){ return {title: '', l: blank(NL), j: blank(NJ0), ratio: DR.slice()}; }
+  function def(){ return {blocks: [blankBlock()], custom: []}; }
   function normSlots(a, n){
     const out = blank(n);
     if(Array.isArray(a)) for(let i = 0; i < n; i++){ const s = a[i]; if(Array.isArray(s)) out[i] = s.filter(x => typeof x === 'string' && x).slice(0, 2); }
@@ -1027,7 +1038,10 @@
     if(!o){ try { const m = document.cookie.match(/(?:^|; )rally646_state=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
     const d = def();
     if(!o || typeof o !== 'object') return d;
-    MODES.forEach(m => { const x = o[m.k] || {}; d[m.k] = {l: normSlots(x.l, NL), j: normSlots(x.j, NJ), ratio: normRatio(x.ratio, d[m.k].ratio)}; });
+    if(Array.isArray(o.blocks)){
+      const bl = o.blocks.filter(x => x && typeof x === 'object').slice(0, MAXB).map(x => ({title: String(x.title || '').toUpperCase().slice(0, 28), l: normSlots(x.l, NL), j: normSlots(x.j, Math.max(NJ0, Math.min(NJMAX, Array.isArray(x.j) ? x.j.length : NJ0))), ratio: normRatio(x.ratio, DR)}));
+      if(bl.length) d.blocks = bl;
+    }
     if(Array.isArray(o.custom)) d.custom = o.custom.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim().slice(0, 24)).slice(0, 80);
     return d;
   }
@@ -1058,7 +1072,7 @@
   const slotText = s => s.join(' or ');
   const rowText = a => a.filter(s => s.length).map(slotText).join(' | ') || '–';
   function buildText(){
-    return MODES.map(m => { const x = S[m.k]; return `${m.t}\nLeads: ${rowText(x.l)}\nJoiners: ${rowText(x.j)}\nRatio: ${x.ratio.join(':')}`; }).join('\n\n');
+    return S.blocks.map(x => (x.title ? x.title + '\n' : '') + `Leads: ${rowText(x.l)}\nJoiners: ${rowText(x.j)}\nRatio: ${x.ratio.join(':')}`).join('\n\n');
   }
 
   // ---- ratio helpers ----
@@ -1070,29 +1084,34 @@
   function legend(){ return '<div class="rb-leg">' + RN.map(x => `<i><span class="rp-dot c-${x[0]}"></span>${x[1]}</i>`).join('') + '</div>'; }
 
   // ---- editor ----
-  function slotHtml(m, g, i){
-    const s = S[m][g][i], what = g === 'l' ? 'Lead ' + (i + 1) : 'Joiner ' + (i + 1);
-    const at = `data-m="${m}" data-g="${g}" data-i="${i}"`;
-    if(!s.length) return `<div class="rp-slot"><button type="button" class="rp-empty" data-act="pick" ${at} title="Choose a hero"><b>+</b><span>${what}</span></button></div>`;
+  function slotHtml(b, g, i){
+    const s = S.blocks[b][g][i], what = g === 'l' ? 'Lead ' + (i + 1) : 'Joiner ' + (i + 1);
+    const at = `data-b="${b}" data-g="${g}" data-i="${i}"`;
+    if(!s.length){
+      const rm = (g === 'j' && i >= NJ0) ? `<button type="button" class="rp-x" data-act="delslot" ${at} aria-label="Remove this empty slot" title="Remove this slot">×</button>` : '';
+      return `<div class="rp-slot"><button type="button" class="rp-empty" data-act="pick" ${at} title="Choose a hero"><b>+</b><span>${what}</span></button>${rm}</div>`;
+    }
     const alt = s[1]
       ? `<div class="rp-alt"><span class="or">or</span><button type="button" class="rp-altb" data-act="alt" ${at} title="Change the alternative">${himg(s[1])}<span>${esc(s[1])}</span></button><button type="button" class="rp-ax" data-act="clralt" ${at} aria-label="Remove the alternative" title="Remove the alternative">×</button></div>`
       : `<button type="button" class="rp-addalt" data-act="alt" ${at} title="Add an alternative hero (shown as “A or B”)">+ or</button>`;
     return `<div class="rp-slot"><button type="button" class="rp-main" data-act="pick" ${at} title="Change the hero">${himg(s[0])}<span class="rp-nm">${esc(s[0])}</span></button><button type="button" class="rp-x" data-act="clr" ${at} aria-label="Remove ${esc(s[0])}" title="Remove">×</button>${alt}</div>`;
   }
   function ratioHtml(m){
-    const r = S[m].ratio;
-    return `<div class="rp-ratio">${RN.map((x, i) => `<div class="rp-ri"><label for="ri-${m}-${i}"><span class="rp-dot c-${x[0]}"></span>${x[1]}</label><input type="number" inputmode="numeric" min="0" max="100" step="1" id="ri-${m}-${i}" data-m="${m}" data-r="${i}" value="${r[i]}"></div>`).join('')}</div><div id="rbar-${m}">${ratioBar(r, true)}</div><div class="rp-sumrow" id="rsum-${m}"></div>`;
+    const r = S.blocks[m].ratio;
+    return `<div class="rp-ratio">${RN.map((x, i) => `<div class="rp-ri"><label for="ri-${m}-${i}"><span class="rp-dot c-${x[0]}"></span>${x[1]}</label><input type="number" inputmode="numeric" min="0" max="100" step="1" id="ri-${m}-${i}" data-b="${m}" data-r="${i}" value="${r[i]}"></div>`).join('')}</div><div id="rbar-${m}">${ratioBar(r, true)}</div><div class="rp-sumrow" id="rsum-${m}"></div>`;
   }
   function sumHtml(m){
-    const sum = S[m].ratio.reduce((a, b) => a + b, 0), ok = sum === 100;
-    return `<span class="rp-sum ${ok ? 'ok' : 'bad'}">Σ ${sum}%</span>` + (ok ? '<span>adds up to 100</span>' : `<span>should be 100</span><button type="button" class="rp-norm" data-act="norm" data-m="${m}">Scale to 100</button>`);
+    const sum = S.blocks[m].ratio.reduce((a, b) => a + b, 0), ok = sum === 100;
+    return `<span class="rp-sum ${ok ? 'ok' : 'bad'}">Σ ${sum}%</span>` + (ok ? '<span>adds up to 100</span>' : `<span>should be 100</span><button type="button" class="rp-norm" data-act="norm" data-b="${m}">Scale to 100</button>`);
   }
   function renderEditors(){
-    $('edit').innerHTML = MODES.map(md => `<div class="sx-card rp-card"><div class="sx-card-head"><b>${md.t}</b></div><div class="rp-body">
-      <div class="rp-grp"><div class="rp-lbl">Leads</div><div class="rp-slots l">${[0,1,2].map(i => slotHtml(md.k, 'l', i)).join('')}</div></div>
-      <div class="rp-grp"><div class="rp-lbl">Joiners</div><div class="rp-slots j">${[0,1,2,3].map(i => slotHtml(md.k, 'j', i)).join('')}</div></div>
-      <div class="rp-grp" style="margin-bottom:0"><div class="rp-lbl">Ratio (%)</div>${ratioHtml(md.k)}</div></div></div>`).join('');
-    MODES.forEach(md => { $('rsum-' + md.k).innerHTML = sumHtml(md.k); });
+    const many = S.blocks.length > 1;
+    $('edit').innerHTML = S.blocks.map((blk, b) => `<div class="sx-card rp-card"><div class="rp-head"><input type="text" class="rp-title" data-b="${b}" maxlength="28" placeholder="TITLE, e.g. GARRISON" value="${esc(blk.title)}" aria-label="Title of box ${b + 1}" autocomplete="off" autocapitalize="characters" spellcheck="false">${many ? `<button type="button" class="rp-delblk" data-act="delblk" data-b="${b}" aria-label="Remove this box" title="Remove this box">×</button>` : ''}</div><div class="rp-body">
+      <div class="rp-grp"><div class="rp-lbl">Leads</div><div class="rp-slots l">${blk.l.map((_, i) => slotHtml(b, 'l', i)).join('')}</div></div>
+      <div class="rp-grp"><div class="rp-lbl">Joiners</div><div class="rp-slots j">${blk.j.map((_, i) => slotHtml(b, 'j', i)).join('')}${blk.j.length < NJMAX ? `<div class="rp-slot"><button type="button" class="rp-empty rp-plus" data-act="addslot" data-b="${b}" title="Add another joiner slot"><b>+</b><span>More</span></button></div>` : ''}</div></div>
+      <div class="rp-grp" style="margin-bottom:0"><div class="rp-lbl">Ratio (%)</div>${ratioHtml(b)}</div></div></div>`).join('');
+    S.blocks.forEach((_, b) => { $('rsum-' + b).innerHTML = sumHtml(b); });
+    const ab = $('btnAddBlk'); if(ab) ab.style.display = S.blocks.length >= MAXB ? 'none' : '';
   }
 
   // ---- result block ----
@@ -1102,26 +1121,36 @@
     const body = f.length ? f.map(s => `<span class="rb-slot">${heroTile(s[0])}${s[1] ? `<span class="rb-or">or</span>${heroTile(s[1])}` : ''}</span>`).join('') : '<span class="rb-none">–</span>';
     return `<div class="rb-row"><div class="rb-l">${label}</div><div class="rb-hs">${body}</div></div>`;
   }
+  // no separator line at the start of a wrapped row
+  function markRows(){
+    document.querySelectorAll('#shot .rb-hs').forEach(hs => {
+      let prev = null;
+      hs.querySelectorAll('.rb-slot').forEach(sl => { sl.classList.remove('rf'); if(prev !== null && sl.offsetTop > prev + 4) sl.classList.add('rf'); prev = sl.offsetTop; });
+    });
+  }
+  window.addEventListener('resize', markRows);
   function renderResult(){
-    $('shot').innerHTML = `<div class="rb-top"><span>State 646 · Rally planning</span></div>` + MODES.map(md => { const x = S[md.k];
-      return `<div class="rb-sec"><h3>${md.t}</h3>${rowHtml('Leads', x.l)}${rowHtml('Joiners', x.j)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div></div>`; }).join('');
+    $('shot').innerHTML = `<div class="rb-top"><span>State 646 · Rally planning</span></div>` + S.blocks.map(x =>
+      `<div class="rb-sec">${x.title ? `<h3>${esc(x.title)}</h3>` : ''}${rowHtml('Leads', x.l)}${rowHtml('Joiners', x.j)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div></div>`).join('');
+    markRows();
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(markRows);
   }
   function renderAll(){ renderEditors(); renderResult(); }
 
   // ---- picker ----
   const pm = $('pickModal');
-  let P = null;   // {m, g, i, alt}
+  let P = null;   // {b, g, i, alt}
   function usedNames(){
-    const grp = S[P.m][P.g], used = new Set();
+    const grp = S.blocks[P.b][P.g], used = new Set();
     grp.forEach((s, i) => { if(i !== P.i) s.forEach(n => used.add(n)); });
     const cur = grp[P.i];
     if(P.alt && cur[0]) used.add(cur[0]);
     if(!P.alt && cur[1]) used.add(cur[1]);
     return used;
   }
-  function openPicker(m, g, i, alt){
-    P = {m, g, i, alt: !!alt};
-    const md = MODES.find(x => x.k === m);
+  function openPicker(b, g, i, alt){
+    P = {b, g, i, alt: !!alt};
+    const md = {t: S.blocks[b].title || 'Box ' + (b + 1)};
     $('pickTitle').textContent = (alt ? 'Alternative hero' : 'Choose hero');
     $('pickSub').textContent = `${md.t} · ${g === 'l' ? 'Lead ' : 'Joiner '}${i + 1}${alt ? ' · shown as “A or B”' : ''}`;
     $('pickQ').value = '';
@@ -1131,14 +1160,14 @@
   function closePicker(){ pm.classList.remove('open'); P = null; }
   function renderPicker(){
     if(!P) return;
-    const q = $('pickQ').value.trim(), ql = q.toLowerCase(), used = usedNames(), cur = S[P.m][P.g][P.i][P.alt ? 1 : 0];
+    const q = $('pickQ').value.trim(), ql = q.toLowerCase(), used = usedNames(), cur = S.blocks[P.b][P.g][P.i][P.alt ? 1 : 0];
     const list = pool().filter(h => !ql || h.n.toLowerCase().includes(ql));
     const exact = pool().some(h => h.n.toLowerCase() === ql);
     $('pickAdd').innerHTML = (q && !exact) ? `<button type="button" class="btn-secondary" data-act="addc">＋ Add “${esc(q.slice(0, 24))}” as a new hero</button>` : '';
     $('pickGrid').innerHTML = list.map(h => `<button type="button" class="rp-hero${h.n === cur ? ' cur' : ''}${used.has(h.n) ? ' dis' : ''}" data-h="${esc(h.n)}"${used.has(h.n) ? ' aria-disabled="true"' : ''} title="${used.has(h.n) ? 'Already used here' : esc(h.n)}">${himg(h.n)}<span class="rp-nm">${esc(h.n)}</span>${h.custom ? '<span class="rp-del" data-del="' + esc(h.n) + '" title="Remove this hero from the pool" role="button">×</span>' : ''}</button>`).join('') || '<div class="rp-note">No hero found.</div>';
   }
   function choose(n){
-    const s = S[P.m][P.g][P.i];
+    const s = S.blocks[P.b][P.g][P.i];
     if(P.alt){ if(!s[0]) s[0] = n; else s[1] = n; }
     else { s[0] = n; if(s[1] === n) s.length = 1; }
     save(); closePicker(); renderAll();
@@ -1167,28 +1196,41 @@
 
   // ---- editor events ----
   $('edit').addEventListener('click', e => {
-    const b = e.target.closest('[data-act]'); if(!b) return;
-    const m = b.dataset.m, g = b.dataset.g, i = +b.dataset.i, act = b.dataset.act;
-    if(act === 'pick') openPicker(m, g, i, false);
-    else if(act === 'alt') openPicker(m, g, i, true);
-    else if(act === 'clr'){ const s = S[m][g][i]; s.shift(); save(); renderAll(); }   // the alternative (if any) moves up
-    else if(act === 'clralt'){ S[m][g][i].length = 1; save(); renderAll(); }
+    const bt = e.target.closest('[data-act]'); if(!bt) return;
+    const b = +bt.dataset.b, g = bt.dataset.g, i = +bt.dataset.i, act = bt.dataset.act, B = S.blocks[b];
+    if(act === 'pick') openPicker(b, g, i, false);
+    else if(act === 'alt') openPicker(b, g, i, true);
+    else if(act === 'clr'){ B[g][i].shift(); save(); renderAll(); }   // the alternative (if any) moves up
+    else if(act === 'clralt'){ B[g][i].length = 1; save(); renderAll(); }
+    else if(act === 'addslot'){ if(B.j.length < NJMAX){ B.j.push([]); save(); renderAll(); } }
+    else if(act === 'delslot'){ if(!B[g][i].length && B[g].length > NJ0){ B[g].splice(i, 1); save(); renderAll(); } }
+    else if(act === 'delblk'){
+      const has = B.l.concat(B.j).some(s => s.length);
+      if(S.blocks.length > 1 && (!has || confirm('Remove this box?'))){ S.blocks.splice(b, 1); save(); renderAll(); }
+    }
     else if(act === 'norm'){
-      const r = S[m].ratio, sum = r.reduce((a, c) => a + c, 0); if(!sum) return;
+      const r = B.ratio, sum = r.reduce((a, c) => a + c, 0); if(!sum) return;
       const raw = r.map(v => v / sum * 100), fl = raw.map(Math.floor);
       let left = 100 - fl.reduce((a, c) => a + c, 0);
       raw.map((v, k) => [v - fl[k], k]).sort((a, c) => c[0] - a[0]).forEach(x => { if(left > 0){ fl[x[1]]++; left--; } });
-      S[m].ratio = fl; save(); renderAll();
+      B.ratio = fl; save(); renderAll();
     }
   });
+  $('btnAddBlk').addEventListener('click', () => { if(S.blocks.length < MAXB){ S.blocks.push(blankBlock()); save(); renderAll(); } });
   $('edit').addEventListener('input', e => {
-    const t = e.target; if(!t.dataset || t.dataset.r === undefined) return;
+    const t = e.target; if(!t.dataset) return;
+    if(t.classList.contains('rp-title')){
+      const p = t.selectionStart, v = t.value.toUpperCase();
+      if(v !== t.value){ t.value = v; try { t.setSelectionRange(p, p); } catch(x) {} }
+      S.blocks[+t.dataset.b].title = v.slice(0, 28); save(); renderResult(); return;
+    }
+    if(t.dataset.r === undefined) return;
     let v = parseInt(t.value, 10); if(isNaN(v)) v = 0; v = Math.max(0, Math.min(100, v));
-    const m = t.dataset.m; S[m].ratio[+t.dataset.r] = v; save();
-    $('rbar-' + m).innerHTML = ratioBar(S[m].ratio, true); $('rsum-' + m).innerHTML = sumHtml(m);
+    const b = +t.dataset.b; S.blocks[b].ratio[+t.dataset.r] = v; save();
+    $('rbar-' + b).innerHTML = ratioBar(S.blocks[b].ratio, true); $('rsum-' + b).innerHTML = sumHtml(b);
     renderResult();
   });
-  $('edit').addEventListener('change', e => { const t = e.target; if(t.dataset && t.dataset.r !== undefined) t.value = S[t.dataset.m].ratio[+t.dataset.r]; });
+  $('edit').addEventListener('change', e => { const t = e.target; if(t.dataset && t.dataset.r !== undefined) t.value = S.blocks[+t.dataset.b].ratio[+t.dataset.r]; });
 
   // ---- sharing ----
   let tt = null;
@@ -1248,7 +1290,7 @@
   $('btnText').addEventListener('click', copyText);
   $('btnImg').addEventListener('click', e => copyImage(e.currentTarget));
   $('btnReset').addEventListener('click', () => {
-    if(!confirm('Clear all heroes and reset the ratios? (Your own added heroes stay in the pool.)')) return;
+    if(!confirm('Clear everything and start with one empty box? (Your own added heroes stay in the pool.)')) return;
     const c = S.custom; S = def(); S.custom = c; save(); renderAll();
   });
 
