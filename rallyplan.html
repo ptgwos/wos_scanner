@@ -989,6 +989,26 @@
   .bm-row.done .bm-nm{color:var(--text-faint);text-decoration:line-through;}
   .bm-msg textarea{width:100%;box-sizing:border-box;min-height:300px;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:12px;font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.5;resize:vertical;}
   .bm-act{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
+  .modal-panel.ps-panel{max-width:800px;}
+  .ps-body{overflow:auto;padding:0 18px 18px;-webkit-overflow-scrolling:touch;}
+  .ps-block + .ps-block{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);}
+  .ps-bt{font-size:15px;font-weight:800;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+  .ps-row{display:grid;grid-template-columns:130px minmax(330px,1fr);align-items:stretch;min-width:470px;}
+  .ps-nm{display:flex;align-items:center;padding-right:10px;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-bottom:1px solid var(--border-soft);}
+  .ps-track{display:grid;border-bottom:1px solid var(--border-soft);background-image:linear-gradient(to right,var(--border-soft) 1px,transparent 1px);background-size:calc(100% / 6) 100%;}
+  .ps-head .ps-nm,.ps-head .ps-track{border-bottom:1px solid var(--border);background-image:none;}
+  .ps-h{font-size:11px;color:var(--text-faint);font-variant-numeric:tabular-nums;padding:6px 0 6px 4px;}
+  .ps-seg{margin:6px 0;height:30px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;overflow:hidden;white-space:nowrap;padding:0 6px;box-sizing:border-box;}
+  .ps-seg.fst{margin-left:2px;border-radius:6px 0 0 6px;} .ps-seg.sec{margin-right:2px;border-radius:0 6px 6px 0;}
+  .ps-seg.on{background:rgba(124,252,154,.22);border:1px solid #7CFC9A;color:#7CFC9A;}
+  .ps-seg.off{background:repeating-linear-gradient(135deg,rgba(124,252,154,.12) 0 6px,transparent 6px 12px);border:1px dashed rgba(124,252,154,.55);color:var(--text-faint);}
+  :root[data-theme="light"] .ps-seg.on{background:rgba(31,168,80,.16);border-color:#1fa850;color:#1a7f3e;}
+  :root[data-theme="light"] .ps-seg.off{border-color:rgba(31,168,80,.6);}
+  .ps-leg{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:16px;font-size:12px;color:var(--text-dim);}
+  .ps-leg i{font-style:normal;display:inline-flex;align-items:center;gap:7px;}
+  .ps-sw{display:inline-block;width:22px;height:12px;border-radius:3px;}
+  .ps-sw.on{background:rgba(124,252,154,.22);border:1px solid #7CFC9A;}
+  .ps-sw.off{background:repeating-linear-gradient(135deg,rgba(124,252,154,.25) 0 4px,transparent 4px 8px);border:1px dashed rgba(124,252,154,.55);}
   .rp-modal{max-width:460px;}
   .rp-ms{padding:0 22px 12px;display:flex;gap:8px;}
   .rp-ms input{flex:1;min-width:0;box-sizing:border-box;}
@@ -1023,6 +1043,7 @@
 <div id="rpShot" aria-hidden="true"></div>
 <div id="rpToast" role="status" aria-live="polite"></div>
 <div class="modal-overlay" id="bmModal" role="dialog" aria-modal="true" aria-labelledby="bmTitle"><div class="modal-panel rp-modal bm-panel"><div class="modal-header"><h2 id="bmTitle">Message Battle Buddies</h2><button type="button" class="modal-close" id="bmClose" aria-label="Close">×</button></div><p class="modal-sub" id="bmSub"></p><div class="bm-body" id="bmBody"></div></div></div>
+<div class="modal-overlay" id="psModal" role="dialog" aria-modal="true" aria-labelledby="psTitle"><div class="modal-panel rp-modal ps-panel"><div class="modal-header"><h2 id="psTitle">Pets schedule</h2><button type="button" class="modal-close" id="psClose" aria-label="Close">×</button></div><p class="modal-sub">Times in UTC · pets run for exactly 2 hours from the start time</p><div class="ps-body" id="psBody"></div></div></div>
 <div class="wrap">
 <nav class="sitenav" aria-label="State 646 pages"><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><span class="cur" aria-current="page"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></span></nav>
   <header>
@@ -1035,12 +1056,12 @@
   </header>
   <div class="divider"></div>
   <div class="panel">
-    <div class="rp-tools"><button type="button" class="btn" id="rpShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Share pic</button></div>
+    <div class="rp-tools"><button type="button" class="btn" id="rpShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Share pic</button><button type="button" class="btn" id="rpPets"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg>Pets schedule</button></div>
     <div id="rpBlocks"></div>
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp10</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp12</footer>
 </div>
 <script>
 (function(){
@@ -1321,7 +1342,7 @@ ${escapeHtml(lab)}</textarea></div>`;
   });
   document.getElementById('pkClose').addEventListener('click', closePick);
   ov.addEventListener('click', e => { if(e.target === ov) closePick(); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ if(pcur) closePet(); else if(hcur) closeHero(); else if(cur) closePick(); else if(bmCur) closeBm(); } });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ if(pcur) closePet(); else if(hcur) closeHero(); else if(cur) closePick(); else if(bmCur) closeBm(); else if(psOpen) closePs(); } });
   // ---- message battle buddies ----
   const bmOv = document.getElementById('bmModal'), bmBody = document.getElementById('bmBody'), bmTitle = document.getElementById('bmTitle'), bmSub = document.getElementById('bmSub');
   let bmCur = null;   // {b, id (null = list view), text}
@@ -1344,9 +1365,10 @@ ${escapeHtml(lab)}</textarea></div>`;
     return map;
   }
   function bmMessage(blk, id){
-    const rat = blk.ratio.join(':');
-    const lines = (bmCollect(blk).get(String(id)) || []).map(x => (HOUR0 + x.c) + '-' + (HOUR0 + x.c + 1) + ': ' + (x.master || 'TBD') + ' - ' + (x.hero || 'TBD') + ' - ' + rat);
-    return ['Hi ' + bmNameOf(id) + '!', "Congrats, you've been selected as a Battle Buddy!  \\o/", 'Schedule:'].concat(lines, ['Please join the respective rally when the rally timer shows 2:30.', 'Thank you!']).join('\n');
+    const rat = blk.ratio.join(':'), ents = bmCollect(blk).get(String(id)) || [];
+    const first = ents.length ? (ents[0].hero || 'TBD') : 'TBD';
+    const lines = ents.map(x => (HOUR0 + x.c) + '-' + (HOUR0 + x.c + 1) + ': ' + (x.master || 'TBD') + ((x.hero || 'TBD') !== first ? ' (first hero: ' + (x.hero || 'TBD') + ')' : ''));
+    return ['Hi ' + bmNameOf(id) + '!', "Congrats, you've been selected as a Battle Buddy!  \\o/", 'Schedule:', 'First hero: ' + first + ' - Ratio: ' + rat].concat(lines, ['Please join the respective rally when the rally timer shows 2:30.', 'Thank you!']).join('\n');
   }
   const MAIL_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
   function bmRender(){
@@ -1387,6 +1409,41 @@ ${escapeHtml(lab)}</textarea></div>`;
   }
   document.getElementById('bmClose').addEventListener('click', closeBm);
   bmOv.addEventListener('click', e => { if(e.target === bmOv) closeBm(); });
+  // ---- pets schedule (timeline) ----
+  const psOv = document.getElementById('psModal'), psBody = document.getElementById('psBody');
+  let psOpen = false;
+  function petsHtml(){
+    const NC = TIMES.length + 1;   // 12:00 ... 18:00 (pets started at 16:00 run until 18:00)
+    const head = '<div class="ps-row ps-head"><div class="ps-nm"></div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + Array.from({length: NC}, (x, i) => '<div class="ps-h">' + (HOUR0 + i) + ':00</div>').join('') + '</div></div>';
+    let out = '', any = false;
+    S.blocks.forEach(blk => {
+      const lead = new Map();
+      blk.rows.forEach((lab, r) => {
+        for(let l = 0; l < blk.nl[r]; l++){
+          const rk = l ? r + '.' + l : String(r);
+          for(let c = 0; c < TIMES.length; c++){
+            const id = blk.cells[rk + '-' + c]; if(id == null) continue;
+            const k = String(id); if(!lead.has(k)) lead.set(k, {}); lead.get(k)[c] = String(lab).split('\n')[0];
+          }
+        }
+      });
+      const items = [];
+      lead.forEach((cs, id) => { const st = blk.pets[id]; if(st != null) items.push({id, st, cs}); });
+      if(!items.length) return;
+      any = true;
+      items.sort((a, b) => a.st - b.st || String(bmNameOf(a.id)).localeCompare(String(bmNameOf(b.id))));
+      out += '<div class="ps-block">' + (blk.title ? '<div class="ps-bt">' + escapeHtml(blk.title) + '</div>' : '') + head + items.map(it => {
+        const segs = [0, 1].map(i => { const c = it.st + i, lab = it.cs[c]; return '<div class="ps-seg ' + (i ? 'sec ' : 'fst ') + (lab != null ? 'on' : 'off') + '" style="grid-column:' + (c + 1) + '" title="' + (lab != null ? escapeHtml(lab) : 'Pets active, not leading a rally') + '">' + (lab != null ? escapeHtml(lab) : '') + '</div>'; }).join('');
+        return '<div class="ps-row"><div class="ps-nm" title="' + escapeHtml(bmNameOf(it.id)) + '">' + escapeHtml(bmNameOf(it.id)) + '</div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + segs + '</div></div>';
+      }).join('') + '</div>';
+    });
+    if(!any) return '<div class="rp-empty">No pets scheduled yet. Tap the paw in a name tile to set the start time.</div>';
+    return out + '<div class="ps-leg"><i><span class="ps-sw on"></span>Pets active, leading a rally</i><i><span class="ps-sw off"></span>Pets active, no rally</i></div>';
+  }
+  document.getElementById('rpPets').addEventListener('click', () => { psBody.innerHTML = petsHtml(); psOv.classList.add('open'); psOpen = true; });
+  function closePs(){ psOv.classList.remove('open'); psOpen = false; }
+  document.getElementById('psClose').addEventListener('click', closePs);
+  psOv.addEventListener('click', e => { if(e.target === psOv) closePs(); });
   // ---- share picture ----
   let tt = null;
   const $ = id => document.getElementById(id);
