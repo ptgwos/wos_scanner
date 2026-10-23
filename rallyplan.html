@@ -929,7 +929,11 @@
   .bb-hero.none{color:var(--text-faint);font-weight:500;padding:7px 8px;}
   .bb-hero span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .bb-img{width:26px;height:26px;border-radius:6px;object-fit:cover;background:var(--border);flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--text-dim);}
-  .bb-slot{position:relative;display:flex;}
+  .bb-slot{position:relative;display:flex;gap:4px;align-items:stretch;}
+  .bb-h{flex:none;background:none;border:0;padding:0;cursor:pointer;border-radius:6px;display:block;}
+  .bb-h .bb-img{width:28px;height:28px;}
+  .bb-img.bb-none{border:1px dashed var(--border);background:none;color:var(--text-faint);font-weight:400;font-size:14px;box-sizing:border-box;}
+  .bb-h:hover .bb-img.bb-none{border-color:var(--ice-dim);color:var(--ice);}
   .bb-slot button.nm{flex:1;min-width:0;text-align:left;background:none;border:1px dashed var(--border);border-radius:4px;color:var(--text-faint);padding:4px 20px 4px 8px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .bb-slot button.nm:hover{border-color:var(--ice-dim);color:var(--ice);}
   .bb-slot.has button.nm{border-style:solid;border-color:var(--border);background:var(--panel-2);color:var(--text);font-weight:600;}
@@ -974,7 +978,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp4</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp5</footer>
 </div>
 <script>
 (function(){
@@ -991,11 +995,11 @@
     return (o && typeof o === 'object') ? o : {};
   })();
   let D = null;
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, hero: {}});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}});
   let S = {blocks: [newBlock()]};
   try {
     const o = JSON.parse(localStorage.getItem(KEY) || 'null');
-    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') nb.buds = b.buds; if(b.hero && typeof b.hero === 'object') nb.hero = b.hero; } return nb; };
+    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
     if(o && Array.isArray(o.blocks) && o.blocks.length) S.blocks = o.blocks.slice(0, 30).map(fix);
     else if(o && typeof o === 'object') S.blocks = [fix(o)];
   } catch(e) {}
@@ -1045,11 +1049,12 @@
       if(blk.bb && !blk.shut[r]){
           h += '<div class="rp-lab sub">Buddies</div>';
           TIMES.forEach((t, c) => {
-            const k = r + '-' + c, hn = blk.hero[k], arr = blk.buds[k] || [];
-            let cell = hn ? `<button type="button" class="bb-hero" data-b="${bi}" data-r="${r}" data-c="${c}" title="Joiner hero">${heroImg(hn)}<span class="t">${escapeHtml(hn)}</span></button>` : `<button type="button" class="bb-hero none" data-b="${bi}" data-r="${r}" data-c="${c}" title="Joiner hero">+ Joiner hero</button>`;
+            const k = r + '-' + c, arr = blk.buds[k] || [];
+            let cell = '';
             for(let q = 0; q < 4; q++){
-              const id = arr[q], p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}" data-k="${q}"`;
-              cell += id ? `<div class="bb-slot has"><button type="button" class="nm" ${at}>${escapeHtml(p ? (p.n || id) : 'ID ' + id)}</button><button type="button" class="bb-x" ${at} aria-label="Clear" title="Clear">×</button></div>` : `<div class="bb-slot"><button type="button" class="nm" ${at} aria-label="Add Battle Buddy">+</button></div>`;
+              const e0 = arr[q] || {}, id = e0.id, hn = e0.hero, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}" data-k="${q}"`;
+              const hb = `<button type="button" class="bb-h" ${at} title="${hn ? escapeHtml(hn) : 'Hero'}" aria-label="Hero">${hn ? heroImg(hn) : '<span class="bb-img bb-none">+</span>'}</button>`;
+              cell += `<div class="bb-slot${id ? ' has' : ''}">${hb}<button type="button" class="nm" ${at} aria-label="Battle Buddy ${q + 1}">${id ? escapeHtml(p ? (p.n || id) : 'ID ' + id) : '+'}</button>${(id || hn) ? `<button type="button" class="bb-x" ${at} aria-label="Clear" title="Clear">×</button>` : ''}</div>`;
             }
             h += `<div class="bb-cell">${cell}</div>`;
           });
@@ -1071,11 +1076,11 @@
     const fo = e.target.closest('.rp-fold');
     if(fo){ const blk = S.blocks[+fo.dataset.b]; if(blk.shut[fo.dataset.r]) delete blk.shut[fo.dataset.r]; else blk.shut[fo.dataset.r] = true; save(); render(); return; }
     const bx = e.target.closest('.bb-x');
-    if(bx){ const blk = S.blocks[+bx.dataset.b], k = bx.dataset.r + '-' + bx.dataset.c; if(blk.buds[k]){ blk.buds[k][+bx.dataset.k] = null; if(!blk.buds[k].some(Boolean)) delete blk.buds[k]; } save(); render(); return; }
+    if(bx){ const blk = S.blocks[+bx.dataset.b], k = bx.dataset.r + '-' + bx.dataset.c; if(blk.buds[k]){ blk.buds[k][+bx.dataset.k] = {id: null, hero: null}; if(!blk.buds[k].some(x => x.id || x.hero)) delete blk.buds[k]; } save(); render(); return; }
     const bs = e.target.closest('.bb-slot .nm');
     if(bs){ openPick(+bs.dataset.b, +bs.dataset.r, +bs.dataset.c, +bs.dataset.k); return; }
-    const bh = e.target.closest('.bb-hero');
-    if(bh){ openHero(+bh.dataset.b, +bh.dataset.r, +bh.dataset.c); return; }
+    const bh = e.target.closest('.bb-h');
+    if(bh){ openHero(+bh.dataset.b, +bh.dataset.r, +bh.dataset.c, +bh.dataset.k); return; }
     const x = e.target.closest('.rp-x');
     if(x){ delete S.blocks[+x.dataset.b].cells[x.dataset.r + '-' + x.dataset.c]; save(); render(); return; }
     const pw = e.target.closest('.rp-paw');
@@ -1118,12 +1123,13 @@
   const hov = document.getElementById('hrModal'), hrQ = document.getElementById('hrQ'), hrGrid = document.getElementById('hrGrid');
   let hcur = null;
   function fillHero(){
-    const q = hrQ.value.trim().toLowerCase(), now = S.blocks[hcur.b].hero[hcur.r + '-' + hcur.c];
+    const q = hrQ.value.trim().toLowerCase(), ent = (S.blocks[hcur.b].buds[hcur.r + '-' + hcur.c] || [])[hcur.k], now = ent && ent.hero;
     const list = heroPool().filter(n => !q || n.toLowerCase().includes(q));
     hrGrid.innerHTML = (q ? '' : `<button type="button" class="hr-opt" data-n=""><span class="bb-img">–</span>None</button>`) + list.map(n => `<button type="button" class="hr-opt${now === n ? ' on' : ''}" data-n="${escapeHtml(n)}">${heroImg(n)}${escapeHtml(n)}</button>`).join('') || '<div class="rp-empty">No hero found.</div>';
   }
-  function openHero(b, r, c){
-    hcur = {b, r, c};
+  function openHero(b, r, c, k){
+    hcur = {b, r, c, k};
+    document.getElementById('hrTitle').textContent = 'Hero · Battle Buddy ' + (k + 1);
     document.getElementById('hrSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[r] + ' · ' + TIMES[c];
     hrQ.value = ''; fillHero(); hov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) hrQ.focus();
@@ -1133,7 +1139,9 @@
   hrGrid.addEventListener('click', e => {
     const o = e.target.closest('.hr-opt'); if(!o || !hcur) return;
     const key = hcur.r + '-' + hcur.c, blk = S.blocks[hcur.b];
-    if(o.dataset.n) blk.hero[key] = o.dataset.n; else delete blk.hero[key];
+    const a = blk.buds[key] || [0, 1, 2, 3].map(() => ({id: null, hero: null}));
+    a[hcur.k].hero = o.dataset.n || null; blk.buds[key] = a;
+    if(!a.some(x => x.id || x.hero)) delete blk.buds[key];
     save(); closeHero(); render();
   });
   document.getElementById('hrClose').addEventListener('click', closeHero);
@@ -1145,7 +1153,7 @@
   function fillList(){
     const q = norm(pkQ.value).trim();
     if(!D){ pkList.innerHTML = '<div class="rp-empty">No player data yet …</div>'; return; }
-    const blk0 = S.blocks[cur.b], used = new Set(cur.k == null ? Object.values(blk0.cells).map(String) : Object.values(blk0.buds).flat().filter(Boolean).map(String));
+    const blk0 = S.blocks[cur.b], used = new Set(cur.k == null ? Object.values(blk0.cells).map(String) : Object.values(blk0.buds).flat().map(x => x.id).filter(Boolean).map(String));
     let arr = Object.entries(D.players).map(([id, p]) => ({id, p}));
     if(q) arr = arr.filter(o => norm(o.p.n).includes(q) || o.id.includes(q));
     arr.sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
@@ -1165,7 +1173,7 @@
     const b = e.target.closest('.rp-row'); if(!b || !cur) return;
     const blk = S.blocks[cur.b];
     if(cur.k == null) blk.cells[cur.r + '-' + cur.c] = b.dataset.id;
-    else { const key = cur.r + '-' + cur.c, a = blk.buds[key] || [null, null, null, null]; a[cur.k] = b.dataset.id; blk.buds[key] = a; }
+    else { const key = cur.r + '-' + cur.c, a = blk.buds[key] || [{}, {}, {}, {}].map(() => ({id: null, hero: null})); a[cur.k].id = b.dataset.id; blk.buds[key] = a; }
     save(); closePick(); render();
   });
   document.getElementById('pkClose').addEventListener('click', closePick);
