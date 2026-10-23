@@ -1031,6 +1031,10 @@
   .compact .rp-x{top:50%;transform:translateY(-50%);right:3px;}
   .compact .rp-gl{padding:6px 10px;height:44px;}
   .compact .sh-lab{padding:6px 12px;}
+  .rp-th{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
+  .rp-hck{accent-color:var(--gold);width:16px;height:16px;margin:0;cursor:pointer;}
+  .rp-th.rp-hint2{font-size:10.5px;font-weight:500;letter-spacing:0;color:var(--text-faint);text-align:left;align-items:flex-start;justify-content:flex-end;line-height:1.35;padding:0 4px 4px;}
+  #rpShot .rp-th{flex-direction:row;}
   .rp-modal{max-width:460px;}
   .rp-ms{padding:0 22px 12px;display:flex;gap:8px;}
   .rp-ms input{flex:1;min-width:0;box-sizing:border-box;}
@@ -1083,7 +1087,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp13</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp14</footer>
 </div>
 <script>
 (function(){
@@ -1107,11 +1111,11 @@
       if(a.length) p[k] = a; else delete p[k];
     });
   }
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}, hsel: [false, false, false, false, false]});
   let S = {blocks: [newBlock()], compact: false};
   try {
     const o = JSON.parse(localStorage.getItem(KEY) || 'null');
-    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object'){ nb.pets = b.pets; normPets(nb.pets); } nb.bb = b.bb === true; nb.share = b.share !== false; if(b.sent && typeof b.sent === 'object') nb.sent = b.sent; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
+    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object'){ nb.pets = b.pets; normPets(nb.pets); } nb.bb = b.bb === true; nb.share = b.share !== false; if(Array.isArray(b.hsel) && b.hsel.length === TIMES.length) nb.hsel = b.hsel.map(v => v === true); if(b.sent && typeof b.sent === 'object') nb.sent = b.sent; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
     if(o && o.compact === true) S.compact = true;
     if(o && Array.isArray(o.blocks) && o.blocks.length) S.blocks = o.blocks.slice(0, 30).map(fix);
     else if(o && typeof o === 'object') S.blocks = [fix(o)];
@@ -1162,7 +1166,7 @@
     grid.classList.toggle('compact', !!S.compact);
     grid.innerHTML = S.blocks.map((blk, bi) => {
       let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header"><label class="switch" title="Show this block in the share picture"><input type="checkbox" data-sh="${bi}"${blk.share ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Include in Share</span></label><label class="switch" title="Show Battle Buddies for every rally"><input type="checkbox" data-sw="${bi}"${blk.bb ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Battle Buddies</span></label>${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
-      h += '<div class="rp-th blank"></div>' + TIMES.map(t => `<div class="rp-th">${t}</div>`).join('');
+      h += '<div class="rp-th blank rp-hint2">Share only these hours<br>(none ticked = all)</div>' + TIMES.map((t, c) => `<div class="rp-th"><input type="checkbox" class="rp-hck" data-hs="${bi}" data-c="${c}"${blk.hsel[c] ? ' checked' : ''} title="Include only the ticked hours in the share picture (none ticked = all hours)" aria-label="Share only ${t}"><span>${t}</span></div>`).join('');
       blk.rows.forEach((lab, r) => {
       if(r > 0) h += '<div class="rp-sep"></div>';
       for(let l = 0; l < blk.nl[r]; l++){
@@ -1266,6 +1270,8 @@ ${escapeHtml(lab)}</textarea></div>`;
     if(b) openPick(+b.dataset.b, b.dataset.r, +b.dataset.c);
   });
   grid.addEventListener('change', e => {
+    const hs = e.target.closest('input[data-hs]');
+    if(hs){ S.blocks[+hs.dataset.hs].hsel[+hs.dataset.c] = hs.checked; save(); return; }
     const sh = e.target.closest('input[data-sh]');
     if(sh){ S.blocks[+sh.dataset.sh].share = sh.checked; save(); return; }
     const sw = e.target.closest('input[data-sw]'); if(!sw) return;
@@ -1515,6 +1521,7 @@ ${escapeHtml(lab)}</textarea></div>`;
   function toast(msg){ const t = $('rpToast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2400); }
   function shareBlock(blk){
     const pl = id => D && D.players && D.players[id];
+    const sel = blk.hsel.map((v, i) => v ? i : -1).filter(i => i >= 0), cols = sel.length ? sel : TIMES.map((t, i) => i);
     let rows = '', any = false;
     blk.rows.forEach((lab, r) => {
      let shownLab = false, sepDone = false;
@@ -1522,6 +1529,7 @@ ${escapeHtml(lab)}</textarea></div>`;
       const rk = l ? r + '.' + l : String(r);
       let cells = '', has = false, bcells = '', bhas = false;
       TIMES.forEach((t, c) => {
+        if(!cols.includes(c)) return;
         const id = blk.cells[rk + '-' + c], p = id != null ? pl(id) : null, hrs = petHrs(blk, id), pet = hrs.includes(c), pwarn = pet && petIssues(hrs).length > 0;
         if(id != null){ has = true; cells += `<div class="rp-cell has rp-has${pet ? ' pet' + (pwarn ? ' petwarn' : '') : ''}"><div class="rp-pick">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p ? (p.n || id) : 'ID ' + id)}</span><span class="pw">${p ? fmtM(p.p) : '–'}</span></span></div>${pet ? '<span class="rp-paw"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg></span>' : ''}</div>`; }
         else cells += '<div class="rp-cell sh-empty"></div>';
@@ -1537,7 +1545,7 @@ ${escapeHtml(lab)}</textarea></div>`;
      }
     });
     if(!any && !blk.title) return '';
-    return `<div class="sh-block">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid"><div class="rp-th blank"></div>${TIMES.map(t => `<div class="rp-th">${t}</div>`).join('')}${rows}</div>${blk.bb ? `<div class="sh-ratio"><div class="rt-h">Ratio – Buddies</div><div class="rb-nums">${blk.ratio.join(' : ')}</div>${ratioBar(blk.ratio, false)}${legend()}</div>` : ''}</div>`;
+    return `<div class="sh-block">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid" style="grid-template-columns:150px repeat(${cols.length},minmax(0,1fr))"><div class="rp-th blank"></div>${cols.map(c => `<div class="rp-th">${TIMES[c]}</div>`).join('')}${rows}</div>${blk.bb ? `<div class="sh-ratio"><div class="rt-h">Ratio – Buddies</div><div class="rb-nums">${blk.ratio.join(' : ')}</div>${ratioBar(blk.ratio, false)}${legend()}</div>` : ''}</div>`;
   }
   const LIB = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
   function loadLib(){
