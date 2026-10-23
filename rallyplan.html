@@ -949,6 +949,32 @@
   .rp-addrow button:hover{color:var(--ice);background:rgba(120,140,190,.14);}
   .rp-addrow .rp-dell:hover,.rp-addrow .rp-dell.arm{color:#ff6b6b;}
   .rp-lab.sub2{align-items:center;justify-content:flex-end;padding-right:10px;color:var(--text-faint);font-size:14px;}
+  .rp-gl{width:100%;min-width:0;box-sizing:border-box;resize:none;overflow:hidden;background:var(--panel-2);border:1px solid var(--border);color:var(--ice);border-radius:4px;padding:11px 10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;line-height:16px;}
+  .rp-gl:focus{outline:2px solid var(--ice-dim);outline-offset:1px;}
+  .rp-sep{grid-column:1/-1;height:1px;background:var(--border);margin:6px 0 2px;}
+  .sh-lab{white-space:pre-line;}
+  .rp-rat{max-width:460px;margin-top:6px;padding:14px 16px;border:1px solid var(--border);border-radius:6px;background:var(--bg-2);}
+  .rp-rat .rt-h{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px;}
+  .rp-ratio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .rp-ri{display:flex;flex-direction:column;gap:5px;}
+  .rp-ri label{font-size:11px;color:var(--text-faint);display:flex;align-items:center;gap:6px;}
+  .rp-ri input{min-width:0;width:100%;box-sizing:border-box;text-align:center;font-variant-numeric:tabular-nums;background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 6px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;}
+  .rp-ri input:focus{outline:2px solid var(--ice-dim);outline-offset:1px;}
+  .rp-dot{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none;}
+  .c-inf{background:#4f7cff;} .c-lan{background:#43e6a0;} .c-mar{background:#ffb400;}
+  .rp-bar{display:flex;height:22px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:var(--panel-2);margin-top:10px;}
+  .rp-bar div{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#06121f;overflow:hidden;transition:width .25s ease;}
+  .rp-sumrow{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px;color:var(--text-faint);}
+  .rp-sum{font-variant-numeric:tabular-nums;font-weight:700;padding:1px 9px;border-radius:999px;border:1px solid var(--border);}
+  .rp-sum.ok{color:#2fbf71;border-color:#2fbf71;}
+  .rp-sum.bad{color:#ff6b6b;border-color:#ff6b6b;}
+  .rp-norm{background:none;border:0;color:var(--ice);font:inherit;font-size:12px;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:0;}
+  .rb-nums{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;color:var(--strong);margin-bottom:5px;letter-spacing:.04em;text-align:center;}
+  .rb-leg{display:flex;flex-wrap:wrap;justify-content:center;gap:3px 12px;margin-top:6px;font-size:11px;color:var(--text-dim);}
+  .rb-leg i{font-style:normal;display:inline-flex;align-items:center;gap:5px;}
+  .sh-ratio{max-width:460px;margin:18px auto 0;}
+  .sh-ratio .rt-h{text-align:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px;}
+  .sh-ratio .rp-bar{margin-top:0;}
   .rp-modal{max-width:460px;}
   .rp-ms{padding:0 22px 12px;display:flex;gap:8px;}
   .rp-ms input{flex:1;min-width:0;box-sizing:border-box;}
@@ -999,7 +1025,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp7</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp8</footer>
 </div>
 <script>
 (function(){
@@ -1016,11 +1042,11 @@
     return (o && typeof o === 'object') ? o : {};
   })();
   let D = null;
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1]});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1], ratio: [50, 20, 30]});
   let S = {blocks: [newBlock()]};
   try {
     const o = JSON.parse(localStorage.getItem(KEY) || 'null');
-    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; nb.share = b.share !== false; if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
+    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; nb.share = b.share !== false; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
     if(o && Array.isArray(o.blocks) && o.blocks.length) S.blocks = o.blocks.slice(0, 30).map(fix);
     else if(o && typeof o === 'object') S.blocks = [fix(o)];
   } catch(e) {}
@@ -1051,14 +1077,31 @@
     if(p && p.au) return `<img class="av" loading="lazy" decoding="async" width="${sz}" height="${sz}" src="avatars/${escapeHtml(id)}.webp" alt="" onerror="this.remove()">`;
     return `<span class="av ph" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.45)}px;font-weight:700;color:var(--text-dim)">${escapeHtml((Array.from(String(p && p.n || '?'))[0] || '?').toUpperCase())}</span>`;
   }
+  const RN = [['inf', 'Infantry'], ['lan', 'Lancer'], ['mar', 'Marksman']];
+  function ratioBar(r, withNums){
+    const sum = r.reduce((a, b) => a + b, 0);
+    if(!sum) return '<div class="rp-bar"></div>';
+    return '<div class="rp-bar">' + r.map((v, i) => v ? `<div class="c-${RN[i][0]}" style="width:${(v / sum * 100).toFixed(2)}%">${withNums ? v : ''}</div>` : '').join('') + '</div>';
+  }
+  function legend(){ return '<div class="rb-leg">' + RN.map(x => `<i><span class="rp-dot c-${x[0]}"></span>${x[1]}</i>`).join('') + '</div>'; }
+  function sumHtml(bi){
+    const sum = S.blocks[bi].ratio.reduce((a, b) => a + b, 0), ok = sum === 100;
+    return `<span class="rp-sum ${ok ? 'ok' : 'bad'}">Σ ${sum}%</span>` + (ok ? '<span>adds up to 100</span>' : `<span>should be 100</span><button type="button" class="rp-norm" data-norm="${bi}">Scale to 100</button>`);
+  }
+  function ratioHtml(bi){
+    const r = S.blocks[bi].ratio;
+    return `<div class="rp-rat"><div class="rt-h">Ratio – Buddies</div><div class="rp-ratio">${RN.map((x, i) => `<div class="rp-ri"><label for="ri-${bi}-${i}"><span class="rp-dot c-${x[0]}"></span>${x[1]}</label><input type="number" inputmode="numeric" min="0" max="100" step="1" id="ri-${bi}-${i}" data-rb="${bi}" data-ri="${i}" value="${r[i]}"></div>`).join('')}</div><div id="rbar-${bi}">${ratioBar(r, true)}</div><div class="rp-sumrow" id="rsum-${bi}">${sumHtml(bi)}</div></div>`;
+  }
   function render(){
     grid.innerHTML = S.blocks.map((blk, bi) => {
       let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header"><label class="switch" title="Show this block in the share picture"><input type="checkbox" data-sh="${bi}"${blk.share ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Include in Share</span></label><label class="switch" title="Show Battle Buddies for every rally"><input type="checkbox" data-sw="${bi}"${blk.bb ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Battle Buddies</span></label>${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
       h += '<div class="rp-th blank"></div>' + TIMES.map(t => `<div class="rp-th">${t}</div>`).join('');
       blk.rows.forEach((lab, r) => {
+      if(r > 0) h += '<div class="rp-sep"></div>';
       for(let l = 0; l < blk.nl[r]; l++){
         const rk = l ? r + '.' + l : String(r);
-        h += l ? '<div class="rp-lab sub2" aria-hidden="true">↳</div>' : `<div class="rp-lab">${blk.bb ? `<button type="button" class="rp-fold" data-b="${bi}" data-r="${r}" title="${blk.shut[r] ? 'Show' : 'Hide'} Battle Buddies" aria-label="Show or hide Battle Buddies" aria-expanded="${blk.shut[r] ? 'false' : 'true'}">${blk.shut[r] ? '▸' : '▾'}</button>` : ''}<input type="text" data-b="${bi}" data-r="${r}" value="${escapeHtml(lab)}" maxlength="30" aria-label="Row name"></div>`;
+        h += l ? '<div class="rp-lab sub2" aria-hidden="true">↳</div>' : `<div class="rp-lab">${blk.bb ? `<button type="button" class="rp-fold" data-b="${bi}" data-r="${r}" title="${blk.shut[r] ? 'Show' : 'Hide'} Battle Buddies" aria-label="Show or hide Battle Buddies" aria-expanded="${blk.shut[r] ? 'false' : 'true'}">${blk.shut[r] ? '▸' : '▾'}</button>` : ''}<textarea class="rp-gl" rows="2" data-b="${bi}" data-r="${r}" maxlength="40" aria-label="Group name" spellcheck="false">
+${escapeHtml(lab)}</textarea></div>`;
         TIMES.forEach((t, c) => {
           const id = blk.cells[rk + '-' + c], ps = id != null ? blk.pets[id] : undefined, pet = ps != null && c >= ps && c <= ps + 1, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${rk}" data-c="${c}"`;
           if(id && p){
@@ -1085,12 +1128,23 @@
       }
       if(blk.nl[r] < 9 || blk.nl[r] > 1) h += `<div class="rp-addrow">${blk.nl[r] < 9 ? `<button type="button" class="rp-addl" data-b="${bi}" data-r="${r}" title="Add another line to this group">+ line</button>` : ''}${blk.nl[r] > 1 ? `<button type="button" class="rp-dell${delLn === bi + '-' + r ? ' arm' : ''}" data-b="${bi}" data-r="${r}" title="Remove the last line of this group">${delLn === bi + '-' + r ? 'Really?' : '− line'}</button>` : ''}</div>`;
       });
-      return `<section class="rp-block">${h}</div></div></section>`;
+      return `<section class="rp-block">${h}</div></div>${blk.bb ? ratioHtml(bi) : ''}</section>`;
     }).join('');
   }
   grid.addEventListener('input', e => {
-    const i = e.target.closest('input[data-b]'); if(!i) return;
+    const ri = e.target.closest('input[data-rb]');
+    if(ri){
+      let v = parseInt(ri.value, 10); if(isNaN(v)) v = 0; v = Math.max(0, Math.min(100, v));
+      const bi = +ri.dataset.rb; S.blocks[bi].ratio[+ri.dataset.ri] = v; save();
+      document.getElementById('rbar-' + bi).innerHTML = ratioBar(S.blocks[bi].ratio, true); document.getElementById('rsum-' + bi).innerHTML = sumHtml(bi);
+      return;
+    }
+    const i = e.target.closest('input[data-b], textarea[data-b]'); if(!i) return;
     const blk = S.blocks[+i.dataset.b]; if(!blk) return;
+    if(i.tagName === 'TEXTAREA'){
+      const parts = i.value.replace(/\r/g, '').split('\n');
+      if(parts.length > 2){ const p = i.selectionStart; i.value = parts.slice(0, 2).join('\n'); try { i.setSelectionRange(Math.min(p, i.value.length), Math.min(p, i.value.length)); } catch(x) {} }
+    }
     if(i.dataset.t) blk.title = i.value; else blk.rows[+i.dataset.r] = i.value;
     save();
   });
@@ -1108,6 +1162,14 @@
       if(used && delLn !== bi + '-' + g){ delLn = bi + '-' + g; render(); return; }
       TIMES.forEach((t, c) => { delete blk.cells[rk + '-' + c]; delete blk.buds[rk + '-' + c]; });
       blk.nl[g] = last; delLn = ''; save(); render(); return;
+    }
+    const nm = e.target.closest('.rp-norm');
+    if(nm){
+      const bi = +nm.dataset.norm, r = S.blocks[bi].ratio, sum = r.reduce((a, c) => a + c, 0); if(!sum) return;
+      const raw = r.map(v => v / sum * 100), fl = raw.map(Math.floor);
+      let left = 100 - fl.reduce((a, c) => a + c, 0);
+      raw.map((v, k) => [v - fl[k], k]).sort((a, c) => c[0] - a[0]).forEach(x => { if(left > 0){ fl[x[1]]++; left--; } });
+      S.blocks[bi].ratio = fl; save(); render(); return;
     }
     const fo = e.target.closest('.rp-fold');
     if(fo){ const blk = S.blocks[+fo.dataset.b]; if(blk.shut[fo.dataset.r]) delete blk.shut[fo.dataset.r]; else blk.shut[fo.dataset.r] = true; save(); render(); return; }
@@ -1168,7 +1230,7 @@
   function openHero(b, r, c, k){
     hcur = {b, r, c, k};
     document.getElementById('hrTitle').textContent = 'Hero · Battle Buddy ' + (k + 1);
-    document.getElementById('hrSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[parseInt(r, 10)] + (String(r).includes('.') ? ' (' + (+String(r).split('.')[1] + 1) + ')' : '') + ' · ' + TIMES[c];
+    document.getElementById('hrSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + String(S.blocks[b].rows[parseInt(r, 10)]).replace(/\s*\n\s*/g, ' ') + (String(r).includes('.') ? ' (' + (+String(r).split('.')[1] + 1) + ')' : '') + ' · ' + TIMES[c];
     hrQ.value = ''; fillHero(); hov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) hrQ.focus();
   }
@@ -1217,7 +1279,7 @@
   function openPick(b, r, c, k){
     cur = {b, r, c, k: Number.isInteger(k) ? k : null};
     document.getElementById('pkTitle').textContent = cur.k == null ? 'Select player' : 'Battle Buddy ' + (cur.k + 1);
-    document.getElementById('pkSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[parseInt(r, 10)] + (String(r).includes('.') ? ' (' + (+String(r).split('.')[1] + 1) + ')' : '') + ' · ' + TIMES[c];
+    document.getElementById('pkSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + String(S.blocks[b].rows[parseInt(r, 10)]).replace(/\s*\n\s*/g, ' ') + (String(r).includes('.') ? ' (' + (+String(r).split('.')[1] + 1) + ')' : '') + ' · ' + TIMES[c];
     pkQ.value = ''; fillAlliances(); fillList(); ov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) pkQ.focus();
   }
@@ -1241,7 +1303,7 @@
     const pl = id => D && D.players && D.players[id];
     let rows = '', any = false;
     blk.rows.forEach((lab, r) => {
-     let shownLab = false;
+     let shownLab = false, sepDone = false;
      for(let l = 0; l < blk.nl[r]; l++){
       const rk = l ? r + '.' + l : String(r);
       let cells = '', has = false, bcells = '', bhas = false;
@@ -1255,12 +1317,13 @@
           if(sl){ bhas = true; bcells += `<div class="bb-cell">${sl}</div>`; } else bcells += '<div></div>';
         }
       });
+      if((has || bhas) && !sepDone){ sepDone = true; if(any) rows += '<div class="rp-sep"></div>'; }
       if(has){ any = true; rows += `<div class="rp-lab">${shownLab ? '' : `<div class="sh-lab">${escapeHtml(lab)}</div>`}</div>${cells}`; shownLab = true; }
       if(bhas){ any = true; rows += `<div class="rp-lab sub">${has ? 'Buddies' : (shownLab ? '' : escapeHtml(lab) + ' · ') + 'Buddies'}</div>${bcells}`; shownLab = true; }
      }
     });
     if(!any && !blk.title) return '';
-    return `<div class="sh-block">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid"><div class="rp-th blank"></div>${TIMES.map(t => `<div class="rp-th">${t}</div>`).join('')}${rows}</div></div>`;
+    return `<div class="sh-block">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid"><div class="rp-th blank"></div>${TIMES.map(t => `<div class="rp-th">${t}</div>`).join('')}${rows}</div>${blk.bb ? `<div class="sh-ratio"><div class="rt-h">Ratio – Buddies</div><div class="rb-nums">${blk.ratio.join(' : ')}</div>${ratioBar(blk.ratio, false)}${legend()}</div>` : ''}</div>`;
   }
   const LIB = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
   function loadLib(){
