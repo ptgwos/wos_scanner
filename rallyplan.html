@@ -944,6 +944,11 @@
   .hr-opt:hover{border-color:var(--ice-dim);}
   .hr-opt.on{border-color:var(--gold);color:var(--gold);}
   .hr-opt .bb-img{width:46px;height:46px;font-size:19px;border-radius:9px;}
+  .rp-addrow{grid-column:1/-1;display:flex;gap:10px;margin:-3px 0 0 4px;}
+  .rp-addrow button{background:none;border:0;color:var(--text-faint);font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.04em;cursor:pointer;padding:2px 6px;border-radius:4px;}
+  .rp-addrow button:hover{color:var(--ice);background:rgba(120,140,190,.14);}
+  .rp-addrow .rp-dell:hover,.rp-addrow .rp-dell.arm{color:#ff6b6b;}
+  .rp-lab.sub2{align-items:center;justify-content:flex-end;padding-right:10px;color:var(--text-faint);font-size:14px;}
   .rp-modal{max-width:460px;}
   .rp-ms{padding:0 22px 12px;display:flex;gap:8px;}
   .rp-ms input{flex:1;min-width:0;box-sizing:border-box;}
@@ -994,7 +999,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp6</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp7</footer>
 </div>
 <script>
 (function(){
@@ -1011,11 +1016,11 @@
     return (o && typeof o === 'object') ? o : {};
   })();
   let D = null;
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1]});
   let S = {blocks: [newBlock()]};
   try {
     const o = JSON.parse(localStorage.getItem(KEY) || 'null');
-    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; nb.share = b.share !== false; if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
+    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; nb.share = b.share !== false; if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
     if(o && Array.isArray(o.blocks) && o.blocks.length) S.blocks = o.blocks.slice(0, 30).map(fix);
     else if(o && typeof o === 'object') S.blocks = [fix(o)];
   } catch(e) {}
@@ -1025,7 +1030,7 @@
     try { if(s.length < 3000) document.cookie = 'svs646_rally=' + encodeURIComponent(s) + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
   }
   const grid = document.getElementById('rpBlocks');
-  let delArm = -1;
+  let delArm = -1, delLn = '';
   const HEROES = ['Natalia','Jeronimo','Molly','Zinman','Bahiti','Sergey','Charlie','Cloris','Gina','Jasser','Ling Xue','Lumak Bokan','Seo-Yoon','Smith','Jessie','Patrick','Flint','Philly','Alonso','Logan','Mia','Greg','Ahmose','Reina','Lynn','Hector','Norah','Gwen','Eugene','Wu Ming','Renee','Wayne','Edith','Gordon','Bradley','Gatot','Sonya','Hendrik','Magnus','Fred','Xura','Blanchette','Gregory','Freya','Eleonora','Lloyd','Rufus','Hervor','Karol','Ligeia','Gisela','Flora','Vulcanus','Cara','Dominic','Elif'];
   function slug(n){ return String(n).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
   window.__bbErr = function(img){
@@ -1051,9 +1056,11 @@
       let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header"><label class="switch" title="Show this block in the share picture"><input type="checkbox" data-sh="${bi}"${blk.share ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Include in Share</span></label><label class="switch" title="Show Battle Buddies for every rally"><input type="checkbox" data-sw="${bi}"${blk.bb ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Battle Buddies</span></label>${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
       h += '<div class="rp-th blank"></div>' + TIMES.map(t => `<div class="rp-th">${t}</div>`).join('');
       blk.rows.forEach((lab, r) => {
-        h += `<div class="rp-lab">${blk.bb ? `<button type="button" class="rp-fold" data-b="${bi}" data-r="${r}" title="${blk.shut[r] ? 'Show' : 'Hide'} Battle Buddies" aria-label="Show or hide Battle Buddies" aria-expanded="${blk.shut[r] ? 'false' : 'true'}">${blk.shut[r] ? '▸' : '▾'}</button>` : ''}<input type="text" data-b="${bi}" data-r="${r}" value="${escapeHtml(lab)}" maxlength="30" aria-label="Row name"></div>`;
+      for(let l = 0; l < blk.nl[r]; l++){
+        const rk = l ? r + '.' + l : String(r);
+        h += l ? '<div class="rp-lab sub2" aria-hidden="true">↳</div>' : `<div class="rp-lab">${blk.bb ? `<button type="button" class="rp-fold" data-b="${bi}" data-r="${r}" title="${blk.shut[r] ? 'Show' : 'Hide'} Battle Buddies" aria-label="Show or hide Battle Buddies" aria-expanded="${blk.shut[r] ? 'false' : 'true'}">${blk.shut[r] ? '▸' : '▾'}</button>` : ''}<input type="text" data-b="${bi}" data-r="${r}" value="${escapeHtml(lab)}" maxlength="30" aria-label="Row name"></div>`;
         TIMES.forEach((t, c) => {
-          const id = blk.cells[r + '-' + c], ps = id != null ? blk.pets[id] : undefined, pet = ps != null && c >= ps && c <= ps + 1, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}"`;
+          const id = blk.cells[rk + '-' + c], ps = id != null ? blk.pets[id] : undefined, pet = ps != null && c >= ps && c <= ps + 1, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${rk}" data-c="${c}"`;
           if(id && p){
             h += `<div class="rp-cell has rp-has${pet ? ' pet' : ''}"><button type="button" class="rp-pick" ${at} title="Change">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p.n || id)}</span><span class="pw">${fmtM(p.p)}</span></span></button><button type="button" class="rp-paw" ${at} aria-label="Pets" title="${pet ? 'Pets active' : 'Pets'}"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg></button><button type="button" class="rp-x" ${at} aria-label="Clear" title="Clear">×</button></div>`;
           } else if(id){
@@ -1065,16 +1072,18 @@
       if(blk.bb && !blk.shut[r]){
           h += '<div class="rp-lab sub">Buddies</div>';
           TIMES.forEach((t, c) => {
-            const k = r + '-' + c, arr = blk.buds[k] || [];
+            const k = rk + '-' + c, arr = blk.buds[k] || [];
             let cell = '';
             for(let q = 0; q < 4; q++){
-              const e0 = arr[q] || {}, id = e0.id, hn = e0.hero, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}" data-k="${q}"`;
+              const e0 = arr[q] || {}, id = e0.id, hn = e0.hero, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${rk}" data-c="${c}" data-k="${q}"`;
               const hb = `<button type="button" class="bb-h" ${at} title="${hn ? escapeHtml(hn) : 'Hero'}" aria-label="Hero">${hn ? heroImg(hn) : '<span class="bb-img bb-none">+</span>'}</button>`;
               cell += `<div class="bb-slot${id ? ' has' : ''}">${hb}<button type="button" class="nm" ${at} aria-label="Battle Buddy ${q + 1}">${id ? escapeHtml(p ? (p.n || id) : 'ID ' + id) : '+'}</button>${(id || hn) ? `<button type="button" class="bb-x" ${at} aria-label="Clear" title="Clear">×</button>` : ''}</div>`;
             }
             h += `<div class="bb-cell">${cell}</div>`;
           });
       }
+      }
+      if(blk.nl[r] < 9 || blk.nl[r] > 1) h += `<div class="rp-addrow">${blk.nl[r] < 9 ? `<button type="button" class="rp-addl" data-b="${bi}" data-r="${r}" title="Add another line to this group">+ line</button>` : ''}${blk.nl[r] > 1 ? `<button type="button" class="rp-dell${delLn === bi + '-' + r ? ' arm' : ''}" data-b="${bi}" data-r="${r}" title="Remove the last line of this group">${delLn === bi + '-' + r ? 'Really?' : '− line'}</button>` : ''}</div>`;
       });
       return `<section class="rp-block">${h}</div></div></section>`;
     }).join('');
@@ -1089,20 +1098,31 @@
     const d = e.target.closest('.rp-del');
     if(d){ const bi = +d.dataset.b; if(delArm === bi){ S.blocks.splice(bi, 1); delArm = -1; save(); } else delArm = bi; render(); return; }
     if(delArm !== -1){ delArm = -1; render(); }
+    if(delLn && !e.target.closest('.rp-dell')){ delLn = ''; render(); }
+    const al = e.target.closest('.rp-addl');
+    if(al){ const blk = S.blocks[+al.dataset.b], g = +al.dataset.r; if(blk.nl[g] < 9) blk.nl[g]++; save(); render(); return; }
+    const dl = e.target.closest('.rp-dell');
+    if(dl){
+      const bi = +dl.dataset.b, g = +dl.dataset.r, blk = S.blocks[bi], last = blk.nl[g] - 1, rk = g + '.' + last;
+      const used = TIMES.some((t, c) => blk.cells[rk + '-' + c] != null || blk.buds[rk + '-' + c]);
+      if(used && delLn !== bi + '-' + g){ delLn = bi + '-' + g; render(); return; }
+      TIMES.forEach((t, c) => { delete blk.cells[rk + '-' + c]; delete blk.buds[rk + '-' + c]; });
+      blk.nl[g] = last; delLn = ''; save(); render(); return;
+    }
     const fo = e.target.closest('.rp-fold');
     if(fo){ const blk = S.blocks[+fo.dataset.b]; if(blk.shut[fo.dataset.r]) delete blk.shut[fo.dataset.r]; else blk.shut[fo.dataset.r] = true; save(); render(); return; }
     const bx = e.target.closest('.bb-x');
     if(bx){ const blk = S.blocks[+bx.dataset.b], k = bx.dataset.r + '-' + bx.dataset.c; if(blk.buds[k]){ blk.buds[k][+bx.dataset.k] = {id: null, hero: null}; if(!blk.buds[k].some(x => x.id || x.hero)) delete blk.buds[k]; } save(); render(); return; }
     const bs = e.target.closest('.bb-slot .nm');
-    if(bs){ openPick(+bs.dataset.b, +bs.dataset.r, +bs.dataset.c, +bs.dataset.k); return; }
+    if(bs){ openPick(+bs.dataset.b, bs.dataset.r, +bs.dataset.c, +bs.dataset.k); return; }
     const bh = e.target.closest('.bb-h');
-    if(bh){ openHero(+bh.dataset.b, +bh.dataset.r, +bh.dataset.c, +bh.dataset.k); return; }
+    if(bh){ openHero(+bh.dataset.b, bh.dataset.r, +bh.dataset.c, +bh.dataset.k); return; }
     const x = e.target.closest('.rp-x');
     if(x){ delete S.blocks[+x.dataset.b].cells[x.dataset.r + '-' + x.dataset.c]; save(); render(); return; }
     const pw = e.target.closest('.rp-paw');
-    if(pw){ openPet(+pw.dataset.b, +pw.dataset.r, +pw.dataset.c); return; }
+    if(pw){ openPet(+pw.dataset.b, pw.dataset.r, +pw.dataset.c); return; }
     const b = e.target.closest('.rp-add, .rp-pick');
-    if(b) openPick(+b.dataset.b, +b.dataset.r, +b.dataset.c);
+    if(b) openPick(+b.dataset.b, b.dataset.r, +b.dataset.c);
   });
   grid.addEventListener('change', e => {
     const sh = e.target.closest('input[data-sh]');
@@ -1148,7 +1168,7 @@
   function openHero(b, r, c, k){
     hcur = {b, r, c, k};
     document.getElementById('hrTitle').textContent = 'Hero · Battle Buddy ' + (k + 1);
-    document.getElementById('hrSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[r] + ' · ' + TIMES[c];
+    document.getElementById('hrSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[parseInt(r, 10)] + (String(r).includes('.') ? ' (' + (+String(r).split('.')[1] + 1) + ')' : '') + ' · ' + TIMES[c];
     hrQ.value = ''; fillHero(); hov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) hrQ.focus();
   }
@@ -1197,7 +1217,7 @@
   function openPick(b, r, c, k){
     cur = {b, r, c, k: Number.isInteger(k) ? k : null};
     document.getElementById('pkTitle').textContent = cur.k == null ? 'Select player' : 'Battle Buddy ' + (cur.k + 1);
-    document.getElementById('pkSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[r] + ' · ' + TIMES[c];
+    document.getElementById('pkSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[parseInt(r, 10)] + (String(r).includes('.') ? ' (' + (+String(r).split('.')[1] + 1) + ')' : '') + ' · ' + TIMES[c];
     pkQ.value = ''; fillAlliances(); fillList(); ov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) pkQ.focus();
   }
@@ -1221,19 +1241,23 @@
     const pl = id => D && D.players && D.players[id];
     let rows = '', any = false;
     blk.rows.forEach((lab, r) => {
+     let shownLab = false;
+     for(let l = 0; l < blk.nl[r]; l++){
+      const rk = l ? r + '.' + l : String(r);
       let cells = '', has = false, bcells = '', bhas = false;
       TIMES.forEach((t, c) => {
-        const id = blk.cells[r + '-' + c], p = id != null ? pl(id) : null, ps = id != null ? blk.pets[id] : undefined, pet = ps != null && c >= ps && c <= ps + 1;
+        const id = blk.cells[rk + '-' + c], p = id != null ? pl(id) : null, ps = id != null ? blk.pets[id] : undefined, pet = ps != null && c >= ps && c <= ps + 1;
         if(id != null){ has = true; cells += `<div class="rp-cell has rp-has${pet ? ' pet' : ''}"><div class="rp-pick">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p ? (p.n || id) : 'ID ' + id)}</span><span class="pw">${p ? fmtM(p.p) : '–'}</span></span></div>${pet ? '<span class="rp-paw"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg></span>' : ''}</div>`; }
         else cells += '<div class="rp-cell sh-empty"></div>';
         if(blk.bb && !blk.shut[r]){
-          const arr = blk.buds[r + '-' + c] || []; let sl = '';
+          const arr = blk.buds[rk + '-' + c] || []; let sl = '';
           arr.forEach(e0 => { if(!e0 || (!e0.id && !e0.hero)) return; const bp = e0.id ? pl(e0.id) : null; sl += `<div class="bb-slot has"><span class="bb-h">${e0.hero ? heroImg(e0.hero) : '<span class="bb-img bb-none">–</span>'}</span><button type="button" class="nm">${e0.id ? escapeHtml(bp ? (bp.n || e0.id) : 'ID ' + e0.id) : ''}</button></div>`; });
           if(sl){ bhas = true; bcells += `<div class="bb-cell">${sl}</div>`; } else bcells += '<div></div>';
         }
       });
-      if(has){ any = true; rows += `<div class="rp-lab"><div class="sh-lab">${escapeHtml(lab)}</div></div>${cells}`; }
-      if(bhas){ any = true; rows += `<div class="rp-lab sub">${has ? 'Buddies' : escapeHtml(lab) + ' · Buddies'}</div>${bcells}`; }
+      if(has){ any = true; rows += `<div class="rp-lab">${shownLab ? '' : `<div class="sh-lab">${escapeHtml(lab)}</div>`}</div>${cells}`; shownLab = true; }
+      if(bhas){ any = true; rows += `<div class="rp-lab sub">${has ? 'Buddies' : (shownLab ? '' : escapeHtml(lab) + ' · ') + 'Buddies'}</div>${bcells}`; shownLab = true; }
+     }
     });
     if(!any && !blk.title) return '';
     return `<div class="sh-block">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid"><div class="rp-th blank"></div>${TIMES.map(t => `<div class="rp-th">${t}</div>`).join('')}${rows}</div></div>`;
