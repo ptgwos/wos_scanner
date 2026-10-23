@@ -1009,6 +1009,8 @@
   .rp-actions .sh{display:none;}
   @media (max-width:640px){ .rp-actions .lg{display:none;} .rp-actions .sh{display:inline;} .rp-actions .btn{padding-left:10px;padding-right:10px;gap:6px;letter-spacing:.05em;font-size:12.5px;} .rp-actions svg{width:15px;height:15px;} }
 
+  .rp-ty{position:absolute;top:6px;left:6px;width:9px;height:9px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.35);}
+
 </style>
 </head>
 <body>
@@ -1041,7 +1043,7 @@
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y11</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y12</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div></div></div></div>
@@ -1052,6 +1054,8 @@
 (function(){
   // Hero pool (names only; classes/generations are not stored). Missing ones can be added in the picker.
   const HEROES = ['Natalia','Jeronimo','Molly','Zinman','Bahiti','Sergey','Charlie','Cloris','Gina','Jasser','Ling Xue','Lumak Bokan','Seo-Yoon','Smith','Jessie','Patrick','Flint','Philly','Alonso','Logan','Mia','Greg','Ahmose','Reina','Lynn','Hector','Norah','Gwen','Eugene','Wu Ming','Renee','Wayne','Edith','Gordon','Bradley','Gatot','Sonya','Hendrik','Magnus','Fred','Xura','Blanchette','Gregory','Freya','Eleonora','Lloyd','Rufus','Hervor','Karol','Ligeia','Gisela','Flora','Vulcanus','Cara','Dominic','Elif'];
+const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m','Cara':'m','Charlie':'l','Cloris':'m','Dominic':'l','Edith':'i','Eleonora':'i','Elif':'i','Eugene':'i','Flint':'i','Flora':'l','Fred':'l','Freya':'l','Gatot':'i','Gina':'m','Gisela':'i','Gordon':'l','Greg':'m','Gregory':'i','Gwen':'m','Hector':'i','Hendrik':'m','Hervor':'i','Jasser':'m','Jeronimo':'i','Jessie':'l','Karol':'l','Ligeia':'m','Ling Xue':'l','Lloyd':'l','Logan':'i','Lumak Bokan':'l','Lynn':'m','Magnus':'i','Mia':'l','Molly':'l','Natalia':'i','Norah':'l','Patrick':'l','Philly':'l','Reina':'l','Renee':'l','Rufus':'m','Seo-Yoon':'m','Sergey':'i','Smith':'i','Sonya':'l','Vulcanus':'m','Wayne':'m','Wu Ming':'i','Xura':'m','Zinman':'m'};
+  const TYN = {i: 'Infantry', l: 'Lancer', m: 'Marksman'}, TYC = {i: 'inf', l: 'lan', m: 'mar'};
   const MAXB = 6, NL = 3, NJ0 = 4, NJMAX = 12, DR = [50, 20, 30];
   const RN = [['inf', 'Infantry'], ['lan', 'Lancer'], ['mar', 'Marksman']];
   const KEY = 'rally646_state';
@@ -1189,11 +1193,28 @@
     if(!P.alt && cur[1]) used.add(cur[1]);
     return used;
   }
+  // Leads row only: one hero per type (Infantry / Lancer / Marksman); an "or" alternative must have the same type as the main hero
+  const art = t => t === 'Infantry' ? 'an' : 'a';
+  function heroBlock(n){
+    const t = TY[n]; if(!P || P.g !== 'l' || !t) return '';
+    const row = S.blocks[P.b].l, cur = row[P.i];
+    for(let k = 0; k < row.length; k++){ if(k === P.i) continue; const o = row[k].find(x => TY[x] === t); if(o) return TYN[t] + ' is already used by ' + o; }
+    const ref = P.alt ? cur[0] : cur[1];
+    if(ref && TY[ref] && TY[ref] !== t) return P.alt ? 'The alternative must be ' + art(TYN[TY[ref]]) + ' ' + TYN[TY[ref]] + ' like ' + ref : 'Must be ' + art(TYN[TY[ref]]) + ' ' + TYN[TY[ref]] + ' like the alternative ' + ref;
+    return '';
+  }
+  function freeTypes(){
+    const row = S.blocks[P.b].l, used = new Set();
+    row.forEach((s, k) => { if(k !== P.i) s.forEach(x => { if(TY[x]) used.add(TY[x]); }); });
+    const ref = P.alt ? S.blocks[P.b].l[P.i][0] : S.blocks[P.b].l[P.i][1];
+    if(ref && TY[ref]) return [TYN[TY[ref]]];
+    return ['i', 'l', 'm'].filter(t => !used.has(t)).map(t => TYN[t]);
+  }
   function openPicker(b, g, i, alt){
     P = {b, g, i, alt: !!alt};
     const md = {t: S.blocks[b].title || 'Box ' + (b + 1)};
     $('pickTitle').textContent = (alt ? 'Alternative hero' : 'Choose hero');
-    $('pickSub').textContent = `${md.t} · ${g === 'l' ? 'Lead ' : 'Joiner '}${i + 1}${alt ? ' · shown as “A or B”' : ''}`;
+    $('pickSub').textContent = `${md.t} · ${g === 'l' ? 'Lead ' : 'Joiner '}${i + 1}${alt ? ' · shown as “A or B”' : ''}${g === 'l' ? ' · type needed: ' + freeTypes().join(' / ') : ''}`;
     $('pickQ').value = '';
     pm.classList.add('open'); renderPicker();
     if(!window.matchMedia('(hover: none)').matches) $('pickQ').focus();
@@ -1205,7 +1226,7 @@
     const list = pool().filter(h => !ql || h.n.toLowerCase().includes(ql));
     const exact = pool().some(h => h.n.toLowerCase() === ql);
     $('pickAdd').innerHTML = (q && !exact) ? `<button type="button" class="btn-secondary" data-act="addc">＋ Add “${esc(q.slice(0, 24))}” as a new hero</button>` : '';
-    $('pickGrid').innerHTML = list.map(h => `<button type="button" class="rp-hero${h.n === cur ? ' cur' : ''}${used.has(h.n) ? ' dis' : ''}" data-h="${esc(h.n)}"${used.has(h.n) ? ' aria-disabled="true"' : ''} title="${used.has(h.n) ? 'Already used here' : esc(h.n)}">${himg(h.n)}<span class="rp-nm">${esc(h.n)}</span>${h.custom ? '<span class="rp-del" data-del="' + esc(h.n) + '" title="Remove this hero from the pool" role="button">×</span>' : ''}</button>`).join('') || '<div class="rp-note">No hero found.</div>';
+    $('pickGrid').innerHTML = list.map(h => { const why = heroBlock(h.n), dis = used.has(h.n) || !!why; return `<button type="button" class="rp-hero${h.n === cur ? ' cur' : ''}${dis ? ' dis' : ''}" data-h="${esc(h.n)}"${dis ? ' aria-disabled="true"' : ''} title="${why ? esc(why) : used.has(h.n) ? 'Already used here' : esc(h.n)}">${himg(h.n)}${TY[h.n] ? `<span class="rp-ty c-${TYC[TY[h.n]]}" title="${TYN[TY[h.n]]}"></span>` : ''}<span class="rp-nm">${esc(h.n)}</span>${h.custom ? '<span class="rp-del" data-del="' + esc(h.n) + '" title="Remove this hero from the pool" role="button">×</span>' : ''}</button>`; }).join('') || '<div class="rp-note">No hero found.</div>';
   }
   function choose(n){
     const s = S.blocks[P.b][P.g][P.i];
@@ -1224,7 +1245,7 @@
     const n = $('pickQ').value.trim().replace(/\s+/g, ' ').slice(0, 24); if(!n) return;
     if(!S.custom.some(x => x.toLowerCase() === n.toLowerCase()) && !HEROES.some(x => x.toLowerCase() === n.toLowerCase())) S.custom.push(n);
     const real = pool().find(h => h.n.toLowerCase() === n.toLowerCase()).n;
-    if(usedNames().has(real)){ renderPicker(); return; }
+    if(usedNames().has(real) || heroBlock(real)){ renderPicker(); return; }
     choose(real);
   });
   $('pickQ').addEventListener('input', renderPicker);
