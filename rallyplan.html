@@ -879,7 +879,13 @@
   .rq-x[hidden]{display:none;}
 
   /* ---- rally planner ---- */
-  .rp-title{width:100%;box-sizing:border-box;font-size:20px;font-weight:700;padding:11px 14px;margin-bottom:16px;}
+  .rp-block{margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid var(--border-soft);}
+  .rp-bh{display:flex;gap:8px;margin-bottom:14px;}
+  .rp-title{flex:1;min-width:0;box-sizing:border-box;font-size:20px;font-weight:700;padding:11px 14px;}
+  .rp-del{background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);border-radius:4px;padding:0 14px;font-size:18px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .rp-del:hover,.rp-del.arm{color:#ff6b6b;border-color:#ff6b6b;}
+  .rp-del.arm{font-size:12px;font-weight:600;}
+  #rpAddBlock{margin-bottom:4px;}
   .rp-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
   .rp-grid{display:grid;grid-template-columns:150px repeat(5,minmax(138px,1fr));gap:8px;min-width:880px;}
   .rp-th{background:var(--panel-2);border:1px solid var(--border);border-radius:6px;padding:10px 8px;text-align:center;font-weight:700;font-size:13px;color:var(--gold);letter-spacing:.04em;font-variant-numeric:tabular-nums;}
@@ -927,18 +933,18 @@
   </header>
   <div class="divider"></div>
   <div class="panel">
-    <input type="text" class="rp-title" id="rpTitle" placeholder="ÜBERSCHRIFT" maxlength="80" autocomplete="off">
-    <div class="rp-scroll"><div class="rp-grid" id="rpGrid"></div></div>
+    <div id="rpBlocks"></div>
+    <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp1</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp2</footer>
 </div>
 <script>
 (function(){
   const TIMES = ['12:00 – 13:00','13:00 – 14:00','14:00 – 15:00','15:00 – 16:00','16:00 – 17:00'];
-  const DEF_ROWS = ['Textfeld','Group 1','Group 2','Group 3'];
+  const DEF_ROWS = ['Text','Group 1','Group 2','Group 3'];
   const KEY = 'svs646_rally';
-  const fmtM = n => n == null ? '–' : (Number(n) / 1e6).toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' M';
+  const fmtM = n => n == null ? '–' : (Number(n) >= 999e6 ? (Number(n) / 1e9).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' B' : (Number(n) / 1e6).toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' M');
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   const PREF_KEY = 'svs646_prefs';
   const PREFS = (() => {
@@ -948,44 +954,64 @@
     return (o && typeof o === 'object') ? o : {};
   })();
   let D = null;
-  let S = {title: '', rows: DEF_ROWS.slice(), cells: {}};
-  try { const o = JSON.parse(localStorage.getItem(KEY) || 'null'); if(o && typeof o === 'object'){ S.title = String(o.title || ''); if(Array.isArray(o.rows) && o.rows.length === DEF_ROWS.length) S.rows = o.rows.map(String); if(o.cells && typeof o.cells === 'object') S.cells = o.cells; } } catch(e) {}
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}});
+  let S = {blocks: [newBlock()]};
+  try {
+    const o = JSON.parse(localStorage.getItem(KEY) || 'null');
+    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; } return nb; };
+    if(o && Array.isArray(o.blocks) && o.blocks.length) S.blocks = o.blocks.slice(0, 30).map(fix);
+    else if(o && typeof o === 'object') S.blocks = [fix(o)];
+  } catch(e) {}
   function save(){
     const s = JSON.stringify(S);
     try { localStorage.setItem(KEY, s); } catch(e) {}
     try { if(s.length < 3000) document.cookie = 'svs646_rally=' + encodeURIComponent(s) + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
   }
-  const grid = document.getElementById('rpGrid'), titleEl = document.getElementById('rpTitle');
-  titleEl.value = S.title;
-  titleEl.addEventListener('input', () => { S.title = titleEl.value; save(); });
+  const grid = document.getElementById('rpBlocks');
+  let delArm = -1;
   function avatar(id, p, sz){
     if(PREFS.av === false) return '';
     if(p && p.au) return `<img class="av" loading="lazy" decoding="async" width="${sz}" height="${sz}" src="avatars/${escapeHtml(id)}.webp" alt="" onerror="this.remove()">`;
     return `<span class="av ph" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.45)}px;font-weight:700;color:var(--text-dim)">${escapeHtml((Array.from(String(p && p.n || '?'))[0] || '?').toUpperCase())}</span>`;
   }
   function render(){
-    let h = '<div class="rp-th blank"></div>' + TIMES.map(t => `<div class="rp-th">${t}</div>`).join('');
-    S.rows.forEach((lab, r) => {
-      h += `<div class="rp-lab"><input type="text" data-r="${r}" value="${escapeHtml(lab)}" maxlength="30" aria-label="Row name"></div>`;
-      TIMES.forEach((t, c) => {
-        const id = S.cells[r + '-' + c], p = id && D && D.players && D.players[id];
-        if(id && p){
-          h += `<div class="rp-cell has"><button type="button" class="rp-pick" data-r="${r}" data-c="${c}" title="Change">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p.n || id)}</span><span class="pw">${fmtM(p.p)}</span></span></button><button type="button" class="rp-x" data-r="${r}" data-c="${c}" aria-label="Clear" title="Clear">×</button></div>`;
-        } else if(id){
-          h += `<div class="rp-cell has"><button type="button" class="rp-pick" data-r="${r}" data-c="${c}"><span class="tx"><span class="nm">ID ${escapeHtml(id)}</span><span class="pw">–</span></span></button><button type="button" class="rp-x" data-r="${r}" data-c="${c}" aria-label="Clear">×</button></div>`;
-        } else {
-          h += `<div class="rp-cell"><button type="button" class="rp-add" data-r="${r}" data-c="${c}" aria-label="Add player" title="Add player">+</button></div>`;
-        }
+    grid.innerHTML = S.blocks.map((blk, bi) => {
+      let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header">${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
+      h += '<div class="rp-th blank"></div>' + TIMES.map(t => `<div class="rp-th">${t}</div>`).join('');
+      blk.rows.forEach((lab, r) => {
+        h += `<div class="rp-lab"><input type="text" data-b="${bi}" data-r="${r}" value="${escapeHtml(lab)}" maxlength="30" aria-label="Row name"></div>`;
+        TIMES.forEach((t, c) => {
+          const id = blk.cells[r + '-' + c], p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}"`;
+          if(id && p){
+            h += `<div class="rp-cell has"><button type="button" class="rp-pick" ${at} title="Change">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p.n || id)}</span><span class="pw">${fmtM(p.p)}</span></span></button><button type="button" class="rp-x" ${at} aria-label="Clear" title="Clear">×</button></div>`;
+          } else if(id){
+            h += `<div class="rp-cell has"><button type="button" class="rp-pick" ${at}><span class="tx"><span class="nm">ID ${escapeHtml(id)}</span><span class="pw">–</span></span></button><button type="button" class="rp-x" ${at} aria-label="Clear">×</button></div>`;
+          } else {
+            h += `<div class="rp-cell"><button type="button" class="rp-add" ${at} aria-label="Add player" title="Add player">+</button></div>`;
+          }
+        });
       });
-    });
-    grid.innerHTML = h;
+      return `<section class="rp-block">${h}</div></div></section>`;
+    }).join('');
   }
-  grid.addEventListener('input', e => { const i = e.target.closest('input[data-r]'); if(i){ S.rows[+i.dataset.r] = i.value; save(); } });
+  grid.addEventListener('input', e => {
+    const i = e.target.closest('input[data-b]'); if(!i) return;
+    const blk = S.blocks[+i.dataset.b]; if(!blk) return;
+    if(i.dataset.t) blk.title = i.value; else blk.rows[+i.dataset.r] = i.value;
+    save();
+  });
   grid.addEventListener('click', e => {
+    const d = e.target.closest('.rp-del');
+    if(d){ const bi = +d.dataset.b; if(delArm === bi){ S.blocks.splice(bi, 1); delArm = -1; save(); } else delArm = bi; render(); return; }
+    if(delArm !== -1){ delArm = -1; render(); }
     const x = e.target.closest('.rp-x');
-    if(x){ delete S.cells[x.dataset.r + '-' + x.dataset.c]; save(); render(); return; }
+    if(x){ delete S.blocks[+x.dataset.b].cells[x.dataset.r + '-' + x.dataset.c]; save(); render(); return; }
     const b = e.target.closest('.rp-add, .rp-pick');
-    if(b) openPick(+b.dataset.r, +b.dataset.c);
+    if(b) openPick(+b.dataset.b, +b.dataset.r, +b.dataset.c);
+  });
+  document.getElementById('rpAddBlock').addEventListener('click', () => {
+    S.blocks.push(newBlock()); save(); render();
+    const t = grid.querySelectorAll('.rp-title'); if(t.length){ const l = t[t.length - 1]; l.scrollIntoView({block: 'center', behavior: 'smooth'}); }
   });
   // ---- picker popup ----
   const ov = document.getElementById('pkModal'), pkQ = document.getElementById('pkQ'), pkList = document.getElementById('pkList');
@@ -994,16 +1020,16 @@
   function fillList(){
     const q = norm(pkQ.value).trim();
     if(!D){ pkList.innerHTML = '<div class="rp-empty">No player data yet …</div>'; return; }
-    const used = new Set(Object.values(S.cells).map(String));
+    const used = new Set(Object.values(S.blocks[cur.b].cells).map(String));
     let arr = Object.entries(D.players).map(([id, p]) => ({id, p}));
     if(q) arr = arr.filter(o => norm(o.p.n).includes(q) || o.id.includes(q));
     arr.sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
     const total = arr.length; arr = arr.slice(0, 150);
     pkList.innerHTML = arr.length ? arr.map(o => `<button type="button" class="rp-row" data-id="${escapeHtml(o.id)}">${avatar(o.id, o.p, 24)}<span class="nm">${escapeHtml(o.p.n || o.id)}</span>${used.has(o.id) ? '<span class="used">placed</span>' : ''}<span class="pw">${fmtM(o.p.p)}</span></button>`).join('') + (total > arr.length ? `<div class="rp-empty">${total - arr.length} more – refine the search</div>` : '') : '<div class="rp-empty">No player found.</div>';
   }
-  function openPick(r, c){
-    cur = {r, c};
-    document.getElementById('pkSub').textContent = S.rows[r] + ' · ' + TIMES[c];
+  function openPick(b, r, c){
+    cur = {b, r, c};
+    document.getElementById('pkSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[r] + ' · ' + TIMES[c];
     pkQ.value = ''; fillList(); ov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) pkQ.focus();
   }
@@ -1011,7 +1037,7 @@
   pkQ.addEventListener('input', fillList);
   pkList.addEventListener('click', e => {
     const b = e.target.closest('.rp-row'); if(!b || !cur) return;
-    S.cells[cur.r + '-' + cur.c] = b.dataset.id; save(); closePick(); render();
+    S.blocks[cur.b].cells[cur.r + '-' + cur.c] = b.dataset.id; save(); closePick(); render();
   });
   document.getElementById('pkClose').addEventListener('click', closePick);
   ov.addEventListener('click', e => { if(e.target === ov) closePick(); });
