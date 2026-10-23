@@ -975,6 +975,20 @@
   .sh-ratio{max-width:460px;margin:18px auto 0;}
   .sh-ratio .rt-h{text-align:center;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px;}
   .sh-ratio .rp-bar{margin-top:0;}
+  .rp-ratrow{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:6px;}
+  .rp-ratrow .rp-rat{margin-top:0;flex:0 1 460px;min-width:260px;}
+  .rp-msgbtn svg{width:16px;height:16px;vertical-align:-3px;margin-right:8px;}
+  .bm-panel{max-width:520px;}
+  .bm-body{overflow-y:auto;padding:0 18px 18px;}
+  .bm-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--border-soft);}
+  .bm-nm{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bm-n{color:var(--text-faint);font-size:12px;font-variant-numeric:tabular-nums;}
+  .bm-mail{background:var(--panel-2);border:1px solid var(--border);color:var(--ice);border-radius:5px;padding:6px 9px;cursor:pointer;line-height:0;}
+  .bm-mail:hover{border-color:var(--ice-dim);}
+  .bm-ck{accent-color:#2fbf71;width:19px;height:19px;cursor:pointer;margin:0 2px;}
+  .bm-row.done .bm-nm{color:var(--text-faint);text-decoration:line-through;}
+  .bm-msg textarea{width:100%;box-sizing:border-box;min-height:300px;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:12px;font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.5;resize:vertical;}
+  .bm-act{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
   .rp-modal{max-width:460px;}
   .rp-ms{padding:0 22px 12px;display:flex;gap:8px;}
   .rp-ms input{flex:1;min-width:0;box-sizing:border-box;}
@@ -1008,6 +1022,7 @@
 <div class="modal-overlay" id="hrModal" role="dialog" aria-modal="true" aria-labelledby="hrTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="hrTitle">Joiner hero</h2><button type="button" class="modal-close" id="hrClose" aria-label="Close">×</button></div><p class="modal-sub" id="hrSub"></p><div class="rp-ms"><input type="text" id="hrQ" placeholder="Hero name …" autocomplete="off"></div><div class="hr-grid" id="hrGrid"></div></div></div>
 <div id="rpShot" aria-hidden="true"></div>
 <div id="rpToast" role="status" aria-live="polite"></div>
+<div class="modal-overlay" id="bmModal" role="dialog" aria-modal="true" aria-labelledby="bmTitle"><div class="modal-panel rp-modal bm-panel"><div class="modal-header"><h2 id="bmTitle">Message Battle Buddies</h2><button type="button" class="modal-close" id="bmClose" aria-label="Close">×</button></div><p class="modal-sub" id="bmSub"></p><div class="bm-body" id="bmBody"></div></div></div>
 <div class="wrap">
 <nav class="sitenav" aria-label="State 646 pages"><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><span class="cur" aria-current="page"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></span></nav>
   <header>
@@ -1025,7 +1040,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp8</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp9</footer>
 </div>
 <script>
 (function(){
@@ -1042,11 +1057,11 @@
     return (o && typeof o === 'object') ? o : {};
   })();
   let D = null;
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1], ratio: [50, 20, 30]});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}});
   let S = {blocks: [newBlock()]};
   try {
     const o = JSON.parse(localStorage.getItem(KEY) || 'null');
-    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; nb.share = b.share !== false; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
+    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; nb.share = b.share !== false; if(b.sent && typeof b.sent === 'object') nb.sent = b.sent; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
     if(o && Array.isArray(o.blocks) && o.blocks.length) S.blocks = o.blocks.slice(0, 30).map(fix);
     else if(o && typeof o === 'object') S.blocks = [fix(o)];
   } catch(e) {}
@@ -1090,7 +1105,7 @@
   }
   function ratioHtml(bi){
     const r = S.blocks[bi].ratio;
-    return `<div class="rp-rat"><div class="rt-h">Ratio – Buddies</div><div class="rp-ratio">${RN.map((x, i) => `<div class="rp-ri"><label for="ri-${bi}-${i}"><span class="rp-dot c-${x[0]}"></span>${x[1]}</label><input type="number" inputmode="numeric" min="0" max="100" step="1" id="ri-${bi}-${i}" data-rb="${bi}" data-ri="${i}" value="${r[i]}"></div>`).join('')}</div><div id="rbar-${bi}">${ratioBar(r, true)}</div><div class="rp-sumrow" id="rsum-${bi}">${sumHtml(bi)}</div></div>`;
+    return `<div class="rp-ratrow"><div class="rp-rat"><div class="rt-h">Ratio – Buddies</div><div class="rp-ratio">${RN.map((x, i) => `<div class="rp-ri"><label for="ri-${bi}-${i}"><span class="rp-dot c-${x[0]}"></span>${x[1]}</label><input type="number" inputmode="numeric" min="0" max="100" step="1" id="ri-${bi}-${i}" data-rb="${bi}" data-ri="${i}" value="${r[i]}"></div>`).join('')}</div><div id="rbar-${bi}">${ratioBar(r, true)}</div><div class="rp-sumrow" id="rsum-${bi}">${sumHtml(bi)}</div></div><button type="button" class="btn rp-msgbtn" data-msg="${bi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Message Battle Buddies</button></div>`;
   }
   function render(){
     grid.innerHTML = S.blocks.map((blk, bi) => {
@@ -1163,6 +1178,8 @@ ${escapeHtml(lab)}</textarea></div>`;
       TIMES.forEach((t, c) => { delete blk.cells[rk + '-' + c]; delete blk.buds[rk + '-' + c]; });
       blk.nl[g] = last; delLn = ''; save(); render(); return;
     }
+    const mb = e.target.closest('.rp-msgbtn');
+    if(mb){ openBm(+mb.dataset.msg); return; }
     const nm = e.target.closest('.rp-norm');
     if(nm){
       const bi = +nm.dataset.norm, r = S.blocks[bi].ratio, sum = r.reduce((a, c) => a + c, 0); if(!sum) return;
@@ -1294,7 +1311,72 @@ ${escapeHtml(lab)}</textarea></div>`;
   });
   document.getElementById('pkClose').addEventListener('click', closePick);
   ov.addEventListener('click', e => { if(e.target === ov) closePick(); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ if(pcur) closePet(); else if(hcur) closeHero(); else if(cur) closePick(); } });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ if(pcur) closePet(); else if(hcur) closeHero(); else if(cur) closePick(); else if(bmCur) closeBm(); } });
+  // ---- message battle buddies ----
+  const bmOv = document.getElementById('bmModal'), bmBody = document.getElementById('bmBody'), bmTitle = document.getElementById('bmTitle'), bmSub = document.getElementById('bmSub');
+  let bmCur = null;   // {b, id (null = list view), text}
+  const HOUR0 = 12;
+  function bmNameOf(id){ const p = D && D.players && D.players[id]; return p ? (p.n || String(id)) : 'ID ' + id; }
+  function bmCollect(blk){
+    const map = new Map();
+    for(let c = 0; c < TIMES.length; c++){
+      blk.rows.forEach((lab, r) => {
+        for(let l = 0; l < blk.nl[r]; l++){
+          const rk = l ? r + '.' + l : String(r), arr = blk.buds[rk + '-' + c] || [], lead = blk.cells[rk + '-' + c];
+          arr.forEach(e0 => {
+            if(!e0 || !e0.id) return;
+            const k = String(e0.id); if(!map.has(k)) map.set(k, []);
+            map.get(k).push({c, master: lead != null ? bmNameOf(lead) : null, hero: e0.hero || null});
+          });
+        }
+      });
+    }
+    return map;
+  }
+  function bmMessage(blk, id){
+    const rat = blk.ratio.join(':');
+    const lines = (bmCollect(blk).get(String(id)) || []).map(x => (HOUR0 + x.c) + '-' + (HOUR0 + x.c + 1) + ': ' + (x.master || 'TBD') + ' - ' + (x.hero || 'TBD') + ' - ' + rat);
+    return ['Hi ' + bmNameOf(id) + '!', "Congrats, you've been selected as a Battle Buddy!  \\o/", 'Schedule:'].concat(lines, ['Please join the respective rally when the rally timer shows 2:30.', 'Thank you!']).join('\n');
+  }
+  const MAIL_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+  function bmRender(){
+    const blk = S.blocks[bmCur.b];
+    if(bmCur.id != null){
+      bmTitle.textContent = 'Message';
+      bmSub.textContent = bmNameOf(bmCur.id) + ' – you can edit the text before copying.';
+      bmBody.innerHTML = '<div class="bm-msg"><textarea id="bmText" rows="14" spellcheck="false"></textarea><div class="bm-act"><button type="button" class="btn" id="bmCopy">Copy</button><button type="button" class="btn-secondary" id="bmReset">Reset text</button><button type="button" class="btn-secondary" id="bmBack">Back</button></div></div>';
+      document.getElementById('bmText').value = bmCur.text;
+      return;
+    }
+    const map = bmCollect(blk), ids = Array.from(map.keys());
+    const sent = ids.filter(id => blk.sent[id]).length;
+    bmTitle.textContent = 'Message Battle Buddies';
+    bmSub.textContent = (blk.title ? blk.title + ' · ' : '') + ids.length + ' Battle Buddies · ' + sent + ' messaged';
+    bmBody.innerHTML = ids.length ? ids.map(id => '<div class="bm-row' + (blk.sent[id] ? ' done' : '') + '"><span class="bm-nm">' + escapeHtml(bmNameOf(id)) + '</span><span class="bm-n">' + map.get(id).length + '×</span><button type="button" class="bm-mail" data-id="' + escapeHtml(id) + '" title="Write the message" aria-label="Write the message">' + MAIL_SVG + '</button><input type="checkbox" class="bm-ck" data-id="' + escapeHtml(id) + '"' + (blk.sent[id] ? ' checked' : '') + ' title="Message sent" aria-label="Message sent"></div>').join('') : '<div class="rp-empty">No Battle Buddies entered in this block yet.</div>';
+  }
+  function openBm(b){ bmCur = {b, id: null, text: ''}; bmRender(); bmOv.classList.add('open'); }
+  function closeBm(){ bmOv.classList.remove('open'); bmCur = null; }
+  bmBody.addEventListener('click', e => {
+    if(!bmCur) return;
+    const m = e.target.closest('.bm-mail');
+    if(m){ bmCur.id = m.dataset.id; bmCur.text = bmMessage(S.blocks[bmCur.b], bmCur.id); bmRender(); return; }
+    if(e.target.closest('#bmBack')){ bmCur.id = null; bmRender(); return; }
+    if(e.target.closest('#bmReset')){ bmCur.text = bmMessage(S.blocks[bmCur.b], bmCur.id); document.getElementById('bmText').value = bmCur.text; return; }
+    if(e.target.closest('#bmCopy')) bmCopy();
+  });
+  bmBody.addEventListener('input', e => { if(bmCur && e.target.id === 'bmText') bmCur.text = e.target.value; });
+  bmBody.addEventListener('change', e => {
+    const ck = e.target.closest('.bm-ck'); if(!ck || !bmCur) return;
+    const blk = S.blocks[bmCur.b]; if(ck.checked) blk.sent[ck.dataset.id] = true; else delete blk.sent[ck.dataset.id];
+    save(); bmRender();
+  });
+  async function bmCopy(){
+    const ta = document.getElementById('bmText');
+    try { await navigator.clipboard.writeText(ta.value); toast('Text copied'); return; } catch(err) {}
+    try { ta.focus(); ta.select(); toast(document.execCommand('copy') ? 'Text copied' : 'Copy failed'); } catch(err) { toast('Copy failed'); }
+  }
+  document.getElementById('bmClose').addEventListener('click', closeBm);
+  bmOv.addEventListener('click', e => { if(e.target === bmOv) closeBm(); });
   // ---- share picture ----
   let tt = null;
   const $ = id => document.getElementById(id);
