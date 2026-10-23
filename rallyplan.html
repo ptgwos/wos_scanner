@@ -882,7 +882,7 @@
   .rp-block{margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid var(--border-soft);}
   .rp-bh{display:flex;gap:8px;margin-bottom:14px;}
   .rp-title{flex:1;min-width:0;box-sizing:border-box;font-size:20px;font-weight:700;padding:11px 14px;}
-  .rp-del{background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);border-radius:4px;padding:0 14px;font-size:18px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .rp-del{margin-left:22px;background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);border-radius:4px;padding:0 14px;font-size:18px;cursor:pointer;font-family:'Inter',sans-serif;}
   .rp-del:hover,.rp-del.arm{color:#ff6b6b;border-color:#ff6b6b;}
   .rp-del.arm{font-size:12px;font-weight:600;}
   #rpAddBlock{margin-bottom:4px;}
@@ -918,7 +918,7 @@
   .pt-opt.on{border-color:#7CFC9A;color:#7CFC9A;background:rgba(124,252,154,.10);}
   .pt-note{padding:8px 22px 20px;color:var(--text-faint);font-size:12.5px;margin:0;}
   .rp-bh .switch{flex:none;align-self:center;}
-  @media (max-width:640px){ .rp-title{flex:1 1 100%;} }
+  @media (max-width:640px){ .rp-title{flex:1 1 100%;} .rp-del{margin-left:auto;} }
   .rp-lab{position:sticky;left:0;z-index:2;background:var(--panel);display:flex;align-items:stretch;gap:4px;}
   .rp-fold{flex:none;width:26px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;color:var(--text-dim);cursor:pointer;font-size:12px;padding:0;}
   .rp-fold:hover{color:var(--ice);border-color:var(--ice-dim);}
@@ -1040,7 +1040,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp9</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp10</footer>
 </div>
 <script>
 (function(){
@@ -1071,7 +1071,7 @@
     try { if(s.length < 3000) document.cookie = 'svs646_rally=' + encodeURIComponent(s) + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
   }
   const grid = document.getElementById('rpBlocks');
-  let delArm = -1, delLn = '';
+  let delArm = -1, delLn = '', delArmAt = 0, delArmT = null;
   const HEROES = ['Natalia','Jeronimo','Molly','Zinman','Bahiti','Sergey','Charlie','Cloris','Gina','Jasser','Ling Xue','Lumak Bokan','Seo-Yoon','Smith','Jessie','Patrick','Flint','Philly','Alonso','Logan','Mia','Greg','Ahmose','Reina','Lynn','Hector','Norah','Gwen','Eugene','Wu Ming','Renee','Wayne','Edith','Gordon','Bradley','Gatot','Sonya','Hendrik','Magnus','Fred','Xura','Blanchette','Gregory','Freya','Eleonora','Lloyd','Rufus','Hervor','Karol','Ligeia','Gisela','Flora','Vulcanus','Cara','Dominic','Elif'];
   function slug(n){ return String(n).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
   window.__bbErr = function(img){
@@ -1165,7 +1165,17 @@ ${escapeHtml(lab)}</textarea></div>`;
   });
   grid.addEventListener('click', e => {
     const d = e.target.closest('.rp-del');
-    if(d){ const bi = +d.dataset.b; if(delArm === bi){ S.blocks.splice(bi, 1); delArm = -1; save(); } else delArm = bi; render(); return; }
+    if(d){
+      const bi = +d.dataset.b;
+      if(delArm === bi){
+        if(Date.now() - delArmAt < 700) return;   // ignore a fast double click
+        S.blocks.splice(bi, 1); delArm = -1; clearTimeout(delArmT); save();
+      } else {
+        delArm = bi; delArmAt = Date.now(); clearTimeout(delArmT);
+        delArmT = setTimeout(() => { if(delArm === bi){ delArm = -1; render(); } }, 4000);   // "Really?" retreats after 4 s
+      }
+      render(); return;
+    }
     if(delArm !== -1){ delArm = -1; render(); }
     if(delLn && !e.target.closest('.rp-dell')){ delLn = ''; render(); }
     const al = e.target.closest('.rp-addl');
