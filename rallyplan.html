@@ -1087,7 +1087,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp14</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp15</footer>
 </div>
 <script>
 (function(){
@@ -1545,7 +1545,7 @@ ${escapeHtml(lab)}</textarea></div>`;
      }
     });
     if(!any && !blk.title) return '';
-    return `<div class="sh-block">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid" style="grid-template-columns:150px repeat(${cols.length},minmax(0,1fr))"><div class="rp-th blank"></div>${cols.map(c => `<div class="rp-th">${TIMES[c]}</div>`).join('')}${rows}</div>${blk.bb ? `<div class="sh-ratio"><div class="rt-h">Ratio – Buddies</div><div class="rb-nums">${blk.ratio.join(' : ')}</div>${ratioBar(blk.ratio, false)}${legend()}</div>` : ''}</div>`;
+    return `<div class="sh-block" data-nc="${cols.length}">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid" style="grid-template-columns:150px repeat(${cols.length},minmax(0,1fr))"><div class="rp-th blank"></div>${cols.map(c => `<div class="rp-th">${TIMES[c]}</div>`).join('')}${rows}</div></div>`;
   }
   const LIB = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
   function loadLib(){
@@ -1570,6 +1570,8 @@ ${escapeHtml(lab)}</textarea></div>`;
     const el = $('rpShot');
     el.classList.toggle('compact', !!S.compact);
     el.innerHTML = html;
+    const ncs = Array.from(el.querySelectorAll('.sh-block')).map(x => +x.dataset.nc || TIMES.length);
+    el.style.width = ncs.length ? Math.max(430, 44 + 150 + Math.max.apply(null, ncs) * 188) + 'px' : '';
     if(!el.children.length) return null;
     await loadLib();
     el.querySelectorAll('img').forEach(im => { im.removeAttribute('loading'); im.loading = 'eager'; });
