@@ -1018,6 +1018,7 @@
   .pt-warn{margin:8px 22px 0;padding:10px 12px;border:1px solid #ffb400;border-radius:6px;background:rgba(255,180,0,.08);font-size:13px;line-height:1.45;}
   .pt-warn p{margin:0 0 10px;}
   .pt-wb{display:flex;gap:10px;flex-wrap:wrap;}
+  .pt-opt.oth{border-style:dashed;border-color:#7CFC9A;}
   .rp-cell.pet.petwarn{border-color:#ffb400;background:rgba(255,180,0,.10);box-shadow:0 0 0 1px rgba(255,180,0,.25);}
   .rp-cell.pet.petwarn .rp-paw{color:#ffb400;}
   :root[data-theme="light"] .rp-cell.pet.petwarn{border-color:#c98a00;background:rgba(201,138,0,.10);box-shadow:none;}
@@ -1064,7 +1065,7 @@
 </head>
 <body>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><select id="pkAl" aria-label="Alliance"></select><input type="text" id="pkQ" placeholder="Search name …" autocomplete="off"></div><div class="rp-list" id="pkList"></div></div></div>
-<div class="modal-overlay" id="ptModal" role="dialog" aria-modal="true" aria-labelledby="ptTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="ptTitle">Pets</h2><button type="button" class="modal-close" id="ptClose" aria-label="Close">×</button></div><p class="modal-sub" id="ptSub"></p><div class="pt-opts" id="ptOpts"></div><div class="pt-warn" id="ptWarn" hidden></div><p class="pt-note">Pets run for exactly 2 hours in a row and can only be activated once. Pick one hour per tap (times in UTC); tap an active hour again to remove it.</p></div></div>
+<div class="modal-overlay" id="ptModal" role="dialog" aria-modal="true" aria-labelledby="ptTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="ptTitle">Pets</h2><button type="button" class="modal-close" id="ptClose" aria-label="Close">×</button></div><p class="modal-sub" id="ptSub"></p><div class="pt-opts" id="ptOpts"></div><div class="pt-warn" id="ptWarn" hidden></div><p class="pt-note">Pets run for 2 hours in a row at most and can only be activated once per day (all blocks together). Pick one hour per tap (times in UTC); tap an active hour again to remove it.</p></div></div>
 <div class="modal-overlay" id="hrModal" role="dialog" aria-modal="true" aria-labelledby="hrTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="hrTitle">Joiner hero</h2><button type="button" class="modal-close" id="hrClose" aria-label="Close">×</button></div><p class="modal-sub" id="hrSub"></p><div class="rp-ms"><input type="text" id="hrQ" placeholder="Hero name …" autocomplete="off"></div><div class="hr-grid" id="hrGrid"></div></div></div>
 <div id="rpShot" aria-hidden="true"></div>
 <div id="rpToast" role="status" aria-live="polite"></div>
@@ -1087,7 +1088,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp15</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp16</footer>
 </div>
 <script>
 (function(){
@@ -1174,7 +1175,7 @@
         h += l ? '<div class="rp-lab sub2" aria-hidden="true">↳</div>' : `<div class="rp-lab">${blk.bb ? `<button type="button" class="rp-fold" data-b="${bi}" data-r="${r}" title="${blk.shut[r] ? 'Show' : 'Hide'} Battle Buddies" aria-label="Show or hide Battle Buddies" aria-expanded="${blk.shut[r] ? 'false' : 'true'}">${blk.shut[r] ? '▸' : '▾'}</button>` : ''}<textarea class="rp-gl" rows="2" data-b="${bi}" data-r="${r}" maxlength="40" aria-label="Group name" spellcheck="false">
 ${escapeHtml(lab)}</textarea></div>`;
         TIMES.forEach((t, c) => {
-          const id = blk.cells[rk + '-' + c], hrs = petHrs(blk, id), pet = hrs.includes(c), pwarn = pet && petIssues(hrs).length > 0, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${rk}" data-c="${c}"`;
+          const id = blk.cells[rk + '-' + c], pall = id != null ? petAll(id) : {hrs: [], dup: []}, pet = pall.hrs.includes(c), pwarn = pet && petIssues(pall.hrs, pall.dup).length > 0, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${rk}" data-c="${c}"`;
           if(id && p){
             h += `<div class="rp-cell has rp-has${pet ? ' pet' + (pwarn ? ' petwarn' : '') : ''}"><button type="button" class="rp-pick" ${at} title="Change">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p.n || id)}</span><span class="pw">${fmtM(p.p)}</span></span></button><button type="button" class="rp-paw" ${at} aria-label="Pets" title="${pet ? 'Pets active' : 'Pets'}"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg></button><button type="button" class="rp-x" ${at} aria-label="Clear" title="Clear">×</button></div>`;
           } else if(id){
@@ -1286,24 +1287,43 @@ ${escapeHtml(lab)}</textarea></div>`;
   });
   // ---- pets (hour by hour) ----
   function petHrs(blk, id){ const a = id != null ? blk.pets[id] : null; return Array.isArray(a) ? a : []; }
-  function petIssues(hrs){
+  function petAll(id){
+    const seen = new Set(), dup = new Set();
+    S.blocks.forEach(b => petHrs(b, id).forEach(c => { if(seen.has(c)) dup.add(c); seen.add(c); }));
+    return {hrs: Array.from(seen).sort((a, b) => a - b), dup: Array.from(dup).sort((a, b) => a - b)};
+  }
+  function petIssues(hrs, dup){
     const h = hrs.slice().sort((a, b) => a - b), out = [];
-    if(h.length > 2) out.push('more than 2 hours in total');
+    if(h.length > 2) out.push('more than 2 hours in total (the event is one day)');
     if(h.length > 1 && h[h.length - 1] - h[0] + 1 !== h.length) out.push('the hours are not consecutive (pets can only be activated once and run without a break)');
+    if(dup && dup.length) out.push('the same hour is set in more than one block (' + dup.map(c => hh(c)).join(', ') + ')');
     return out;
   }
   const hh = c => (HOUR0 + c) + ':00';
-  function petWhere(blk, id, c){
+  function blockName(j){ const b = S.blocks[j]; return b.title ? b.title : 'Block ' + (j + 1); }
+  function petWhere(id, c){
     const out = [];
-    blk.rows.forEach((lab, r) => { for(let l = 0; l < blk.nl[r]; l++){ const rk = l ? r + '.' + l : String(r); if(String(blk.cells[rk + '-' + c]) === String(id)) out.push(String(lab).split('\n')[0]); } });
+    S.blocks.forEach((blk, j) => {
+      const g = [];
+      blk.rows.forEach((lab, r) => { for(let l = 0; l < blk.nl[r]; l++){ const rk = l ? r + '.' + l : String(r); if(String(blk.cells[rk + '-' + c]) === String(id)) g.push(String(lab).split('\n')[0]); } });
+      const set = petHrs(blk, id).includes(c);
+      if(!set && !g.length) return;
+      out.push((S.blocks.length > 1 ? blockName(j) + (g.length ? ': ' : '') : '') + g.join(', ') + (S.blocks.length > 1 && set && !g.length ? ' (set)' : ''));
+    });
     return out;
   }
   const pov = document.getElementById('ptModal'), ptOpts = document.getElementById('ptOpts'), ptWarn = document.getElementById('ptWarn');
   let pcur = null;
   function fillPet(){
-    const blk = S.blocks[pcur.b], hrs = petHrs(blk, pcur.id);
+    const blk = S.blocks[pcur.b], mine = petHrs(blk, pcur.id), all = petAll(pcur.id);
     ptWarn.hidden = true; ptWarn.innerHTML = '';
-    ptOpts.innerHTML = TIMES.map((t, i) => `<button type="button" class="pt-opt${hrs.includes(i) ? ' on' : ''}" data-i="${i}">${hh(i)} UTC<br><span style="font-weight:400;color:var(--text-dim);font-size:11.5px">${hrs.includes(i) ? 'active · tap to remove' : hh(i) + ' – ' + hh(i + 1)}</span></button>`).join('') + `<button type="button" class="pt-opt" data-i="-1">Clear all hours</button>`;
+    ptOpts.innerHTML = TIMES.map((t, i) => {
+      const on = mine.includes(i), oth = !on && all.hrs.includes(i);
+      let sub = hh(i) + ' – ' + hh(i + 1);
+      if(on) sub = 'active · tap to remove';
+      else if(oth){ const bj = S.blocks.findIndex((b, j) => j !== pcur.b && petHrs(b, pcur.id).includes(i)); sub = 'set in ' + (bj >= 0 ? blockName(bj) : 'another block'); }
+      return `<button type="button" class="pt-opt${on ? ' on' : ''}${oth ? ' oth' : ''}" data-i="${i}">${hh(i)} UTC<br><span style="font-weight:400;color:var(--text-dim);font-size:11.5px">${escapeHtml(sub)}</span></button>`;
+    }).join('') + `<button type="button" class="pt-opt" data-i="-1">Clear hours in this block</button>`;
   }
   function openPet(b, r, c){
     const id = S.blocks[b].cells[r + '-' + c]; if(id == null) return;
@@ -1315,13 +1335,14 @@ ${escapeHtml(lab)}</textarea></div>`;
   function petSet(blk, id, arr){ arr = Array.from(new Set(arr)).sort((a, b) => a - b); if(arr.length) blk.pets[id] = arr; else delete blk.pets[id]; save(); closePet(); render(); }
   ptOpts.addEventListener('click', e => {
     const o = e.target.closest('.pt-opt'); if(!o || !pcur) return;
-    const i = +o.dataset.i, blk = S.blocks[pcur.b], hrs = petHrs(blk, pcur.id);
+    const i = +o.dataset.i, blk = S.blocks[pcur.b], mine = petHrs(blk, pcur.id), all = petAll(pcur.id);
     if(i < 0){ petSet(blk, pcur.id, []); return; }
-    if(hrs.includes(i)){ petSet(blk, pcur.id, hrs.filter(x => x !== i)); return; }
-    const issues = petIssues(hrs.concat([i]));
-    if(!issues.length){ petSet(blk, pcur.id, hrs.concat([i])); return; }
+    if(mine.includes(i)){ petSet(blk, pcur.id, mine.filter(x => x !== i)); return; }
+    const nh = Array.from(new Set(all.hrs.concat([i]))), nd = all.dup.concat(all.hrs.includes(i) ? [i] : []);
+    const issues = petIssues(nh, nd);
+    if(!issues.length){ petSet(blk, pcur.id, mine.concat([i])); return; }
     let msg = '<b>' + escapeHtml(bmNameOf(pcur.id)) + '</b>';
-    if(hrs.length) msg += ' already has pets at ' + hrs.map(c => { const w = petWhere(blk, pcur.id, c); return hh(c) + (w.length ? ' (' + w.map(escapeHtml).join(', ') + ')' : ''); }).join(', ') + '.';
+    if(all.hrs.length) msg += ' already has pets at ' + all.hrs.map(c => { const w = petWhere(pcur.id, c); return hh(c) + (w.length ? ' (' + w.map(escapeHtml).join('; ') + ')' : ''); }).join(', ') + '.';
     msg += ' Adding ' + hh(i) + ' would mean: ' + issues.join('; ') + '.';
     ptWarn.innerHTML = '<p>⚠ ' + msg + '</p><div class="pt-wb"><button type="button" class="btn" data-go="' + i + '">Add anyway</button><button type="button" class="btn-secondary" data-no="1">Cancel</button></div>';
     ptWarn.hidden = false;
@@ -1482,32 +1503,34 @@ ${escapeHtml(lab)}</textarea></div>`;
   function petsData(){
     const NC = TIMES.length;
     const head = '<div class="ps-row ps-head"><div class="ps-nm"></div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + Array.from({length: NC}, (x, i) => '<div class="ps-h">' + hh(i) + (i === NC - 1 ? '<span class="ps-end">' + hh(NC) + '</span>' : '') + '</div>').join('') + '</div></div>';
-    let out = '', any = false, anyWarn = false;
-    S.blocks.forEach(blk => {
-      const lead = new Map();
+    const lead = new Map(), ids = new Set();
+    S.blocks.forEach((blk, j) => {
+      Object.keys(blk.pets).forEach(id => { if(petHrs(blk, id).length) ids.add(id); });
       blk.rows.forEach((lab, r) => {
         for(let l = 0; l < blk.nl[r]; l++){
           const rk = l ? r + '.' + l : String(r);
           for(let c = 0; c < TIMES.length; c++){
             const id = blk.cells[rk + '-' + c]; if(id == null) continue;
-            const k = String(id); if(!lead.has(k)) lead.set(k, {}); lead.get(k)[c] = String(lab).split('\n')[0];
+            const k = String(id); if(!lead.has(k)) lead.set(k, {});
+            if(lead.get(k)[c] == null) lead.get(k)[c] = (S.blocks.length > 1 && blk.title ? blk.title + ' · ' : '') + String(lab).split('\n')[0];
           }
         }
       });
-      const items = [];
-      Object.keys(blk.pets).forEach(id => { const hrs = petHrs(blk, id).slice().sort((a, b) => a - b); if(hrs.length && lead.has(id)) items.push({id, hrs, cs: lead.get(id)}); });
-      if(!items.length) return;
-      any = true;
-      items.sort((a, b) => a.hrs[0] - b.hrs[0] || String(bmNameOf(a.id)).localeCompare(String(bmNameOf(b.id))));
-      out += '<div class="ps-block">' + (blk.title ? '<div class="ps-bt">' + escapeHtml(blk.title) + '</div>' : '') + head + items.map(it => {
-        const iss = petIssues(it.hrs); if(iss.length) anyWarn = true;
-        const segs = it.hrs.map(c => { const lab = it.cs[c]; return '<div class="ps-seg ' + (it.hrs.includes(c - 1) ? '' : 'fst ') + (it.hrs.includes(c + 1) ? '' : 'lst ') + (lab != null ? 'on' : 'off') + '" style="grid-column:' + (c + 1) + '" title="' + (lab != null ? escapeHtml(lab) : 'Pets active, not leading a rally') + '">' + (lab != null ? escapeHtml(lab) : '') + '</div>'; }).join('');
-        const nm = escapeHtml(bmNameOf(it.id));
-        return '<div class="ps-row"><div class="ps-nm" title="' + nm + '"><span class="ps-nt">' + nm + '</span>' + (iss.length ? '<span class="ps-warn" title="' + escapeHtml(iss.join('; ')) + '">⚠</span>' : '') + '</div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + segs + '</div></div>';
-      }).join('') + '</div>';
     });
-    const leg = '<div class="ps-leg"><i><span class="ps-sw on"></span>Pets active, leading a rally</i><i><span class="ps-sw off"></span>Pets active, no rally</i>' + (anyWarn ? '<i><span class="ps-warn">⚠</span>More than 2 hours or not consecutive</i>' : '') + '</div>';
-    return {html: out + leg, any};
+    const items = [];
+    ids.forEach(id => { const all = petAll(id); if(all.hrs.length && lead.has(id)) items.push({id, all, cs: lead.get(id)}); });
+    if(!items.length) return {html: '', any: false};
+    items.sort((a, b) => a.all.hrs[0] - b.all.hrs[0] || String(bmNameOf(a.id)).localeCompare(String(bmNameOf(b.id))));
+    let anyWarn = false;
+    const rows = items.map(it => {
+      const iss = petIssues(it.all.hrs, it.all.dup); if(iss.length) anyWarn = true;
+      const hrs = it.all.hrs;
+      const segs = hrs.map(c => { const lab = it.cs[c]; return '<div class="ps-seg ' + (hrs.includes(c - 1) ? '' : 'fst ') + (hrs.includes(c + 1) ? '' : 'lst ') + (lab != null ? 'on' : 'off') + '" style="grid-column:' + (c + 1) + '" title="' + (lab != null ? escapeHtml(lab) : 'Pets active, not leading a rally') + '">' + (lab != null ? escapeHtml(lab) : '') + '</div>'; }).join('');
+      const nm = escapeHtml(bmNameOf(it.id));
+      return '<div class="ps-row"><div class="ps-nm" title="' + nm + '"><span class="ps-nt">' + nm + '</span>' + (iss.length ? '<span class="ps-warn" title="' + escapeHtml(iss.join('; ')) + '">⚠</span>' : '') + '</div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + segs + '</div></div>';
+    }).join('');
+    const leg = '<div class="ps-leg"><i><span class="ps-sw on"></span>Pets active, leading a rally</i><i><span class="ps-sw off"></span>Pets active, no rally</i>' + (anyWarn ? '<i><span class="ps-warn">⚠</span>More than 2 hours, not consecutive or set twice</i>' : '') + '</div>';
+    return {html: '<div class="ps-block">' + head + rows + '</div>' + leg, any: true};
   }
   function petsHtml(){ const d = petsData(); return d.any ? d.html : '<div class="rp-empty">No pets scheduled yet. Tap the paw in a name tile to set the hours.</div>'; }
   function petsShareHtml(){ const d = petsData(); return d.any ? '<div class="sh-pets"><div class="sh-title">Pets schedule · UTC</div>' + d.html + '</div>' : ''; }
@@ -1530,7 +1553,7 @@ ${escapeHtml(lab)}</textarea></div>`;
       let cells = '', has = false, bcells = '', bhas = false;
       TIMES.forEach((t, c) => {
         if(!cols.includes(c)) return;
-        const id = blk.cells[rk + '-' + c], p = id != null ? pl(id) : null, hrs = petHrs(blk, id), pet = hrs.includes(c), pwarn = pet && petIssues(hrs).length > 0;
+        const id = blk.cells[rk + '-' + c], p = id != null ? pl(id) : null, pall = id != null ? petAll(id) : {hrs: [], dup: []}, pet = pall.hrs.includes(c), pwarn = pet && petIssues(pall.hrs, pall.dup).length > 0;
         if(id != null){ has = true; cells += `<div class="rp-cell has rp-has${pet ? ' pet' + (pwarn ? ' petwarn' : '') : ''}"><div class="rp-pick">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p ? (p.n || id) : 'ID ' + id)}</span><span class="pw">${p ? fmtM(p.p) : '–'}</span></span></div>${pet ? '<span class="rp-paw"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg></span>' : ''}</div>`; }
         else cells += '<div class="rp-cell sh-empty"></div>';
         if(blk.bb && !blk.shut[r]){
