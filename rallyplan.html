@@ -905,6 +905,19 @@
   .rp-x{position:absolute;top:2px;right:3px;background:none;border:0;color:var(--text-faint);font-size:16px;line-height:1;cursor:pointer;padding:3px 5px;}
   .rp-x:hover{color:#ff6b6b;}
   @media (max-width:640px){ .rp-grid{grid-template-columns:96px repeat(5,138px);min-width:0;width:max-content;} .rp-lab input{padding:9px 8px;font-size:12.5px;} }
+  .rp-paw{position:absolute;right:6px;bottom:5px;background:none;border:0;padding:3px;cursor:pointer;color:var(--text-faint);opacity:.6;line-height:0;border-radius:4px;}
+  .rp-paw svg{width:17px;height:17px;fill:currentColor;display:block;}
+  .rp-paw:hover{opacity:1;color:var(--ice);}
+  .rp-cell.pet{border:2px solid #7CFC9A;background:rgba(124,252,154,.10);box-shadow:0 0 0 1px rgba(124,252,154,.25);}
+  .rp-cell.pet .rp-paw{color:#7CFC9A;opacity:1;}
+  :root[data-theme="light"] .rp-cell.pet{border-color:#1fa850;background:rgba(31,168,80,.10);box-shadow:none;}
+  :root[data-theme="light"] .rp-cell.pet .rp-paw{color:#1fa850;}
+  .rp-has .rp-pick{padding-right:30px;}
+  .pt-opts{display:flex;flex-wrap:wrap;gap:8px;padding:0 22px 6px;}
+  .pt-opt{flex:1 1 40%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:11px 8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;font-variant-numeric:tabular-nums;}
+  .pt-opt:hover{border-color:var(--ice-dim);}
+  .pt-opt.on{border-color:#7CFC9A;color:#7CFC9A;background:rgba(124,252,154,.10);}
+  .pt-note{padding:8px 22px 20px;color:var(--text-faint);font-size:12.5px;margin:0;}
   .rp-modal{max-width:460px;}
   .rp-ms{padding:0 22px 12px;}
   .rp-ms input{width:100%;box-sizing:border-box;}
@@ -921,6 +934,7 @@
 </head>
 <body>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><input type="text" id="pkQ" placeholder="Player name …" autocomplete="off"></div><div class="rp-list" id="pkList"></div></div></div>
+<div class="modal-overlay" id="ptModal" role="dialog" aria-modal="true" aria-labelledby="ptTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="ptTitle">Pets</h2><button type="button" class="modal-close" id="ptClose" aria-label="Close">×</button></div><p class="modal-sub" id="ptSub"></p><div class="pt-opts" id="ptOpts"></div><p class="pt-note">Pets run for exactly 2 hours from the start time (times in UTC) and cannot be interrupted or activated again.</p></div></div>
 <div class="wrap">
 <nav class="sitenav" aria-label="State 646 pages"><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><span class="cur" aria-current="page"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></span></nav>
   <header>
@@ -929,7 +943,7 @@
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch between dark and light mode" title="Dark / light mode"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
     <div class="eyebrow">State 646 — Rally</div>
     <h1>Rally <span>Planner</span></h1>
-    <p class="subtitle" id="sub">Plan your rally slots</p>
+    <p class="subtitle" id="sub">Plan your rally slots · times in UTC</p>
   </header>
   <div class="divider"></div>
   <div class="panel">
@@ -937,7 +951,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp2</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp3</footer>
 </div>
 <script>
 (function(){
@@ -954,11 +968,11 @@
     return (o && typeof o === 'object') ? o : {};
   })();
   let D = null;
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}});
   let S = {blocks: [newBlock()]};
   try {
     const o = JSON.parse(localStorage.getItem(KEY) || 'null');
-    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; } return nb; };
+    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; } return nb; };
     if(o && Array.isArray(o.blocks) && o.blocks.length) S.blocks = o.blocks.slice(0, 30).map(fix);
     else if(o && typeof o === 'object') S.blocks = [fix(o)];
   } catch(e) {}
@@ -981,9 +995,9 @@
       blk.rows.forEach((lab, r) => {
         h += `<div class="rp-lab"><input type="text" data-b="${bi}" data-r="${r}" value="${escapeHtml(lab)}" maxlength="30" aria-label="Row name"></div>`;
         TIMES.forEach((t, c) => {
-          const id = blk.cells[r + '-' + c], p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}"`;
+          const id = blk.cells[r + '-' + c], ps = id != null ? blk.pets[id] : undefined, pet = ps != null && c >= ps && c <= ps + 1, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}"`;
           if(id && p){
-            h += `<div class="rp-cell has"><button type="button" class="rp-pick" ${at} title="Change">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p.n || id)}</span><span class="pw">${fmtM(p.p)}</span></span></button><button type="button" class="rp-x" ${at} aria-label="Clear" title="Clear">×</button></div>`;
+            h += `<div class="rp-cell has rp-has${pet ? ' pet' : ''}"><button type="button" class="rp-pick" ${at} title="Change">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p.n || id)}</span><span class="pw">${fmtM(p.p)}</span></span></button><button type="button" class="rp-paw" ${at} aria-label="Pets" title="${pet ? 'Pets active' : 'Pets'}"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg></button><button type="button" class="rp-x" ${at} aria-label="Clear" title="Clear">×</button></div>`;
           } else if(id){
             h += `<div class="rp-cell has"><button type="button" class="rp-pick" ${at}><span class="tx"><span class="nm">ID ${escapeHtml(id)}</span><span class="pw">–</span></span></button><button type="button" class="rp-x" ${at} aria-label="Clear">×</button></div>`;
           } else {
@@ -1006,6 +1020,8 @@
     if(delArm !== -1){ delArm = -1; render(); }
     const x = e.target.closest('.rp-x');
     if(x){ delete S.blocks[+x.dataset.b].cells[x.dataset.r + '-' + x.dataset.c]; save(); render(); return; }
+    const pw = e.target.closest('.rp-paw');
+    if(pw){ openPet(+pw.dataset.b, +pw.dataset.r, +pw.dataset.c); return; }
     const b = e.target.closest('.rp-add, .rp-pick');
     if(b) openPick(+b.dataset.b, +b.dataset.r, +b.dataset.c);
   });
@@ -1013,6 +1029,29 @@
     S.blocks.push(newBlock()); save(); render();
     const t = grid.querySelectorAll('.rp-title'); if(t.length){ const l = t[t.length - 1]; l.scrollIntoView({block: 'center', behavior: 'smooth'}); }
   });
+  // ---- pets popup ----
+  const pov = document.getElementById('ptModal'), ptOpts = document.getElementById('ptOpts');
+  let pcur = null;
+  function fillPet(){
+    const blk = S.blocks[pcur.b], cur0 = blk.pets[pcur.id];
+    ptOpts.innerHTML = TIMES.map((t, i) => `<button type="button" class="pt-opt${cur0 === i ? ' on' : ''}" data-i="${i}">${t.slice(0, 5)} UTC<br><span style="font-weight:400;color:var(--text-dim);font-size:11.5px">active ${t.slice(0, 5)} – ${i < 4 ? TIMES[i + 1].slice(8) : '18:00'}</span></button>`).join('') + `<button type="button" class="pt-opt${cur0 == null ? ' on' : ''}" data-i="-1">No pets</button>`;
+  }
+  function openPet(b, r, c){
+    const id = S.blocks[b].cells[r + '-' + c]; if(id == null) return;
+    const p = D && D.players && D.players[id];
+    pcur = {b, id};
+    document.getElementById('ptSub').textContent = (p && p.n) || ('ID ' + id);
+    fillPet(); pov.classList.add('open');
+  }
+  function closePet(){ pov.classList.remove('open'); pcur = null; }
+  ptOpts.addEventListener('click', e => {
+    const o = e.target.closest('.pt-opt'); if(!o || !pcur) return;
+    const i = +o.dataset.i, blk = S.blocks[pcur.b];
+    if(i < 0) delete blk.pets[pcur.id]; else blk.pets[pcur.id] = i;
+    save(); closePet(); render();
+  });
+  document.getElementById('ptClose').addEventListener('click', closePet);
+  pov.addEventListener('click', e => { if(e.target === pov) closePet(); });
   // ---- picker popup ----
   const ov = document.getElementById('pkModal'), pkQ = document.getElementById('pkQ'), pkList = document.getElementById('pkList');
   let cur = null;
@@ -1041,7 +1080,7 @@
   });
   document.getElementById('pkClose').addEventListener('click', closePick);
   ov.addEventListener('click', e => { if(e.target === ov) closePick(); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape' && cur) closePick(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ if(pcur) closePet(); else if(cur) closePick(); } });
   // ---- theme ----
   (function(){
     const root = document.documentElement;
