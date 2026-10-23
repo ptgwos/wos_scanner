@@ -890,7 +890,6 @@
   .rp-grid{display:grid;grid-template-columns:150px repeat(5,minmax(138px,1fr));gap:8px;min-width:880px;}
   .rp-th{background:var(--panel-2);border:1px solid var(--border);border-radius:6px;padding:10px 8px;text-align:center;font-weight:700;font-size:13px;color:var(--gold);letter-spacing:.04em;font-variant-numeric:tabular-nums;}
   .rp-th.blank{background:transparent;border-color:transparent;}
-  .rp-lab{position:sticky;left:0;z-index:2;background:var(--panel);display:flex;align-items:stretch;}
   .rp-lab input{width:100%;min-width:0;box-sizing:border-box;font-weight:700;color:var(--ice);}
   .rp-cell{position:relative;min-height:58px;border:1px dashed var(--border);border-radius:6px;background:var(--bg-2);display:flex;align-items:center;justify-content:center;}
   .rp-cell:hover{border-color:var(--ice-dim);}
@@ -918,6 +917,29 @@
   .pt-opt:hover{border-color:var(--ice-dim);}
   .pt-opt.on{border-color:#7CFC9A;color:#7CFC9A;background:rgba(124,252,154,.10);}
   .pt-note{padding:8px 22px 20px;color:var(--text-faint);font-size:12.5px;margin:0;}
+  .rp-bh .switch{flex:none;align-self:center;}
+  @media (max-width:640px){ .rp-title{flex:1 1 100%;} }
+  .rp-lab{position:sticky;left:0;z-index:2;background:var(--panel);display:flex;align-items:stretch;gap:4px;}
+  .rp-fold{flex:none;width:26px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;color:var(--text-dim);cursor:pointer;font-size:12px;padding:0;}
+  .rp-fold:hover{color:var(--ice);border-color:var(--ice-dim);}
+  .rp-lab.sub{align-items:center;padding-left:6px;color:var(--text-faint);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;}
+  .bb-cell{border:1px solid var(--border-soft);border-radius:6px;background:var(--bg-2);padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0;}
+  .bb-hero{display:flex;align-items:center;gap:6px;width:100%;box-sizing:border-box;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;padding:3px 6px 3px 3px;color:var(--text);cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;text-align:left;min-width:0;}
+  .bb-hero:hover{border-color:var(--ice-dim);}
+  .bb-hero.none{color:var(--text-faint);font-weight:500;padding:7px 8px;}
+  .bb-hero span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bb-img{width:26px;height:26px;border-radius:6px;object-fit:cover;background:var(--border);flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--text-dim);}
+  .bb-slot{position:relative;display:flex;}
+  .bb-slot button.nm{flex:1;min-width:0;text-align:left;background:none;border:1px dashed var(--border);border-radius:4px;color:var(--text-faint);padding:4px 20px 4px 8px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bb-slot button.nm:hover{border-color:var(--ice-dim);color:var(--ice);}
+  .bb-slot.has button.nm{border-style:solid;border-color:var(--border);background:var(--panel-2);color:var(--text);font-weight:600;}
+  .bb-slot .bb-x{position:absolute;right:2px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--text-faint);cursor:pointer;font-size:14px;line-height:1;padding:2px 5px;}
+  .bb-slot .bb-x:hover{color:#ff6b6b;}
+  .hr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;overflow-y:auto;padding:0 18px 16px;}
+  .hr-opt{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--panel-2);border:1px solid var(--border);border-radius:6px;padding:8px 4px;color:var(--text);cursor:pointer;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;text-align:center;}
+  .hr-opt:hover{border-color:var(--ice-dim);}
+  .hr-opt.on{border-color:var(--gold);color:var(--gold);}
+  .hr-opt .bb-img{width:46px;height:46px;font-size:19px;border-radius:9px;}
   .rp-modal{max-width:460px;}
   .rp-ms{padding:0 22px 12px;}
   .rp-ms input{width:100%;box-sizing:border-box;}
@@ -935,6 +957,7 @@
 <body>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><input type="text" id="pkQ" placeholder="Player name …" autocomplete="off"></div><div class="rp-list" id="pkList"></div></div></div>
 <div class="modal-overlay" id="ptModal" role="dialog" aria-modal="true" aria-labelledby="ptTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="ptTitle">Pets</h2><button type="button" class="modal-close" id="ptClose" aria-label="Close">×</button></div><p class="modal-sub" id="ptSub"></p><div class="pt-opts" id="ptOpts"></div><p class="pt-note">Pets run for exactly 2 hours from the start time (times in UTC) and cannot be interrupted or activated again.</p></div></div>
+<div class="modal-overlay" id="hrModal" role="dialog" aria-modal="true" aria-labelledby="hrTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="hrTitle">Joiner hero</h2><button type="button" class="modal-close" id="hrClose" aria-label="Close">×</button></div><p class="modal-sub" id="hrSub"></p><div class="rp-ms"><input type="text" id="hrQ" placeholder="Hero name …" autocomplete="off"></div><div class="hr-grid" id="hrGrid"></div></div></div>
 <div class="wrap">
 <nav class="sitenav" aria-label="State 646 pages"><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><span class="cur" aria-current="page"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></span></nav>
   <header>
@@ -951,7 +974,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp3</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp4</footer>
 </div>
 <script>
 (function(){
@@ -968,11 +991,11 @@
     return (o && typeof o === 'object') ? o : {};
   })();
   let D = null;
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, hero: {}});
   let S = {blocks: [newBlock()]};
   try {
     const o = JSON.parse(localStorage.getItem(KEY) || 'null');
-    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; } return nb; };
+    const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object') nb.pets = b.pets; nb.bb = b.bb === true; if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') nb.buds = b.buds; if(b.hero && typeof b.hero === 'object') nb.hero = b.hero; } return nb; };
     if(o && Array.isArray(o.blocks) && o.blocks.length) S.blocks = o.blocks.slice(0, 30).map(fix);
     else if(o && typeof o === 'object') S.blocks = [fix(o)];
   } catch(e) {}
@@ -983,6 +1006,21 @@
   }
   const grid = document.getElementById('rpBlocks');
   let delArm = -1;
+  const HEROES = ['Natalia','Jeronimo','Molly','Zinman','Bahiti','Sergey','Charlie','Cloris','Gina','Jasser','Ling Xue','Lumak Bokan','Seo-Yoon','Smith','Jessie','Patrick','Flint','Philly','Alonso','Logan','Mia','Greg','Ahmose','Reina','Lynn','Hector','Norah','Gwen','Eugene','Wu Ming','Renee','Wayne','Edith','Gordon','Bradley','Gatot','Sonya','Hendrik','Magnus','Fred','Xura','Blanchette','Gregory','Freya','Eleonora','Lloyd','Rufus','Hervor','Karol','Ligeia','Gisela','Flora','Vulcanus','Cara','Dominic','Elif'];
+  function slug(n){ return String(n).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+  window.__bbErr = function(img){
+    if(img.dataset.t !== '1' && /\.webp$/.test(img.src)){ img.dataset.t = '1'; img.src = img.src.replace(/\.webp$/, '.png'); return; }
+    const sp = document.createElement('span'); sp.className = img.className; sp.setAttribute('aria-hidden', 'true');
+    sp.textContent = (Array.from(img.dataset.n || '?')[0] || '?').toUpperCase(); img.replaceWith(sp);
+  };
+  function heroImg(n){ return `<img class="bb-img" loading="lazy" decoding="async" src="heroes/${escapeHtml(slug(n))}.webp" alt="" data-n="${escapeHtml(n)}" onerror="__bbErr(this)">`; }
+  function heroPool(){
+    let custom = [];
+    try { const o = JSON.parse(localStorage.getItem('rally646_state') || 'null'); if(o && Array.isArray(o.custom)) custom = o.custom.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim()); } catch(e) {}
+    const seen = new Set(), out = [];
+    HEROES.concat(custom).forEach(n => { const k = n.toLowerCase(); if(!seen.has(k)){ seen.add(k); out.push(n); } });
+    return out.sort((a, b) => a.localeCompare(b, 'en', {sensitivity: 'base'}));
+  }
   function avatar(id, p, sz){
     if(PREFS.av === false) return '';
     if(p && p.au) return `<img class="av" loading="lazy" decoding="async" width="${sz}" height="${sz}" src="avatars/${escapeHtml(id)}.webp" alt="" onerror="this.remove()">`;
@@ -990,10 +1028,10 @@
   }
   function render(){
     grid.innerHTML = S.blocks.map((blk, bi) => {
-      let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header">${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
+      let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header"><label class="switch" title="Show Battle Buddies for every rally"><input type="checkbox" data-sw="${bi}"${blk.bb ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Battle Buddies</span></label>${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
       h += '<div class="rp-th blank"></div>' + TIMES.map(t => `<div class="rp-th">${t}</div>`).join('');
       blk.rows.forEach((lab, r) => {
-        h += `<div class="rp-lab"><input type="text" data-b="${bi}" data-r="${r}" value="${escapeHtml(lab)}" maxlength="30" aria-label="Row name"></div>`;
+        h += `<div class="rp-lab">${blk.bb ? `<button type="button" class="rp-fold" data-b="${bi}" data-r="${r}" title="${blk.shut[r] ? 'Show' : 'Hide'} Battle Buddies" aria-label="Show or hide Battle Buddies" aria-expanded="${blk.shut[r] ? 'false' : 'true'}">${blk.shut[r] ? '▸' : '▾'}</button>` : ''}<input type="text" data-b="${bi}" data-r="${r}" value="${escapeHtml(lab)}" maxlength="30" aria-label="Row name"></div>`;
         TIMES.forEach((t, c) => {
           const id = blk.cells[r + '-' + c], ps = id != null ? blk.pets[id] : undefined, pet = ps != null && c >= ps && c <= ps + 1, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}"`;
           if(id && p){
@@ -1004,6 +1042,18 @@
             h += `<div class="rp-cell"><button type="button" class="rp-add" ${at} aria-label="Add player" title="Add player">+</button></div>`;
           }
         });
+      if(blk.bb && !blk.shut[r]){
+          h += '<div class="rp-lab sub">Buddies</div>';
+          TIMES.forEach((t, c) => {
+            const k = r + '-' + c, hn = blk.hero[k], arr = blk.buds[k] || [];
+            let cell = hn ? `<button type="button" class="bb-hero" data-b="${bi}" data-r="${r}" data-c="${c}" title="Joiner hero">${heroImg(hn)}<span class="t">${escapeHtml(hn)}</span></button>` : `<button type="button" class="bb-hero none" data-b="${bi}" data-r="${r}" data-c="${c}" title="Joiner hero">+ Joiner hero</button>`;
+            for(let q = 0; q < 4; q++){
+              const id = arr[q], p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${r}" data-c="${c}" data-k="${q}"`;
+              cell += id ? `<div class="bb-slot has"><button type="button" class="nm" ${at}>${escapeHtml(p ? (p.n || id) : 'ID ' + id)}</button><button type="button" class="bb-x" ${at} aria-label="Clear" title="Clear">×</button></div>` : `<div class="bb-slot"><button type="button" class="nm" ${at} aria-label="Add Battle Buddy">+</button></div>`;
+            }
+            h += `<div class="bb-cell">${cell}</div>`;
+          });
+      }
       });
       return `<section class="rp-block">${h}</div></div></section>`;
     }).join('');
@@ -1018,12 +1068,24 @@
     const d = e.target.closest('.rp-del');
     if(d){ const bi = +d.dataset.b; if(delArm === bi){ S.blocks.splice(bi, 1); delArm = -1; save(); } else delArm = bi; render(); return; }
     if(delArm !== -1){ delArm = -1; render(); }
+    const fo = e.target.closest('.rp-fold');
+    if(fo){ const blk = S.blocks[+fo.dataset.b]; if(blk.shut[fo.dataset.r]) delete blk.shut[fo.dataset.r]; else blk.shut[fo.dataset.r] = true; save(); render(); return; }
+    const bx = e.target.closest('.bb-x');
+    if(bx){ const blk = S.blocks[+bx.dataset.b], k = bx.dataset.r + '-' + bx.dataset.c; if(blk.buds[k]){ blk.buds[k][+bx.dataset.k] = null; if(!blk.buds[k].some(Boolean)) delete blk.buds[k]; } save(); render(); return; }
+    const bs = e.target.closest('.bb-slot .nm');
+    if(bs){ openPick(+bs.dataset.b, +bs.dataset.r, +bs.dataset.c, +bs.dataset.k); return; }
+    const bh = e.target.closest('.bb-hero');
+    if(bh){ openHero(+bh.dataset.b, +bh.dataset.r, +bh.dataset.c); return; }
     const x = e.target.closest('.rp-x');
     if(x){ delete S.blocks[+x.dataset.b].cells[x.dataset.r + '-' + x.dataset.c]; save(); render(); return; }
     const pw = e.target.closest('.rp-paw');
     if(pw){ openPet(+pw.dataset.b, +pw.dataset.r, +pw.dataset.c); return; }
     const b = e.target.closest('.rp-add, .rp-pick');
     if(b) openPick(+b.dataset.b, +b.dataset.r, +b.dataset.c);
+  });
+  grid.addEventListener('change', e => {
+    const sw = e.target.closest('input[data-sw]'); if(!sw) return;
+    S.blocks[+sw.dataset.sw].bb = sw.checked; save(); render();
   });
   document.getElementById('rpAddBlock').addEventListener('click', () => {
     S.blocks.push(newBlock()); save(); render();
@@ -1052,6 +1114,30 @@
   });
   document.getElementById('ptClose').addEventListener('click', closePet);
   pov.addEventListener('click', e => { if(e.target === pov) closePet(); });
+  // ---- joiner hero popup ----
+  const hov = document.getElementById('hrModal'), hrQ = document.getElementById('hrQ'), hrGrid = document.getElementById('hrGrid');
+  let hcur = null;
+  function fillHero(){
+    const q = hrQ.value.trim().toLowerCase(), now = S.blocks[hcur.b].hero[hcur.r + '-' + hcur.c];
+    const list = heroPool().filter(n => !q || n.toLowerCase().includes(q));
+    hrGrid.innerHTML = (q ? '' : `<button type="button" class="hr-opt" data-n=""><span class="bb-img">–</span>None</button>`) + list.map(n => `<button type="button" class="hr-opt${now === n ? ' on' : ''}" data-n="${escapeHtml(n)}">${heroImg(n)}${escapeHtml(n)}</button>`).join('') || '<div class="rp-empty">No hero found.</div>';
+  }
+  function openHero(b, r, c){
+    hcur = {b, r, c};
+    document.getElementById('hrSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[r] + ' · ' + TIMES[c];
+    hrQ.value = ''; fillHero(); hov.classList.add('open');
+    if(!matchMedia('(pointer:coarse)').matches) hrQ.focus();
+  }
+  function closeHero(){ hov.classList.remove('open'); hcur = null; }
+  hrQ.addEventListener('input', fillHero);
+  hrGrid.addEventListener('click', e => {
+    const o = e.target.closest('.hr-opt'); if(!o || !hcur) return;
+    const key = hcur.r + '-' + hcur.c, blk = S.blocks[hcur.b];
+    if(o.dataset.n) blk.hero[key] = o.dataset.n; else delete blk.hero[key];
+    save(); closeHero(); render();
+  });
+  document.getElementById('hrClose').addEventListener('click', closeHero);
+  hov.addEventListener('click', e => { if(e.target === hov) closeHero(); });
   // ---- picker popup ----
   const ov = document.getElementById('pkModal'), pkQ = document.getElementById('pkQ'), pkList = document.getElementById('pkList');
   let cur = null;
@@ -1059,15 +1145,16 @@
   function fillList(){
     const q = norm(pkQ.value).trim();
     if(!D){ pkList.innerHTML = '<div class="rp-empty">No player data yet …</div>'; return; }
-    const used = new Set(Object.values(S.blocks[cur.b].cells).map(String));
+    const blk0 = S.blocks[cur.b], used = new Set(cur.k == null ? Object.values(blk0.cells).map(String) : Object.values(blk0.buds).flat().filter(Boolean).map(String));
     let arr = Object.entries(D.players).map(([id, p]) => ({id, p}));
     if(q) arr = arr.filter(o => norm(o.p.n).includes(q) || o.id.includes(q));
     arr.sort((a, b) => (b.p.p || 0) - (a.p.p || 0));
     const total = arr.length; arr = arr.slice(0, 150);
-    pkList.innerHTML = arr.length ? arr.map(o => `<button type="button" class="rp-row" data-id="${escapeHtml(o.id)}">${avatar(o.id, o.p, 24)}<span class="nm">${escapeHtml(o.p.n || o.id)}</span>${used.has(o.id) ? '<span class="used">placed</span>' : ''}<span class="pw">${fmtM(o.p.p)}</span></button>`).join('') + (total > arr.length ? `<div class="rp-empty">${total - arr.length} more – refine the search</div>` : '') : '<div class="rp-empty">No player found.</div>';
+    pkList.innerHTML = arr.length ? arr.map(o => `<button type="button" class="rp-row" data-id="${escapeHtml(o.id)}">${avatar(o.id, o.p, 24)}<span class="nm">${escapeHtml(o.p.n || o.id)}</span>${used.has(o.id) ? '<span class="used">placed</span>' : ''}${cur.k == null ? `<span class="pw">${fmtM(o.p.p)}</span>` : ''}</button>`).join('') + (total > arr.length ? `<div class="rp-empty">${total - arr.length} more – refine the search</div>` : '') : '<div class="rp-empty">No player found.</div>';
   }
-  function openPick(b, r, c){
-    cur = {b, r, c};
+  function openPick(b, r, c, k){
+    cur = {b, r, c, k: Number.isInteger(k) ? k : null};
+    document.getElementById('pkTitle').textContent = cur.k == null ? 'Select player' : 'Battle Buddy ' + (cur.k + 1);
     document.getElementById('pkSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + S.blocks[b].rows[r] + ' · ' + TIMES[c];
     pkQ.value = ''; fillList(); ov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) pkQ.focus();
@@ -1076,11 +1163,14 @@
   pkQ.addEventListener('input', fillList);
   pkList.addEventListener('click', e => {
     const b = e.target.closest('.rp-row'); if(!b || !cur) return;
-    S.blocks[cur.b].cells[cur.r + '-' + cur.c] = b.dataset.id; save(); closePick(); render();
+    const blk = S.blocks[cur.b];
+    if(cur.k == null) blk.cells[cur.r + '-' + cur.c] = b.dataset.id;
+    else { const key = cur.r + '-' + cur.c, a = blk.buds[key] || [null, null, null, null]; a[cur.k] = b.dataset.id; blk.buds[key] = a; }
+    save(); closePick(); render();
   });
   document.getElementById('pkClose').addEventListener('click', closePick);
   ov.addEventListener('click', e => { if(e.target === ov) closePick(); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ if(pcur) closePet(); else if(cur) closePick(); } });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ if(pcur) closePet(); else if(hcur) closeHero(); else if(cur) closePick(); } });
   // ---- theme ----
   (function(){
     const root = document.documentElement;
