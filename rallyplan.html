@@ -1002,19 +1002,18 @@
   .ps-head .ps-nm,.ps-head .ps-track{border-bottom:1px solid var(--border);background-image:none;}
   .ps-h{position:relative;font-size:11px;color:var(--text-faint);font-variant-numeric:tabular-nums;padding:6px 0 6px 4px;}
   .ps-end{position:absolute;right:2px;top:6px;}
-  .ps-seg{margin:6px 0;height:30px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;overflow:hidden;white-space:nowrap;padding:0 6px;box-sizing:border-box;}
-  .ps-seg{border-radius:0;} .ps-seg.fst{margin-left:2px;border-top-left-radius:6px;border-bottom-left-radius:6px;} .ps-seg.lst{margin-right:2px;border-top-right-radius:6px;border-bottom-right-radius:6px;}
-  .ps-tools{padding:0 18px 12px;} .ps-tools .btn svg{width:16px;height:16px;vertical-align:-3px;margin-right:6px;}
-  .sh-pets{max-width:900px;margin:0 auto;}
-  .ps-seg.on{background:rgba(124,252,154,.22);border:1px solid #7CFC9A;color:#7CFC9A;}
-  .ps-seg.off{background:repeating-linear-gradient(135deg,rgba(124,252,154,.12) 0 6px,transparent 6px 12px);border:1px dashed rgba(124,252,154,.55);color:var(--text-faint);}
-  :root[data-theme="light"] .ps-seg.on{background:rgba(31,168,80,.16);border-color:#1fa850;color:#1a7f3e;}
-  :root[data-theme="light"] .ps-seg.off{border-color:rgba(31,168,80,.6);}
+  .ps-seg{--bc:124,252,154;--bt:124,252,154;margin:5px 2px;height:38px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;line-height:1.15;font-weight:700;overflow:hidden;padding:0 5px;box-sizing:border-box;border-radius:6px;min-width:0;}
+  .ps-seg>span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;}
+  .ps-seg.b1,.ps-sw.b1{--bc:96,165,250;--bt:96,165,250;} .ps-seg.b2,.ps-sw.b2{--bc:192,132,252;--bt:192,132,252;} .ps-seg.b3,.ps-sw.b3{--bc:244,114,182;--bt:244,114,182;} .ps-seg.b4,.ps-sw.b4{--bc:45,212,191;--bt:45,212,191;}
+  :root[data-theme="light"] .ps-seg,:root[data-theme="light"] .ps-sw{--bc:31,168,80;--bt:26,127,62;}
+  :root[data-theme="light"] .ps-seg.b1,:root[data-theme="light"] .ps-sw.b1{--bc:37,99,235;--bt:29,78,200;} :root[data-theme="light"] .ps-seg.b2,:root[data-theme="light"] .ps-sw.b2{--bc:147,51,234;--bt:120,40,200;} :root[data-theme="light"] .ps-seg.b3,:root[data-theme="light"] .ps-sw.b3{--bc:219,39,119;--bt:180,30,100;} :root[data-theme="light"] .ps-seg.b4,:root[data-theme="light"] .ps-sw.b4{--bc:13,148,136;--bt:10,115,105;}
+  .sh-pets{max-width:1100px;margin:0 auto;}
+  .ps-seg.on{background:rgba(var(--bc),.22);border:1px solid rgb(var(--bc));color:rgb(var(--bt));}
+  .ps-seg.off{background:repeating-linear-gradient(135deg,rgba(var(--bc),.14) 0 6px,transparent 6px 12px);border:1px dashed rgba(var(--bc),.6);color:var(--text-faint);}
   .ps-leg{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:16px;font-size:12px;color:var(--text-dim);}
   .ps-leg i{font-style:normal;display:inline-flex;align-items:center;gap:7px;}
-  .ps-sw{display:inline-block;width:22px;height:12px;border-radius:3px;}
-  .ps-sw.on{background:rgba(124,252,154,.22);border:1px solid #7CFC9A;}
-  .ps-sw.off{background:repeating-linear-gradient(135deg,rgba(124,252,154,.25) 0 4px,transparent 4px 8px);border:1px dashed rgba(124,252,154,.55);}
+  .ps-sw{--bc:124,252,154;display:inline-block;width:22px;height:12px;border-radius:3px;background:rgba(var(--bc),.25);border:1px solid rgb(var(--bc));}
+  .ps-sw.off{background:repeating-linear-gradient(135deg,rgba(var(--bc),.3) 0 4px,transparent 4px 8px);border:1px dashed rgba(var(--bc),.6);}
   .pt-warn{margin:8px 22px 0;padding:10px 12px;border:1px solid #ffb400;border-radius:6px;background:rgba(255,180,0,.08);font-size:13px;line-height:1.45;}
   .pt-warn p{margin:0 0 10px;}
   .pt-wb{display:flex;gap:10px;flex-wrap:wrap;}
@@ -1041,6 +1040,7 @@
   .rp-ms input{flex:1;min-width:0;box-sizing:border-box;}
   .rp-ms select{flex:none;width:118px;min-width:0;}
   .rp-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-bottom:18px;}
+  .ps-tools{margin:4px 0 12px;} .ps-tools .btn svg{width:16px;height:16px;vertical-align:-3px;margin-right:6px;}
   .rp-tools .btn svg{width:16px;height:16px;vertical-align:-3px;margin-right:6px;}
   #rpToast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);background:var(--panel-2);color:var(--text);border:1px solid var(--ice-dim);border-radius:8px;padding:10px 16px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:400;max-width:calc(100vw - 32px);}
   #rpToast.show{opacity:1;transform:translate(-50%,0);}
@@ -1088,7 +1088,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp16</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp17</footer>
 </div>
 <script>
 (function(){
@@ -1512,7 +1512,7 @@ ${escapeHtml(lab)}</textarea></div>`;
           for(let c = 0; c < TIMES.length; c++){
             const id = blk.cells[rk + '-' + c]; if(id == null) continue;
             const k = String(id); if(!lead.has(k)) lead.set(k, {});
-            if(lead.get(k)[c] == null) lead.get(k)[c] = (S.blocks.length > 1 && blk.title ? blk.title + ' · ' : '') + String(lab).split('\n')[0];
+            if(lead.get(k)[c] == null) lead.get(k)[c] = {lab: String(lab).split('\n').join(' '), b: j};
           }
         }
       });
@@ -1525,11 +1525,17 @@ ${escapeHtml(lab)}</textarea></div>`;
     const rows = items.map(it => {
       const iss = petIssues(it.all.hrs, it.all.dup); if(iss.length) anyWarn = true;
       const hrs = it.all.hrs;
-      const segs = hrs.map(c => { const lab = it.cs[c]; return '<div class="ps-seg ' + (hrs.includes(c - 1) ? '' : 'fst ') + (hrs.includes(c + 1) ? '' : 'lst ') + (lab != null ? 'on' : 'off') + '" style="grid-column:' + (c + 1) + '" title="' + (lab != null ? escapeHtml(lab) : 'Pets active, not leading a rally') + '">' + (lab != null ? escapeHtml(lab) : '') + '</div>'; }).join('');
+      const runs = [];
+      hrs.forEach(c => {
+        const x = it.cs[c], key = x ? x.b + '|' + x.lab : 'off', last = runs[runs.length - 1];
+        const bj = x ? x.b : Math.max(0, S.blocks.findIndex(b => petHrs(b, it.id).includes(c)));
+        if(last && last.key === key && last.end === c - 1) last.end = c; else runs.push({key, start: c, end: c, x, b: bj});
+      });
+      const segs = runs.map(r => '<div class="ps-seg ' + (r.x ? 'on' : 'off') + ' b' + (r.b % 5) + '" style="grid-column:' + (r.start + 1) + ' / span ' + (r.end - r.start + 1) + '" title="' + escapeHtml(r.x ? blockName(r.b) + ' · ' + r.x.lab : 'Pets active, not leading a rally') + '"><span>' + (r.x ? escapeHtml(r.x.lab) : '') + '</span></div>').join('');
       const nm = escapeHtml(bmNameOf(it.id));
       return '<div class="ps-row"><div class="ps-nm" title="' + nm + '"><span class="ps-nt">' + nm + '</span>' + (iss.length ? '<span class="ps-warn" title="' + escapeHtml(iss.join('; ')) + '">⚠</span>' : '') + '</div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + segs + '</div></div>';
     }).join('');
-    const leg = '<div class="ps-leg"><i><span class="ps-sw on"></span>Pets active, leading a rally</i><i><span class="ps-sw off"></span>Pets active, no rally</i>' + (anyWarn ? '<i><span class="ps-warn">⚠</span>More than 2 hours, not consecutive or set twice</i>' : '') + '</div>';
+    const leg = '<div class="ps-leg">' + (S.blocks.length > 1 ? S.blocks.map((b, j) => '<i><span class="ps-sw b' + (j % 5) + '"></span>' + escapeHtml(blockName(j)) + '</i>').join('') : '') + '<i><span class="ps-sw off b0" style="--bc:150,160,180;--bt:150,160,180"></span>Pets active, no rally (hatched)</i>' + (anyWarn ? '<i><span class="ps-warn">⚠</span>More than 2 hours, not consecutive or set twice</i>' : '') + '</div>';
     return {html: '<div class="ps-block">' + head + rows + '</div>' + leg, any: true};
   }
   function petsHtml(){ const d = petsData(); return d.any ? d.html : '<div class="rp-empty">No pets scheduled yet. Tap the paw in a name tile to set the hours.</div>'; }
