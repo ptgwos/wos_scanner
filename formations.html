@@ -997,6 +997,18 @@
   .rp-tact{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .rp-tact .rp-norm{margin-left:auto;}
 
+  /* small switches: show "Leads" / "Joiners" */
+  .rp-sws{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 14px;}
+  .rp-sws .switch{width:auto !important;padding:0;align-self:center;gap:7px;}
+  .rp-sws .switch-track{width:28px;height:16px;border-radius:8px;}
+  .rp-sws .switch-thumb{top:2px;left:2px;width:10px;height:10px;}
+  .rp-sws .switch input:checked + .switch-track .switch-thumb{transform:translateX(12px);}
+  .rp-sws .switch-label{font-size:12px;}
+  /* share buttons: never wrap; short label on phones */
+  .rp-actions .btn{white-space:nowrap;}
+  .rp-actions .sh{display:none;}
+  @media (max-width:640px){ .rp-actions .lg{display:none;} .rp-actions .sh{display:inline;} .rp-actions .btn{padding-left:10px;padding-right:10px;gap:6px;letter-spacing:.05em;font-size:12.5px;} .rp-actions svg{width:15px;height:15px;} }
+
 </style>
 </head>
 <body>
@@ -1022,14 +1034,14 @@
       <div class="rp-lbl">Result</div>
       <div class="rp-actions">
         <button type="button" class="btn" id="btnText"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Share as text</button>
-        <button type="button" class="btn" id="btnImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Share as picture</button>
+        <button type="button" class="btn" id="btnImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span class="lg">Share as picture</span><span class="sh">Share as pic</span></button>
         <button type="button" class="btn-secondary rp-reset" id="btnReset">Reset plan</button>
       </div>
       <div class="rb" id="shot"></div>
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y9</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y11</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div></div></div></div>
@@ -1047,7 +1059,7 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   function blank(n){ return Array.from({length: n}, () => []); }
-  function blankBlock(){ return {title: '', l: blank(NL), j: blank(NJ0), ratio: DR.slice()}; }
+  function blankBlock(){ return {title: '', showL: true, showJ: true, l: blank(NL), j: blank(NJ0), ratio: DR.slice()}; }
   function def(){ return {blocks: [blankBlock()], custom: []}; }
   function normSlots(a, n){
     const out = blank(n);
@@ -1065,7 +1077,7 @@
     const d = def();
     if(!o || typeof o !== 'object') return d;
     if(Array.isArray(o.blocks)){
-      const bl = o.blocks.filter(x => x && typeof x === 'object').slice(0, MAXB).map(x => ({title: String(x.title || '').toUpperCase().slice(0, 28), l: normSlots(x.l, NL), j: normSlots(x.j, Math.max(NJ0, Math.min(NJMAX, Array.isArray(x.j) ? x.j.length : NJ0))), ratio: normRatio(x.ratio, DR)}));
+      const bl = o.blocks.filter(x => x && typeof x === 'object').slice(0, MAXB).map(x => ({title: String(x.title || '').toUpperCase().slice(0, 28), l: normSlots(x.l, NL), j: normSlots(x.j, Math.max(NJ0, Math.min(NJMAX, Array.isArray(x.j) ? x.j.length : NJ0))), ratio: normRatio(x.ratio, DR), showL: x.showL !== false, showJ: x.showJ !== false}));
       if(bl.length) d.blocks = bl;
     }
     if(Array.isArray(o.custom)) d.custom = o.custom.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim().slice(0, 24)).slice(0, 80);
@@ -1098,7 +1110,7 @@
   const slotText = s => s.join(' or ');
   const rowText = a => a.filter(s => s.length).map(slotText).join(' | ') || '–';
   function buildText(){
-    return S.blocks.map(x => (x.title ? x.title + '\n' : '') + `Leads: ${rowText(x.l)}\n${x.j.some(s => s.length) ? 'Joiners: ' + rowText(x.j) + '\n' : ''}Ratio: ${x.ratio.join(' : ')}`).join('\n\n');
+    return S.blocks.map(x => (x.title ? x.title + '\n' : '') + `${x.l.some(s => s.length) ? (x.showL ? 'Leads: ' : '') + rowText(x.l) + '\n' : ''}${x.j.some(s => s.length) ? (x.showJ ? 'Joiners: ' : '') + rowText(x.j) + '\n' : ''}Ratio: ${x.ratio.join(' : ')}`).join('\n\n');
   }
 
   // ---- ratio helpers ----
@@ -1133,6 +1145,7 @@
   function renderEditors(){
     const many = S.blocks.length > 1;
     $('edit').innerHTML = S.blocks.map((blk, b) => `<div class="sx-card rp-card"><div class="rp-head"><input type="text" class="rp-title" data-b="${b}" maxlength="28" placeholder="TITLE, e.g. GARRISON" value="${esc(blk.title)}" aria-label="Title of box ${b + 1}" autocomplete="off" autocapitalize="characters" spellcheck="false">${many ? `<button type="button" class="rp-delblk" data-act="delblk" data-b="${b}" aria-label="Remove this box" title="Remove this box">×</button>` : ''}</div><div class="rp-body">
+      <div class="rp-sws"><label class="switch rp-sw"><input type="checkbox" data-act="tgl" data-b="${b}" data-g="l"${blk.showL ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show &quot;Leads&quot;</span></label><label class="switch rp-sw"><input type="checkbox" data-act="tgl" data-b="${b}" data-g="j"${blk.showJ ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show &quot;Joiners&quot;</span></label></div>
       <div class="rp-grp"><div class="rp-lbl">Leads</div><div class="rp-slots l">${blk.l.map((_, i) => slotHtml(b, 'l', i)).join('')}</div></div>
       <div class="rp-grp"><div class="rp-lbl">Joiners</div><div class="rp-slots j">${blk.j.map((_, i) => slotHtml(b, 'j', i)).join('')}${blk.j.length < NJMAX ? `<div class="rp-slot"><button type="button" class="rp-empty rp-plus" data-act="addslot" data-b="${b}" title="Add another joiner slot"><b>+</b><span>More</span></button></div>` : ''}</div></div>
       <div class="rp-grp" style="margin-bottom:0"><div class="rp-lbl">Ratio (%)</div>${ratioHtml(b)}</div></div></div>`).join('');
@@ -1142,11 +1155,11 @@
 
   // ---- result block ----
   function heroTile(n){ return `<span class="rb-h">${himg(n)}<span>${esc(n)}</span></span>`; }
-  function rowHtml(label, slots, hideEmpty){
+  function rowHtml(label, slots, showLabel){
     const f = slots.filter(s => s.length);
-    if(!f.length && hideEmpty) return '';
-    const body = f.length ? f.map(s => `<span class="rb-slot">${heroTile(s[0])}${s[1] ? `<span class="rb-or">or</span>${heroTile(s[1])}` : ''}</span>`).join('') : '<span class="rb-none">–</span>';
-    return `<div class="rb-row"><div class="rb-l">${label}</div><div class="rb-hs">${body}</div></div>`;
+    if(!f.length) return '';   // empty row: not shown at all, the box gets lower
+    const body = f.map(s => `<span class="rb-slot">${heroTile(s[0])}${s[1] ? `<span class="rb-or">or</span>${heroTile(s[1])}` : ''}</span>`).join('');
+    return `<div class="rb-row">${showLabel ? `<div class="rb-l">${label}</div>` : ''}<div class="rb-hs">${body}</div></div>`;
   }
   // no separator line at the start of a wrapped row
   function markRows(){
@@ -1159,7 +1172,7 @@
   function renderResult(){
     $('shot').classList.toggle('two', S.blocks.length > 1);   // 2 boxes side by side on wide screens (CSS)
     $('shot').innerHTML = `<div class="rb-top"><span>State 646 · Formations</span></div><div class="rb-grid">` + S.blocks.map(x =>
-      `<div class="rb-sec">${x.title ? `<h3>${esc(x.title)}</h3>` : ''}${rowHtml('Leads', x.l)}${rowHtml('Joiners', x.j, true)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div></div>`).join('') + '</div>';
+      `<div class="rb-sec">${x.title ? `<h3>${esc(x.title)}</h3>` : ''}${rowHtml('Leads', x.l, x.showL)}${rowHtml('Joiners', x.j, x.showJ)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div></div>`).join('') + '</div>';
     markRows();
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(markRows);
   }
@@ -1258,7 +1271,10 @@
     $('rbar-' + b).innerHTML = ratioBar(S.blocks[b].ratio, true); $('rsum-' + b).innerHTML = sumHtml(b);
     renderResult();
   });
-  $('edit').addEventListener('change', e => { const t = e.target; if(t.dataset && t.dataset.r !== undefined) t.value = S.blocks[+t.dataset.b].ratio[+t.dataset.r]; });
+  $('edit').addEventListener('change', e => {
+    const t = e.target;
+    if(t.dataset && t.dataset.act === 'tgl'){ S.blocks[+t.dataset.b][t.dataset.g === 'l' ? 'showL' : 'showJ'] = t.checked; save(); renderAll(); return; }
+    if(t.dataset && t.dataset.r !== undefined) t.value = S.blocks[+t.dataset.b].ratio[+t.dataset.r]; });
 
   // ---- sharing ----
   let tt = null;
