@@ -1011,11 +1011,19 @@
 
   .rp-ty{position:absolute;top:6px;left:6px;width:9px;height:9px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.35);}
 
+  /* generic rank picks (best / 2nd best / best remaining) */
+  .rp-img.gen{color:#06121f;font-weight:800;}
+  .rp-gsep{margin:16px 0 10px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+  .rp-nm.gn,.rb-h span.gn,.rp-alt .rp-altb span.gn{white-space:normal;overflow:visible;text-overflow:clip;text-align:center;line-height:1.15;word-break:break-word;}
+  .rp-nm.gn{font-size:10.5px;}
+  .rb-h span.gn{font-size:10.5px;font-weight:600;}
+  .rp-alt .rp-altb span.gn{font-size:10px;}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-<nav class="sitenav" aria-label="State 646 pages"><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><span class="cur" aria-current="page">FORMATIONS</span><a href="rallyplan.html"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></a></nav>
+<nav class="sitenav" aria-label="State 646 pages"><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><span class="cur" aria-current="page">FORMATIONS</span></nav>
 
   <header>
     <button type="button" class="theme-toggle set-btn" id="setBtn" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
@@ -1043,10 +1051,10 @@
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y12</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y13</footer>
 </div>
 
-<div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div></div></div></div>
+<div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div><div id="pickGenWrap" hidden><div class="rp-gsep">Heroes by rank</div><div class="rp-grid" id="pickGen"></div></div></div></div></div>
 <div class="modal-overlay" id="txtModal" role="dialog" aria-modal="true" aria-labelledby="txtTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="txtTitle">Share as text</h2><button type="button" class="modal-close" id="txtClose" aria-label="Close">×</button></div><p class="modal-sub">Edit the text or add your own, then copy it.</p><div class="rp-pbody"><textarea class="rp-ta" id="txtArea" spellcheck="false" aria-label="Message text"></textarea><div class="rp-tbar"><div class="rp-segs" role="group" aria-label="Character limit"><button type="button" class="rp-seg" data-lim="msg" aria-pressed="true">Message</button><button type="button" class="rp-seg" data-lim="notice" aria-pressed="false">Alliance Notice</button></div><div class="rp-count" id="txtCount"><span id="txtCnt">0</span>/<span id="txtMax">512</span></div></div><div class="rp-tact"><button type="button" class="btn" id="txtCopy">Copy text</button><button type="button" class="rp-norm" id="txtReset">Reset to plan text</button></div></div></div></div>
 <div id="rpToast" role="status" aria-live="polite"></div>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
@@ -1056,6 +1064,10 @@
   const HEROES = ['Natalia','Jeronimo','Molly','Zinman','Bahiti','Sergey','Charlie','Cloris','Gina','Jasser','Ling Xue','Lumak Bokan','Seo-Yoon','Smith','Jessie','Patrick','Flint','Philly','Alonso','Logan','Mia','Greg','Ahmose','Reina','Lynn','Hector','Norah','Gwen','Eugene','Wu Ming','Renee','Wayne','Edith','Gordon','Bradley','Gatot','Sonya','Hendrik','Magnus','Fred','Xura','Blanchette','Gregory','Freya','Eleonora','Lloyd','Rufus','Hervor','Karol','Ligeia','Gisela','Flora','Vulcanus','Cara','Dominic','Elif'];
 const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m','Cara':'m','Charlie':'l','Cloris':'m','Dominic':'l','Edith':'i','Eleonora':'i','Elif':'i','Eugene':'i','Flint':'i','Flora':'l','Fred':'l','Freya':'l','Gatot':'i','Gina':'m','Gisela':'i','Gordon':'l','Greg':'m','Gregory':'i','Gwen':'m','Hector':'i','Hendrik':'m','Hervor':'i','Jasser':'m','Jeronimo':'i','Jessie':'l','Karol':'l','Ligeia':'m','Ling Xue':'l','Lloyd':'l','Logan':'i','Lumak Bokan':'l','Lynn':'m','Magnus':'i','Mia':'l','Molly':'l','Natalia':'i','Norah':'l','Patrick':'l','Philly':'l','Reina':'l','Renee':'l','Rufus':'m','Seo-Yoon':'m','Sergey':'i','Smith':'i','Sonya':'l','Vulcanus':'m','Wayne':'m','Wu Ming':'i','Xura':'m','Zinman':'m'};
   const TYN = {i: 'Infantry', l: 'Lancer', m: 'Marksman'}, TYC = {i: 'inf', l: 'lan', m: 'mar'};
+  // generic "rank" picks (no picture): best / 2nd best / best remaining hero of a type
+  const GEN = [], GENM = new Map();
+  [['i', 'Infantry'], ['l', 'Lancer'], ['m', 'Marksman']].forEach(([t, tn]) => [['Best ', '1'], ['2nd best ', '2'], ['Best remaining ', 'R']].forEach(([p, g]) => { const n = p + tn; GEN.push(n); GENM.set(n, {t, g}); TY[n] = t; }));
+  const short = n => GENM.has(n) ? n.replace('Infantry', 'Inf').replace('Marksman', 'Marks').replace('remaining', 'rem.') : n;
   const MAXB = 6, NL = 3, NJ0 = 4, NJMAX = 12, DR = [50, 20, 30];
   const RN = [['inf', 'Infantry'], ['lan', 'Lancer'], ['mar', 'Marksman']];
   const KEY = 'rally646_state';
@@ -1108,7 +1120,11 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
     s.textContent = (Array.from(img.dataset.n || '?')[0] || '?').toUpperCase();
     img.replaceWith(s);
   };
-  function himg(n){ return `<img class="rp-img" loading="lazy" decoding="async" src="heroes/${esc(slug(n))}.webp" alt="" data-n="${esc(n)}" onerror="__rpErr(this)">`; }
+  function himg(n){
+    const g = GENM.get(n); if(g) return `<span class="rp-img ph gen c-${TYC[g.t]}" aria-hidden="true">${g.g}</span>`;
+    return `<img class="rp-img" loading="lazy" decoding="async" src="heroes/${esc(slug(n))}.webp" alt="" data-n="${esc(n)}" onerror="__rpErr(this)">`;
+  }
+  const nmH = (n, cls, full) => `<span class="${cls || ''}${GENM.has(n) ? ' gn' : ''}">${esc(full ? n : short(n))}</span>`;
 
   // ---- text ----
   const slotText = s => s.join(' or ');
@@ -1134,9 +1150,9 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
       return `<div class="rp-slot"><button type="button" class="rp-empty" data-act="pick" ${at} title="Choose a hero"><b>+</b><span>${what}</span></button>${rm}</div>`;
     }
     const alt = s[1]
-      ? `<div class="rp-alt"><span class="or">or</span><button type="button" class="rp-altb" data-act="alt" ${at} title="Change the alternative">${himg(s[1])}<span>${esc(s[1])}</span></button><button type="button" class="rp-ax" data-act="clralt" ${at} aria-label="Remove the alternative" title="Remove the alternative">×</button></div>`
+      ? `<div class="rp-alt"><span class="or">or</span><button type="button" class="rp-altb" data-act="alt" ${at} title="Change the alternative">${himg(s[1])}${nmH(s[1])}</button><button type="button" class="rp-ax" data-act="clralt" ${at} aria-label="Remove the alternative" title="Remove the alternative">×</button></div>`
       : `<button type="button" class="rp-addalt" data-act="alt" ${at} title="Add an alternative hero (shown as “A or B”)">+ or</button>`;
-    return `<div class="rp-slot"><button type="button" class="rp-main" data-act="pick" ${at} title="Change the hero">${himg(s[0])}<span class="rp-nm">${esc(s[0])}</span></button><button type="button" class="rp-x" data-act="clr" ${at} aria-label="Remove ${esc(s[0])}" title="Remove">×</button>${alt}</div>`;
+    return `<div class="rp-slot"><button type="button" class="rp-main" data-act="pick" ${at} title="Change the hero">${himg(s[0])}${nmH(s[0], 'rp-nm')}</button><button type="button" class="rp-x" data-act="clr" ${at} aria-label="Remove ${esc(s[0])}" title="Remove">×</button>${alt}</div>`;
   }
   function ratioHtml(m){
     const r = S.blocks[m].ratio;
@@ -1158,7 +1174,7 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
   }
 
   // ---- result block ----
-  function heroTile(n){ return `<span class="rb-h">${himg(n)}<span>${esc(n)}</span></span>`; }
+  function heroTile(n){ return `<span class="rb-h">${himg(n)}${nmH(n)}</span>`; }
   function rowHtml(label, slots, showLabel){
     const f = slots.filter(s => s.length);
     if(!f.length) return '';   // empty row: not shown at all, the box gets lower
@@ -1226,7 +1242,11 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
     const list = pool().filter(h => !ql || h.n.toLowerCase().includes(ql));
     const exact = pool().some(h => h.n.toLowerCase() === ql);
     $('pickAdd').innerHTML = (q && !exact) ? `<button type="button" class="btn-secondary" data-act="addc">＋ Add “${esc(q.slice(0, 24))}” as a new hero</button>` : '';
-    $('pickGrid').innerHTML = list.map(h => { const why = heroBlock(h.n), dis = used.has(h.n) || !!why; return `<button type="button" class="rp-hero${h.n === cur ? ' cur' : ''}${dis ? ' dis' : ''}" data-h="${esc(h.n)}"${dis ? ' aria-disabled="true"' : ''} title="${why ? esc(why) : used.has(h.n) ? 'Already used here' : esc(h.n)}">${himg(h.n)}${TY[h.n] ? `<span class="rp-ty c-${TYC[TY[h.n]]}" title="${TYN[TY[h.n]]}"></span>` : ''}<span class="rp-nm">${esc(h.n)}</span>${h.custom ? '<span class="rp-del" data-del="' + esc(h.n) + '" title="Remove this hero from the pool" role="button">×</span>' : ''}</button>`; }).join('') || '<div class="rp-note">No hero found.</div>';
+    const tile = h => { const why = heroBlock(h.n), dis = used.has(h.n) || !!why; return `<button type="button" class="rp-hero${h.n === cur ? ' cur' : ''}${dis ? ' dis' : ''}" data-h="${esc(h.n)}"${dis ? ' aria-disabled="true"' : ''} title="${why ? esc(why) : used.has(h.n) ? 'Already used here' : esc(h.n)}">${himg(h.n)}${TY[h.n] && !GENM.has(h.n) ? `<span class="rp-ty c-${TYC[TY[h.n]]}" title="${TYN[TY[h.n]]}"></span>` : ''}${nmH(h.n, 'rp-nm', true)}${h.custom ? '<span class="rp-del" data-del="' + esc(h.n) + '" title="Remove this hero from the pool" role="button">×</span>' : ''}</button>`; };
+    const gens = GEN.filter(n => !ql || n.toLowerCase().includes(ql) || short(n).toLowerCase().includes(ql));
+    $('pickGrid').innerHTML = list.map(tile).join('') || (gens.length ? '' : '<div class="rp-note">No hero found.</div>');
+    $('pickGenWrap').hidden = !gens.length;
+    $('pickGen').innerHTML = gens.map(n => tile({n, custom: false})).join('');
   }
   function choose(n){
     const s = S.blocks[P.b][P.g][P.i];
@@ -1234,6 +1254,7 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
     else { s[0] = n; if(s[1] === n) s.length = 1; }
     save(); closePicker(); renderAll();
   }
+  $('pickGen').addEventListener('click', e => { const b = e.target.closest('.rp-hero'); if(b && !b.classList.contains('dis')) choose(b.dataset.h); });
   $('pickGrid').addEventListener('click', e => {
     const d = e.target.closest('[data-del]');
     if(d){ e.stopPropagation(); const n = d.dataset.del; S.custom = S.custom.filter(x => x !== n); save(); renderPicker(); return; }
@@ -1250,7 +1271,7 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
   });
   $('pickQ').addEventListener('input', renderPicker);
   $('pickQ').addEventListener('keydown', e => {
-    if(e.key === 'Enter'){ const f = $('pickGrid').querySelector('.rp-hero:not(.dis)'); if(f) choose(f.dataset.h); else { const a = $('pickAdd').querySelector('button'); if(a) a.click(); } }
+    if(e.key === 'Enter'){ const f = $('pickGrid').querySelector('.rp-hero:not(.dis)') || $('pickGen').querySelector('.rp-hero:not(.dis)'); if(f) choose(f.dataset.h); else { const a = $('pickAdd').querySelector('button'); if(a) a.click(); } }
   });
   $('pickClose').addEventListener('click', closePicker);
   pm.addEventListener('click', e => { if(e.target === pm) closePicker(); });
