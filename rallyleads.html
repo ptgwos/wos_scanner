@@ -972,6 +972,14 @@
   .rl-subbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 10px;}
   .rl-subbar .btn{width:auto;padding:7px 14px;}
   .rl-pop{overflow:auto;border:1px solid var(--border);border-radius:6px;background:var(--panel);}
+  .rl-bvm{max-width:calc(100vw - 24px);width:max-content;}
+  table.rl-bv{width:auto;} table.rl-bv th,table.rl-bv td{padding:0;}
+  table.rl-bv th.rl-l,table.rl-bv td.rl-l{min-width:0;padding:4px 12px;position:static;white-space:nowrap;text-align:left;font-weight:700;}
+  table.rl-bv th.rl-bvh{height:auto;vertical-align:bottom;padding:8px 0;background:var(--panel-2);}
+  .rl-vt{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-weight:700;font-size:13px;display:inline-block;}
+  table.rl-bv td.rl-bvc{min-width:34px;width:34px;height:32px;text-align:center;cursor:help;}
+  table.rl-bv td.rl-bvc .rl-th svg{width:18px;height:18px;}
+  .rl-bvnote{font-size:12px;color:var(--text-dim);margin-top:10px;max-width:640px;}
   table.rl-hlt{width:100%;} table.rl-hlt td.rl-bn{text-align:left;font-weight:700;white-space:normal;}
   table.rl-hlt th{text-align:left;} table.rl-hlt th.rl-l{min-width:0;}
   table.rl-hlt .rl-hl{gap:10px;}
@@ -1011,12 +1019,12 @@
   <div class="divider"></div>
 
   <div class="panel">
-    <div class="rl-bar"><div class="rl-btns"><button type="button" class="btn" id="addBtn">+ Add</button><button type="button" class="btn" id="hlBtn">Highlights</button><button type="button" class="btn rl-cmp" id="cmpBtn"><span>Compare</span><small>up to 3 players</small></button><button type="button" class="btn" id="allBtn">Expand all</button><button type="button" class="btn" id="shBtn">Share pic</button></div><span class="rl-who" id="who"></span></div>
+    <div class="rl-bar"><div class="rl-btns"><button type="button" class="btn" id="addBtn">+ Add</button><button type="button" class="btn" id="hlBtn">Highlights</button><button type="button" class="btn rl-cmp" id="cmpBtn"><span>Compare</span><small>up to 3 players</small></button><button type="button" class="btn" id="bvBtn">Base vs Pets</button><button type="button" class="btn" id="allBtn">Expand all</button><button type="button" class="btn" id="shBtn">Share pic</button></div><span class="rl-who" id="who"></span></div>
     <div class="rl-wrap" id="wrap"></div>
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl16</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl17</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1507,6 +1515,32 @@
   $('shBtn').addEventListener('click', function(e){
     if(!P.length){ toast('No players yet.'); return; }
     doShare(e.currentTarget, shotWrap('Rally Leads', buildTable(P, 'shot')), 'state646-rally-leads.png');
+  });
+
+  // ---------- Base vs Pets: does the base total (no pets) of the row player beat the pet total of the column player? ----------
+  function bvTip(a, b){ return a.name + ' \u2013 Base stats: ' + pct(a.sAll) + '\n' + b.name + ' \u2013 Pet stats: ' + pct(b.pAll); }
+  function bvHtml(){
+    var L = P.filter(function(p){ return p.hasStats; });
+    var h = '<table class="rl rl-bv"><thead><tr><th class="rl-l"></th>';
+    L.forEach(function(p){ h += '<th class="rl-bvh"><span class="rl-vt">' + esc(p.name) + '</span></th>'; });
+    h += '</tr></thead><tbody>';
+    L.forEach(function(a){
+      h += '<tr><td class="rl-l rl-bvn">' + esc(a.name) + '</td>';
+      L.forEach(function(b){
+        var y = a.sAll > b.pAll, tip = bvTip(a, b);
+        h += '<td class="rl-v rl-bvc" data-tip="' + esc(tip) + '" title="' + esc(tip) + '"><span class="rl-th ' + (y ? 'up' : 'dn') + '" role="img" aria-label="' + (y ? 'yes' : 'no') + '">' + (y ? THUMB_UP : THUMB_DN) + '</span></td>';
+      });
+      h += '</tr>';
+    });
+    return h + '</tbody></table>';
+  }
+  var BV_NOTE = 'Thumb up = the base stats (no pets) of the player in the row beat the pet stats (pets activated) of the player in the column.';
+  $('bvBtn').addEventListener('click', function(){
+    if(!P.some(function(p){ return p.hasStats; })){ toast('No stats yet.'); return; }
+    openModal(mh('Base vs Pets') + '<div class="rl-fb"><div class="rl-subbar"><span class="rl-sub">' + BV_NOTE + '</span><button type="button" class="btn" id="popShare">Share pic</button></div><div class="rl-pop">' + bvHtml() + '</div></div>', 'rl-bvm', function(m){
+      $('popShare').addEventListener('click', function(e){ doShare(e.currentTarget, shotWrap('Rally Leads · Base vs Pets', bvHtml() + '<div class="rl-bvnote">' + BV_NOTE + '</div>'), 'state646-rally-leads-base-vs-pets.png'); });
+      m.querySelector('table.rl-bv').addEventListener('click', function(e){ var c = e.target.closest('[data-tip]'); if(c) toast(c.getAttribute('data-tip').replace('\n', '  |  ')); });
+    });
   });
 
   // ---------- highlights and comparison (popups) ----------
