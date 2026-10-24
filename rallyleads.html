@@ -889,10 +889,7 @@
   table.rl th,table.rl td{padding:7px 10px;border-bottom:1px solid var(--border-soft);white-space:nowrap;text-align:center;font-variant-numeric:tabular-nums;}
   table.rl td{color:var(--text);min-width:112px;}
   table.rl thead tr.rl-r1 th,table.rl thead tr.rl-r2.rl-n th{border-bottom:0;}
-  table.rl thead tr.rl-r2 th{top:var(--h1,0px);}
-  table.rl thead tr.rl-pw th{position:sticky;top:var(--hh,0px);z-index:3;background:var(--panel-2);}
-  table.rl thead tr.rl-pw th.rl-l{z-index:4;}
-  table.rl thead th{position:sticky;top:0;z-index:3;background:var(--panel-2);color:var(--strong);text-transform:none;letter-spacing:0;cursor:default;font-size:13px;font-weight:700;border-bottom:1px solid var(--border);}
+  table.rl thead th{position:relative;z-index:3;background:var(--panel-2);color:var(--strong);text-transform:none;letter-spacing:0;cursor:default;font-size:13px;font-weight:700;border-bottom:1px solid var(--border);}
   table.rl thead th:hover{color:var(--strong);}
   table.rl th.rl-l,table.rl td.rl-l{position:sticky;left:0;z-index:2;text-align:left;background:var(--panel);font-weight:600;min-width:210px;max-width:260px;white-space:normal;border-right:1px solid var(--border);}
   table.rl thead th.rl-l{z-index:4;background:var(--panel-2);}
@@ -921,7 +918,6 @@
   button.rl-tgb .rl-car{display:inline-block;transition:transform .15s;font-size:10px;}
   button.rl-tgb[aria-expanded="true"] .rl-car{transform:rotate(90deg);}
   .rl-wrap{display:inline-block;max-width:100%;max-height:none;}
-  table.rl thead th{position:relative;}
   .rl-il{display:flex !important;align-items:center;gap:8px;}
   .rl-ti{width:30px;height:30px;flex:none;object-fit:contain;}
   .rl-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;}
@@ -989,7 +985,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl7</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl8</footer>
 </div>
 <div id="toast"></div>
 <div class="modal-overlay" id="rlModal" role="dialog" aria-modal="true"></div>
@@ -1187,7 +1183,7 @@
     h += row('SVS cap size', function(p){ return p.svs == null ? '–' : Math.round(p.svs).toLocaleString('en-US'); }, 'rl-sum');
     h += sp();
     [['T12 Infantry',0],['T12 Lancers',1],['T12 Marksmen',2]].forEach(function(x){ h += row(x[0], function(p){ return has(p.t12[x[1]]) ? esc(p.t12[x[1]]) : ''; }); });
-    [['T12 Infantry Skill - Indomitable Wall',0],['T12 Lancer Skill - Meridian Phalanx',1],['T12 Marksmen Skill - Starfire',2]].forEach(function(x){ h += row(x[0], function(p){ return has(p.skills[x[1]]) ? esc(p.skills[x[1]]) : ''; }); });
+    [['T12 Infantry Skill - Indomitable Wall',0],['T12 Lancer Skill - Meridian Phalanx',1],['T12 Marksmen Skill - Starfire',2]].forEach(function(x){ h += row('<span class="rl-hl"><img class="rl-ti" src="' + T12IC[x[1]] + '" alt=""><span>' + esc(x[0]) + '</span></span>', function(p){ return has(p.skills[x[1]]) ? esc(p.skills[x[1]]) : ''; }, 'rl-hero', true); });
     return h + '</tbody></table>';
   }
 
