@@ -986,7 +986,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl9</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl10</footer>
 </div>
 <div id="toast"></div>
 <div class="modal-overlay" id="rlModal" role="dialog" aria-modal="true"></div>
@@ -1006,8 +1006,8 @@
   var PETS = 0.1;
   var IDX_ALL = [0,1,2,3,4,5,6,7,8,9,10,11], IDX_6040 = [0,1,2,3,4,5,6,7], IDX_5050 = [0,1,2,3,8,9,10,11];
   var PREFS = {}; try { PREFS = JSON.parse(localStorage.getItem('svs646_prefs') || 'null') || {}; } catch(e) {}
-  var st = {av: PREFS.av !== false, open: {stats: false, pets: false}, role: null, uname: '', code: ''};
-  try { var o = JSON.parse(localStorage.getItem('rl646_open') || 'null'); if(o) st.open = {stats: !!o.stats, pets: !!o.pets}; } catch(e) {}
+  var st = {av: PREFS.av !== false, open: {stats: false, pets: false, heroes: true, sizes: true, t12: true}, role: null, uname: '', code: ''};
+  try { var o = JSON.parse(localStorage.getItem('rl646_open') || 'null'); if(o) Object.keys(st.open).forEach(function(k){ if(typeof o[k] === 'boolean') st.open[k] = o[k]; }); } catch(e) {}
   var D = null, CUR = {}, P = [];
 
   function $(id){ return document.getElementById(id); }
@@ -1143,9 +1143,9 @@
     return h + '</tr>';
   }
   function sp(){ return '<tr class="rl-sp"><td class="rl-l"></td>' + P.map(function(){ return '<td class="rl-v"></td>'; }).join('') + '</tr>'; }
-  function toggle(key, text){
+  function toggle(key, text, plain){
     var o = st.open[key];
-    return '<tr class="rl-tg"><td class="rl-l"><button type="button" class="rl-tgb" data-k="' + key + '" aria-expanded="' + o + '"><span class="rl-car">▶</span><span>' + (o ? 'hide' : 'show') + ' ' + text + '</span></button></td>' + P.map(function(){ return '<td class="rl-v"></td>'; }).join('') + '</tr>';
+    return '<tr class="rl-tg"><td class="rl-l"><button type="button" class="rl-tgb" data-k="' + key + '" aria-expanded="' + o + '"><span class="rl-car">▶</span><span>' + (plain ? text : (o ? 'hide' : 'show') + ' ' + text) + '</span></button></td>' + P.map(function(){ return '<td class="rl-v"></td>'; }).join('') + '</tr>';
   }
   function pc(v){ return has(v) ? pct(v) : ''; }
   function pcs(v){ return v == null ? '–' : pct(v); }
@@ -1177,15 +1177,22 @@
     h += row('sum 60/40 (Pets)', function(p){ return pcs(p.p6040); }, 'rl-sum');
     h += row('sum 50/0/50 stats (Pets)', function(p){ return pcs(p.p5050); }, 'rl-sum');
     h += sp();
-    HEROES.forEach(function(x, i){ h += row(heroLabel(x[0], x[1]), function(p){ return stars(p.stars[i]); }, 'rl-hero', true); });
+    h += toggle('heroes', 'Heroes', true);
+    if(st.open.heroes) HEROES.forEach(function(x, i){ h += row(heroLabel(x[0], x[1]), function(p){ return stars(p.stars[i]); }, 'rl-hero', true); });
     h += sp();
+    h += toggle('sizes', 'March/cap size', true);
+    if(st.open.sizes){
     h += row('Unbuffed march size', function(p){ return has(p.march) ? num(p.march) : ''; });
     h += row('Unbuffed cap size', function(p){ return has(p.cap) ? num(p.cap) : ''; });
     h += row('<span class="rl-hl"><img class="rl-ti" src="' + VALIC + '" alt=""><span>CF Level</span></span>', function(p){ return has(p.val) ? num(p.val) : ''; }, null, true);
+    }
     h += row('SVS cap size', function(p){ return p.svs == null ? '–' : Math.round(p.svs).toLocaleString('en-US'); }, 'rl-sum');
     h += sp();
+    h += toggle('t12', 'T12', true);
+    if(st.open.t12){
     [['T12 Infantry',0],['T12 Lancers',1],['T12 Marksmen',2]].forEach(function(x){ h += row(x[0], function(p){ return has(p.t12[x[1]]) ? esc(p.t12[x[1]]) : ''; }); });
     [['T12 I',0,'T12 Infantry skill: Indomitable Wall'],['T12 L',1,'T12 Lancer skill: Meridian Phalanx'],['T12 M',2,'T12 Marksmen skill: Starfire']].forEach(function(x){ h += row('<span class="rl-hl" title="' + esc(x[2]) + '"><img class="rl-ti" src="' + T12IC[x[1]] + '" alt=""><span>' + esc(x[0]) + '</span></span>', function(p){ return has(p.skills[x[1]]) ? esc(p.skills[x[1]]) : ''; }, 'rl-hero', true); });
+    }
     return h + '</tbody></table>';
   }
 
