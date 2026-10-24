@@ -919,6 +919,10 @@
   button.rl-tgb[aria-expanded="true"] .rl-car{transform:rotate(90deg);}
   .rl-wrap{display:inline-block;max-width:100%;max-height:none;}
   table.rl .rl-v + .rl-v{border-left:1px solid var(--border);}
+  table.rl td.rl-top{box-shadow:inset 0 0 0 1px var(--good);}
+  .rl-th{display:inline-flex;align-items:center;justify-content:center;}
+  .rl-th svg{width:20px;height:20px;}
+  .rl-th.up{color:var(--good);} .rl-th.dn{color:var(--danger);}
   .rl-il{display:flex !important;align-items:center;gap:8px;}
   .rl-ti{width:30px;height:30px;flex:none;object-fit:contain;}
   .rl-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;}
@@ -986,7 +990,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl10</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl11</footer>
 </div>
 <div id="toast"></div>
 <div class="modal-overlay" id="rlModal" role="dialog" aria-modal="true"></div>
@@ -1137,9 +1141,17 @@
     P.forEach(function(p){ var inf = pinfo(p); h += '<th class="rl-v">' + (inf && inf.p != null ? Number(inf.p).toLocaleString('en-US') : '–') + '</th>'; });
     return h + '</tr></thead>';
   }
-  function row(label, fn, cls, raw){
+  function row(label, fn, cls, raw, vf){
+    var top = null;
+    if(vf){   // best value(s) of the row get a thin green frame (not when only one player has a value or all are equal)
+      var vals = P.map(function(p){ var v = vf(p); return v === null || v === undefined || isNaN(v) ? null : Number(v); }).filter(function(v){ return v !== null; });
+      if(vals.length > 1){ var mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals); if(mx !== mn) top = mx; }
+    }
     var h = '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td class="rl-l">' + (raw ? label : esc(label)) + '</td>';
-    P.forEach(function(p){ h += '<td class="rl-v">' + fn(p) + '</td>'; });
+    P.forEach(function(p){
+      var v = top !== null && vf ? vf(p) : null, isTop = top !== null && v !== null && v !== undefined && Number(v) === top;
+      h += '<td class="rl-v' + (isTop ? ' rl-top' : '') + '">' + fn(p) + '</td>';
+    });
     return h + '</tr>';
   }
   function sp(){ return '<tr class="rl-sp"><td class="rl-l"></td>' + P.map(function(){ return '<td class="rl-v"></td>'; }).join('') + '</tr>'; }
@@ -1158,6 +1170,13 @@
     var n = starN(v); if(!n) return '';
     return '<span class="rl-stars" title="' + n + (n === 1 ? ' star' : ' stars') + '">' + ('<img src="' + STAR + '" alt="">').repeat(n) + '</span>';
   }
+  var THUMB_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>';
+  var THUMB_DN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/></svg>';
+  function thumb(v){
+    if(!has(v)) return '';
+    var y = String(v).toLowerCase() === 'yes';
+    return '<span class="rl-th ' + (y ? 'up' : 'dn') + '" role="img" aria-label="' + (y ? 'yes' : 'no') + '" title="' + (y ? 'yes' : 'no') + '">' + (y ? THUMB_UP : THUMB_DN) + '</span>';
+  }
   function heroLabel(n, cls){
     return '<span class="rl-hl"><img class="rl-hi" src="heroes/' + esc(slug(n)) + '.webp" alt="" onerror="__rlErr(this)"><span>' + esc(n) + '</span></span>';
   }
@@ -1166,32 +1185,32 @@
     var h = '<table class="rl">' + head() + '<tbody>';
     h += row('Date Info Collected', function(p){ return p.date ? dstr(p.date) : ''; });
     h += toggle('stats', 'detailed stats');
-    if(st.open.stats) STATS.forEach(function(n, i){ h += row(n, function(p){ return pc(p.stats[i]); }); });
-    h += row('sum all stats', function(p){ return pcs(p.sAll); }, 'rl-sum');
-    h += row('sum 60/40 stats', function(p){ return pcs(p.s6040); }, 'rl-sum');
-    h += row('sum 50/0/50 stats', function(p){ return pcs(p.s5050); }, 'rl-sum');
+    if(st.open.stats) STATS.forEach(function(n, i){ h += row(n, function(p){ return pc(p.stats[i]); }, null, false, function(p){ return p.stats[i]; }); });
+    h += row('∑ all stats', function(p){ return pcs(p.sAll); }, 'rl-sum', false, function(p){ return p.sAll; });
+    h += row('∑ 60/40 stats', function(p){ return pcs(p.s6040); }, 'rl-sum', false, function(p){ return p.s6040; });
+    h += row('∑ 50/0/50 stats', function(p){ return pcs(p.s5050); }, 'rl-sum', false, function(p){ return p.s5050; });
     h += sp();
     h += toggle('pets', 'detailed stats (Pets)');
-    if(st.open.pets) STATS.forEach(function(n, i){ h += row(n + ' (Pets)', function(p){ return pc(p.pets[i]); }); });
-    h += row('sum all stats (Pets)', function(p){ return pcs(p.pAll); }, 'rl-sum');
-    h += row('sum 60/40 (Pets)', function(p){ return pcs(p.p6040); }, 'rl-sum');
-    h += row('sum 50/0/50 stats (Pets)', function(p){ return pcs(p.p5050); }, 'rl-sum');
+    if(st.open.pets) STATS.forEach(function(n, i){ h += row(n + ' (Pets)', function(p){ return pc(p.pets[i]); }, null, false, function(p){ return p.pets[i]; }); });
+    h += row('∑ all stats (Pets)', function(p){ return pcs(p.pAll); }, 'rl-sum', false, function(p){ return p.pAll; });
+    h += row('∑ 60/40 (Pets)', function(p){ return pcs(p.p6040); }, 'rl-sum', false, function(p){ return p.p6040; });
+    h += row('∑ 50/0/50 stats (Pets)', function(p){ return pcs(p.p5050); }, 'rl-sum', false, function(p){ return p.p5050; });
     h += sp();
     h += toggle('heroes', 'Heroes', true);
-    if(st.open.heroes) HEROES.forEach(function(x, i){ h += row(heroLabel(x[0], x[1]), function(p){ return stars(p.stars[i]); }, 'rl-hero', true); });
+    if(st.open.heroes) HEROES.forEach(function(x, i){ h += row(heroLabel(x[0], x[1]), function(p){ return stars(p.stars[i]); }, 'rl-hero', true, function(p){ return starN(p.stars[i]); }); });
     h += sp();
     h += toggle('sizes', 'March/cap size', true);
     if(st.open.sizes){
-    h += row('Unbuffed march size', function(p){ return has(p.march) ? num(p.march) : ''; });
-    h += row('Unbuffed cap size', function(p){ return has(p.cap) ? num(p.cap) : ''; });
-    h += row('<span class="rl-hl"><img class="rl-ti" src="' + VALIC + '" alt=""><span>CF Level</span></span>', function(p){ return has(p.val) ? num(p.val) : ''; }, null, true);
+    h += row('Unbuffed march size', function(p){ return has(p.march) ? num(p.march) : ''; }, null, false, function(p){ return p.march; });
+    h += row('Unbuffed cap size', function(p){ return has(p.cap) ? num(p.cap) : ''; }, null, false, function(p){ return p.cap; });
+    h += row('<span class="rl-hl"><img class="rl-ti" src="' + VALIC + '" alt=""><span>CF Level</span></span>', function(p){ return has(p.val) ? num(p.val) : ''; }, null, true, function(p){ return p.val; });
     }
-    h += row('SVS cap size', function(p){ return p.svs == null ? '–' : Math.round(p.svs).toLocaleString('en-US'); }, 'rl-sum');
+    h += row('SVS cap size', function(p){ return p.svs == null ? '–' : Math.round(p.svs).toLocaleString('en-US'); }, 'rl-sum', false, function(p){ return p.svs; });
     h += sp();
     h += toggle('t12', 'T12', true);
     if(st.open.t12){
-    [['T12 Infantry',0],['T12 Lancers',1],['T12 Marksmen',2]].forEach(function(x){ h += row(x[0], function(p){ return has(p.t12[x[1]]) ? esc(p.t12[x[1]]) : ''; }); });
-    [['T12 I',0,'T12 Infantry skill: Indomitable Wall'],['T12 L',1,'T12 Lancer skill: Meridian Phalanx'],['T12 M',2,'T12 Marksmen skill: Starfire']].forEach(function(x){ h += row('<span class="rl-hl" title="' + esc(x[2]) + '"><img class="rl-ti" src="' + T12IC[x[1]] + '" alt=""><span>' + esc(x[0]) + '</span></span>', function(p){ return has(p.skills[x[1]]) ? esc(p.skills[x[1]]) : ''; }, 'rl-hero', true); });
+    [['T12 Infantry',0],['T12 Lancers',1],['T12 Marksmen',2]].forEach(function(x){ h += row(x[0], function(p){ return thumb(p.t12[x[1]]); }); });
+    [['T12 I',0,'T12 Infantry skill: Indomitable Wall'],['T12 L',1,'T12 Lancer skill: Meridian Phalanx'],['T12 M',2,'T12 Marksmen skill: Starfire']].forEach(function(x){ h += row('<span class="rl-hl" title="' + esc(x[2]) + '"><img class="rl-ti" src="' + T12IC[x[1]] + '" alt=""><span>' + esc(x[0]) + '</span></span>', function(p){ return has(p.skills[x[1]]) ? esc(p.skills[x[1]]) : ''; }, 'rl-hero', true, function(p){ return has(p.skills[x[1]]) ? Number(p.skills[x[1]]) : null; }); });
     }
     return h + '</tbody></table>';
   }
@@ -1264,7 +1283,7 @@
     var gameOk = !!D, curTag = p ? tagOf(p) : (D && D.alliances.PKB ? 'PKB' : (allianceTags()[0] || ''));
     var mode = (p && !(p.pid && D && D.players[p.pid])) ? 'hand' : (gameOk ? 'game' : 'hand');
     var today = new Date(), ds = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
-    var yn = ['', 'yes', 'no'], sl = ['', '1', '2', '3', '4', '5'], sk = ['', '0', '1', '2', '3'];
+    var yn = ['', 'yes', 'no'], sl = ['', '1', '2', '3', '4', '5'], cf = [''].concat(Array.apply(null, new Array(20)).map(function(x, i){ return String(i + 1); })), sk = ['', '0', '1', '2', '3'];
     var h = mh(p ? 'Edit ' + esc(p.name) : 'Add player') + '<div class="rl-fb">';
     h += '<div class="rl-h">Player</div><div class="seg rl-mode" id="emode"><button type="button" data-m="game"' + (mode === 'game' ? ' class="active"' : '') + (gameOk ? '' : ' disabled') + '>From game data</button><button type="button" data-m="hand"' + (mode === 'hand' ? ' class="active"' : '') + '>Enter by hand</button></div>';
     h += '<div class="rl-grid2" id="egame"><div class="field"><label for="eal">Alliance</label>' + (gameOk ? '<select id="eal">' + allianceTags().map(function(t){ return '<option' + (t === curTag ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') + '</select>' : '<select id="eal"></select>') + '</div><div class="field"><label for="epl">Player</label><select id="epl">' + (gameOk ? memberOpts(curTag, p && p.pid) : '<option value="">–</option>') + '</select></div></div>';
@@ -1273,7 +1292,7 @@
     STATS.forEach(function(n, i){ h += '<div class="field"><label for="es' + i + '">' + n + '</label><input type="text" id="es' + i + '" inputmode="decimal" autocomplete="off" value="' + esc(p ? fmtIn(p.stats[i]) : '') + '"></div>'; });
     h += '</div><div class="rl-h">Heroes <span>(star level)</span></div><div class="rl-grid3">';
     HEROES.forEach(function(x, i){ h += '<div class="field"><label for="eh' + i + '">' + x[0] + ' (' + x[1] + ')</label>' + sel('eh' + i, sl, p && starN(p.stars[i])) + '</div>'; });
-    h += '</div><div class="rl-h">Sizes</div><div class="rl-grid3"><div class="field"><label for="em">Unbuffed march size</label><input type="text" id="em" inputmode="numeric" value="' + esc(p && has(p.march) ? p.march.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ec">Unbuffed cap size</label><input type="text" id="ec" inputmode="numeric" value="' + esc(p && has(p.cap) ? p.cap.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ev">Valeria Crushing Force level</label><input type="text" id="ev" inputmode="numeric" value="' + esc(p && has(p.val) ? p.val : '') + '"></div></div>';
+    h += '</div><div class="rl-h">Sizes</div><div class="rl-grid3"><div class="field"><label for="em">Unbuffed march size</label><input type="text" id="em" inputmode="numeric" value="' + esc(p && has(p.march) ? p.march.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ec">Unbuffed cap size</label><input type="text" id="ec" inputmode="numeric" value="' + esc(p && has(p.cap) ? p.cap.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ev">Valeria Crushing Force level</label>' + sel('ev', cf, p && has(p.val) ? p.val : '') + '</div></div>';
     h += '<div class="rl-h">T12</div><div class="rl-grid3">';
     ['Infantry', 'Lancers', 'Marksmen'].forEach(function(n, i){ h += '<div class="field"><label for="et' + i + '">T12 ' + n + '</label>' + sel('et' + i, yn, p && p.t12[i]) + '</div>'; });
     h += '</div><div class="rl-h">T12 skills <span>(level 0-3)</span></div><div class="rl-grid3">';
