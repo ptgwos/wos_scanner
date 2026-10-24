@@ -1088,7 +1088,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint">Tap the + to pick a player. Tap a name to change it, × to clear. Saved on this device only.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-23 · rp17</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-24 · rp18</footer>
 </div>
 <script>
 (function(){
@@ -1129,6 +1129,14 @@
   const grid = document.getElementById('rpBlocks');
   let delArm = -1, delLn = '', delArmAt = 0, delArmT = null;
   const HEROES = ['Natalia','Jeronimo','Molly','Zinman','Bahiti','Sergey','Charlie','Cloris','Gina','Jasser','Ling Xue','Lumak Bokan','Seo-Yoon','Smith','Jessie','Patrick','Flint','Philly','Alonso','Logan','Mia','Greg','Ahmose','Reina','Lynn','Hector','Norah','Gwen','Eugene','Wu Ming','Renee','Wayne','Edith','Gordon','Bradley','Gatot','Sonya','Hendrik','Magnus','Fred','Xura','Blanchette','Gregory','Freya','Eleonora','Lloyd','Rufus','Hervor','Karol','Ligeia','Gisela','Flora','Vulcanus','Cara','Dominic','Elif'];
+  // hero pool: the built-in list above is only the fallback; data/heroes.json (shared by all pages) replaces it when it can be loaded
+  fetch('data/heroes.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+    if(!j || !Array.isArray(j.heroes)) return;
+    const names = [], ty = {};
+    j.heroes.forEach(h => { if(h && typeof h.n === 'string' && h.n.trim()){ const n = h.n.trim(); if(names.indexOf(n) < 0) names.push(n); if(/^[ilm]$/.test(h.t)) ty[n] = h.t; } });
+    if(names.length < 10) return;
+    HEROES.length = 0; names.forEach(n => HEROES.push(n));
+  }).catch(() => {});
   function slug(n){ return String(n).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
   window.__bbErr = function(img){
     if(img.dataset.t !== '1' && /\.webp$/.test(img.src)){ img.dataset.t = '1'; img.src = img.src.replace(/\.webp$/, '.png'); return; }

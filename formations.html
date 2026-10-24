@@ -1057,7 +1057,7 @@
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-22 · y14</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-24 · y15</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div><div id="pickGenWrap" hidden><div class="rp-gsep">Heroes by rank</div><div class="rp-grid" id="pickGen"></div></div></div></div></div>
@@ -1069,6 +1069,15 @@
   // Hero pool (names only; classes/generations are not stored). Missing ones can be added in the picker.
   const HEROES = ['Natalia','Jeronimo','Molly','Zinman','Bahiti','Sergey','Charlie','Cloris','Gina','Jasser','Ling Xue','Lumak Bokan','Seo-Yoon','Smith','Jessie','Patrick','Flint','Philly','Alonso','Logan','Mia','Greg','Ahmose','Reina','Lynn','Hector','Norah','Gwen','Eugene','Wu Ming','Renee','Wayne','Edith','Gordon','Bradley','Gatot','Sonya','Hendrik','Magnus','Fred','Xura','Blanchette','Gregory','Freya','Eleonora','Lloyd','Rufus','Hervor','Karol','Ligeia','Gisela','Flora','Vulcanus','Cara','Dominic','Elif'];
 const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m','Cara':'m','Charlie':'l','Cloris':'m','Dominic':'l','Edith':'i','Eleonora':'i','Elif':'i','Eugene':'i','Flint':'i','Flora':'l','Fred':'l','Freya':'l','Gatot':'i','Gina':'m','Gisela':'i','Gordon':'l','Greg':'m','Gregory':'i','Gwen':'m','Hector':'i','Hendrik':'m','Hervor':'i','Jasser':'m','Jeronimo':'i','Jessie':'l','Karol':'l','Ligeia':'m','Ling Xue':'l','Lloyd':'l','Logan':'i','Lumak Bokan':'l','Lynn':'m','Magnus':'i','Mia':'l','Molly':'l','Natalia':'i','Norah':'l','Patrick':'l','Philly':'l','Reina':'l','Renee':'l','Rufus':'m','Seo-Yoon':'m','Sergey':'i','Smith':'i','Sonya':'l','Vulcanus':'m','Wayne':'m','Wu Ming':'i','Xura':'m','Zinman':'m'};
+  // hero pool: the built-in list above is only the fallback; data/heroes.json (shared by all pages) replaces it when it can be loaded
+  fetch('data/heroes.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+    if(!j || !Array.isArray(j.heroes)) return;
+    const names = [], ty = {};
+    j.heroes.forEach(h => { if(h && typeof h.n === 'string' && h.n.trim()){ const n = h.n.trim(); if(names.indexOf(n) < 0) names.push(n); if(/^[ilm]$/.test(h.t)) ty[n] = h.t; } });
+    if(names.length < 10) return;
+    HEROES.length = 0; names.forEach(n => HEROES.push(n));
+    Object.keys(TY).forEach(k => delete TY[k]); Object.assign(TY, ty);
+  }).catch(() => {});
   const TYN = {i: 'Infantry', l: 'Lancer', m: 'Marksman'}, TYC = {i: 'inf', l: 'lan', m: 'mar'};
   // generic "rank" picks (no picture): best / 2nd best / best remaining hero of a type
   const GEN = [], GENM = new Map();
