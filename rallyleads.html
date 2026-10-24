@@ -925,6 +925,7 @@
   table.rl td.rl-top{box-shadow:inset 0 0 0 1px var(--good);}
   .rl-th{display:inline-flex;align-items:center;justify-content:center;}
   .rl-th svg{width:20px;height:20px;}
+  .rl-th.same{color:#f2a007;}
   .rl-th.up{color:var(--good);} .rl-th.dn{color:var(--danger);}
   .rl-il{display:flex !important;align-items:center;gap:8px;}
   .rl-ti{width:30px;height:30px;flex:none;object-fit:contain;}
@@ -1024,7 +1025,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl17</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl18</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1518,6 +1519,7 @@
   });
 
   // ---------- Base vs Pets: does the base total (no pets) of the row player beat the pet total of the column player? ----------
+  var MINUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg>';
   function bvTip(a, b){ return a.name + ' \u2013 Base stats: ' + pct(a.sAll) + '\n' + b.name + ' \u2013 Pet stats: ' + pct(b.pAll); }
   function bvHtml(){
     var L = P.filter(function(p){ return p.hasStats; });
@@ -1527,6 +1529,7 @@
     L.forEach(function(a){
       h += '<tr><td class="rl-l rl-bvn">' + esc(a.name) + '</td>';
       L.forEach(function(b){
+        if(a === b){ h += '<td class="rl-v rl-bvc" title="' + esc(a.name + ' \u2013 same player') + '" data-tip="' + esc(a.name + ' \u2013 same player') + '"><span class="rl-th same" role="img" aria-label="same player">' + MINUS + '</span></td>'; return; }
         var y = a.sAll > b.pAll, tip = bvTip(a, b);
         h += '<td class="rl-v rl-bvc" data-tip="' + esc(tip) + '" title="' + esc(tip) + '"><span class="rl-th ' + (y ? 'up' : 'dn') + '" role="img" aria-label="' + (y ? 'yes' : 'no') + '">' + (y ? THUMB_UP : THUMB_DN) + '</span></td>';
       });
@@ -1534,7 +1537,7 @@
     });
     return h + '</tbody></table>';
   }
-  var BV_NOTE = 'Thumb up = the base stats (no pets) of the player in the row beat the pet stats (pets activated) of the player in the column.';
+  var BV_NOTE = 'Thumb up = the base stats (no pets) of the player in the row beat the pet stats (pets activated) of the player in the column. Minus = same player.';
   $('bvBtn').addEventListener('click', function(){
     if(!P.some(function(p){ return p.hasStats; })){ toast('No stats yet.'); return; }
     openModal(mh('Base vs Pets') + '<div class="rl-fb"><div class="rl-subbar"><span class="rl-sub">' + BV_NOTE + '</span><button type="button" class="btn" id="popShare">Share pic</button></div><div class="rl-pop">' + bvHtml() + '</div></div>', 'rl-bvm', function(m){
