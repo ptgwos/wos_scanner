@@ -1016,7 +1016,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl15</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl16</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1204,7 +1204,7 @@
     L.push(R('SVS cap size', function(p){ return p.svs == null ? '–' : Math.round(p.svs).toLocaleString('en-US'); }, function(p){ return p.svs; }, 'rl-sum'));
     L.push(SP);
     var rows = [['Infantry', 0], ['Lancers', 1], ['Marksmen', 2]].map(function(x){ return R('<span class="rl-hl"><img class="rl-tu" src="' + T12UNI[x[1]] + '" alt=""><span>' + x[0] + '</span></span>', function(p){ return thumb(p.t12[x[1]]); }, null, 'rl-hero', true); });
-    [['T12 I', 0, 'T12 Infantry skill: Indomitable Wall'], ['T12 L', 1, 'T12 Lancer skill: Meridian Phalanx'], ['T12 M', 2, 'T12 Marksmen skill: Starfire']].forEach(function(x){
+    [['Skill Lvl I', 0, 'T12 Infantry skill: Indomitable Wall'], ['Skill Lvl L', 1, 'T12 Lancer skill: Meridian Phalanx'], ['Skill Lvl M', 2, 'T12 Marksmen skill: Starfire']].forEach(function(x){
       rows.push(R('<span class="rl-hl" title="' + esc(x[2]) + '"><img class="rl-ti" src="' + T12IC[x[1]] + '" alt=""><span>' + esc(x[0]) + '</span></span>', function(p){ return has(p.skills[x[1]]) ? esc(p.skills[x[1]]) : ''; }, function(p){ return has(p.skills[x[1]]) ? Number(p.skills[x[1]]) : null; }, 'rl-hero', true));
     });
     L.push({t: 'tg', key: 't12', text: 'T12', plain: true, rows: rows});
