@@ -903,6 +903,9 @@
   table.rl thead th.rl-ph{padding:10px 10px 6px;vertical-align:bottom;}
   table.rl thead th.rl-nm{padding:2px 10px 8px;font-size:14px;font-weight:800;white-space:normal;word-break:break-word;line-height:1.25;vertical-align:top;}
   table.rl thead tr.rl-pw th{font-weight:600;font-size:12.5px;color:var(--text-dim);border-bottom:1px solid var(--border);padding:4px 10px 9px;}
+  table.rl thead tr.rl-pw:not(.rl-dt) th{border-bottom:0;padding-bottom:2px;}
+  table.rl thead tr.rl-dt th{padding:2px 10px 9px;}
+  table.rl thead tr.rl-dt th.rl-l{text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600;color:var(--text-dim);}
   table.rl thead tr.rl-pw th.rl-l{color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;font-size:11px;}
   .rl-pc{display:flex;align-items:center;justify-content:center;gap:8px;}
   .rl-pc .av{width:48px;height:48px;margin:0;border:1px solid var(--border);}
@@ -1013,7 +1016,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl14</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl15</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1182,7 +1185,6 @@
   function layout(){
     if(LAYOUT) return LAYOUT;
     var L = [];
-    L.push(R('Date Info Collected', function(p){ return p.date ? dateCell(p.date) : ''; }));
     L.push({t: 'tg', key: 'stats', text: 'detailed stats', rows: STATS.map(function(n, i){ return R(n, function(p){ return pc(p.stats[i]); }, function(p){ return p.stats[i]; }); })});
     L.push(R('∑ all stats', function(p){ return pcs(p.sAll); }, function(p){ return p.sAll; }, 'rl-sum'));
     L.push(R('∑ 60/40 stats', function(p){ return pcs(p.s6040); }, function(p){ return p.s6040; }, 'rl-sum'));
@@ -1238,6 +1240,8 @@
     list.forEach(function(p){ h += '<th class="rl-nm rl-v">' + esc(p.name) + '</th>'; });
     h += '</tr><tr class="rl-pw"><th class="rl-l">Power</th>';
     list.forEach(function(p){ var inf = pinfo(p); h += '<th class="rl-v">' + (inf && inf.p != null ? Number(inf.p).toLocaleString('en-US') : '–') + '</th>'; });
+    h += '</tr><tr class="rl-pw rl-dt"><th class="rl-l">Date Info Collected</th>';
+    list.forEach(function(p){ h += '<th class="rl-v">' + (p.date ? dateCell(p.date) : '') + '</th>'; });
     return h + '</tr></thead>';
   }
   // mode: 'main' (page: toggles, edit, checkboxes) | 'cmp' (comparison: everything open) | 'shot' (picture of the page: open sections only)
