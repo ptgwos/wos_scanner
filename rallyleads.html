@@ -961,6 +961,9 @@
   .rl-ck{display:flex;justify-content:center;margin:0 0 6px;cursor:pointer;}
   .rl-ck input{width:17px;height:17px;accent-color:var(--ice);cursor:pointer;margin:0;}
   .rl-hlm{max-width:560px;} .rl-cmpm{max-width:860px;}
+  .rl-warn{display:inline-flex;vertical-align:middle;margin-right:6px;cursor:help;}
+  .rl-warn svg{width:16px;height:16px;}
+  .rl-warn.y{color:#f2b705;} .rl-warn.r{color:#e5484d;}
   .rl-sub{color:var(--text-dim);font-size:12.5px;}
   .rl-subbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 10px;}
   .rl-subbar .btn{width:auto;padding:7px 14px;}
@@ -1009,7 +1012,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl12</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl13</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1177,7 +1180,7 @@
   function layout(){
     if(LAYOUT) return LAYOUT;
     var L = [];
-    L.push(R('Date Info Collected', function(p){ return p.date ? dstr(p.date) : ''; }));
+    L.push(R('Date Info Collected', function(p){ return p.date ? dateCell(p.date) : ''; }));
     L.push({t: 'tg', key: 'stats', text: 'detailed stats', rows: STATS.map(function(n, i){ return R(n, function(p){ return pc(p.stats[i]); }, function(p){ return p.stats[i]; }); })});
     L.push(R('∑ all stats', function(p){ return pcs(p.sAll); }, function(p){ return p.sAll; }, 'rl-sum'));
     L.push(R('∑ 60/40 stats', function(p){ return pcs(p.s6040); }, function(p){ return p.s6040; }, 'rl-sum'));
@@ -1202,6 +1205,21 @@
     });
     L.push({t: 'tg', key: 't12', text: 'T12', plain: true, rows: rows});
     return (LAYOUT = L);
+  }
+  // age of the info (rules taken from the Excel sheet): up to 6 days = fresh, up to 1 month = yellow, older = red
+  function ageLevel(s){
+    var a = s.split('-'), d = new Date(+a[0], +a[1] - 1, +a[2]), n = new Date(); n = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    var days = Math.round((n - d) / 86400000);
+    if(days < 0 || days <= 6) return {lv: 0, days: days};
+    var m = new Date(n.getFullYear(), n.getMonth() - 1, n.getDate()); m.setDate(m.getDate() + 1);   // EDATE(today, -1) + 1
+    return {lv: d >= m ? 1 : 2, days: days};
+  }
+  var TRI = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6 15 14.4H1z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6.2v4M8 11.9v.1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>';
+  function dateCell(s){
+    var g = ageLevel(s), t = dstr(s);
+    if(!g.lv) return t;
+    var txt = g.days < 60 ? g.days + ' days ago' : Math.round(g.days / 30.4) + ' months ago';
+    return '<span class="rl-warn ' + (g.lv === 1 ? 'y' : 'r') + '" title="' + (g.lv === 1 ? 'Info is more than a week old: ' : 'Info is more than a month old: ') + txt + '" role="img" aria-label="outdated, ' + txt + '">' + TRI + '</span>' + t;
   }
   function numVals(list, vf){ return list.map(function(p){ var v = vf(p); return v === null || v === undefined || isNaN(v) ? null : Number(v); }); }
 
@@ -1413,7 +1431,9 @@
     if(e.target.id === 'lout'){ setLogin(null); render(); }
   });
   window.epSettingsApply = function(k, v){ PREFS[k] = v; if(k === 'av'){ st.av = v !== false; render(); } };
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden && !$('rlModal').classList.contains('open')){ loadPlayers(); loadRows(); } });
+  function refreshAll(){ if(!document.hidden && !$('rlModal').classList.contains('open')){ loadPlayers(); loadRows(); } }
+  document.addEventListener('visibilitychange', refreshAll);
+  setInterval(refreshAll, 300000);   // every 5 minutes while the page is open (power and alliance come from data/players.json, which the hourly job updates)
 
   // ---------- buttons above the table ----------
   $('allBtn').addEventListener('click', function(){
