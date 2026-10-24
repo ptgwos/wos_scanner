@@ -911,6 +911,48 @@
   .rl-pc .av{width:48px;height:48px;margin:0;border:1px solid var(--border);}
   .rl-pc .av.ph{font-size:20px;}
   .rl-yes{font-weight:600;}
+  table.rl{min-width:0;}
+  table.rl td.rl-v{min-width:230px;}
+  table.rl thead th.rl-v{min-width:230px;}
+  table.rl tr.rl-tg td{padding:0;background:var(--panel);}
+  table.rl tr.rl-tg td.rl-l{padding:0;}
+  button.rl-tgb{display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:0;color:var(--ice);font:600 12.5px 'Inter',sans-serif;letter-spacing:.03em;padding:9px 10px;cursor:pointer;text-align:left;}
+  button.rl-tgb:hover{color:var(--strong);background:rgba(111,227,255,.06);}
+  button.rl-tgb .rl-car{display:inline-block;transition:transform .15s;font-size:10px;}
+  button.rl-tgb[aria-expanded="true"] .rl-car{transform:rotate(90deg);}
+  .rl-wrap{display:inline-block;max-width:100%;}
+  .rl-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;}
+  .rl-who{font-size:12.5px;color:var(--text-dim);}
+  button.rl-link{background:none;border:0;color:var(--ice);font:600 12.5px 'Inter',sans-serif;cursor:pointer;padding:2px 0;}
+  button.rl-link:hover{color:var(--strong);}
+  .rl-empty{padding:28px 24px;color:var(--text-dim);font-size:14px;}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel-2);border:1px solid var(--danger);color:var(--text);padding:10px 16px;border-radius:8px;z-index:400;max-width:90vw;font-size:13px;display:none;}
+  #toast.ok{border-color:var(--good);}
+  .rl-ed{position:absolute;top:6px;right:6px;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text-dim);cursor:pointer;padding:0;}
+  .rl-ed svg{width:15px;height:15px;}
+  .rl-ed:hover{color:var(--ice);border-color:var(--ice);}
+  .rl-hl{display:flex;align-items:center;gap:10px;}
+  .rl-hi{width:34px;height:34px;border-radius:6px;object-fit:cover;flex:none;background:var(--border);}
+  .rl-stars{display:inline-flex;gap:2px;align-items:center;justify-content:center;}
+  .rl-stars img{width:19px;height:19px;}
+  .rl-no{color:var(--text-faint);}
+  table.rl tr.rl-hero td{padding-top:5px;padding-bottom:5px;}
+  .rl-sm{max-width:420px;}
+  .rl-ep{max-width:640px;}
+  .rl-fb{padding:6px 22px 18px;overflow:auto;}
+  .rl-h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin:16px 0 8px;}
+  .rl-h span{text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-faint);}
+  .rl-fb .field label span{text-transform:none;letter-spacing:0;color:var(--text-faint);}
+  .rl-fb select,.rl-fb input[type="text"],.rl-fb input[type="password"],.rl-fb input[type="date"]{width:100%;min-width:0;box-sizing:border-box;}
+  .rl-grid2,.rl-grid3,.rl-grid4{display:grid;gap:10px 12px;}
+  .rl-grid2{grid-template-columns:1fr 1fr;} .rl-grid3{grid-template-columns:1fr 1fr 1fr;} .rl-grid4{grid-template-columns:repeat(4,1fr);}
+  .rl-mode{margin-bottom:10px;}
+  .rl-mode button:disabled{opacity:.4;cursor:not-allowed;}
+  .rl-acts{display:flex;align-items:center;gap:10px;margin-top:18px;}
+  .rl-sp1{flex:1;}
+  #addBtn{width:auto;}
+  .btn.danger{color:var(--danger);border-color:var(--danger);background:transparent;}
+  @media (max-width:640px){ .rl-grid2,.rl-grid3{grid-template-columns:1fr;} .rl-grid4{grid-template-columns:1fr 1fr;} .rl-acts .btn{width:auto;} .rl-fb{padding:6px 14px 16px;} }
   .rl-note{font-size:12px;color:var(--text-dim);margin-top:12px;line-height:1.6;}
   .rl-bvp .rl-corner{font-size:11.5px;color:var(--text-dim);font-weight:600;}
   table.rl tr.rl-pt td{font-weight:700;color:var(--gold);}
@@ -940,32 +982,47 @@
   <div class="divider"></div>
 
   <div class="panel">
-    <div class="rl-bar">
-      <div class="seg rl-tabs" id="tabs"><button type="button" data-t="stats" class="active">Rally Lead Stats</button><button type="button" data-t="bvp">Base vs Pets</button></div>
-      <label class="switch" title="Players who are hidden columns in the original sheet"><input type="checkbox" id="hidSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show hidden players</span></label>
-    </div>
+    <div class="rl-bar"><button type="button" class="btn" id="addBtn">+ Add</button><span class="rl-who" id="who"></span></div>
     <div class="rl-wrap" id="wrap"></div>
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Rally_Leads.xlsx · build 2026-10-23 · rl2</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl5</footer>
 </div>
+<div id="toast"></div>
+<div class="modal-overlay" id="rlModal" role="dialog" aria-modal="true"></div>
+<script src="eventplan-config.js"></script>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
-
-<script type="application/json" id="rl-data">[{"name": "Aves", "hidden": false, "stats": [29.669, 30.27, 22.084, 21.907, 29.669, 29.23, 21.954, 20.567, 25.776, 25.877, 21, 20.326], "date": "2026-06-18", "stars": ["yes", "yes", "no"], "march": 205260, "cap": 1447760, "val": 13, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": "96968038"}, {"name": "Z", "hidden": false, "stats": [32.16, 32.231, 25.436, 25.322, 32.1, 32.181, 25.376, 25.272, 32.1, 32.181, 25.376, 25.272], "date": "2026-07-23", "stars": ["yes", "yes", "yes"], "march": 216310, "cap": 1508810, "val": 20, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": null}, {"name": "Lady A", "hidden": false, "stats": [29.094, 30.244, 17.935, 18.26, 27.895, 27.953, 18.434, 17.852, 29.096, 29.744, 19.337, 18.515], "date": "2026-09-08", "stars": ["yes", "yes", "no"], "march": 209260, "cap": 1426760, "val": 7, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": "94920602"}, {"name": "Chief13", "hidden": false, "stats": [28.022, 28.037, 20.879, 20.718, 28.022, 28.037, 20.456, 20.269, 26.321, 26.335, 20.401, 20.3], "date": "2026-05-01", "stars": ["yes", "yes", "no"], "march": null, "cap": null, "val": 0, "t12": ["no", "no", "no"], "skills": [null, null, null], "id": "79323435"}, {"name": "OFF", "hidden": false, "stats": [32.027, 32.636, 20.096, 19.922, 31.827, 32.386, 19.937, 19.784, 30.366, 30.884, 19.638, 19.489], "date": "2026-10-21", "stars": [null, null, null], "march": null, "cap": null, "val": 0, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": "73594418"}, {"name": "EMMA", "hidden": false, "stats": [null, null, null, null, null, null, null, null, null, null, null, null], "date": "2026-05-01", "stars": [null, null, null], "march": null, "cap": null, "val": null, "t12": [null, null, null], "skills": [null, null, null], "id": null}, {"name": "Mando", "hidden": false, "stats": [33.489, 34.372, 24.305, 24.683, 33.026, 33.839, 24.203, 24.231, 33.386, 35.119, 24.292, 24.431], "date": "2026-10-23", "stars": ["yes", "yes", "yes"], "march": 220260, "cap": 1512760, "val": 20, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": "81154257"}, {"name": "Taste Deez", "hidden": false, "stats": [33.164, 33.733, 22.184, 22.172, 32.184, 32.753, 21.131, 20.109, 32.756, 33.115, 20.7, 20.212], "date": "2026-10-23", "stars": ["yes", "yes", "yes"], "march": 215740, "cap": 1508240, "val": 20, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": "83628103"}, {"name": "Marie", "hidden": false, "stats": [36.211, 36.41, 27.277, 27.356, 36.211, 36.4, 26.928, 26.996, 36.201, 36.4, 26.897, 26.976], "date": "2026-10-23", "stars": ["yes", "yes", "yes"], "march": null, "cap": 1495810, "val": 20, "t12": [null, null, null], "skills": [null, null, null], "id": null}, {"name": "Chem", "hidden": false, "stats": [28.55, 29.255, 19.937, 20.148, 28.28, 27.989, 17.955, 17.84, 30.451, 30.16, 20.57, 19.9], "date": "2026-09-11", "stars": ["yes", "yes", "no"], "march": 214170, "cap": 1506610, "val": 10, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": "83185338"}, {"name": "What", "hidden": true, "stats": [32.16, 32.231, 25.436, 25.322, 32.1, 32.181, 25.376, 25.272, 32.1, 32.181, 25.376, 25.272], "date": "2026-06-19", "stars": ["no", "yes", "no"], "march": null, "cap": null, "val": 0, "t12": [null, null, null], "skills": [null, null, null], "id": null}, {"name": "Epic", "hidden": false, "stats": [null, null, null, null, null, null, null, null, null, null, null, null], "date": null, "stars": ["yes", "yes", "yes"], "march": 207600, "cap": 1445100, "val": 6, "t12": ["yes", "yes", "yes"], "skills": ["0", "0", "0"], "id": "87522296"}, {"name": "Alice", "hidden": false, "stats": [26.841, 28.212, 16.748, 17.01, 26.427, 26.708, 15.889, 15.889, 25.909, 25.269, 17.016, 16.198], "date": "2026-06-19", "stars": ["yes", "yes", "no"], "march": 204.37, "cap": 1446870, "val": 5, "t12": ["yes", "yes", "yes"], "skills": ["2", "2", "1"], "id": null}, {"name": "Steno", "hidden": false, "stats": [29.155, 29.883, 21.211, 21.111, 30.283, 31.114, 19.341, 19.139, 30.702, 31.533, 21.382, 21.133], "date": "2026-09-10", "stars": ["yes", "yes", "yes"], "march": 213840, "cap": 1468310, "val": 10, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": "97694453"}, {"name": "Lord Whitebread", "hidden": true, "stats": [26.295, 26.768, 18.687, 18.03, 27.496, 27.919, 17.669, 17.611, 28.496, 27.969, 19.034, 18.272], "date": "2026-05-22", "stars": ["no", "yes", "yes"], "march": 205310, "cap": 1447810, "val": 9, "t12": ["yes", "yes", "yes"], "skills": ["1", "1", "1"], "id": null}, {"name": "Dovah", "hidden": false, "stats": [30.995, 31.446, 18.979, 18.781, 30.883, 31.074, 19.264, 19.066, 29.289, 29.6, 20.659, 20.438], "date": "2026-10-21", "stars": ["yes", "yes", "no"], "march": 208030, "cap": 1450530, "val": 15, "t12": ["yes", "yes", "yes"], "skills": ["1", "2", "0"], "id": null}, {"name": "Cigar (536)", "hidden": false, "stats": [30.73, 30.873, 21.863, 21.71, 27.988, 28.132, 20.003, 19.634, 27.357, 26.961, 20.561, 20.337], "date": "2026-06-22", "stars": ["yes", "yes", "yes"], "march": null, "cap": null, "val": null, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": null}, {"name": "Nikki", "hidden": false, "stats": [30.741, 31.302, 22.048, 21.953, 32.043, 32.665, 21.632, 21.463, 32.043, 32.675, 22.104, 21.906], "date": "2026-10-23", "stars": ["yes", "yes", "yes"], "march": 212140, "cap": 1499640, "val": 17, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": null}, {"name": "Maleficent", "hidden": false, "stats": [25.581, 25.691, 16.035, 16.997, 26.273, 26.883, 15.991, 15.969, 22.86, 23.47, 15.456, 14.939], "date": "2026-07-21", "stars": [null, null, null], "march": null, "cap": null, "val": null, "t12": [null, null, null], "skills": [null, null, null], "id": null}, {"name": "JD", "hidden": false, "stats": [29.825, 29.865, 18.587, 18.442, 26.321, 26.806, 15.123, 14.986, 28.289, 28.749, 16.554, 15.526], "date": "2026-08-23", "stars": ["yes", "yes", "yes"], "march": 207240, "cap": null, "val": null, "t12": ["yes", "yes", "yes"], "skills": ["3", "3", "3"], "id": null}, {"name": "Arnold", "hidden": false, "stats": [null, null, null, null, null, null, null, null, null, null, null, null], "date": null, "stars": [null, null, null], "march": null, "cap": null, "val": null, "t12": [null, null, null], "skills": [null, null, null], "id": null}]</script>
+<script type="application/json" id="rl-seed">[{"pid": "93508262", "name": "Zerethusta", "tag": "PKB", "data": {"date": "2026-07-23", "stats": [32.16, 32.231, 25.436, 25.322, 32.1, 32.181, 25.376, 25.272, 32.1, 32.181, 25.376, 25.272], "stars": ["yes", "yes", "yes"], "march": 216310, "cap": 1508810, "val": 20, "t12": ["yes", "yes", "yes"], "skills": [3, 3, 3]}}]</script>
 <script>
 (function(){
   'use strict';
-  var P = JSON.parse(document.getElementById('rl-data').textContent);
+  var CFG = Object.assign({url: '', key: ''}, window.EP_CONFIG || {});   // Supabase settings from eventplan-config.js (shared with the Event Planner)
+  var MOCK = /[?&]mock=1/.test(location.search) || !CFG.url;               // without settings: test mode, data only in memory
+  var STAR = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA9ZJREFUeNrcWW9klVEYP/tjRJR9GvWlXEpTlqaJEmUjo5QoSxQZozGjKbvuNM2uUTZL2fQh0r4UY5pmU1+aUpam2Wy62qcRsS+NGLf1PPrR8Tr3Pec5977tvj383Hn3/jm/9zx/fs/zlmxsbCi26l8qdjZf+vfvUvWfWNRE9hBeEpqiJlISoWuVEWYINYQ1wl7CShxdqwkk2LYS+uLoWrzw3sCxCxqx2BBpJ+wwuNpgnIgwgRs5/neUcDouRO7AtXLZXUJFsRPhGLhsOSdBaCl2IoOIBZulCJXFSqQRMeBiTOJmsRKRVu+CBn254dhhQb5fJbzGb0b47G9RS5QflqxjWtBB/P1FcO0ZwhihHpnOJbYOEZ4TLhKyukQxEZnEzSU2SjiHBXU6nP+BUIcM9kn44rKE7azfbFqrAydL7CyCPQ03s9kt/A4JSbANQ4Rag30WJ0ttCL9dlvOmEFecHE4In8EvKSnJWknHNxuUJim8hLDAT+ahhnOuq1TK3EEs7gvZlVHER59BVNos1FPCGiu9MZLYO8IxwntkGT1ID0BnzThmKd1OESZ8Git+cKvHrhwhNOPade34Y8IS4YEHifEgCZ9W96lH1ebashuZ7Dpipg3N1SPhvfhlVJvizlZHTGr1M2GLcAFMZDlw7C12TGJpLV3n1bNnDG7iUvCWDcd/CknMEboLPUXZht0J9h9Bf/8O6WEqqvsJ/dquLBjcaE7LnPdwP+sUpWQTJo3H1Z95VzC1ZgM7tyAZB5UL+weuEVUhBbEK2WUYNSNondBjrgmjh3C/kK71Sign2EV2GtxiJlBbXKwBsibvYPfRRBWIHY6FZ1o3OOvhik51x+ZavppoDO44iXucx2LSqCUSxZtAgX2YT6vb6aGJ1lD8+gMLTsHlejxHTJW+RBIQgVLrRlaqN7jbbaRUaVtcaUsSYcH+AhJDqlDrIBhrcug3Fo67cH+J8bW1epy5BHujBwl+0DXEQy7FXIZdGUccSSx0dmzaEb5g3lC0bDaANnkRbzzMalEnFj1a3UuEEZcdafYgsYJGrMWBBFsvrvEJ/D6TgDXtyDwquLRosVD8qtxHoScJ04Q3mKVJjMdPszaJwvn6iuMNl+DrU8hwknluO4YQDfCChON1HzVhGYlolDZgy+hZvC2qb4gTEZ+v8qnsEhsRaKk1z0D/J0Qkw4oBVeBP1YX+0DONYmdL1elCd2tRfENss/T3SWWY3RYjkYzKPRHkGHoSRf8c1Xf2LmWe0bYq+aR/U4msGrLSOGJIxYmIwtAgo/XwbVGOZqIkwou/igFEh0czJbLfAgwAXCEIxexxFrUAAAAASUVORK5CYII=';
   var STATS = ['Infantry Attack','Infantry Defence','Infantry Lethality','Infantry Health','Lancer Attack','Lancer Defence','Lancer Lethality','Lancer Health','Marksmen Attack','Marksmen Defence','Marksmen Lethality','Marksmen Health'];
+  var HEROES = [['Hervor','Infantry'],['Karol','Lancer'],['Ligeia','Marksmen']];
   var PETS = 0.1;
-  var st = {tab: 'stats', hid: false, av: true};
+  var IDX_ALL = [0,1,2,3,4,5,6,7,8,9,10,11], IDX_6040 = [0,1,2,3,4,5,6,7], IDX_5050 = [0,1,2,3,8,9,10,11];
   var PREFS = {}; try { PREFS = JSON.parse(localStorage.getItem('svs646_prefs') || 'null') || {}; } catch(e) {}
-  st.av = PREFS.av !== false;
-  var D = null; // data/players.json (avatars, alliance tag, power)
-  var CUR = {};  // player id -> current alliance (membership list)
+  var st = {av: PREFS.av !== false, open: {stats: false, pets: false}, role: null, uname: '', code: ''};
+  try { var o = JSON.parse(localStorage.getItem('rl646_open') || 'null'); if(o) st.open = {stats: !!o.stats, pets: !!o.pets}; } catch(e) {}
+  var D = null, CUR = {}, P = [];
 
-  // theme toggle (same behaviour as the other pages)
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function has(v){ return v !== null && v !== undefined && v !== ''; }
+  function toast(msg, ok){ var t = $('toast'); t.textContent = msg; t.className = ok ? 'ok' : ''; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(function(){ t.style.display = 'none'; }, 4200); }
+  // stored as in the sheet: 25.436 means 2,543.60 % (US format: comma = thousands, dot = decimals)
+  function pct(v){ return (v * 100).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%'; }
+  function num(v){ return Number(v).toLocaleString('en-US', {maximumFractionDigits: 2}); }
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function dstr(s){ var a = s.split('-'); return MON[+a[1]-1] + ' ' + (+a[2]) + ', ' + a[0]; }
+  function sum(arr, idx){ var t = 0; idx.forEach(function(i){ t += arr[i] || 0; }); return t; }
+  function slug(n){ return String(n).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+  function clean(s){ return String(s == null ? '' : s).replace(/ /g, ' '); }
+
+  // ---------- theme toggle (same behaviour as the other pages) ----------
   (function(){
     var root = document.documentElement;
     function apply(t){
@@ -975,7 +1032,7 @@
     var t = 'dark'; try { if(localStorage.getItem('svs-theme') === 'light') t = 'light'; } catch(e) {}
     if(t === 'dark'){ try { if(/(?:^|; )svs_theme=light/.test(document.cookie)) t = 'light'; } catch(e) {} }
     apply(t);
-    document.getElementById('themeToggle').addEventListener('click', function(){
+    $('themeToggle').addEventListener('click', function(){
       var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
       apply(next);
       try { localStorage.setItem('svs-theme', next); } catch(e) {}
@@ -983,17 +1040,45 @@
     });
   })();
 
-  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function has(v){ return v !== null && v !== undefined && v !== ''; }
-  // stored as a fraction of 100 %: 25.436 means 2,543.60 % (US number format: comma = thousands, dot = decimals)
-  function pct(v){ return (v * 100).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%'; }
-  function num(v){ return Number(v).toLocaleString('en-US', {maximumFractionDigits: 2}); }
-  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function dstr(s){ var a = s.split('-'); return MON[+a[1]-1] + ' ' + (+a[2]) + ', ' + a[0]; }
-  function sum(arr, idx){ var t = 0; idx.forEach(function(i){ t += arr[i] || 0; }); return t; }
-  var IDX_ALL = [0,1,2,3,4,5,6,7,8,9,10,11], IDX_6040 = [0,1,2,3,4,5,6,7], IDX_5050 = [0,1,2,3,8,9,10,11];
+  // ---------- backend: plain REST calls to Supabase; in test mode an in-memory copy ----------
+  var api = (function(){
+    if(MOCK){
+      var seed = JSON.parse($('rl-seed').textContent), n = 1;
+      var db = seed.map(function(r){ return Object.assign({id: 'm' + (n++), created_at: '', updated_at: ''}, r); });
+      return {
+        list: function(){ return Promise.resolve(JSON.parse(JSON.stringify(db))); },
+        login: function(c){ return Promise.resolve(c === 'admin' ? {role: 'admin', name: 'Test admin'} : null); },
+        save: function(a){
+          if(!a.p_id){ db.push({id: 'm' + (n++), pid: a.p_pid || null, name: a.p_name, tag: a.p_tag || null, data: a.p_data}); }
+          else { var r = db.filter(function(x){ return x.id === a.p_id; })[0]; if(!r) return Promise.reject(new Error('This player does not exist (any more).')); r.pid = a.p_pid || null; r.name = a.p_name; r.tag = a.p_tag || null; r.data = a.p_data; }
+          return Promise.resolve();
+        },
+        del: function(a){ db = db.filter(function(x){ return x.id !== a.p_id; }); return Promise.resolve(); }
+      };
+    }
+    var H = {apikey: CFG.key, 'Content-Type': 'application/json'};
+    if(/^eyJ/.test(CFG.key)) H.Authorization = 'Bearer ' + CFG.key;   // old-style anon key (JWT); the new publishable keys go in the apikey header only
+    function req(path, opt){
+      return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/' + path, Object.assign({headers: H, cache: 'no-store'}, opt || {})).then(function(r){
+        return r.text().then(function(t){ var j = null; try { j = t ? JSON.parse(t) : null; } catch(e) {} if(!r.ok) throw new Error((j && (j.message || j.hint)) || ('HTTP ' + r.status)); return j; });
+      });
+    }
+    function rpc(fn, args){ return req('rpc/' + fn, {method: 'POST', body: JSON.stringify(args || {})}); }
+    return {
+      list: function(){ return req('rl_players?select=*&order=created_at.asc'); },
+      login: function(c){ return rpc('ev_login', {p_code: c}); },
+      save: function(a){ return rpc('rl_save', a); },
+      del: function(a){ return rpc('rl_delete', a); }
+    };
+  })();
 
-  P.forEach(function(p){
+  // ---------- data ----------
+  function mapRow(r){
+    var d = r.data || {};
+    var p = {rid: r.id, pid: r.pid || null, name: r.name || '?', tag: r.tag || '', date: d.date || null,
+      stats: (d.stats || []).concat(new Array(12)).slice(0, 12).map(function(v){ return has(v) ? Number(v) : null; }),
+      stars: d.stars || [], march: has(d.march) ? Number(d.march) : null, cap: has(d.cap) ? Number(d.cap) : null, val: has(d.val) ? Number(d.val) : null,
+      t12: d.t12 || [], skills: d.skills || []};
     p.hasStats = p.stats.some(has);
     p.pets = p.stats.map(function(v){ return has(v) ? v + v * PETS : null; });
     p.sAll = p.hasStats ? sum(p.stats, IDX_ALL) : null;
@@ -1003,121 +1088,249 @@
     p.p6040 = p.hasStats ? sum(p.pets, IDX_6040) : null;
     p.p5050 = p.hasStats ? sum(p.pets, IDX_5050) : null;
     p.svs = (has(p.march) && has(p.cap) && has(p.val)) ? p.march * 0.2 + 15000 + 150000 + p.val * 7500 + p.cap : null;
-  });
-
-  function vis(){ return P.filter(function(p){ return st.hid || !p.hidden; }); }
-
-  function pinfo(p){ return (D && p.id && D.players[p.id]) || null; }
-  function tagChip(tag){
-    var c = TAG_COLORS[tag] || {bg:'#3a4357', fg:'#dfe6f2', bd:'#4d5873'};
-    return '<span class="tag tag-c" style="background:' + c.bg + ';color:' + c.fg + ';border-color:' + c.bd + '">' + esc(tag) + '</span>';
+    return p;
   }
-  var TAG_GOLD = {bg:'#f2b705', fg:'#2a1b00', bd:'#f2b705'}, TAG_RED = {bg:'#b8283a', fg:'#ffffff', bd:'#b8283a'};
-  var TAG_COLORS = {BLP: TAG_RED, OSM: TAG_RED, osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'}, AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'}, TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'}, TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, PKB: TAG_GOLD, GYN: TAG_GOLD};
-  function avatar(p){
-    var inf = pinfo(p), ph = '<span class="av ph" aria-hidden="true">' + esc((Array.from(p.name)[0] || '?').toUpperCase()) + '</span>';
-    if(inf && inf.au) return '<img class="av" src="avatars/' + esc(p.id) + '.webp" alt="" onerror="this.outerHTML=this.getAttribute(\'data-ph\')" data-ph="' + esc(ph) + '">';
-    return ph;
+  var loaded = false;
+  function loadRows(){
+    return api.list().then(function(rows){ P = rows.map(mapRow); loaded = true; render(); }).catch(function(e){ toast('Could not load the data: ' + e.message); });
   }
-  function head(list, corner){
-    var inf, h = '<thead><tr class="rl-r1"><th class="rl-l rl-ph">' + (corner || '') + '</th>';
-    list.forEach(function(p){
-      inf = pinfo(p);
-      var tag = inf ? (CUR[p.id] || inf.a) : '';
-      h += '<th class="rl-ph">' + (st.av || tag ? '<div class="rl-pc">' + (st.av ? avatar(p) : '') + (tag ? tagChip(tag) : '') + '</div>' : '') + '</th>';
-    });
-    h += '</tr><tr class="rl-r2 rl-n"><th class="rl-l"></th>';
-    list.forEach(function(p){ h += '<th class="rl-nm">' + esc(p.name) + '</th>'; });
-    h += '</tr><tr class="rl-pw"><th class="rl-l">Power</th>';
-    list.forEach(function(p){ inf = pinfo(p); h += '<th>' + (inf && inf.p != null ? Number(inf.p).toLocaleString('en-US') : '–') + '</th>'; });
-    return h + '</tr></thead>';
-  }
-  function row(list, label, fn, cls){
-    var h = '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td class="rl-l">' + esc(label) + '</td>';
-    list.forEach(function(p){
-      var r = fn(p); if(typeof r === 'string') r = {t: r};
-      h += '<td class="' + (r.c || '') + '"' + (r.title ? ' title="' + esc(r.title) + '"' : '') + '>' + (r.t == null ? '' : r.t) + '</td>';
-    });
-    return h + '</tr>';
-  }
-  function sp(list){ return '<tr class="rl-sp"><td class="rl-l"></td>' + list.map(function(){ return '<td></td>'; }).join('') + '</tr>'; }
-  function pc(v){ return has(v) ? {t: pct(v)} : {t: ''}; }
-  function pcs(v){ return v == null ? {t: '–', c: 'rl-e'} : {t: pct(v)}; }
-  function yn(v){ if(!has(v)) return ''; var y = String(v).toLowerCase() === 'yes'; return {t: esc(v)}; }
-
-  function statsTable(){
-    var L = vis(), h = '<table class="rl">' + head(L, '') + '<tbody>';
-    STATS.forEach(function(n, i){ h += row(L, n, function(p){ return pc(p.stats[i]); }); });
-    h += row(L, 'Date Info Collected', function(p){ return p.date ? dstr(p.date) : ''; });
-    h += sp(L);
-    h += row(L, 'sum all stats', function(p){ return pcs(p.sAll); }, 'rl-sum');
-    h += row(L, 'sum 60/40 stats', function(p){ return pcs(p.s6040); }, 'rl-sum');
-    h += row(L, 'sum 50/0/50 stats', function(p){ return pcs(p.s5050); }, 'rl-sum');
-    h += sp(L);
-    STATS.forEach(function(n, i){ h += row(L, n + ' (Pets)', function(p){ return has(p.pets[i]) ? {t: pct(p.pets[i])} : {t: ''}; }); });
-    h += sp(L);
-    h += row(L, 'sum all stats (Pets)', function(p){ return pcs(p.pAll); }, 'rl-sum');
-    h += row(L, 'sum 60/40 (Pets)', function(p){ return pcs(p.p6040); }, 'rl-sum');
-    h += row(L, 'sum 50/0/50 stats (Pets)', function(p){ return pcs(p.p5050); }, 'rl-sum');
-    h += sp(L);
-    [['Hervor (Infantry) 4 Star',0],['Karol (Lancer) 4 Star',1],['Ligeia (Marksmen) 4 Star',2]].forEach(function(x){ h += row(L, x[0], function(p){ return yn(p.stars[x[1]]); }); });
-    h += sp(L);
-    h += row(L, 'Unbuffed march size', function(p){ return has(p.march) ? {t: num(p.march), title: p.march < 1000 ? 'Looks like a typo in the sheet (204.37)' : ''} : ''; });
-    h += row(L, 'Unbuffed cap size', function(p){ return has(p.cap) ? num(p.cap) : ''; });
-    h += row(L, 'Valeria Crushing Force Level', function(p){ return has(p.val) ? num(p.val) : ''; });
-    h += row(L, 'SVS cap size', function(p){ return p.svs == null ? {t: '–', c: 'rl-e', title: 'Needs march size, cap size and Valeria level'} : {t: Math.round(p.svs).toLocaleString('en-US')}; }, 'rl-sum');
-    h += sp(L);
-    [['T12 Infantry',0],['T12 Lancers',1],['T12 Marksmen',2]].forEach(function(x){ h += row(L, x[0], function(p){ return yn(p.t12[x[1]]); }); });
-    [['T12 Infantry Skill - Indomitable Wall',0],['T12 Lancer Skill - Meridian Phalanx',1],['T12 Marksmen Skill - Starfire',2]].forEach(function(x){ h += row(L, x[0], function(p){ return has(p.skills[x[1]]) ? esc(p.skills[x[1]]) : ''; }); });
-    return h + '</tbody></table>';
-  }
-
-  function bvpTable(){
-    var L = vis().filter(function(p){ return p.hasStats; });
-    var h = '<table class="rl rl-bvp"><thead><tr><th class="rl-l"><span class="rl-corner">Base ↓ &nbsp;·&nbsp; Pets →</span></th><th>Base total</th>';
-    L.forEach(function(p){ h += '<th class="rl-nm">' + esc(p.name) + '</th>'; });
-    h += '</tr><tr class="rl-pt rl-r2"><th class="rl-l" style="font-weight:600;color:var(--gold)">Pet total →</th><th></th>';
-    L.forEach(function(p){ h += '<th style="color:var(--gold)">' + pct(p.pAll) + '</th>'; });
-    h += '</tr></thead><tbody>';
-    L.forEach(function(a){
-      h += '<tr><td class="rl-l">' + esc(a.name) + '</td><td style="font-weight:700">' + pct(a.sAll) + '</td>';
-      L.forEach(function(b){ var y = a.sAll > b.pAll; h += '<td class="' + (y ? 'rl-yes' : '') + '">' + (y ? 'Yes' : 'No') + '</td>'; });
-      h += '</tr>';
-    });
-    return h + '</tbody></table>';
-  }
-
-  function render(){
-    var w = document.getElementById('wrap'), keepX = w.scrollLeft, keepY = w.scrollTop;
-    w.innerHTML = st.tab === 'stats' ? statsTable() : bvpTable();
-    var hr = w.querySelectorAll('thead tr');
-    if(hr[0]) w.style.setProperty('--h1', hr[0].offsetHeight + 'px');
-    if(st.tab === 'stats' && hr[1]) w.style.setProperty('--hh', (hr[0].offsetHeight + hr[1].offsetHeight) + 'px');
-    w.scrollLeft = keepX; w.scrollTop = keepY;
-    var n = document.getElementById('note');
-    if(st.tab === 'stats'){
-      n.innerHTML = 'Pets add +10 % to every stat. SVS cap size = march size × 0.2 + 15,000 + 150,000 + Valeria level × 7,500 + cap size.';
-    } else {
-      n.innerHTML = '“Yes” = the player’s base total (no pets) beats the other player’s pet total (pets activated). Players without any stats are left out.';
-    }
-  }
-  document.getElementById('tabs').addEventListener('click', function(e){
-    var b = e.target.closest('button[data-t]'); if(!b) return;
-    st.tab = b.getAttribute('data-t');
-    Array.prototype.forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('active', x === b); });
-    render();
-  });
-  document.getElementById('hidSw').addEventListener('change', function(){ st.hid = this.checked; render(); });
-  window.epSettingsApply = function(k, v){ PREFS[k] = v; if(k === 'av'){ st.av = v !== false; render(); } };
   function loadPlayers(){
-    fetch('data/players.json', {cache: 'no-cache'}).then(function(r){ return r.ok ? r.json() : Promise.reject(); }).then(function(j){
+    return fetch('data/players.json', {cache: 'no-cache'}).then(function(r){ return r.ok ? r.json() : Promise.reject(); }).then(function(j){
       D = j; D.alliances = D.alliances || {}; D.players = D.players || {}; CUR = {};
       Object.keys(D.alliances).forEach(function(t){ (D.alliances[t].m || []).forEach(function(id){ CUR[id] = t; }); });
       render();
     }).catch(function(){});
   }
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) loadPlayers(); });
-  render(); loadPlayers();
+
+  // ---------- table ----------
+  var TAG_GOLD = {bg:'#f2b705', fg:'#2a1b00', bd:'#f2b705'}, TAG_RED = {bg:'#b8283a', fg:'#ffffff', bd:'#b8283a'};
+  var TAG_COLORS = {BLP: TAG_RED, OSM: TAG_RED, osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'}, AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'}, TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'}, TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, PKB: TAG_GOLD, GYN: TAG_GOLD};
+  function pinfo(p){ return (D && p.pid && D.players[p.pid]) || null; }
+  function tagOf(p){ var inf = pinfo(p); return (inf && (CUR[p.pid] || inf.a)) || p.tag || ''; }
+  function tagChip(tag){
+    var c = TAG_COLORS[tag] || {bg:'#3a4357', fg:'#dfe6f2', bd:'#4d5873'};
+    return '<span class="tag tag-c" style="background:' + c.bg + ';color:' + c.fg + ';border-color:' + c.bd + '">' + esc(tag) + '</span>';
+  }
+  function avatar(p){
+    var inf = pinfo(p), ph = '<span class="av ph" aria-hidden="true">' + esc((Array.from(p.name)[0] || '?').toUpperCase()) + '</span>';
+    if(inf && inf.au) return '<img class="av" src="avatars/' + esc(p.pid) + '.webp" alt="" onerror="this.outerHTML=this.getAttribute(\'data-ph\')" data-ph="' + esc(ph) + '">';
+    return ph;
+  }
+  window.__rlErr = function(img){
+    if(img.dataset.t !== '1' && /\.webp$/.test(img.src)){ img.dataset.t = '1'; img.src = img.src.replace(/\.webp$/, '.png'); return; }
+    img.style.visibility = 'hidden';
+  };
+  var EDIT_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+  var ed = function(){ return st.role === 'admin' || st.role === 'super'; };
+
+  function head(){
+    var h = '<thead><tr class="rl-r1"><th class="rl-l rl-ph"></th>';
+    P.forEach(function(p){
+      var tag = tagOf(p);
+      h += '<th class="rl-ph rl-v">' + (ed() ? '<button type="button" class="rl-ed" data-e="' + esc(p.rid) + '" title="Edit ' + esc(p.name) + '" aria-label="Edit ' + esc(p.name) + '">' + EDIT_SVG + '</button>' : '') +
+        (st.av || tag ? '<div class="rl-pc">' + (st.av ? avatar(p) : '') + (tag ? tagChip(tag) : '') + '</div>' : '') + '</th>';
+    });
+    h += '</tr><tr class="rl-r2 rl-n"><th class="rl-l"></th>';
+    P.forEach(function(p){ h += '<th class="rl-nm rl-v">' + esc(p.name) + '</th>'; });
+    h += '</tr><tr class="rl-pw"><th class="rl-l">Power</th>';
+    P.forEach(function(p){ var inf = pinfo(p); h += '<th class="rl-v">' + (inf && inf.p != null ? Number(inf.p).toLocaleString('en-US') : '–') + '</th>'; });
+    return h + '</tr></thead>';
+  }
+  function row(label, fn, cls, raw){
+    var h = '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td class="rl-l">' + (raw ? label : esc(label)) + '</td>';
+    P.forEach(function(p){ h += '<td class="rl-v">' + fn(p) + '</td>'; });
+    return h + '</tr>';
+  }
+  function sp(){ return '<tr class="rl-sp"><td class="rl-l"></td>' + P.map(function(){ return '<td></td>'; }).join('') + '</tr>'; }
+  function toggle(key, text){
+    var o = st.open[key];
+    return '<tr class="rl-tg"><td class="rl-l"><button type="button" class="rl-tgb" data-k="' + key + '" aria-expanded="' + o + '"><span class="rl-car">▶</span><span>' + (o ? 'hide' : 'show') + ' ' + text + '</span></button></td>' + P.map(function(){ return '<td></td>'; }).join('') + '</tr>';
+  }
+  function pc(v){ return has(v) ? pct(v) : ''; }
+  function pcs(v){ return v == null ? '–' : pct(v); }
+  function stars(v){
+    if(!has(v)) return '';
+    if(String(v).toLowerCase() !== 'yes') return '<span class="rl-no" title="No 4-star hero">no</span>';
+    return '<span class="rl-stars" title="4 stars">' + ('<img src="' + STAR + '" alt="">').repeat(4) + '</span>';
+  }
+  function heroLabel(n, cls){
+    return '<span class="rl-hl"><img class="rl-hi" src="heroes/' + esc(slug(n)) + '.webp" alt="" onerror="__rlErr(this)"><span>' + esc(n) + ' (' + esc(cls) + ') 4 Star</span></span>';
+  }
+
+  function table(){
+    var h = '<table class="rl">' + head() + '<tbody>';
+    h += row('Date Info Collected', function(p){ return p.date ? dstr(p.date) : ''; });
+    h += toggle('stats', 'detailed stats');
+    if(st.open.stats) STATS.forEach(function(n, i){ h += row(n, function(p){ return pc(p.stats[i]); }); });
+    h += row('sum all stats', function(p){ return pcs(p.sAll); }, 'rl-sum');
+    h += row('sum 60/40 stats', function(p){ return pcs(p.s6040); }, 'rl-sum');
+    h += row('sum 50/0/50 stats', function(p){ return pcs(p.s5050); }, 'rl-sum');
+    h += sp();
+    h += toggle('pets', 'detailed stats (Pets)');
+    if(st.open.pets) STATS.forEach(function(n, i){ h += row(n + ' (Pets)', function(p){ return pc(p.pets[i]); }); });
+    h += row('sum all stats (Pets)', function(p){ return pcs(p.pAll); }, 'rl-sum');
+    h += row('sum 60/40 (Pets)', function(p){ return pcs(p.p6040); }, 'rl-sum');
+    h += row('sum 50/0/50 stats (Pets)', function(p){ return pcs(p.p5050); }, 'rl-sum');
+    h += sp();
+    HEROES.forEach(function(x, i){ h += row(heroLabel(x[0], x[1]), function(p){ return stars(p.stars[i]); }, 'rl-hero', true); });
+    h += sp();
+    h += row('Unbuffed march size', function(p){ return has(p.march) ? num(p.march) : ''; });
+    h += row('Unbuffed cap size', function(p){ return has(p.cap) ? num(p.cap) : ''; });
+    h += row('Valeria Crushing Force Level', function(p){ return has(p.val) ? num(p.val) : ''; });
+    h += row('SVS cap size', function(p){ return p.svs == null ? '–' : Math.round(p.svs).toLocaleString('en-US'); }, 'rl-sum');
+    h += sp();
+    [['T12 Infantry',0],['T12 Lancers',1],['T12 Marksmen',2]].forEach(function(x){ h += row(x[0], function(p){ return has(p.t12[x[1]]) ? esc(p.t12[x[1]]) : ''; }); });
+    [['T12 Infantry Skill - Indomitable Wall',0],['T12 Lancer Skill - Meridian Phalanx',1],['T12 Marksmen Skill - Starfire',2]].forEach(function(x){ h += row(x[0], function(p){ return has(p.skills[x[1]]) ? esc(p.skills[x[1]]) : ''; }); });
+    return h + '</tbody></table>';
+  }
+
+  function render(){
+    var w = $('wrap'), kx = w.scrollLeft, ky = w.scrollTop;
+    if(!P.length){
+      w.innerHTML = '<div class="rl-empty">' + (loaded ? 'No players yet. Use “Add” to create the first one.' : 'Loading …') + '</div>';
+    } else {
+      w.innerHTML = table();
+      var hr = w.querySelectorAll('thead tr');
+      if(hr[0]) w.style.setProperty('--h1', hr[0].offsetHeight + 'px');
+      if(hr[1]) w.style.setProperty('--hh', (hr[0].offsetHeight + hr[1].offsetHeight) + 'px');
+    }
+    w.scrollLeft = kx; w.scrollTop = ky;
+    $('note').innerHTML = 'Pets add +10 % to every stat. SVS cap size = march size × 0.2 + 15,000 + 150,000 + Valeria level × 7,500 + cap size.' + (MOCK ? ' <b>Test mode: changes are not saved.</b>' : '');
+    $('who').innerHTML = st.role ? esc(st.uname || st.role) + ' · <button type="button" class="rl-link" id="lout">Log out</button>' : '<button type="button" class="rl-link" id="lin">Log in</button>';
+  }
+
+  // ---------- modal helpers ----------
+  function openModal(html, cls, mount){
+    var m = $('rlModal'); m.innerHTML = '<div class="modal-panel ' + (cls || '') + '">' + html + '</div>'; m.classList.add('open'); if(mount) mount(m);
+  }
+  function closeModal(){ var m = $('rlModal'); m.classList.remove('open'); m.innerHTML = ''; }
+  $('rlModal').addEventListener('mousedown', function(e){ if(e.target === this) closeModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && $('rlModal').classList.contains('open')) closeModal(); });
+  $('rlModal').addEventListener('click', function(e){ if(e.target.closest('[data-close]')) closeModal(); });
+  function mh(t){ return '<div class="modal-header"><h2>' + t + '</h2><button type="button" class="modal-close" data-close aria-label="Close">×</button></div>'; }
+
+  // ---------- login (same personal link as the Event Planner) ----------
+  function setLogin(res, code){
+    if(res){ st.role = res.role; st.uname = res.name || ''; st.code = code; try { localStorage.setItem('ep_code', code); } catch(e) {} }
+    else { st.role = null; st.uname = ''; st.code = ''; try { localStorage.removeItem('ep_code'); } catch(e) {} }
+  }
+  function loginDialog(then){
+    openModal(mh('Log in') + '<div class="rl-fb"><div class="field"><label for="lc">Your personal link or code</label><input type="password" id="lc" autocomplete="off" placeholder="Paste your invitation link"></div><div class="rl-acts"><button type="button" class="btn" id="lgo">Log in</button></div></div>', 'rl-sm', function(){
+      function go(){
+        var c = $('lc').value.trim(), mm = c.match(/invite=([^&\s#]+)/); if(mm) c = decodeURIComponent(mm[1]);
+        api.login(c).then(function(r){
+          if(!r){ toast('This code is not valid.'); return; }
+          setLogin(r, c); closeModal(); render();
+          if(!ed()){ toast('This account may not edit Rally Leads (admin needed).'); return; }
+          if(then) then();
+        }).catch(function(e){ toast(e.message); });
+      }
+      $('lgo').addEventListener('click', go); $('lc').addEventListener('keydown', function(e){ if(e.key === 'Enter') go(); }); $('lc').focus();
+    });
+  }
+
+  // ---------- edit / add dialog ----------
+  function fmtIn(v){ return has(v) ? (v * 100).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 3}) : ''; }
+  function parseUS(s){ s = String(s == null ? '' : s).replace(/[,%\s]/g, ''); if(s === '') return null; var n = Number(s); return isFinite(n) ? n : NaN; }
+  function fmtPow(n){ return n >= 1e9 ? (n / 1e9).toFixed(2) + ' B' : (n / 1e6).toFixed(0) + ' M'; }
+  function sel(id, opts, cur){
+    return '<select id="' + id + '">' + opts.map(function(o){ var v = Array.isArray(o) ? o[0] : o, t = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '"' + (String(cur == null ? '' : cur) === String(v) ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') + '</select>';
+  }
+  function allianceTags(){
+    var t = D ? Object.keys(D.alliances) : [];
+    return t.sort(function(a, b){ var pa = a === 'PKB' ? 0 : a === 'GYN' ? 1 : 2, pb = b === 'PKB' ? 0 : b === 'GYN' ? 1 : 2; return pa - pb || a.toLowerCase().localeCompare(b.toLowerCase()) || a.localeCompare(b); });
+  }
+  function memberOpts(tag, cur){
+    if(!D || !D.alliances[tag]) return '<option value="">–</option>';
+    var ids = (D.alliances[tag].m || []).filter(function(id){ return D.players[id]; }).sort(function(a, b){ return (D.players[b].p || 0) - (D.players[a].p || 0); });
+    return '<option value="">– choose player –</option>' + ids.map(function(id){ var p = D.players[id]; return '<option value="' + esc(id) + '"' + (id === cur ? ' selected' : '') + '>' + esc(clean(p.n)) + '  ·  ' + fmtPow(p.p || 0) + '</option>'; }).join('');
+  }
+
+  function editDialog(rid){
+    var p = rid ? P.filter(function(x){ return x.rid === rid; })[0] : null;
+    if(rid && !p) return;
+    var gameOk = !!D, curTag = p ? tagOf(p) : (D && D.alliances.PKB ? 'PKB' : (allianceTags()[0] || ''));
+    var mode = (p && !(p.pid && D && D.players[p.pid])) ? 'hand' : (gameOk ? 'game' : 'hand');
+    var today = new Date(), ds = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
+    var yn = ['', 'yes', 'no'], sk = ['', '0', '1', '2', '3'];
+    var h = mh(p ? 'Edit ' + esc(p.name) : 'Add player') + '<div class="rl-fb">';
+    h += '<div class="rl-h">Player</div><div class="seg rl-mode" id="emode"><button type="button" data-m="game"' + (mode === 'game' ? ' class="active"' : '') + (gameOk ? '' : ' disabled') + '>From game data</button><button type="button" data-m="hand"' + (mode === 'hand' ? ' class="active"' : '') + '>Enter by hand</button></div>';
+    h += '<div class="rl-grid2" id="egame"><div class="field"><label for="eal">Alliance</label>' + (gameOk ? '<select id="eal">' + allianceTags().map(function(t){ return '<option' + (t === curTag ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') + '</select>' : '<select id="eal"></select>') + '</div><div class="field"><label for="epl">Player</label><select id="epl">' + (gameOk ? memberOpts(curTag, p && p.pid) : '<option value="">–</option>') + '</select></div></div>';
+    h += '<div class="rl-grid2" id="ehand"><div class="field"><label for="enm">Name</label><input type="text" id="enm" maxlength="60" value="' + esc(p ? p.name : '') + '"></div><div class="field"><label for="etg">Alliance</label><input type="text" id="etg" maxlength="12" value="' + esc(p ? (p.tag || curTag) : '') + '"></div><div class="field"><label for="eid">Public ID <span>(optional – for avatar and power)</span></label><input type="text" id="eid" inputmode="numeric" value="' + esc(p && p.pid ? p.pid : '') + '"></div></div>';
+    h += '<div class="rl-h">Stats <span>(as shown in the game, e.g. 3,216.00)</span></div><div class="rl-grid2"><div class="field"><label for="edt">Date info collected</label><input type="date" id="edt" value="' + esc(p && p.date ? p.date : ds) + '"></div></div><div class="rl-grid4">';
+    STATS.forEach(function(n, i){ h += '<div class="field"><label for="es' + i + '">' + n + '</label><input type="text" id="es' + i + '" inputmode="decimal" autocomplete="off" value="' + esc(p ? fmtIn(p.stats[i]) : '') + '"></div>'; });
+    h += '</div><div class="rl-h">Heroes (4 stars)</div><div class="rl-grid3">';
+    HEROES.forEach(function(x, i){ h += '<div class="field"><label for="eh' + i + '">' + x[0] + ' (' + x[1] + ')</label>' + sel('eh' + i, yn, p && p.stars[i]) + '</div>'; });
+    h += '</div><div class="rl-h">Sizes</div><div class="rl-grid3"><div class="field"><label for="em">Unbuffed march size</label><input type="text" id="em" inputmode="numeric" value="' + esc(p && has(p.march) ? p.march.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ec">Unbuffed cap size</label><input type="text" id="ec" inputmode="numeric" value="' + esc(p && has(p.cap) ? p.cap.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ev">Valeria Crushing Force level</label><input type="text" id="ev" inputmode="numeric" value="' + esc(p && has(p.val) ? p.val : '') + '"></div></div>';
+    h += '<div class="rl-h">T12</div><div class="rl-grid3">';
+    ['Infantry', 'Lancers', 'Marksmen'].forEach(function(n, i){ h += '<div class="field"><label for="et' + i + '">T12 ' + n + '</label>' + sel('et' + i, yn, p && p.t12[i]) + '</div>'; });
+    ['Indomitable Wall', 'Meridian Phalanx', 'Starfire'].forEach(function(n, i){ h += '<div class="field"><label for="ek' + i + '">Skill – ' + n + '</label>' + sel('ek' + i, sk, p && p.skills[i]) + '</div>'; });
+    h += '</div><div class="rl-acts">' + (p ? '<button type="button" class="btn danger" id="edel">Delete</button>' : '') + '<span class="rl-sp1"></span><button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn" id="esv">Save</button></div></div>';
+    openModal(h, 'rl-ep', function(m){
+      var cur = mode;
+      function showMode(){ $('egame').style.display = cur === 'game' ? '' : 'none'; $('ehand').style.display = cur === 'hand' ? '' : 'none'; Array.prototype.forEach.call($('emode').querySelectorAll('button'), function(b){ b.classList.toggle('active', b.getAttribute('data-m') === cur); }); }
+      showMode();
+      $('emode').addEventListener('click', function(e){ var b = e.target.closest('button[data-m]'); if(!b || b.disabled) return; cur = b.getAttribute('data-m'); showMode(); });
+      if($('eal')) $('eal').addEventListener('change', function(){ $('epl').innerHTML = memberOpts(this.value, null); });
+      $('esv').addEventListener('click', function(){
+        var pid = null, name = '', tag = '';
+        if(cur === 'game'){
+          pid = $('epl').value; if(!pid){ toast('Please choose a player.'); return; }
+          name = clean(D.players[pid].n); tag = $('eal').value;
+        } else {
+          name = $('enm').value.trim(); tag = $('etg').value.trim(); pid = $('eid').value.trim() || null;
+          if(!name){ toast('Please enter a name.'); return; }
+          if(pid && !/^\d{1,20}$/.test(pid)){ toast('The public ID must be a number.'); return; }
+        }
+        var stats = [], bad = null;
+        STATS.forEach(function(n, i){ var v = parseUS($('es' + i).value); if(v !== null && isNaN(v)) bad = n; stats.push(v === null || isNaN(v) ? null : Math.round(v * 10000) / 1000000); });
+        if(bad){ toast('“' + bad + '” is not a number.'); return; }
+        function intF(id, label){ var v = parseUS($(id).value); if(v !== null && (isNaN(v) || v < 0)){ bad = label; return null; } return v; }
+        var march = intF('em', 'march size'), cap = intF('ec', 'cap size'), val = intF('ev', 'Valeria level');
+        if(bad){ toast('“' + bad + '” is not a valid number.'); return; }
+        function pick(prefix, n, asNum){ var a = []; for(var i = 0; i < n; i++){ var v = $(prefix + i).value; a.push(v === '' ? null : (asNum ? Number(v) : v)); } return a; }
+        var data = {date: $('edt').value || null, stats: stats, stars: pick('eh', 3), march: march, cap: cap, val: val, t12: pick('et', 3), skills: pick('ek', 3, true)};
+        $('esv').disabled = true;
+        api.save({p_code: st.code, p_id: p ? p.rid : null, p_pid: pid, p_name: name, p_tag: tag || null, p_data: data}).then(function(){ closeModal(); toast(MOCK ? 'Saved (test mode, not stored).' : 'Saved.', true); return loadRows(); }).catch(function(e){
+          $('esv').disabled = false; toast(e.message);
+          if(/Not allowed/i.test(e.message)){ setLogin(null); render(); }
+        });
+      });
+      if($('edel')){
+        var armed = false, t = null;
+        $('edel').addEventListener('click', function(){
+          if(!armed){ armed = true; this.textContent = 'Really delete?'; t = setTimeout(function(){ armed = false; $('edel').textContent = 'Delete'; }, 4000); return; }
+          clearTimeout(t);
+          api.del({p_code: st.code, p_id: p.rid}).then(function(){ closeModal(); toast('Deleted.', true); return loadRows(); }).catch(function(e){ toast(e.message); });
+        });
+      }
+    });
+  }
+
+  // ---------- events ----------
+  $('wrap').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-k]');
+    if(b){
+      var k = b.getAttribute('data-k'); st.open[k] = !st.open[k];
+      try { localStorage.setItem('rl646_open', JSON.stringify(st.open)); } catch(e2) {}
+      render(); var nb = document.querySelector('button[data-k="' + k + '"]'); if(nb) nb.focus(); return;
+    }
+    var eb = e.target.closest('button[data-e]'); if(eb) editDialog(eb.getAttribute('data-e'));
+  });
+  $('addBtn').addEventListener('click', function(){ if(ed()) editDialog(null); else loginDialog(function(){ editDialog(null); }); });
+  $('who').addEventListener('click', function(e){
+    if(e.target.id === 'lin') loginDialog();
+    if(e.target.id === 'lout'){ setLogin(null); render(); }
+  });
+  window.epSettingsApply = function(k, v){ PREFS[k] = v; if(k === 'av'){ st.av = v !== false; render(); } };
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden && !$('rlModal').classList.contains('open')){ loadPlayers(); loadRows(); } });
+
+  // ---------- start ----------
+  render();
+  var saved = null; try { saved = localStorage.getItem('ep_code'); } catch(e) {}
+  var lp = saved ? api.login(saved).then(function(r){ if(r) setLogin(r, saved); else setLogin(null); }).catch(function(){}) : Promise.resolve();
+  lp.then(function(){ render(); });
+  loadRows(); loadPlayers();
 })();
 </script>
 <script>
