@@ -987,13 +987,13 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl5</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-24 · rl6</footer>
 </div>
 <div id="toast"></div>
 <div class="modal-overlay" id="rlModal" role="dialog" aria-modal="true"></div>
 <script src="eventplan-config.js"></script>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
-<script type="application/json" id="rl-seed">[{"pid": "93508262", "name": "Zerethusta", "tag": "PKB", "data": {"date": "2026-07-23", "stats": [32.16, 32.231, 25.436, 25.322, 32.1, 32.181, 25.376, 25.272, 32.1, 32.181, 25.376, 25.272], "stars": ["yes", "yes", "yes"], "march": 216310, "cap": 1508810, "val": 20, "t12": ["yes", "yes", "yes"], "skills": [3, 3, 3]}}]</script>
+<script type="application/json" id="rl-seed">[{"pid": "93508262", "name": "Zerethusta", "tag": "PKB", "data": {"date": "2026-07-23", "stats": [32.16, 32.231, 25.436, 25.322, 32.1, 32.181, 25.376, 25.272, 32.1, 32.181, 25.376, 25.272], "stars": [4, 4, 4], "march": 216310, "cap": 1508810, "val": 20, "t12": ["yes", "yes", "yes"], "skills": [3, 3, 3]}}]</script>
 <script>
 (function(){
   'use strict';
@@ -1148,13 +1148,17 @@
   }
   function pc(v){ return has(v) ? pct(v) : ''; }
   function pcs(v){ return v == null ? '–' : pct(v); }
+  function starN(v){   // star level 1-5; older entries used yes (= 4 stars) / no
+    if(!has(v)) return null;
+    var s = String(v).toLowerCase(); if(s === 'yes') return 4; if(s === 'no') return null;
+    var n = Math.round(Number(s)); return n >= 1 && n <= 5 ? n : null;
+  }
   function stars(v){
-    if(!has(v)) return '';
-    if(String(v).toLowerCase() !== 'yes') return '<span class="rl-no" title="No 4-star hero">no</span>';
-    return '<span class="rl-stars" title="4 stars">' + ('<img src="' + STAR + '" alt="">').repeat(4) + '</span>';
+    var n = starN(v); if(!n) return '';
+    return '<span class="rl-stars" title="' + n + (n === 1 ? ' star' : ' stars') + '">' + ('<img src="' + STAR + '" alt="">').repeat(n) + '</span>';
   }
   function heroLabel(n, cls){
-    return '<span class="rl-hl"><img class="rl-hi" src="heroes/' + esc(slug(n)) + '.webp" alt="" onerror="__rlErr(this)"><span>' + esc(n) + ' (' + esc(cls) + ') 4 Star</span></span>';
+    return '<span class="rl-hl"><img class="rl-hi" src="heroes/' + esc(slug(n)) + '.webp" alt="" onerror="__rlErr(this)"><span>' + esc(n) + '</span></span>';
   }
 
   function table(){
@@ -1252,15 +1256,15 @@
     var gameOk = !!D, curTag = p ? tagOf(p) : (D && D.alliances.PKB ? 'PKB' : (allianceTags()[0] || ''));
     var mode = (p && !(p.pid && D && D.players[p.pid])) ? 'hand' : (gameOk ? 'game' : 'hand');
     var today = new Date(), ds = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2);
-    var yn = ['', 'yes', 'no'], sk = ['', '0', '1', '2', '3'];
+    var yn = ['', 'yes', 'no'], sl = ['', '1', '2', '3', '4', '5'], sk = ['', '0', '1', '2', '3'];
     var h = mh(p ? 'Edit ' + esc(p.name) : 'Add player') + '<div class="rl-fb">';
     h += '<div class="rl-h">Player</div><div class="seg rl-mode" id="emode"><button type="button" data-m="game"' + (mode === 'game' ? ' class="active"' : '') + (gameOk ? '' : ' disabled') + '>From game data</button><button type="button" data-m="hand"' + (mode === 'hand' ? ' class="active"' : '') + '>Enter by hand</button></div>';
     h += '<div class="rl-grid2" id="egame"><div class="field"><label for="eal">Alliance</label>' + (gameOk ? '<select id="eal">' + allianceTags().map(function(t){ return '<option' + (t === curTag ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') + '</select>' : '<select id="eal"></select>') + '</div><div class="field"><label for="epl">Player</label><select id="epl">' + (gameOk ? memberOpts(curTag, p && p.pid) : '<option value="">–</option>') + '</select></div></div>';
     h += '<div class="rl-grid2" id="ehand"><div class="field"><label for="enm">Name</label><input type="text" id="enm" maxlength="60" value="' + esc(p ? p.name : '') + '"></div><div class="field"><label for="etg">Alliance</label><input type="text" id="etg" maxlength="12" value="' + esc(p ? (p.tag || curTag) : '') + '"></div><div class="field"><label for="eid">Public ID <span>(optional – for avatar and power)</span></label><input type="text" id="eid" inputmode="numeric" value="' + esc(p && p.pid ? p.pid : '') + '"></div></div>';
     h += '<div class="rl-h">Stats <span>(as shown in the game, e.g. 3,216.00)</span></div><div class="rl-grid2"><div class="field"><label for="edt">Date info collected</label><input type="date" id="edt" value="' + esc(p && p.date ? p.date : ds) + '"></div></div><div class="rl-grid4">';
     STATS.forEach(function(n, i){ h += '<div class="field"><label for="es' + i + '">' + n + '</label><input type="text" id="es' + i + '" inputmode="decimal" autocomplete="off" value="' + esc(p ? fmtIn(p.stats[i]) : '') + '"></div>'; });
-    h += '</div><div class="rl-h">Heroes (4 stars)</div><div class="rl-grid3">';
-    HEROES.forEach(function(x, i){ h += '<div class="field"><label for="eh' + i + '">' + x[0] + ' (' + x[1] + ')</label>' + sel('eh' + i, yn, p && p.stars[i]) + '</div>'; });
+    h += '</div><div class="rl-h">Heroes <span>(star level)</span></div><div class="rl-grid3">';
+    HEROES.forEach(function(x, i){ h += '<div class="field"><label for="eh' + i + '">' + x[0] + ' (' + x[1] + ')</label>' + sel('eh' + i, sl, p && starN(p.stars[i])) + '</div>'; });
     h += '</div><div class="rl-h">Sizes</div><div class="rl-grid3"><div class="field"><label for="em">Unbuffed march size</label><input type="text" id="em" inputmode="numeric" value="' + esc(p && has(p.march) ? p.march.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ec">Unbuffed cap size</label><input type="text" id="ec" inputmode="numeric" value="' + esc(p && has(p.cap) ? p.cap.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ev">Valeria Crushing Force level</label><input type="text" id="ev" inputmode="numeric" value="' + esc(p && has(p.val) ? p.val : '') + '"></div></div>';
     h += '<div class="rl-h">T12</div><div class="rl-grid3">';
     ['Infantry', 'Lancers', 'Marksmen'].forEach(function(n, i){ h += '<div class="field"><label for="et' + i + '">T12 ' + n + '</label>' + sel('et' + i, yn, p && p.t12[i]) + '</div>'; });
@@ -1289,7 +1293,7 @@
         var march = intF('em', 'march size'), cap = intF('ec', 'cap size'), val = intF('ev', 'Valeria level');
         if(bad){ toast('“' + bad + '” is not a valid number.'); return; }
         function pick(prefix, n, asNum){ var a = []; for(var i = 0; i < n; i++){ var v = $(prefix + i).value; a.push(v === '' ? null : (asNum ? Number(v) : v)); } return a; }
-        var data = {date: $('edt').value || null, stats: stats, stars: pick('eh', 3), march: march, cap: cap, val: val, t12: pick('et', 3), skills: pick('ek', 3, true)};
+        var data = {date: $('edt').value || null, stats: stats, stars: pick('eh', 3, true), march: march, cap: cap, val: val, t12: pick('et', 3), skills: pick('ek', 3, true)};
         $('esv').disabled = true;
         api.save({p_code: st.code, p_id: p ? p.rid : null, p_pid: pid, p_name: name, p_tag: tag || null, p_data: data}).then(function(){ closeModal(); toast(MOCK ? 'Saved (test mode, not stored).' : 'Saved.', true); return loadRows(); }).catch(function(e){
           $('esv').disabled = false; toast(e.message);
