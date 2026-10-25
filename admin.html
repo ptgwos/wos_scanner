@@ -1051,18 +1051,11 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a3</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a2</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
 <script src="nav-access.js" defer></script>
-<script>
-(function(){
-  function show(m){ var a = document.getElementById('adm'); if(a) a.innerHTML = '<div class="rl-empty">Fehler: ' + String(m).replace(/</g, '&lt;') + '</div>'; }
-  window.addEventListener('error', function(e){ show((e.message || 'Script error') + ' (' + String(e.filename || '').split('/').pop() + ':' + e.lineno + ')'); });
-  window.addEventListener('unhandledrejection', function(e){ show((e.reason && e.reason.message) || e.reason); });
-})();
-</script>
 <script>
 (function(){
   'use strict';
@@ -1084,8 +1077,7 @@
     }
     var H = {apikey: CFG.key, 'Content-Type': 'application/json'}; if(/^eyJ/.test(CFG.key)) H.Authorization = 'Bearer ' + CFG.key;
     function rpc(fn, args){
-      var ac = window.AbortController ? new AbortController() : null, tm = setTimeout(function(){ if(ac) ac.abort(); }, 15000);
-      return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/rpc/' + fn, {method: 'POST', headers: H, body: JSON.stringify(args), cache: 'no-store', signal: ac ? ac.signal : undefined}).then(function(r){ clearTimeout(tm);
+      return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/rpc/' + fn, {method: 'POST', headers: H, body: JSON.stringify(args), cache: 'no-store'}).then(function(r){
         return r.text().then(function(t){ var j = null; try { j = t ? JSON.parse(t) : null; } catch(e) {} if(!r.ok) throw new Error((j && (j.message || j.hint)) || ('HTTP ' + r.status)); return j; });
       });
     }
@@ -1106,8 +1098,7 @@
     load();
   }
   function load(){
-    $('adm').innerHTML = '<div class="rl-empty">Lade Benutzerliste …</div>';
-    api.list(st.code).then(function(u){ if(!Array.isArray(u)) throw new Error('Unerwartete Antwort von sa_list: ' + JSON.stringify(u).slice(0, 200)); st.users = u; draw(); }).catch(function(e){ gate(esc(e.message), false); });
+    api.list(st.code).then(function(u){ st.users = u; draw(); }).catch(function(e){ gate(esc(e.message), false); });
   }
   var RN = {super: 'Super admin', admin: 'Admin', editor: 'Editor'};
   function draw(){
@@ -1138,7 +1129,7 @@
 
   var saved = null; try { saved = localStorage.getItem('ep_code'); } catch(e) {}
   if(!saved) gate('Diese Seite ist nur für den Super-Admin. Bitte melde dich an.', true);
-  else { $('adm').innerHTML = '<div class="rl-empty">Prüfe Anmeldung …</div>'; api.me(saved).then(function(r){ if(!r) gate('Diese Seite ist nur für den Super-Admin. Bitte melde dich an.', true); else enter(r, saved); }).catch(function(e){ gate('Keine Verbindung: ' + esc(e.message), false); }); }
+  else api.me(saved).then(function(r){ if(!r) gate('Diese Seite ist nur für den Super-Admin. Bitte melde dich an.', true); else enter(r, saved); }).catch(function(e){ gate('Keine Verbindung: ' + esc(e.message), false); });
 })();
 </script>
 <script>
