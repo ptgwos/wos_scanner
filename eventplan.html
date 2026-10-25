@@ -958,6 +958,7 @@
   .fl.pb{color:var(--gold);border-color:var(--gold);}
   .fl.b20{color:var(--ice);border-color:var(--ice);}
   .fl.g{color:var(--good);border-color:var(--good);}
+  .fl.heal{display:inline-flex;align-items:center;justify-content:center;background:#fff;border-color:#c5cad3;padding:1px 3px;}
   .st{flex:none;display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;font-size:12px;font-weight:800;}
   .st.ok{background:rgba(52,199,89,.18);color:var(--good);border:1px solid var(--good);}
   .st.man{background:rgba(52,199,89,.10);color:var(--good);border:1px dashed var(--good);}
@@ -1099,7 +1100,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-22 · p28</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-25 · p29</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1194,7 +1195,7 @@
       ev_entry_save: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid);
         const evn = db.events.find(x => x.id === a.p_event); a = Object.assign({}, a, {p_alliance: (evn && evn.home_snap && evn.home_snap[String(a.p_pid)]) || a.p_alliance});
         if(w.role === 'editor' && (!w.alliances.includes(a.p_alliance) || (o && !w.alliances.includes(o.alliance)))) throw new Error('You may only edit players of your own alliances (' + w.alliances.join(', ') + ')');
-        const v = {name: a.p_name, power: a.p_power, hours: a.p_hours, pb: a.p_pb, b20: a.p_b20, gather: a.p_gather, rl: !!a.p_rl};
+        const v = {name: a.p_name, power: a.p_power, hours: a.p_hours, pb: a.p_pb, b20: a.p_b20, gather: a.p_gather, rl: !!a.p_rl, heal: !!a.p_heal};
         if(o) Object.assign(o, v); else db.entries.push(Object.assign({event_id: a.p_event, pid: a.p_pid, team_id: null, joined: false, alliance: a.p_alliance, snap_alliance: ''}, v)); },
       ev_entry_delete: a => { const w = need(a.p_code, false); open(a.p_event); const o = find(a.p_event, a.p_pid); if(!o) return;
         if(w.role === 'editor' && !w.alliances.includes(o.alliance)) throw new Error('You may only edit players of your own alliances (' + w.alliances.join(', ') + ')');
@@ -1243,7 +1244,7 @@
   }
   function strip(h){ let s = ''; for(let i = 0; i < slotsOf(); i++) s += `<i class="${(h >> i) & 1 ? 'on' : ''}" title="${slotLabel(i)}"></i>`; return `<span class="hs">${s}</span>`; }
   const BASKET = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 11H5L3 9z"/><path d="M8 9l4-6 4 6"/><path d="M10 13v4M14 13v4"/></svg>';
-  function flags(e){ const h = (e.rl ? '<span class="fl rl" title="Rally leader">RL</span>' : '') + (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? `<span class="fl g" title="Gatherer (helps with loot)">${BASKET}</span>` : ''); return h ? `<span class="fls">${h}</span>` : ''; }
+  function flags(e){ const h = (e.rl ? '<span class="fl rl" title="Rally leader">RL</span>' : '') + (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? `<span class="fl g" title="Gatherer (helps with loot)">${BASKET}</span>` : '') + (e.heal ? '<span class="fl heal" title="Auto heal"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#e11d2e"/></svg></span>' : ''); return h ? `<span class="fls">${h}</span>` : ''; }
   function status(e, team){
     if(!team || !team.target) return '';
     const i = pinfo(e);
@@ -1547,17 +1548,18 @@
     const t = e.target.closest('.tile'); if(!t || !canW()) return;
     const pid = t.dataset.pid; const cur = () => S.entries.find(x => String(x.pid) === pid);
     const o0 = cur(); if(!o0 || !(adm() || mayEd(o0.alliance))) return; const i = pinfo(o0); const n = slotsOf();
-    const edit = `<div class="field"><label>Availability (saved immediately)</label><div class="ed-h">${Array.from({length: n}, (_, k) => `<label class="ed-c"><input type="checkbox" data-eh="${k}"${(o0.hours >> k) & 1 ? ' checked' : ''}> ${slotLabel(k)}</label>`).join('')}</div>
-      <div class="ed-h" style="margin-top:6px"><label class="ed-c"><input type="checkbox" data-ef="pb"${o0.pb ? ' checked' : ''}> PB</label><label class="ed-c"><input type="checkbox" data-ef="b20"${o0.b20 ? ' checked' : ''}> 20%</label><label class="ed-c"><input type="checkbox" data-ef="gather"${o0.gather ? ' checked' : ''}> ${BASKET} Gatherer</label><label class="ed-c"><input type="checkbox" data-ef="rl"${o0.rl ? ' checked' : ''}> RL (rally leader)</label><button type="button" class="lnk" id="eall">all hours</button></div></div>`;
+    const edit = `<div class="field"><label>Availability (saved immediately)</label><div class="ed-h">${Array.from({length: n}, (_, k) => `<label class="ed-c"><input type="checkbox" data-eh="${k}"${(o0.hours >> k) & 1 ? ' checked' : ''}> ${slotLabel(k)}</label>`).join('')}<label class="ed-c"><input type="checkbox" id="eallc"${o0.hours === (1 << n) - 1 ? ' checked' : ''}> ALL</label></div>
+      <div class="ed-h" style="margin-top:6px"><label class="ed-c"><input type="checkbox" data-ef="pb"${o0.pb ? ' checked' : ''}> PB</label><label class="ed-c"><input type="checkbox" data-ef="b20"${o0.b20 ? ' checked' : ''}> 20%</label><label class="ed-c"><input type="checkbox" data-ef="gather"${o0.gather ? ' checked' : ''}> ${BASKET} Gatherer</label><label class="ed-c"><input type="checkbox" data-ef="rl"${o0.rl ? ' checked' : ''}> RL (rally leader)</label><label class="ed-c"><input type="checkbox" data-ef="heal"${o0.heal ? ' checked' : ''}> Auto heal</label></div></div>`;
     const adminPart = adm() ? `<div class="field"><label for="hm">Registered from (home alliance)</label><select id="hm">${Array.from(new Set(TAGS.concat([o0.alliance]))).filter(Boolean).map(x => `<option value="${escapeHtml(x)}"${x === o0.alliance ? ' selected' : ''}>${escapeHtml(x)}</option>`).join('')}</select></div>
       <div class="mv">${S.teams.map(x => `<button type="button" class="btn" data-mv="${escapeHtml(x.id)}"${o0.team_id === x.id ? ' disabled' : ''}>→ ${escapeHtml(x.name)}</button>`).join('')}<button type="button" class="btn" data-mv=""${o0.team_id ? '' : ' disabled'}>→ Back to the pool</button></div>
       ${o0.team_id ? `<label class="switch" style="align-self:flex-start"><input type="checkbox" id="jn"${o0.joined ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Already joined the team's alliance (manual)</span></label>` : ''}` : '';
     openModal(`<div class="ep-box sm">${mhead(escapeHtml(i.name))}<div class="ep-mb"><div class="t2">${tagChip(i.tag)}<span class="pw">${fmtM(i.power)}</span></div>${edit}${adminPart}
       <div class="acts"><button type="button" class="btn danger" id="rmv">Remove from event</button></div></div></div>`, m => {
       const saveP = patch => { const o = cur(); if(o) saveEntry(pobj(pid), patch); };
-      m.querySelectorAll('[data-eh]').forEach(c => c.addEventListener('change', () => { const o = cur(); if(!o) return; const k = +c.dataset.eh; saveP({hours: c.checked ? (o.hours | (1 << k)) : (o.hours & ~(1 << k))}); }));
-      m.querySelectorAll('[data-ef]').forEach(c => c.addEventListener('change', () => { saveP({[c.dataset.ef]: c.checked}); if(c.dataset.ef === 'pb' && c.checked) m.querySelectorAll('[data-eh]').forEach(h => h.checked = false); }));
-      $('eall').addEventListener('click', () => { const full = (1 << n) - 1; const o = cur(); const on = !(o && o.hours === full); saveP({hours: on ? full : 0}); m.querySelectorAll('[data-eh]').forEach(c => c.checked = on); });
+      const syncAll = () => { $('eallc').checked = [...m.querySelectorAll('[data-eh]')].every(c => c.checked); };
+      m.querySelectorAll('[data-eh]').forEach(c => c.addEventListener('change', () => { const o = cur(); if(!o) return; const k = +c.dataset.eh; saveP({hours: c.checked ? (o.hours | (1 << k)) : (o.hours & ~(1 << k))}); syncAll(); }));
+      m.querySelectorAll('[data-ef]').forEach(c => c.addEventListener('change', () => { saveP({[c.dataset.ef]: c.checked}); if(c.dataset.ef === 'pb' && c.checked){ m.querySelectorAll('[data-eh]').forEach(h => h.checked = false); syncAll(); } }));
+      $('eallc').addEventListener('change', () => { const on = $('eallc').checked; saveP({hours: on ? (1 << n) - 1 : 0}); m.querySelectorAll('[data-eh]').forEach(c => c.checked = on); });
       m.querySelectorAll('[data-mv]').forEach(b => b.addEventListener('click', () => { closeModal(); assign(pid, b.dataset.mv || null); }));
       const hm = $('hm'); if(hm) hm.addEventListener('change', () => { const o = cur(); if(o){ o.alliance = hm.value; last = ''; render(); } call('ev_entry_home', {p_event: S.evId, p_pid: Number(pid), p_alliance: hm.value}, 'Home alliance changed.'); });
       const jn = $('jn'); if(jn) jn.addEventListener('change', () => { const o = cur(); if(o){ o.joined = jn.checked; last = ''; render(); } call('ev_entry_joined', {p_event: S.evId, p_pid: Number(pid), p_joined: jn.checked}); });
@@ -1570,12 +1572,12 @@
   // adding players / availability
   function saveEntry(p, patch){
     let o = S.entries.find(x => String(x.pid) === String(p.id));
-    const base = o ? {hours: o.hours, pb: o.pb, b20: o.b20, gather: o.gather, rl: !!o.rl} : {hours: 0, pb: false, b20: false, gather: false, rl: false};
+    const base = o ? {hours: o.hours, pb: o.pb, b20: o.b20, gather: o.gather, rl: !!o.rl, heal: !!o.heal} : {hours: 0, pb: false, b20: false, gather: false, rl: false, heal: false};
     const v = Object.assign(base, patch);
     if(patch.pb === true) v.hours = 0;     // powerbooster only help to reach the registration power, they do not play the event
     if(o) Object.assign(o, v); else { o = Object.assign({event_id: S.evId, pid: Number(p.id), name: p.n, alliance: homeOf(p.id, p.a), power: p.p || 0, team_id: null, joined: false}, v); S.entries.push(o); }
     last = '';
-    return api.rpc('ev_entry_save', {p_code: S.code, p_event: S.evId, p_pid: Number(p.id), p_name: p.n, p_alliance: o.alliance, p_power: p.p || 0, p_hours: v.hours, p_pb: v.pb, p_b20: v.b20, p_gather: v.gather, p_rl: v.rl})
+    return api.rpc('ev_entry_save', {p_code: S.code, p_event: S.evId, p_pid: Number(p.id), p_name: p.n, p_alliance: o.alliance, p_power: p.p || 0, p_hours: v.hours, p_pb: v.pb, p_b20: v.b20, p_gather: v.gather, p_rl: v.rl, p_heal: v.heal})
       .then(() => refresh(true)).catch(err => { toast(err.message); refresh(true); });
   }
   const pobj = pid => { const d = D && D.players[pid]; if(d) return Object.assign({id: pid}, d); const o = S.entries.find(x => String(x.pid) === String(pid)); return {id: pid, n: o ? o.name : pid, a: o ? o.alliance : '', p: o ? o.power : 0}; };
