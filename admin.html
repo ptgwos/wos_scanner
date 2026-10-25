@@ -1036,7 +1036,7 @@
   .ad-gate p{color:var(--text-dim);font-size:15px;line-height:1.5;margin:0 0 14px;}
   .ad-lg{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;} .ad-lg input{min-width:260px;}
   .ad-mx{margin-top:22px;} .ad-mx table td:first-child{font-weight:700;white-space:nowrap;}
-  .ad-lnk{color:var(--ice,#6ee7ff);}
+  .ad-lnk{color:var(--ice,#6ee7ff);} .ad-sh{font-size:10px;font-weight:600;color:var(--text-faint);text-transform:none;letter-spacing:0;}
 </style>
 </head>
 <body>
@@ -1051,11 +1051,18 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a1</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a3</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
 <script src="nav-access.js" defer></script>
+<script>
+(function(){
+  function show(m){ var a = document.getElementById('adm'); if(a) a.innerHTML = '<div class="rl-empty">Fehler: ' + String(m).replace(/</g, '&lt;') + '</div>'; }
+  window.addEventListener('error', function(e){ show((e.message || 'Script error') + ' (' + String(e.filename || '').split('/').pop() + ':' + e.lineno + ')'); });
+  window.addEventListener('unhandledrejection', function(e){ show((e.reason && e.reason.message) || e.reason); });
+})();
+</script>
 <script>
 (function(){
   'use strict';
@@ -1077,7 +1084,8 @@
     }
     var H = {apikey: CFG.key, 'Content-Type': 'application/json'}; if(/^eyJ/.test(CFG.key)) H.Authorization = 'Bearer ' + CFG.key;
     function rpc(fn, args){
-      return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/rpc/' + fn, {method: 'POST', headers: H, body: JSON.stringify(args), cache: 'no-store'}).then(function(r){
+      var ac = window.AbortController ? new AbortController() : null, tm = setTimeout(function(){ if(ac) ac.abort(); }, 15000);
+      return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/rpc/' + fn, {method: 'POST', headers: H, body: JSON.stringify(args), cache: 'no-store', signal: ac ? ac.signal : undefined}).then(function(r){ clearTimeout(tm);
         return r.text().then(function(t){ var j = null; try { j = t ? JSON.parse(t) : null; } catch(e) {} if(!r.ok) throw new Error((j && (j.message || j.hint)) || ('HTTP ' + r.status)); return j; });
       });
     }
@@ -1098,35 +1106,39 @@
     load();
   }
   function load(){
-    api.list(st.code).then(function(u){ st.users = u; draw(); }).catch(function(e){ gate(esc(e.message), false); });
+    $('adm').innerHTML = '<div class="rl-empty">Lade Benutzerliste …</div>';
+    api.list(st.code).then(function(u){ if(!Array.isArray(u)) throw new Error('Unerwartete Antwort von sa_list: ' + JSON.stringify(u).slice(0, 200)); st.users = u; draw(); }).catch(function(e){ gate(esc(e.message), false); });
   }
   var RN = {super: 'Super admin', admin: 'Admin', editor: 'Editor'};
   function draw(){
-    var h = '<p class="ad-note">Tick who may open <b>Rally Leads</b> (read and edit). The super admin always may. A user who is admin in the Event Planner does <b>not</b> automatically see Rally Leads. Changes are saved immediately. Users, roles and personal links are managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p>' +
-      '<div class="ad-box"><table class="ad"><thead><tr><th>Name</th><th>Role in the Event Planner</th><th>Alliances</th><th class="c">Rally Leads</th></tr></thead><tbody>';
+    var h = '<p class="ad-note"><b>Rally Leads:</b> tick who may open it (read and edit). The super admin always may; an admin of the Event Planner does <b>not</b> automatically see Rally Leads. <b>Rally Planner:</b> tick who may edit the shared plans (everybody can read). Admins may always edit. Changes are saved immediately. Users, roles and personal links are managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p>' +
+      '<div class="ad-box"><table class="ad"><thead><tr><th>Name</th><th>Role in the Event Planner</th><th>Alliances</th><th class="c">Rally Leads<br><span class="ad-sh">see + edit</span></th><th class="c">Rally Planner<br><span class="ad-sh">edit</span></th></tr></thead><tbody>';
     st.users.forEach(function(u){
-      var sup = u.role === 'super', on = sup || (u.pages || []).indexOf('rallyleads') >= 0;
+      var sup = u.role === 'super', adm = u.role === 'admin', on = sup || (u.pages || []).indexOf('rallyleads') >= 0, rp = sup || adm || (u.pages || []).indexOf('rallyplan') >= 0;
       h += '<tr class="' + (u.active ? '' : 'off') + '"><td>' + esc(u.name) + (u.active ? '' : ' <span class="ad-r">blocked</span>') + '</td><td><span class="ad-r ' + esc(u.role) + '">' + esc(RN[u.role] || u.role) + '</span></td><td>' + esc((u.alliances || []).join(', ') || '–') +
-        '</td><td class="c"><input type="checkbox" data-u="' + esc(u.id) + '"' + (on ? ' checked' : '') + (sup ? ' disabled title="The super admin always has access"' : '') + ' aria-label="Rally Leads for ' + esc(u.name) + '"></td></tr>';
+        '</td><td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-p="rallyleads"' + (on ? ' checked' : '') + (sup ? ' disabled title="The super admin always has access"' : '') + ' aria-label="Rally Leads for ' + esc(u.name) + '"></td>' +
+        '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-p="rallyplan"' + (rp ? ' checked' : '') + (sup || adm ? ' disabled title="' + (sup ? 'The super admin' : 'Admins') + ' may always edit the Rally Planner"' : '') + ' aria-label="Rally Planner for ' + esc(u.name) + '"></td></tr>';
     });
     h += '</tbody></table></div><div class="ad-mx"><div class="ad-note"><b>Who may see what</b></div><div class="ad-box"><table class="ad"><thead><tr><th>Page</th><th>Read</th><th>Edit</th></tr></thead><tbody>' +
       '<tr><td>Roster, SvS Leaderboards, Formations</td><td>everybody</td><td>everybody</td></tr>' +
-      '<tr><td>Event Planner, Rally Planner</td><td>everybody</td><td>admins and the users Peter has set up</td></tr>' +
+      '<tr><td>Event Planner</td><td>everybody</td><td>admins and the editors set up in the Event Planner</td></tr>' +
+      '<tr><td>Rally Planner</td><td>everybody</td><td>admins and the users ticked above</td></tr>' +
       '<tr><td>Rally Leads</td><td colspan="2">only the users ticked above (and the super admin) – everybody else sees “Kein Zugriff”</td></tr></tbody></table></div></div>';
     $('adm').innerHTML = h;
   }
   $('adm').addEventListener('change', function(e){
     var c = e.target.closest('input[data-u]'); if(!c) return;
-    var u = st.users.filter(function(x){ return x.id === c.getAttribute('data-u'); })[0], want = c.checked, pages = (u.pages || []).filter(function(p){ return p !== 'rallyleads'; });
-    if(want) pages.push('rallyleads');
+    var pg = c.getAttribute('data-p'), lab = pg === 'rallyplan' ? 'Rally Planner' : 'Rally Leads';
+    var u = st.users.filter(function(x){ return x.id === c.getAttribute('data-u'); })[0], want = c.checked, pages = (u.pages || []).filter(function(p){ return p !== pg; });
+    if(want) pages.push(pg);
     c.disabled = true;
-    api.set({p_code: st.code, p_uid: u.id, p_pages: pages}).then(function(){ u.pages = pages; c.disabled = false; toast((want ? 'Rally Leads allowed for ' : 'Rally Leads removed for ') + u.name, true); })
+    api.set({p_code: st.code, p_uid: u.id, p_pages: pages}).then(function(){ u.pages = pages; c.disabled = false; toast((want ? lab + ' allowed for ' : lab + ' removed for ') + u.name, true); })
       .catch(function(err){ c.checked = !want; c.disabled = false; toast(err.message); });
   });
 
   var saved = null; try { saved = localStorage.getItem('ep_code'); } catch(e) {}
   if(!saved) gate('Diese Seite ist nur für den Super-Admin. Bitte melde dich an.', true);
-  else api.me(saved).then(function(r){ if(!r) gate('Diese Seite ist nur für den Super-Admin. Bitte melde dich an.', true); else enter(r, saved); }).catch(function(e){ gate('Keine Verbindung: ' + esc(e.message), false); });
+  else { $('adm').innerHTML = '<div class="rl-empty">Prüfe Anmeldung …</div>'; api.me(saved).then(function(r){ if(!r) gate('Diese Seite ist nur für den Super-Admin. Bitte melde dich an.', true); else enter(r, saved); }).catch(function(e){ gate('Keine Verbindung: ' + esc(e.message), false); }); }
 })();
 </script>
 <script>
