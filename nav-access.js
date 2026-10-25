@@ -22,7 +22,7 @@
           el.setAttribute('data-na', href); el.innerHTML = inner; nav.appendChild(el);
         }
         add('rallyleads.html', 'RALLY LEADS', 'LEADS', !!m.rallyleads);
-        add('admin.html', 'ADMIN', 'ADMIN', m.role === 'super');
+        add('access.html', 'ADMIN', 'ADMIN', m.role === 'super');
       }).catch(function(){});
   }
   function start(){
