@@ -1001,6 +1001,8 @@
   .fl.g{display:inline-flex;align-items:center;padding:1px 4px;}
   .dur .gl{display:inline-flex;vertical-align:middle;color:var(--good);}
   .dur .gl svg{width:12px;height:12px;}
+  .dur .gl.hl{background:#fff;border:1px solid #c5cad3;border-radius:3px;padding:1px 2px;align-items:center;}
+  .dur .gl.hl svg{width:10px;height:10px;}
   .dur .dg{grid-column:1/-1;height:1px;background:var(--border);margin:3px 0;}
   .ed-h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;}
   .ed-c{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text);}
@@ -1100,7 +1102,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-25 · p29</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-10-25 · p30</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1243,6 +1245,7 @@
     return `<span class="av ph" aria-hidden="true">${escapeHtml((Array.from(String(p.n || '?'))[0] || '?').toUpperCase())}</span>`;
   }
   function strip(h){ let s = ''; for(let i = 0; i < slotsOf(); i++) s += `<i class="${(h >> i) & 1 ? 'on' : ''}" title="${slotLabel(i)}"></i>`; return `<span class="hs">${s}</span>`; }
+  const HEAL_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#e11d2e"/></svg>';
   const BASKET = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 11H5L3 9z"/><path d="M8 9l4-6 4 6"/><path d="M10 13v4M14 13v4"/></svg>';
   function flags(e){ const h = (e.rl ? '<span class="fl rl" title="Rally leader">RL</span>' : '') + (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? `<span class="fl g" title="Gatherer (helps with loot)">${BASKET}</span>` : '') + (e.heal ? '<span class="fl heal" title="Auto heal"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#e11d2e"/></svg></span>' : ''); return h ? `<span class="fls">${h}</span>` : ''; }
   function status(e, team){
@@ -1343,6 +1346,8 @@
       }
       const gx = {main: 0, sub: 0, boost: 0, other: 0, all: 0}; m.filter(x => x.gather).forEach(x => { gx[teamType(teamById(x.team_id))]++; gx.all++; });
       dur += `<span class="dg"></span><span class="l${gx.all ? '' : ' z'}" style="grid-column:1"><span class="gl">${BASKET}</span><span class="d-only"> gatherers</span><span class="m-only"> G</span></span><span class="b">${seg(gx)}</span><span class="v${gx.all ? '' : ' z'}">${gx.all}/${MAXP}</span>`;
+      const hx = {main: 0, sub: 0, boost: 0, other: 0, all: 0}; m.filter(x => x.heal).forEach(x => { hx[teamType(teamById(x.team_id))]++; hx.all++; });
+      dur += `<span class="l${hx.all ? '' : ' z'}" style="grid-column:1"><span class="gl hl">${HEAL_SVG}</span><span class="d-only"> auto heal</span><span class="m-only"> H</span></span><span class="b">${seg(hx)}</span><span class="v${hx.all ? '' : ' z'}">${hx.all}/${MAXP}</span>`;
       const used = TY.filter(ty => m.some(x => teamType(teamById(x.team_id)) === ty));
       dur += `<span class="dleg">${used.map(ty => `<span><i class="t-${ty}"></i>${TN[ty]}</span>`).join('')}</span>`;
       return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span><button type="button" class="shot-btn no-shot" title="Copy this block as an image" aria-label="Copy this block as an image">${CAM_SVG}</button></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}<div class="dur" title="Players by the number of hours they ticked (each player is counted once)">${dur}</div></div>`;
