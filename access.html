@@ -1030,6 +1030,8 @@
   .dq-a select,.dq-a input[type=text]{background:var(--panel-2,#161d33);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font:inherit;font-size:13px;max-width:170px;}
   .dq-a button{font-size:12.5px;padding:6px 10px;}
   .dq-ok{color:#35c27a}.dq-no{color:#e0a030}
+  .ad-nm{background:transparent;color:inherit;border:1px solid transparent;border-radius:6px;padding:4px 6px;font:inherit;width:100%;min-width:110px;}
+  .ad-nm:hover,.ad-nm:focus{border-color:var(--border);background:var(--panel-2,#161d33);}
   table.ad{border-collapse:collapse;width:100%;font-size:14px;}
   table.ad th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);padding:8px 12px;border-bottom:1px solid var(--border);}
   table.ad td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);}
@@ -1061,7 +1063,7 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a9</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a10</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1104,11 +1106,11 @@
     if(MOCK){
       var users = [{id: 'u1', name: 'Peter', role: 'super', alliances: [], active: true, pages: []}, {id: 'u2', name: 'Ed (admin)', role: 'admin', alliances: [], active: true, pages: ['rallyleads']},
         {id: 'u3', name: 'Anna', role: 'editor', alliances: ['PKB', 'GYN'], active: true, pages: []}, {id: 'u4', name: 'Old user', role: 'editor', alliances: ['PKB'], active: false, pages: []}];
-      var rq = [{discord_id: '123456789012345678', name: 'Newbie#1', avatar: '', created_at: '2026-10-26T18:00:00Z', member: true}, {discord_id: '223456789012345678', name: 'Stranger', avatar: '', created_at: '2026-10-26T19:10:00Z', member: false}];
+      var rq = [{discord_id: '123456789012345678', name: 'xX_frostwolf_Xx', nick: 'Frosty (PKB)', avatar: '', created_at: '2026-10-26T18:00:00Z', member: true}, {discord_id: '223456789012345678', name: 'Stranger', avatar: '', created_at: '2026-10-26T19:10:00Z', member: false}];
       return {
         me: function(c){ return Promise.resolve(c === 'admin' ? {role: 'super', name: 'Test admin', rallyleads: true} : c === 'viewer' ? {role: 'admin', name: 'Test viewer', rallyleads: false} : null); },
         list: function(){ return Promise.resolve(JSON.parse(JSON.stringify(users))); },
-        save: function(a){ var u = users.filter(function(x){ return x.id === a.p_id; })[0]; if(u.role === 'super' && (a.p_role !== 'super' || !a.p_active)) return Promise.reject(new Error('There must be at least one active super admin')); u.role = a.p_role; u.active = a.p_active; return Promise.resolve({id: a.p_id}); },
+        save: function(a){ var u = users.filter(function(x){ return x.id === a.p_id; })[0]; if(u.role === 'super' && (a.p_role !== 'super' || !a.p_active)) return Promise.reject(new Error('There must be at least one active super admin')); u.name = a.p_name; u.role = a.p_role; u.active = a.p_active; return Promise.resolve({id: a.p_id}); },
         set: function(a){ users.filter(function(u){ return u.id === a.p_uid; })[0].pages = a.p_pages.slice(); return Promise.resolve(); },
         reqs: function(){ return Promise.resolve(JSON.parse(JSON.stringify(rq))); },
         link: function(a){ var u = users.filter(function(x){ return x.id === a.p_uid; })[0]; u.discord_id = a.p_did; rq = rq.filter(function(r){ return r.discord_id !== a.p_did; }); return Promise.resolve(); },
@@ -1153,7 +1155,7 @@
       var sup = u.role === 'super', adm = u.role === 'admin', on = sup || (u.pages || []).indexOf('rallyleads') >= 0, rp = sup || adm || (u.pages || []).indexOf('rallyplan') >= 0;
       var ro = sup ? ' disabled title="The super admin cannot be changed here"' : '';
       var noAl = u.role === 'editor' && !(u.alliances || []).length;
-      h += '<tr class="' + (u.active ? '' : 'off') + '"><td>' + esc(u.name) + '</td>' +
+      h += '<tr class="' + (u.active ? '' : 'off') + '"><td><input type="text" class="ad-nm" maxlength="40" data-u="' + esc(u.id) + '" data-k="name" value="' + esc(u.name) + '" title="Click to rename (e.g. the in-game name)" aria-label="Name"></td>' +
         '<td>' + (sup ? '<span class="ad-r super">Super admin</span>' : '<select class="ad-sel" data-u="' + esc(u.id) + '" data-k="role" aria-label="Event Planner role for ' + esc(u.name) + '"><option value="admin"' + (adm ? ' selected' : '') + '>Admin</option><option value="editor"' + (u.role === 'editor' ? ' selected' : '') + '>Editor</option></select>') + '</td>' +
         '<td>' + esc((u.alliances || []).join(', ') || '–') + (noAl ? ' <span class="ad-r" title="An editor without alliances cannot change any player. Set the alliances in the Event Planner (users view).">no alliance!</span>' : '') + '</td>' +
         '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-p="rallyplan"' + (rp ? ' checked' : '') + (sup || adm ? ' disabled title="' + (sup ? 'The super admin' : 'Admins') + ' may always edit the Rally Planner"' : '') + ' aria-label="Rally Planner for ' + esc(u.name) + '"></td>' +
@@ -1178,11 +1180,11 @@
     var h = '<div class="dq"><h3>Waiting list (Discord): ' + st.reqs.length + '</h3>';
     st.reqs.forEach(function(r){
       var id = esc(r.discord_id);
-      h += '<div class="dq-r"><div class="dq-w"><b>' + esc(r.name || 'Discord user') + '</b><small>ID ' + id + ' · ' + esc(String(r.created_at || '').slice(0, 16).replace('T', ' ')) + ' · ' +
+      h += '<div class="dq-r"><div class="dq-w"><b>' + esc(r.nick || r.name || 'Discord user') + '</b><small>' + (r.nick ? 'Discord name: ' + esc(r.name || '') + ' · ' : '') + 'ID ' + id + ' · ' + esc(String(r.created_at || '').slice(0, 16).replace('T', ' ')) + ' · ' +
         (r.member === true ? '<span class="dq-ok">in your Discord server</span>' : r.member === false ? '<span class="dq-no">NOT in your Discord server</span>' : 'server membership not checked yet') + '</small></div>' +
         '<div class="dq-a"><select data-lk="' + id + '" aria-label="Existing user"><option value="">Link to existing user …</option>' + free.map(function(u){ return '<option value="' + esc(u.id) + '">' + esc(u.name) + ' (' + esc(RN[u.role] || u.role) + ')</option>'; }).join('') + '</select>' +
         '<button type="button" class="btn" data-link="' + id + '">Link</button></div>' +
-        '<div class="dq-a"><input type="text" maxlength="40" placeholder="New user name" data-nm="' + id + '" value="' + esc(r.name || '') + '"><select data-nr="' + id + '"><option value="editor">Editor</option><option value="admin">Admin</option></select>' +
+        '<div class="dq-a"><input type="text" maxlength="40" placeholder="New user name" data-nm="' + id + '" value="' + esc(r.nick || r.name || '') + '"><select data-nr="' + id + '"><option value="editor">Editor</option><option value="admin">Admin</option></select>' +
         '<button type="button" class="btn" data-new="' + id + '">Create</button></div>' +
         '<div class="dq-a"><button type="button" class="btn" data-rej="' + id + '">Reject</button></div></div>';
     });
@@ -1210,11 +1212,13 @@
   });
   function saveUser(el){
     var u = st.users.filter(function(x){ return x.id === el.getAttribute('data-u'); })[0], k = el.getAttribute('data-k');
-    var role = k === 'role' ? el.value : u.role, active = k === 'active' ? el.checked : u.active;
+    var role = k === 'role' ? el.value : u.role, active = k === 'active' ? el.checked : u.active, nm = k === 'name' ? el.value.trim() : u.name;
+    if(!nm || nm.length > 40){ toast('Please enter a name (up to 40 characters).'); draw(); return; }
+    if(k === 'name' && nm === u.name) return;
     el.disabled = true;
-    api.save({p_code: st.code, p_id: u.id, p_name: u.name, p_role: role, p_alliances: u.alliances || [], p_active: active}).then(function(){
-      u.role = role; u.active = active; draw();
-      toast(u.name + ': ' + (k === 'role' ? 'Event Planner role is now ' + (RN[role] || role) : (active ? 'unblocked' : 'blocked')), true);
+    api.save({p_code: st.code, p_id: u.id, p_name: nm, p_role: role, p_alliances: u.alliances || [], p_active: active}).then(function(){
+      var old = u.name; u.name = nm; u.role = role; u.active = active; draw();
+      toast(k === 'name' ? 'Renamed ' + old + ' to ' + nm : u.name + ': ' + (k === 'role' ? 'Event Planner role is now ' + (RN[role] || role) : (active ? 'unblocked' : 'blocked')), true);
     }).catch(function(err){ toast(err.message); draw(); });
   }
   $('adm').addEventListener('change', function(e){
