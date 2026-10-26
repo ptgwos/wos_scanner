@@ -1079,7 +1079,7 @@
     <span><i style="background:#a9cfe0"></i>Hero Shards</span><span><i style="background:#e07fc0"></i>Health Buff</span><span><i style="background:#7fc45a"></i>Speedups / Pet Chests</span><span><i style="background:#a27fd6"></i>Adv. Teleport</span><span><i style="background:#eef3f4"></i>Wild Marks</span><span><i style="background:#c08a4e"></i>Damage Buff</span><span><i style="background:#e8d98a"></i>Deployment Buff</span><span><i style="background:#63b25a"></i>Hero Gear XP</span><span><i style="background:#e8d05a"></i>Hero Gear</span><span><i style="background:#d1583f"></i>Fire Crystal</span><span><i style="background:transparent;box-shadow:inset 0 0 0 2px #e0524e"></i>Buff (server-wide)</span>
   </div>
   <p class="fs-note" id="fsNote">Everybody can look at the plan. Only people with the Fortress/SH Plan permission can change it – the Discord bot reads exactly this data.</p>
-  <footer id="foot">State 646 · Fortress/SH Plan — data: Supabase · build 2026-10-26 · f1</footer>
+  <footer id="foot">State 646 · Fortress/SH Plan — data: Supabase · build 2026-10-26 · f2</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
 <div id="toast"></div>
@@ -1223,6 +1223,24 @@
   (code ? login(code).catch(function(){}) : Promise.resolve()).then(function(){ bar(); return load(false); });
   setInterval(function(){ if(!document.hidden) load(true); }, 15000);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) load(true); });
+})();
+</script>
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeToggle');
+  function apply(t){
+    if(t === 'light') root.setAttribute('data-theme', 'light'); else root.removeAttribute('data-theme');
+    var m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content', t === 'light' ? '#f3f6fb' : '#070b15');
+  }
+  var t = 'dark'; try { if(localStorage.getItem('svs-theme') === 'light') t = 'light'; } catch(e) {}
+  if(t === 'dark'){ try { if(/(?:^|; )svs_theme=light/.test(document.cookie)) t = 'light'; } catch(e) {} }
+  apply(t);
+  if(btn) btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    apply(next);
+    try { localStorage.setItem('svs-theme', next); } catch(e) {}
+    try { document.cookie = 'svs_theme=' + next + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
+  });
 })();
 </script>
 <script src="nav-access.js" defer></script>

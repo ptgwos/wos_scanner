@@ -1052,10 +1052,28 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a6</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a7</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeToggle');
+  function apply(t){
+    if(t === 'light') root.setAttribute('data-theme', 'light'); else root.removeAttribute('data-theme');
+    var m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content', t === 'light' ? '#f3f6fb' : '#070b15');
+  }
+  var t = 'dark'; try { if(localStorage.getItem('svs-theme') === 'light') t = 'light'; } catch(e) {}
+  if(t === 'dark'){ try { if(/(?:^|; )svs_theme=light/.test(document.cookie)) t = 'light'; } catch(e) {} }
+  apply(t);
+  if(btn) btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    apply(next);
+    try { localStorage.setItem('svs-theme', next); } catch(e) {}
+    try { document.cookie = 'svs_theme=' + next + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
+  });
+})();
+</script>
 <script src="nav-access.js" defer></script>
 <script>
 (function(){
