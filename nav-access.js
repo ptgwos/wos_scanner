@@ -23,15 +23,16 @@
   }
   function put(href, long, short, state){   // state: 'on' | 'off' | null (remove)
     var nav = document.querySelector('.sitenav'); if(!nav) return;
-    var old = nav.querySelector('[data-na="' + href + '"]');
+    var old = nav.querySelector('[data-na="' + href + '"]') || nav.querySelector('a[href="' + href + '"]');
+    if(!old && here === href && nav.querySelector('.cur')) return;
     if(state === null){ if(old && old.parentNode) old.parentNode.removeChild(old); return; }
     var inner = '<span class="sn-l">' + long + '</span><span class="sn-s">' + short + '</span>', el;
     if(here === href){ el = document.createElement('span'); el.className = 'cur'; el.setAttribute('aria-current', 'page'); }
     else if(state === 'on'){ el = document.createElement('a'); el.href = href; }
     else {
       el = document.createElement('span'); el.className = 'na-off'; el.setAttribute('aria-disabled', 'true'); el.tabIndex = 0;
-      el.title = 'Kein Zugriff';
-      var go = function(){ note(code ? 'Kein Zugriff! Bitte kontaktiere Peter the Great im Spiel oder in Discord' : 'Kein Zugriff! Bitte zuerst mit deinem persönlichen Link anmelden (z. B. im Event Planner). Fragen: Peter the Great im Spiel oder in Discord'); };
+      el.title = 'No access';
+      var go = function(){ note(code ? 'No access! Please contact Peter the Great in game or on Discord.' : 'No access! Please log in first (personal link, e.g. in the Event Planner). Please contact Peter the Great in game or on Discord.'); };
       el.addEventListener('click', go); el.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } });
     }
     el.setAttribute('data-na', href); el.innerHTML = inner;
