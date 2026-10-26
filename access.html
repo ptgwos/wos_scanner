@@ -1052,7 +1052,7 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a5</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-10-25 · a6</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1114,7 +1114,7 @@
   var RN = {super: 'Super admin', admin: 'Admin', editor: 'Editor'};
   function draw(){
     var h = '<p class="ad-note"><b>Rally Leads:</b> tick who may open it (read and edit). The super admin always may; an admin of the Event Planner does <b>not</b> automatically see Rally Leads. <b>Rally Planner:</b> tick who may edit the shared plans (everybody can read). Admins may always edit. Changes are saved immediately. <b>Event Planner:</b> change a role or block a user (the change is also written to the Event Planner log). New users, alliances and personal links are still managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p>' +
-      '<div class="ad-box"><table class="ad"><thead><tr><th>Name</th><th>Event Planner<br><span class="ad-sh">role (edit)</span></th><th>Alliances<br><span class="ad-sh">editors only</span></th><th class="c">Rally Planner<br><span class="ad-sh">edit</span></th><th class="c">Rally Leads<br><span class="ad-sh">see + edit</span></th><th class="c">Active<br><span class="ad-sh">untick = blocked</span></th><th>Last login</th></tr></thead><tbody>';
+      '<div class="ad-box"><table class="ad"><thead><tr><th>Name</th><th>Event Planner<br><span class="ad-sh">role (edit)</span></th><th>Alliances<br><span class="ad-sh">editors only</span></th><th class="c">Rally Planner<br><span class="ad-sh">edit</span></th><th class="c">Rally Leads<br><span class="ad-sh">see + edit</span></th><th class="c">Fortress/SH Plan<br><span class="ad-sh">edit</span></th><th class="c">Active<br><span class="ad-sh">untick = blocked</span></th><th>Last login</th></tr></thead><tbody>';
     st.users.forEach(function(u){
       var sup = u.role === 'super', adm = u.role === 'admin', on = sup || (u.pages || []).indexOf('rallyleads') >= 0, rp = sup || adm || (u.pages || []).indexOf('rallyplan') >= 0;
       var ro = sup ? ' disabled title="The super admin cannot be changed here"' : '';
@@ -1124,6 +1124,7 @@
         '<td>' + esc((u.alliances || []).join(', ') || '–') + (noAl ? ' <span class="ad-r" title="An editor without alliances cannot change any player. Set the alliances in the Event Planner (users view).">no alliance!</span>' : '') + '</td>' +
         '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-p="rallyplan"' + (rp ? ' checked' : '') + (sup || adm ? ' disabled title="' + (sup ? 'The super admin' : 'Admins') + ' may always edit the Rally Planner"' : '') + ' aria-label="Rally Planner for ' + esc(u.name) + '"></td>' +
         '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-p="rallyleads"' + (on ? ' checked' : '') + (sup ? ' disabled title="The super admin always has access"' : '') + ' aria-label="Rally Leads for ' + esc(u.name) + '"></td>' +
+        '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-p="fsh"' + ((sup || (u.pages || []).indexOf('fsh') >= 0) ? ' checked' : '') + ro + ' aria-label="Fortress/SH Plan for ' + esc(u.name) + '"></td>' +
         '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-k="active"' + (u.active ? ' checked' : '') + ro + ' aria-label="Active: ' + esc(u.name) + '"></td>' +
         '<td class="ad-dt">' + (u.last_login ? esc(String(u.last_login).slice(0, 16).replace('T', ' ')) : '–') + '</td></tr>';
     });
@@ -1131,6 +1132,7 @@
       '<tr><td>Roster, SvS Leaderboards, Formations</td><td>everybody</td><td>everybody</td></tr>' +
       '<tr><td>Event Planner</td><td>everybody</td><td>admins, and editors for their own alliances (set here; alliances in the Event Planner)</td></tr>' +
       '<tr><td>Rally Planner</td><td>everybody</td><td>admins and the users ticked above</td></tr>' +
+      '<tr><td>Fortress/SH Plan</td><td>everybody</td><td>only the users ticked above (the Discord bot reads this data)</td></tr>' +
       '<tr><td>Rally Leads</td><td colspan="2">only the users ticked above (and the super admin) – everybody else sees “Kein Zugriff”</td></tr></tbody></table></div></div>';
     $('adm').innerHTML = h;
   }
@@ -1147,7 +1149,7 @@
     var kc = e.target.closest('[data-k]');
     if(kc){ saveUser(kc); return; }
     var c = e.target.closest('input[data-u]'); if(!c) return;
-    var pg = c.getAttribute('data-p'), lab = pg === 'rallyplan' ? 'Rally Planner' : 'Rally Leads';
+    var pg = c.getAttribute('data-p'), lab = pg === 'rallyplan' ? 'Rally Planner' : pg === 'fsh' ? 'Fortress/SH Plan' : 'Rally Leads';
     var u = st.users.filter(function(x){ return x.id === c.getAttribute('data-u'); })[0], want = c.checked, pages = (u.pages || []).filter(function(p){ return p !== pg; });
     if(want) pages.push(pg);
     c.disabled = true;

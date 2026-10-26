@@ -39,6 +39,7 @@
   }
   function apply(mm){
     css();
+    put('assignfsh.html', 'FORTRESS/SH PLAN', 'FSH', 'on');
     put('rallyleads.html', 'RALLY LEADS', 'LEADS', mm && mm.rallyleads ? 'on' : 'off');
     put('access.html', 'ADMIN', 'ADMIN', mm && mm.role === 'super' ? 'on' : null);
   }
