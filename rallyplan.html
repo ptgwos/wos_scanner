@@ -1011,6 +1011,11 @@
   .ps-seg.b1,.ps-sw.b1{--bc:96,165,250;--bt:96,165,250;} .ps-seg.b2,.ps-sw.b2{--bc:192,132,252;--bt:192,132,252;} .ps-seg.b3,.ps-sw.b3{--bc:244,114,182;--bt:244,114,182;} .ps-seg.b4,.ps-sw.b4{--bc:45,212,191;--bt:45,212,191;}
   :root[data-theme="light"] .ps-seg,:root[data-theme="light"] .ps-sw{--bc:31,168,80;--bt:26,127,62;}
   :root[data-theme="light"] .ps-seg.b1,:root[data-theme="light"] .ps-sw.b1{--bc:37,99,235;--bt:29,78,200;} :root[data-theme="light"] .ps-seg.b2,:root[data-theme="light"] .ps-sw.b2{--bc:147,51,234;--bt:120,40,200;} :root[data-theme="light"] .ps-seg.b3,:root[data-theme="light"] .ps-sw.b3{--bc:219,39,119;--bt:180,30,100;} :root[data-theme="light"] .ps-seg.b4,:root[data-theme="light"] .ps-sw.b4{--bc:13,148,136;--bt:10,115,105;}
+  .ps-seg.md{--bc:176,107,255;--bt:200,150,255;} .ps-seg.ms{--bc:255,95,210;--bt:255,140,225;}
+  :root[data-theme="light"] .ps-seg.md{--bc:124,58,237;--bt:100,40,200;} :root[data-theme="light"] .ps-seg.ms{--bc:219,39,119;--bt:180,30,100;}
+  .ps-seg.on.mnn{font-size:12px;}
+  .ps-mn{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);}
+  .ps-mn .ps-nm{font-weight:800;letter-spacing:.06em;}
   .sh-pets{max-width:1100px;margin:0 auto;}
   .ps-seg.on{background:rgba(var(--bc),.22);border:1px solid rgb(var(--bc));color:rgb(var(--bt));}
   .ps-seg.off{background:repeating-linear-gradient(135deg,rgba(var(--bc),.14) 0 6px,transparent 6px 12px);border:1px dashed rgba(var(--bc),.6);color:var(--text-faint);}
@@ -1141,7 +1146,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-27 · rp24</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-27 · rp25</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1621,6 +1626,19 @@ ${escapeHtml(lab)}</textarea></div>`;
   // ---- pets schedule (timeline) ----
   const psOv = document.getElementById('psModal'), psBody = document.getElementById('psBody');
   let psOpen = false;
+  function minData(head, NC){
+    if(KIND !== 'fdt') return '';
+    const who = {d: [], s: []};
+    for(let c = 0; c < NC; c++){ ['d', 's'].forEach(o => { let h = null; S.blocks.forEach(b => { Object.keys(b.mins || {}).forEach(id => { if(!h && b.mins[id][c] === o) h = id; }); }); who[o][c] = h; }); }
+    if(!who.d.some(Boolean) && !who.s.some(Boolean)) return '';
+    const row = o => {
+      const runs = [];
+      who[o].forEach((id, c) => { if(!id) return; const l = runs[runs.length - 1]; if(l && l.id === id && l.end === c - 1) l.end = c; else runs.push({id, start: c, end: c}); });
+      const segs = runs.map(r => '<div class="ps-seg on mnn m' + o + '" style="grid-column:' + (r.start + 1) + ' / span ' + (r.end - r.start + 1) + '" title="' + escapeHtml(bmNameOf(r.id)) + '"><span>' + escapeHtml(bmNameOf(r.id)) + '</span></div>').join('');
+      return '<div class="ps-row"><div class="ps-nm"><span class="ps-nt">' + OFFN[o] + '</span></div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + segs + '</div></div>';
+    };
+    return '<div class="ps-mn"><div class="ps-bt">Minister offices</div>' + head + row('d') + row('s') + '</div>';
+  }
   function petsData(){
     const NC = TIMES.length;
     const head = '<div class="ps-row ps-head"><div class="ps-nm"></div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + Array.from({length: NC}, (x, i) => '<div class="ps-h">' + hh(i) + (i === NC - 1 && SLOT === 60 ? '<span class="ps-end">' + hh(NC) + '</span>' : '') + '</div>').join('') + '</div></div>';
@@ -1640,7 +1658,8 @@ ${escapeHtml(lab)}</textarea></div>`;
     });
     const items = [];
     ids.forEach(id => { const all = petAll(id); if(all.hrs.length && lead.has(id)) items.push({id, all, cs: lead.get(id)}); });
-    if(!items.length) return {html: '', any: false};
+    const mnHtml = minData(head, NC);
+    if(!items.length) return {html: mnHtml, any: !!mnHtml};
     items.sort((a, b) => a.all.hrs[0] - b.all.hrs[0] || String(bmNameOf(a.id)).localeCompare(String(bmNameOf(b.id))));
     let anyWarn = false;
     const rows = items.map(it => {
@@ -1657,7 +1676,7 @@ ${escapeHtml(lab)}</textarea></div>`;
       return '<div class="ps-row"><div class="ps-nm" title="' + nm + '"><span class="ps-nt">' + nm + '</span>' + (iss.length ? '<span class="ps-warn" title="' + escapeHtml(iss.join('; ')) + '">⚠</span>' : '') + '</div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + segs + '</div></div>';
     }).join('');
     const leg = '<div class="ps-leg">' + (S.blocks.length > 1 ? S.blocks.map((b, j) => '<i><span class="ps-sw b' + (j % 5) + '"></span>' + escapeHtml(blockName(j)) + '</i>').join('') : '') + '<i><span class="ps-sw off b0" style="--bc:150,160,180;--bt:150,160,180"></span>Pets active, no rally (hatched)</i>' + (anyWarn ? '<i><span class="ps-warn">⚠</span>More than 2 hours, not consecutive or set twice</i>' : '') + '</div>';
-    return {html: '<div class="ps-block">' + head + rows + '</div>' + leg, any: true};
+    return {html: '<div class="ps-block">' + head + rows + '</div>' + leg + mnHtml, any: true};
   }
   function petsHtml(){ const d = petsData(); return d.any ? d.html : '<div class="rp-empty">No pets scheduled yet. Tap the paw in a name tile to set the hours.</div>'; }
   function petsShareHtml(){ const d = petsData(); return d.any ? '<div class="sh-pets"><div class="sh-title">Pets schedule · UTC</div>' + d.html + '</div>' : ''; }
