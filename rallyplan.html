@@ -1141,7 +1141,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-27 · rp23</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-27 · rp24</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1432,7 +1432,9 @@ ${escapeHtml(lab)}</textarea></div>`;
     const o = e.target.closest('.pt-opt'); if(!o || !pcur) return;
     const i = +o.dataset.m, blk = S.blocks[pcur.b];
     if(i < 0){ if(blk.mins) delete blk.mins[pcur.id]; save(); render(); fillMin(); return; }
-    const cur = minHas(blk, pcur.id, i), nx = cur === null ? 'd' : cur === 'd' ? 's' : null;
+    const cur = minHas(blk, pcur.id, i);
+    let nx = cur === null ? 'd' : cur === 'd' ? 's' : null;
+    if(cur === null && minHolder(i, 'd', pcur.id) && !minHolder(i, 's', pcur.id)) nx = 's'; // MoD taken, MoS free: go straight to MoS
     const hold = nx ? minHolder(i, nx, pcur.id) : null;
     if(hold){
       ptWarn.innerHTML = '<p>⚠ <b>' + escapeHtml(bmNameOf(hold)) + '</b> is already ' + OFFN[nx] + ' at ' + hh(i) + ' (there is only one ' + OFFN[nx] + ' per slot). Set ' + OFFN[nx] + ' for <b>' + escapeHtml(bmNameOf(pcur.id)) + '</b> anyway?</p><div class="pt-wb"><button type="button" class="btn" data-gom="' + i + '|' + nx + '">Add anyway</button><button type="button" class="btn-secondary" data-no="1">Cancel</button></div>';
