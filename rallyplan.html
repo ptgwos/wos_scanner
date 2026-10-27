@@ -887,7 +887,7 @@
   .rp-del.arm{font-size:12px;font-weight:600;}
   #rpAddBlock{margin-bottom:4px;}
   .rp-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
-  .rp-grid{display:grid;grid-template-columns:150px repeat(5,minmax(138px,1fr));gap:8px;min-width:880px;}
+  .rp-grid{display:grid;grid-template-columns:var(--lab,150px) repeat(var(--nc,5),minmax(var(--cmin,138px),1fr));gap:8px;min-width:calc(var(--lab,150px) + var(--nc,5) * (var(--cmin,138px) + 8px));}
   .rp-th{background:var(--panel-2);border:1px solid var(--border);border-radius:6px;padding:10px 8px;text-align:center;font-weight:700;font-size:13px;color:var(--gold);letter-spacing:.04em;font-variant-numeric:tabular-nums;}
   .rp-th.blank{background:transparent;border-color:transparent;}
   .rp-lab input{width:100%;min-width:0;box-sizing:border-box;font-weight:700;color:var(--ice);}
@@ -903,7 +903,7 @@
   .rp-pick .pw{font-size:12px;color:var(--text-dim);font-variant-numeric:tabular-nums;}
   .rp-x{position:absolute;top:2px;right:3px;background:none;border:0;color:var(--text-faint);font-size:16px;line-height:1;cursor:pointer;padding:3px 5px;}
   .rp-x:hover{color:#ff6b6b;}
-  @media (max-width:640px){ .rp-grid{grid-template-columns:96px repeat(5,138px);min-width:0;width:max-content;} .rp-lab input{padding:9px 8px;font-size:12.5px;} }
+  @media (max-width:640px){ .rp-grid{grid-template-columns:96px repeat(var(--nc,5),var(--cmin,138px));min-width:0;width:max-content;} .rp-lab input{padding:9px 8px;font-size:12.5px;} }
   .rp-paw{position:absolute;right:6px;bottom:5px;background:none;border:0;padding:3px;cursor:pointer;color:var(--text-faint);opacity:.6;line-height:0;border-radius:4px;}
   .rp-paw svg{width:17px;height:17px;fill:currentColor;display:block;}
   .rp-paw:hover{opacity:1;color:var(--ice);}
@@ -993,7 +993,11 @@
   .ps-body{overflow:auto;padding:0 18px 18px;-webkit-overflow-scrolling:touch;}
   .ps-block + .ps-block{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);}
   .ps-bt{font-size:15px;font-weight:800;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
-  .ps-row{display:grid;grid-template-columns:130px minmax(300px,1fr);align-items:stretch;min-width:430px;}
+  .ps-row{display:grid;grid-template-columns:130px minmax(var(--psw,300px),1fr);align-items:stretch;min-width:calc(130px + var(--psw,300px));}
+  .rp-th .cd{display:block;font-weight:700;}
+  .rp-th .ut{display:block;font-size:10.5px;font-weight:400;color:var(--text-dim);}
+  #evModal select{background:var(--panel-2);color:var(--text);border:1px solid var(--ice-dim);border-radius:8px;padding:9px 10px;font:inherit;}
+  .ev-kind{font-size:12px;color:var(--text-dim);margin-left:8px;}
   #rpShot .ps-row{min-width:0;}
   .ps-nm{display:flex;align-items:center;gap:6px;padding-right:10px;font-weight:600;font-size:13px;min-width:0;border-bottom:1px solid var(--border-soft);}
   .ps-nt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
@@ -1046,7 +1050,7 @@
   #rpToast.show{opacity:1;transform:translate(-50%,0);}
   .rp-bh{flex-wrap:wrap;}
   #rpShot{position:fixed;left:-12000px;top:0;width:1080px;box-sizing:border-box;padding:22px;background:var(--panel);color:var(--text);font-family:'Inter',sans-serif;}
-  #rpShot .rp-grid{grid-template-columns:150px repeat(5,minmax(0,1fr));width:auto;min-width:0;}
+  #rpShot .rp-grid{grid-template-columns:150px repeat(var(--nc,5),minmax(0,1fr));width:auto;min-width:0;}
   .sh-block + .sh-block{margin-top:26px;padding-top:22px;border-top:1px solid var(--border-soft);}
   .sh-title{font-size:22px;font-weight:800;letter-spacing:.08em;color:var(--gold);text-align:center;margin-bottom:14px;text-transform:uppercase;}
   .sh-lab{width:100%;box-sizing:border-box;display:flex;align-items:center;padding:10px 12px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;font-weight:700;font-size:13px;color:var(--ice);}
@@ -1122,12 +1126,28 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-25 · rp21</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-27 · rp22</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
 (function(){
-  const TIMES = ['12:00 – 13:00','13:00 – 14:00','14:00 – 15:00','15:00 – 16:00','16:00 – 17:00'];
+  // ---- event type: Castle Battle = 5 hourly columns, FDT = 10 half-hour columns (12:00-17:00 UTC) ----
+  const HOUR0 = 12, DAYMIN = 300;
+  let KIND = 'cb', SLOT = 60;
+  const TIMES = [];
+  const hhmm = m => Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0');
+  const slotAt = c => HOUR0 * 60 + c * SLOT;
+  function setKind(k){
+    KIND = k === 'fdt' ? 'fdt' : 'cb'; SLOT = KIND === 'fdt' ? 30 : 60;
+    const n = DAYMIN / SLOT; TIMES.length = 0;
+    for(let i = 0; i < n; i++) TIMES.push(hhmm(slotAt(i)) + ' – ' + hhmm(slotAt(i + 1)));
+    const st = document.documentElement.style;
+    st.setProperty('--nc', n); st.setProperty('--cmin', KIND === 'fdt' ? '88px' : '138px'); st.setProperty('--lab', KIND === 'fdt' ? '118px' : '150px'); st.setProperty('--psw', KIND === 'fdt' ? '560px' : '300px');
+  }
+  setKind('cb');
+  const KIND_NAME = {cb: 'Castle Battle', fdt: 'FDT'};
+  // header cell of a time column: Castle Battle = "12:00 – 13:00"; FDT = countdown + UTC time
+  const thLab = c => KIND === 'fdt' ? '<span class="cd">' + hhmm(DAYMIN - c * SLOT) + '</span><span class="ut">' + hhmm(slotAt(c)) + ' UTC</span>' : TIMES[c];
   const DEF_ROWS = ['Text','Group 1','Group 2','Group 3'];
   const KEY = 'svs646_rally';
   const fmtM = n => n == null ? '–' : (Number(n) >= 999e6 ? (Number(n) / 1e9).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' B' : (Number(n) / 1e6).toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' M');
@@ -1147,7 +1167,7 @@
       if(a.length) p[k] = a; else delete p[k];
     });
   }
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}, hsel: [false, false, false, false, false]});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}, hsel: TIMES.map(() => false)});
   let S = {blocks: [newBlock()], compact: false};
   const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object'){ nb.pets = b.pets; normPets(nb.pets); } nb.bb = b.bb === true; nb.share = b.share !== false; if(Array.isArray(b.hsel) && b.hsel.length === TIMES.length) nb.hsel = b.hsel.map(v => v === true); if(b.sent && typeof b.sent === 'object') nb.sent = b.sent; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
   function normState(o){
@@ -1211,7 +1231,7 @@
     grid.classList.toggle('compact', !!S.compact);
     grid.innerHTML = S.blocks.map((blk, bi) => {
       let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header"><label class="switch" title="Show this block in the share picture"><input type="checkbox" data-sh="${bi}"${blk.share ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Include in Share</span></label><label class="switch" title="Show Battle Buddies for every rally"><input type="checkbox" data-sw="${bi}"${blk.bb ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Battle Buddies</span></label>${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
-      h += '<div class="rp-th blank rp-hint2">Share only these hours<br>(none ticked = all)</div>' + TIMES.map((t, c) => `<div class="rp-th"><input type="checkbox" class="rp-hck" data-hs="${bi}" data-c="${c}"${blk.hsel[c] ? ' checked' : ''} title="Include only the ticked hours in the share picture (none ticked = all hours)" aria-label="Share only ${t}"><span>${t}</span></div>`).join('');
+      h += '<div class="rp-th blank rp-hint2">Share only these hours<br>(none ticked = all)</div>' + TIMES.map((t, c) => `<div class="rp-th"><input type="checkbox" class="rp-hck" data-hs="${bi}" data-c="${c}"${blk.hsel[c] ? ' checked' : ''} title="Include only the ticked hours in the share picture (none ticked = all hours)" aria-label="Share only ${t}"><span>${thLab(c)}</span></div>`).join('');
       blk.rows.forEach((lab, r) => {
       if(r > 0) h += '<div class="rp-sep"></div>';
       for(let l = 0; l < blk.nl[r]; l++){
@@ -1338,12 +1358,13 @@ ${escapeHtml(lab)}</textarea></div>`;
   }
   function petIssues(hrs, dup){
     const h = hrs.slice().sort((a, b) => a - b), out = [];
-    if(h.length > 2) out.push('more than 2 hours in total (the event is one day)');
-    if(h.length > 1 && h[h.length - 1] - h[0] + 1 !== h.length) out.push('the hours are not consecutive (pets can only be activated once and run without a break)');
-    if(dup && dup.length) out.push('the same hour is set in more than one block (' + dup.map(c => hh(c)).join(', ') + ')');
+    const U = SLOT === 60 ? 'hour' : 'half-hour';
+    if(h.length > 120 / SLOT) out.push('more than 2 hours in total (the event is one day)');
+    if(h.length > 1 && h[h.length - 1] - h[0] + 1 !== h.length) out.push('the ' + U + 's are not consecutive (pets can only be activated once and run without a break)');
+    if(dup && dup.length) out.push('the same ' + U + ' is set in more than one block (' + dup.map(c => hh(c)).join(', ') + ')');
     return out;
   }
-  const hh = c => (HOUR0 + c) + ':00';
+  const hh = c => hhmm(slotAt(c));
   function blockName(j){ const b = S.blocks[j]; return b.title ? b.title : 'Block ' + (j + 1); }
   function petWhere(id, c){
     const out = [];
@@ -1478,7 +1499,6 @@ ${escapeHtml(lab)}</textarea></div>`;
   // ---- message battle buddies ----
   const bmOv = document.getElementById('bmModal'), bmBody = document.getElementById('bmBody'), bmTitle = document.getElementById('bmTitle'), bmSub = document.getElementById('bmSub');
   let bmCur = null;   // {b, id (null = list view), text}
-  const HOUR0 = 12;
   function bmNameOf(id){ const p = D && D.players && D.players[id]; return p ? (p.n || String(id)) : 'ID ' + id; }
   function bmCollect(blk){
     const map = new Map();
@@ -1499,7 +1519,10 @@ ${escapeHtml(lab)}</textarea></div>`;
   function bmMessage(blk, id){
     const rat = blk.ratio.join(':'), ents = bmCollect(blk).get(String(id)) || [];
     const first = ents.length ? (ents[0].hero || 'TBD') : 'TBD';
-    const lines = ents.map(x => (HOUR0 + x.c) + '-' + (HOUR0 + x.c + 1) + ': ' + (x.master || 'TBD') + ((x.hero || 'TBD') !== first ? ' (first hero: ' + (x.hero || 'TBD') + ')' : ''));
+    let ev2;
+    if(SLOT === 60) ev2 = ents.map(x => ({c: x.c, e: x.c + 1, master: x.master, hero: x.hero}));
+    else { ev2 = []; ents.forEach(x => { const l = ev2[ev2.length - 1]; if(l && l.e === x.c && l.master === x.master && (l.hero || '') === (x.hero || '')) l.e = x.c + 1; else ev2.push({c: x.c, e: x.c + 1, master: x.master, hero: x.hero}); }); }
+    const lines = ev2.map(x => (SLOT === 60 ? (HOUR0 + x.c) + '-' + (HOUR0 + x.c + 1) : hh(x.c) + '-' + hh(x.e)) + ': ' + (x.master || 'TBD') + ((x.hero || 'TBD') !== first ? ' (first hero: ' + (x.hero || 'TBD') + ')' : ''));
     return ['Hi ' + bmNameOf(id) + '!', "Congrats, you've been selected as a Battle Buddy!  \\o/", 'Schedule:', 'First hero: ' + first + ' - Ratio: ' + rat].concat(lines, ['Please join the respective rally when the rally timer shows 2:30.', 'Thank you!']).join('\n');
   }
   const MAIL_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
@@ -1546,7 +1569,7 @@ ${escapeHtml(lab)}</textarea></div>`;
   let psOpen = false;
   function petsData(){
     const NC = TIMES.length;
-    const head = '<div class="ps-row ps-head"><div class="ps-nm"></div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + Array.from({length: NC}, (x, i) => '<div class="ps-h">' + hh(i) + (i === NC - 1 ? '<span class="ps-end">' + hh(NC) + '</span>' : '') + '</div>').join('') + '</div></div>';
+    const head = '<div class="ps-row ps-head"><div class="ps-nm"></div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + Array.from({length: NC}, (x, i) => '<div class="ps-h">' + hh(i) + (i === NC - 1 && SLOT === 60 ? '<span class="ps-end">' + hh(NC) + '</span>' : '') + '</div>').join('') + '</div></div>';
     const lead = new Map(), ids = new Set();
     S.blocks.forEach((blk, j) => {
       Object.keys(blk.pets).forEach(id => { if(petHrs(blk, id).length) ids.add(id); });
@@ -1663,7 +1686,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     el('evLock').textContent = V.locked ? 'Unlock' : 'Lock';
     showEl(el('evDel'), isSuper() && !!V.evId);
     showEl(el('lockB'), !!V.evId && V.locked);
-    el('who').innerHTML = V.me ? 'Logged in: <b>' + escapeHtml(V.me.name || '') + '</b>' : '';
+    el('who').innerHTML = (V.me ? 'Logged in: <b>' + escapeHtml(V.me.name || '') + '</b>' : '') + (V.evId ? '<span class="ev-kind">Type: <b>' + KIND_NAME[KIND] + '</b></span>' : '');
     el('evLogin').textContent = V.me ? 'Log out' : 'Log in to edit';
     if(!V.dirty && !V.pushing){
       if(!V.evId) setStat(''); else if(V.locked) setStat('This event is locked – nobody can change it. Share pic and Pets schedule still work.', true);
@@ -1693,8 +1716,9 @@ ${escapeHtml(lab)}</textarea></div>`;
     const e = rows && rows[0];
     if(!e){ V.evId = pickDefault(); setHash(); if(V.evId) return loadState(true); S.blocks = [newBlock()]; V.ver = 0; render(); return; }
     V.ver = e.version; V.locked = !!e.locked;
+    setKind(e.state && e.state.kind);
     S.blocks = normState(e.state);
-    V.lastJson = JSON.stringify({blocks: S.blocks}); V.dirty = false;
+    V.lastJson = JSON.stringify({kind: KIND, blocks: S.blocks}); V.dirty = false;
     render();
   }
   async function refreshAll(first){
@@ -1710,11 +1734,11 @@ ${escapeHtml(lab)}</textarea></div>`;
   async function push(){
     if(!V.evId || !V.canEdit) return;
     if(V.pushing){ V.again = true; return; }
-    const js = JSON.stringify({blocks: S.blocks});
+    const js = JSON.stringify({kind: KIND, blocks: S.blocks});
     if(js === V.lastJson){ V.dirty = false; renderBar(); return; }
     V.pushing = true; V.dirty = false;
     try {
-      const nv = await rpc('rp_state_save', {p_code: V.code, p_id: V.evId, p_state: {blocks: S.blocks}, p_version: V.ver});
+      const nv = await rpc('rp_state_save', {p_code: V.code, p_id: V.evId, p_state: {kind: KIND, blocks: S.blocks}, p_version: V.ver});
       V.ver = nv; V.lastJson = js; V.offline = false;
       const d = new Date(); V.savedAt = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); setStat('Saved ' + V.savedAt + ' – visible for everybody.');
     } catch(e) {
@@ -1738,8 +1762,13 @@ ${escapeHtml(lab)}</textarea></div>`;
   // ---- modal ----
   function openEv(title, html){ el('evTitle').textContent = title; el('evBody').innerHTML = html; el('evModal').classList.add('open'); const f = el('evBody').querySelector('input'); if(f) setTimeout(() => f.focus(), 30); }
   function closeEv(){ el('evModal').classList.remove('open'); }
+  function planEmpty(){
+    return S.blocks.every(b => !b.title && !Object.keys(b.cells).length && !Object.keys(b.pets).length && !Object.keys(b.buds).some(k => (b.buds[k] || []).some(x => x && (x.id || x.hero))));
+  }
   function evForm(ev){
-    openEv(ev ? 'Edit event' : 'New event', `<div class="field"><label for="evT">Title</label><input type="text" id="evT" maxlength="80" autocomplete="off" value="${ev ? escapeHtml(ev.title) : ''}" placeholder="e.g. FDT – Saturday"></div><div class="field"><label for="evD">Date</label><input type="date" id="evD" value="${ev && ev.starts_on ? ev.starts_on : ''}"></div><div class="acts"><button type="button" class="btn" id="evCancel">Cancel</button><button type="button" class="btn" id="evOk">Save</button></div>`);
+    const canK = !ev || planEmpty(), curK = ev ? KIND : 'cb';
+    const kSel = `<div class="field"><label for="evK">Type</label><select id="evK"${canK ? '' : ' disabled'}><option value="cb"${curK === 'cb' ? ' selected' : ''}>Castle Battle (hourly)</option><option value="fdt"${curK === 'fdt' ? ' selected' : ''}>FDT (30 minutes)</option></select>${canK ? '' : '<div class="modal-sub" style="margin-top:6px">The type can only be changed while the plan is still empty.</div>'}</div>`;
+    openEv(ev ? 'Edit event' : 'New event', `<div class="field"><label for="evT">Title</label><input type="text" id="evT" maxlength="80" autocomplete="off" value="${ev ? escapeHtml(ev.title) : ''}" placeholder="e.g. FDT – Saturday"></div><div class="field"><label for="evD">Date</label><input type="date" id="evD" value="${ev && ev.starts_on ? ev.starts_on : ''}"></div>${kSel}<div class="acts"><button type="button" class="btn" id="evCancel">Cancel</button><button type="button" class="btn" id="evOk">Save</button></div>`);
     el('evCancel').onclick = closeEv;
     el('evOk').onclick = async () => {
       const t = el('evT').value.trim(), d = el('evD').value || null;
@@ -1748,6 +1777,12 @@ ${escapeHtml(lab)}</textarea></div>`;
         const id = await rpc('rp_event_save', {p_code: V.code, p_id: ev ? ev.id : null, p_title: t, p_date: d});
         closeEv(); if(!ev) V.evId = id;
         await loadList(); if(!ev || V.evId === id) await loadState(true); setHash(); renderBar();
+        const k = el('evK').value;
+        if(canK && k !== KIND && V.evId === id){
+          setKind(k);
+          S.blocks = S.blocks.map(b => { const nb = newBlock(); nb.rows = b.rows; nb.nl = b.nl; nb.ratio = b.ratio; nb.share = b.share; nb.bb = b.bb; return nb; });
+          render(); await push(); renderBar();
+        }
         toast(ev ? 'Event saved.' : 'Event created.');
       } catch(e) { toast(String(e.message || e)); }
     };
@@ -1778,7 +1813,7 @@ ${escapeHtml(lab)}</textarea></div>`;
       const ev = curEv(); if(!ev) return;
       try { await push(); await rpc('rp_event_lock', {p_code: V.code, p_id: ev.id, p_locked: !V.locked}); await loadList(); await loadState(true); renderBar(); toast(V.locked ? 'Event locked.' : 'Event unlocked.'); } catch(e) { toast(String(e.message || e)); }
     });
-    el('evSel').addEventListener('change', async () => { await push(); V.evId = el('evSel').value || null; V.dirty = false; setHash(); try { await loadState(true); } catch(e) {} renderBar(); });
+    el('evSel').addEventListener('change', async () => { const nv = el('evSel').value || null; await push(); V.evId = nv; V.dirty = false; setHash(); try { await loadState(true); } catch(e) {} renderBar(); });
     el('evLogin').addEventListener('click', () => {
       if(V.me){ try { localStorage.removeItem('ep_code'); } catch(e) {} V.me = null; V.code = ''; V.canEdit = false; renderBar(); toast('Logged out.'); }
       else loginForm();
@@ -1830,7 +1865,7 @@ ${escapeHtml(lab)}</textarea></div>`;
      }
     });
     if(!any && !blk.title) return '';
-    return `<div class="sh-block" data-nc="${cols.length}">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid" style="grid-template-columns:150px repeat(${cols.length},minmax(0,1fr))"><div class="rp-th blank"></div>${cols.map(c => `<div class="rp-th">${TIMES[c]}</div>`).join('')}${rows}</div></div>`;
+    return `<div class="sh-block" data-nc="${cols.length}">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid" style="grid-template-columns:150px repeat(${cols.length},minmax(0,1fr))"><div class="rp-th blank"></div>${cols.map(c => `<div class="rp-th">${thLab(c)}</div>`).join('')}${rows}</div></div>`;
   }
   const LIB = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
   function loadLib(){
@@ -1856,7 +1891,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     el.classList.toggle('compact', !!S.compact);
     el.innerHTML = html;
     const ncs = Array.from(el.querySelectorAll('.sh-block')).map(x => +x.dataset.nc || TIMES.length);
-    el.style.width = ncs.length ? Math.max(430, 44 + 150 + Math.max.apply(null, ncs) * 188) + 'px' : '';
+    el.style.width = ncs.length ? Math.max(430, 44 + 150 + Math.max.apply(null, ncs) * (SLOT === 60 ? 188 : 128)) + 'px' : '';
     if(!el.children.length) return null;
     await loadLib();
     el.querySelectorAll('img').forEach(im => { im.removeAttribute('loading'); im.loading = 'eager'; });
