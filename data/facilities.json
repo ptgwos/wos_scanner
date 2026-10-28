@@ -24,6 +24,20 @@
     "TBR",
     "CLS"
    ]
+  },
+  {
+   "id": "816-486",
+   "type": "Weapons Facility",
+   "level": 4,
+   "bonus": "Troops' Attack + 8.0%",
+   "x": 816,
+   "y": 486,
+   "alliances": [
+    "TBR",
+    "PKB",
+    "fux",
+    "DFT"
+   ]
   }
  ]
 }
