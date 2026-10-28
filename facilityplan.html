@@ -504,7 +504,7 @@
 
   <div id="fpMain"></div>
 
-  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp2</footer>
+  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp3</footer>
 </div>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>
@@ -951,6 +951,12 @@
     c.innerHTML = '<div class="fp-grid">' + list.map(cardHtml).join('') + '</div>';
   }
 
+  // When was the shield/open timer last entered? (new field timerAt; older plans fall back to the save time)
+  function timerAt(p){ return p.d.timerAt || (p.upd ? Date.parse(p.upd) : now()); }
+  function timerLine(p){
+    var age = Math.max(0, now() - timerAt(p)), stale = age > 48 * H;
+    return '<div class="fp-' + (stale ? 'warn' : 'info') + (stale ? ' soft' : '') + '">Timer last updated ' + (age < MIN ? 'just now' : dur(age) + ' ago') + (stale ? ' — please check it in the game and update it if needed.' : '.') + '</div>';
+  }
   function cardHtml(x){
     var d = x.d, r = x.r, f = V.facById[d.fac], st = statusOf(r);
     var finished = !r.ok && r.reason === 'event_over';
@@ -972,6 +978,7 @@
       if(r.gapEndMs > 0 && r.coverage !== 'none') h += '<div class="fp-warn">The shield ends ' + dur(r.gapEndMs) + ' before the event end.</div>';
       if(r.coverage === 'none') h += '<div class="fp-warn">The shield does not overlap the event.</div>';
       if(r.rolled) h += '<div class="fp-warn soft">The entered timer had run out. Please update it.</div>';
+      else h += timerLine(x.p);
     } else if(finished){
       h += '<div class="fp-info">The event is over.</div>';
     } else {
@@ -1035,6 +1042,7 @@
       if(r.coverage === 'full') h += '<div class="fp-box">✓ ' + esc(d.desired) + ' has the bonus during the whole event (shield ' + fmt(r.takeover.captureAt) + ' – ' + fmt(r.takeover.shieldEnd) + ').' + (r.resets ? ' ' + r.resets + ' reset' + (r.resets > 1 ? 's are' : ' is') + ' needed first.' : '') + '</div>';
       else if(r.coverage === 'partial') h += '<div class="fp-box warn">⚠ Only ' + r.covPct + '% of the event can be covered. ' + (r.gapStartMs ? esc(d.desired) + ' gets the bonus ' + dur(r.gapStartMs) + ' after the start. ' : '') + (r.gapEndMs ? 'The shield ends ' + dur(r.gapEndMs) + ' before the end.' : '') + '</div>';
       else h += '<div class="fp-box bad">The shield cannot overlap the event with the current timer.</div>';
+      h += timerLine(p);
       h += '<div class="fp-h">Timeline (now → event end)</div>' + timelineHtml(d, r);
       h += '<div class="fp-h">Action plan</div>';
       stepsFor(d, r).forEach(function(s, i){
@@ -1129,7 +1137,7 @@
     var manual = null;
     if(E.strategy === 'manual'){ manual = fromLocal($('fMan').value); if(isNaN(manual)) return {err: 'Please pick the attack time.'}; }
     var d = {fac: f.id, owner: owner, desired: des, phase: phase, until: until, eventType: $('fEvT').value, eventStart: ev.start, eventEnd: ev.end,
-      strategy: E.strategy, manualAt: manual, bufferMin: Math.max(0, +$('fBuf').value || 0), marchMin: Math.max(0, +$('fMar').value || 0)};
+      strategy: E.strategy, manualAt: manual, timerAt: (E.id && !E.dirtyRem) ? E.origAt : now(), bufferMin: Math.max(0, +$('fBuf').value || 0), marchMin: Math.max(0, +$('fMar').value || 0)};
     return {d: d};
   }
   function preview(){
@@ -1153,7 +1161,7 @@
   function openEditor(id){
     if(!V.fac.length){ alert('The facility list is not loaded.'); return; }
     var p = id ? V.plans.filter(function(x){ return x.id === id; })[0] : null;
-    E = {id: p ? p.id : null, orig: p ? p.d : null, phase: 'shield', strategy: 'late', dirtyRem: !p};
+    E = {id: p ? p.id : null, orig: p ? p.d : null, origAt: p ? timerAt(p) : null, phase: 'shield', strategy: 'late', dirtyRem: !p};
     $('edTitle').textContent = p ? 'Edit plan' : 'New plan';
     fillFacSelect($('fFac'));
     if(p){
