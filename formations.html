@@ -945,6 +945,13 @@
     .rb.two .rb-sec:nth-child(even){padding-right:0;border-left:1px solid var(--border-soft);}
     .rb.two .rb-sec:nth-child(n+3){margin-top:16px;padding-top:16px;border-top:1px solid var(--border-soft);}
   }
+  .rp-res.bearmode{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .rb.bear{width:100%;min-width:900px;max-width:1300px;}
+  .rb.bear .rb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+  .rb.bear .rb-sec,.rb.bear .rb-sec + .rb-sec{margin:0;padding:14px 12px;border:1px solid var(--border-soft);border-radius:8px;}
+  .rb.bear .rb-sec:first-child{grid-column:2;}
+  .rb.bear .rb-sec:nth-child(2){grid-column:1;}
+  .rp-mode{margin:0 0 16px;}
   .rb-sec + .rb-sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-soft);}
   .rb-sec h3{margin:0 0 12px;font-size:17px;letter-spacing:.1em;color:var(--gold);font-weight:800;text-align:center;}
   .rb-row{display:block;text-align:center;margin-bottom:12px;}
@@ -1042,6 +1049,7 @@
   <div class="divider"></div>
 
   <div class="panel">
+    <div class="seg rp-mode" role="group" aria-label="Formation type"><button type="button" id="modeNormal" class="active">Normal</button><button type="button" id="modeBear">Bear formations</button></div>
     <p class="rp-intro">Type a title for the box, then tap a slot to pick a hero. “+ or” adds an alternative (“A or B”), “+” adds more joiner slots, “Add another box” gives you e.g. a second block. Your plan is saved in this browser.</p>
     <div class="rp-edit" id="edit"></div>
     <div class="rp-addrow"><button type="button" class="btn-secondary" id="btnAddBlk">＋ Add another box</button></div>
@@ -1057,7 +1065,7 @@
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-25 · y19</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-28 · y20</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div><div id="pickGenWrap" hidden><div class="rp-gsep">Heroes by rank</div><div class="rp-grid" id="pickGen"></div></div></div></div></div>
@@ -1093,7 +1101,9 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
 
   function blank(n){ return Array.from({length: n}, () => []); }
   function blankBlock(){ return {title: '', showL: true, showJ: true, l: blank(NL), j: blank(NJ0), ratio: DR.slice()}; }
-  function def(){ return {blocks: [blankBlock()], custom: []}; }
+  const NBEAR = 7;
+  function bearBlocks(){ return Array.from({length: NBEAR}, blankBlock); }
+  function def(){ return {mode: 'normal', blocks: [blankBlock()], alt: null, custom: []}; }
   function normSlots(a, n){
     const out = blank(n);
     if(Array.isArray(a)) for(let i = 0; i < n; i++){ const s = a[i]; if(Array.isArray(s)) out[i] = s.filter(x => typeof x === 'string' && x).slice(0, 2); }
@@ -1109,10 +1119,12 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
     if(!o){ try { const m = document.cookie.match(/(?:^|; )rally646_state=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
     const d = def();
     if(!o || typeof o !== 'object') return d;
-    if(Array.isArray(o.blocks)){
-      const bl = o.blocks.filter(x => x && typeof x === 'object').slice(0, MAXB).map(x => ({title: String(x.title || '').toUpperCase().slice(0, 28), l: normSlots(x.l, NL), j: normSlots(x.j, Math.max(NJ0, Math.min(NJMAX, Array.isArray(x.j) ? x.j.length : NJ0))), ratio: normRatio(x.ratio, DR), showL: x.showL !== false, showJ: x.showJ !== false}));
-      if(bl.length) d.blocks = bl;
-    }
+    const nb = x => ({title: String(x.title || '').toUpperCase().slice(0, 28), l: normSlots(x.l, NL), j: normSlots(x.j, Math.max(NJ0, Math.min(NJMAX, Array.isArray(x.j) ? x.j.length : NJ0))), ratio: normRatio(x.ratio, DR), showL: x.showL !== false, showJ: x.showJ !== false});
+    const mk = (arr, mx) => Array.isArray(arr) ? arr.filter(x => x && typeof x === 'object').slice(0, mx).map(nb) : [];
+    d.mode = o.mode === 'bear' ? 'bear' : 'normal';
+    const fix = (arr, bear) => { let a = mk(arr, bear ? NBEAR : MAXB); if(bear){ while(a.length < NBEAR) a.push(blankBlock()); } return a.length ? a : null; };
+    d.blocks = fix(o.blocks, d.mode === 'bear') || (d.mode === 'bear' ? bearBlocks() : [blankBlock()]);
+    d.alt = fix(o.alt, d.mode !== 'bear');
     if(Array.isArray(o.custom)) d.custom = o.custom.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim().slice(0, 24)).slice(0, 80);
     return d;
   }
@@ -1180,14 +1192,14 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
     return `<span class="rp-sum ${ok ? 'ok' : 'bad'}">Σ ${sum}%</span>` + (ok ? '<span>adds up to 100</span>' : `<span>should be 100</span><button type="button" class="rp-norm" data-act="norm" data-b="${m}">Scale to 100</button>`);
   }
   function renderEditors(){
-    const many = S.blocks.length > 1;
+    const bear = S.mode === 'bear', many = S.blocks.length > 1 && !bear;
     $('edit').innerHTML = S.blocks.map((blk, b) => `<div class="sx-card rp-card"><div class="rp-head"><input type="text" class="rp-title" data-b="${b}" maxlength="28" placeholder="TITLE, e.g. GARRISON" value="${esc(blk.title)}" aria-label="Title of box ${b + 1}" autocomplete="off" autocapitalize="characters" spellcheck="false">${many ? `<button type="button" class="rp-delblk" data-act="delblk" data-b="${b}" aria-label="Remove this box" title="Remove this box">×</button>` : ''}</div><div class="rp-body">
       <div class="rp-sws"><label class="switch rp-sw"><input type="checkbox" data-act="tgl" data-b="${b}" data-g="l"${blk.showL ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show &quot;Leads&quot;</span></label><label class="switch rp-sw"><input type="checkbox" data-act="tgl" data-b="${b}" data-g="j"${blk.showJ ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show &quot;Joiners&quot;</span></label></div>
       <div class="rp-grp"><div class="rp-lbl">Leads</div><div class="rp-slots l">${blk.l.map((_, i) => slotHtml(b, 'l', i)).join('')}</div></div>
       <div class="rp-grp"><div class="rp-lbl">Joiners</div><div class="rp-slots j">${blk.j.map((_, i) => slotHtml(b, 'j', i)).join('')}${blk.j.length < NJMAX ? `<div class="rp-slot"><button type="button" class="rp-empty rp-plus" data-act="addslot" data-b="${b}" title="Add another joiner slot"><b>+</b><span>More</span></button></div>` : ''}</div></div>
       <div class="rp-grp" style="margin-bottom:0"><div class="rp-lbl">Ratio (%)</div>${ratioHtml(b)}</div></div></div>`).join('');
     S.blocks.forEach((_, b) => { $('rsum-' + b).innerHTML = sumHtml(b); });
-    const ab = $('btnAddBlk'); if(ab) ab.style.display = S.blocks.length >= MAXB ? 'none' : '';
+    const ab = $('btnAddBlk'); if(ab) ab.style.display = (S.mode === 'bear' || S.blocks.length >= MAXB) ? 'none' : '';
   }
 
   // ---- result block ----
@@ -1207,7 +1219,8 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
   }
   window.addEventListener('resize', markRows);
   function renderResult(){
-    $('shot').classList.toggle('two', S.blocks.length > 1);   // 2 boxes side by side on wide screens (CSS)
+    $('shot').classList.toggle('two', S.mode !== 'bear' && S.blocks.length > 1);
+    $('shot').classList.toggle('bear', S.mode === 'bear'); $('shot').parentNode.classList.toggle('bearmode', S.mode === 'bear');   // 2 boxes side by side on wide screens (CSS)
     $('shot').innerHTML = `<div class="rb-top"><span>State 646 · Formations</span></div><div class="rb-grid">` + S.blocks.map(x =>
       `<div class="rb-sec">${x.title ? `<h3>${esc(x.title)}</h3>` : ''}${rowHtml('Leads', x.l, x.showL)}${rowHtml('Joiners', x.j, x.showJ)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div></div>`).join('') + '</div>';
     markRows();
@@ -1421,9 +1434,18 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
   $('btnText').addEventListener('click', openText);
   $('btnImg').addEventListener('click', e => copyImage(e.currentTarget));
   $('btnReset').addEventListener('click', () => {
-    if(!confirm('Clear everything and start with one empty box? (Your own added heroes stay in the pool.)')) return;
-    const c = S.custom; S = def(); S.custom = c; save(); renderAll();
+    if(!confirm('Clear this plan and start again with empty boxes? (The other mode and your own added heroes stay.)')) return;
+    S.blocks = S.mode === 'bear' ? bearBlocks() : [blankBlock()]; save(); renderAll();
   });
+  function setMode(m){
+    if(S.mode === m) return;
+    const cur = S.blocks; S.blocks = S.alt || (m === 'bear' ? bearBlocks() : [blankBlock()]); S.alt = cur; S.mode = m;
+    save(); syncMode(); renderAll();
+  }
+  function syncMode(){ $('modeNormal').classList.toggle('active', S.mode !== 'bear'); $('modeBear').classList.toggle('active', S.mode === 'bear'); }
+  $('modeNormal').addEventListener('click', () => setMode('normal'));
+  $('modeBear').addEventListener('click', () => setMode('bear'));
+  syncMode();
 
   // ---- theme (same keys as the other pages) ----
   (function(){
