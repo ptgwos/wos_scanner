@@ -1016,6 +1016,10 @@
   .ps-seg.on.mnn{font-size:12px;}
   .ps-mn{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);}
   .ps-mn .ps-nm{font-weight:800;letter-spacing:.06em;}
+  .rp-gate{padding:36px 24px;text-align:center;max-width:520px;margin:0 auto;}
+  .rp-gate .gt{font-size:26px;font-weight:800;color:var(--strong);margin-bottom:10px;}
+  .rp-gate p{color:var(--text-dim);font-size:15px;line-height:1.5;margin:0 0 14px;}
+  .rp-gate .btn{width:auto;padding:9px 22px;margin:4px;}
   .sh-pets{max-width:1100px;margin:0 auto;}
   .ps-seg.on{background:rgba(var(--bc),.22);border:1px solid rgb(var(--bc));color:rgb(var(--bt));}
   .ps-seg.off{background:repeating-linear-gradient(135deg,rgba(var(--bc),.14) 0 6px,transparent 6px 12px);border:1px dashed rgba(var(--bc),.6);color:var(--text-faint);}
@@ -1139,14 +1143,15 @@
     </div>
     <div id="rpStat"></div>
   </div>
-  <div class="panel">
+  <div class="panel" id="rpGate" hidden><div class="rp-gate"><div class="gt">Login required</div><p id="rpGateTxt">The Rally Planner is private. Please log in.</p><div id="rpGateBtns"></div></div></div>
+  <div class="panel" id="rpMain">
     <div class="rp-tools"><button type="button" class="btn" id="rpShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Share pic</button><button type="button" class="btn" id="rpPets"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg>Pets schedule</button><label class="switch rp-cs" title="One-line name tiles without power"><input type="checkbox" id="rpCompact"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Compact</span></label></div>
     <div id="rpBlocks"></div>
     <div id="rpEmpty" hidden></div>
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-27 · rp25</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-28 · rp26</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1705,6 +1710,8 @@ ${escapeHtml(lab)}</textarea></div>`;
     const u = MUSERS[a.p_code]; const d = mdb();
     if(fn === 'sa_me') return u || null;
     if(!u || !u.rallyplan) throw new Error('Not allowed (no Rally Planner permission).');
+    if(fn === 'rp_event_list') return d.events.slice().sort((x, y) => (y.starts_on || '') < (x.starts_on || '') ? -1 : 1).map(e => ({id: e.id, title: e.title, starts_on: e.starts_on, version: e.version, locked: e.locked, updated_by: e.updated_by}));
+    if(fn === 'rp_event_get'){ const e = d.events.find(x => x.id === a.p_id); return e ? JSON.parse(JSON.stringify({id: e.id, title: e.title, state: e.state, version: e.version, locked: e.locked})) : null; }
     if(fn === 'rp_event_save'){
       if(!a.p_title) throw new Error('A title (up to 80 characters) is needed.');
       if(a.p_id){ const e = d.events.find(x => x.id === a.p_id); if(!e) throw new Error('This event does not exist (any more).'); e.title = a.p_title; e.starts_on = a.p_date; e.version++; msave(d); return e.id; }
@@ -1778,15 +1785,16 @@ ${escapeHtml(lab)}</textarea></div>`;
     return (up[0] || V.events[0] || {}).id || null;
   }
   async function loadList(){
-    const rows = await rest('rp_events?select=id,title,starts_on,version,locked,updated_by&order=starts_on.desc.nullslast,created_at.desc');
+    if(gated()){ V.events = []; return; }
+    const rows = await rpc('rp_event_list', {p_code: V.code});
     V.events = Array.isArray(rows) ? rows : [];
     V.offline = false;
   }
   async function loadState(force){
     const id = V.evId; if(!id) return;
-    const rows = await rest('rp_events?id=eq.' + encodeURIComponent(id) + '&select=id,title,state,version,locked');
+    if(gated()) return;
+    const e = await rpc('rp_event_get', {p_code: V.code, p_id: id});
     if(id !== V.evId) return;
-    const e = rows && rows[0];
     if(!e){ V.evId = pickDefault(); setHash(); if(V.evId) return loadState(true); S.blocks = [newBlock()]; V.ver = 0; render(); return; }
     V.ver = e.version; V.locked = !!e.locked;
     setKind(e.state && e.state.kind);
@@ -1794,7 +1802,22 @@ ${escapeHtml(lab)}</textarea></div>`;
     V.lastJson = JSON.stringify({kind: KIND, blocks: S.blocks}); V.dirty = false;
     render();
   }
+  function gated(){ return !(V.me && V.me.rallyplan); }
+  function applyGate(){
+    const g = gated(); el('rpGate').hidden = !g; el('rpGate').style.display = g ? '' : 'none'; el('rpMain').style.display = g ? 'none' : '';
+    el('rpBar').style.display = g ? 'none' : '';
+    if(g){
+      const noperm = !!V.me;
+      el('rpGateTxt').textContent = noperm ? 'Logged in as ' + (V.me.name || '') + ' – this user has no permission for the Rally Planner. Please contact Peter the Great in game or on Discord.' : 'The Rally Planner is private. Please log in.';
+      el('rpGateBtns').innerHTML = noperm ? '<button type="button" class="btn" id="gOut">Log out</button>' : '<button type="button" class="btn" id="gDc">Log in with Discord</button>' + '<button type="button" class="btn" id="gCode">Log in with link / code</button>';
+      const o = el('gOut'); if(o) o.onclick = () => { try { localStorage.removeItem('ep_code'); } catch(e) {} V.me = null; V.code = ''; V.canEdit = false; applyGate(); };
+      const d = el('gDc'); if(d) d.onclick = () => { if(window.EPDiscord) window.EPDiscord.start(); else loginForm(); };
+      const c = el('gCode'); if(c) c.onclick = loginForm;
+    }
+  }
   async function refreshAll(first){
+    if(gated()){ V.events = []; V.evId = null; S.blocks = [newBlock()]; V.ver = 0; applyGate(); return; }
+    applyGate();
     try {
       await loadList();
       if(first || !V.events.some(e => e.id === V.evId)) V.evId = pickDefault();
@@ -1802,7 +1825,7 @@ ${escapeHtml(lab)}</textarea></div>`;
       if(V.evId){ if(first) await loadState(true); else { const ev = curEv(); if(ev && (ev.version !== V.ver || !!ev.locked !== V.locked) && !V.dirty && !V.pushing && !modalOpen() && !(document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && grid.contains(document.activeElement))) await loadState(false); } }
       else { S.blocks = [newBlock()]; render(); }
       setHash(); renderBar();
-    } catch(e) { V.offline = true; renderBar(); }
+    } catch(e) { if(/Not allowed/i.test(String(e && e.message))){ V.me = Object.assign({}, V.me, {rallyplan: false}); S.blocks = [newBlock()]; applyGate(); return; } V.offline = true; renderBar(); }
   }
   async function push(){
     if(!V.evId || !V.canEdit) return;
@@ -1866,7 +1889,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     const go = async () => {
       let c = el('lc').value.trim(); const mm = c.match(/invite=([^&\s#]+)/); if(mm) c = decodeURIComponent(mm[1]);
       if(!c) return;
-      try { if(!(await doLogin(c))){ toast('This code is not valid.'); return; } closeEv(); renderBar(); toast('Logged in.'); } catch(e) { toast(String(e.message || e)); }
+      try { if(!(await doLogin(c))){ toast('This code is not valid.'); return; } closeEv(); await refreshAll(true); toast('Logged in.'); } catch(e) { toast(String(e.message || e)); }
     };
     el('evOk').onclick = go; el('lc').addEventListener('keydown', e => { if(e.key === 'Enter') go(); });
   }
@@ -1888,7 +1911,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     });
     el('evSel').addEventListener('change', async () => { const nv = el('evSel').value || null; await push(); V.evId = nv; V.dirty = false; setHash(); try { await loadState(true); } catch(e) {} renderBar(); });
     el('evLogin').addEventListener('click', () => {
-      if(V.me){ try { localStorage.removeItem('ep_code'); } catch(e) {} V.me = null; V.code = ''; V.canEdit = false; renderBar(); toast('Logged out.'); }
+      if(V.me){ try { localStorage.removeItem('ep_code'); } catch(e) {} V.me = null; V.code = ''; V.canEdit = false; S.blocks = [newBlock()]; V.events = []; V.evId = null; applyGate(); toast('Logged out.'); }
       else loginForm();
     });
     // capture-phase guard: in read-only mode nothing inside the plan can be changed
