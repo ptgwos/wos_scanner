@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>State 646 · Facility Planner</title>
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="theme-color" content="#070b15">
+<script>try{var t=null;try{t=localStorage.getItem("svs-theme");}catch(e){}if(!t){var m=document.cookie.match(/(?:^|; )svs_theme=(\w+)/);t=m&&m[1];}if(t==="light"){document.documentElement.setAttribute("data-theme","light");document.querySelector('meta[name="theme-color"]').setAttribute("content","#f3f6fb");}}catch(e){}</script>
+<script>try{var o=JSON.parse(localStorage.getItem('svs646_prefs')||'null')||{},c=document.documentElement.classList;if(o.bal===false)c.add('no-bal');if(o.ban===false)c.add('no-ban');}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070b15;
+    --bg-2:#0a0f1c;
+    --panel:#0f1626;
+    --panel-2:#141d33;
+    --border:#1f2c47;
+    --border-soft:#182236;
+    --ice:#6fe3ff;
+    --ice-dim:#3a8fae;
+    --frost:#4f7cff;
+    --gold:#ffb400;
+    --silver:#9fb2cc;
+    --text:#e7edf7;
+    --text-dim:#8a9bbd;
+    --text-faint:#5b6c8c;
+    --state646:#ffb400;
+    --state657:#7f8fb0;
+    --good:#43e6a0;
+    --danger:#ff5d73;
+    --strong:#fff;
+    --stk-sel:#122338;
+    --hit-hover:#18233d;
+    --on-ice:#00151c;
+    --halo:#0f1626;
+    color-scheme:dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#f3f6fb;
+    --bg-2:#eaeff7;
+    --panel:#ffffff;
+    --panel-2:#eef2f9;
+    --border:#cdd6e5;
+    --border-soft:#e1e7f1;
+    --ice:#0b7fa6;
+    --ice-dim:#4f93ad;
+    --frost:#3b62d9;
+    --gold:#a86f00;
+    --silver:#6b7d99;
+    --text:#16213a;
+    --text-dim:#4a5b7b;
+    --text-faint:#7384a3;
+    --state646:#c98600;
+    --state657:#6b7d99;
+    --good:#0e9a68;
+    --danger:#d02e48;
+    --strong:#0b1426;
+    --stk-sel:#dcebf6;
+    --hit-hover:#e6edf8;
+    --on-ice:#ffffff;
+    --halo:#ffffff;
+    color-scheme:light;
+  }
+  :root[data-theme="light"] body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(79,124,255,0.10), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(11,127,166,0.07), transparent 55%),
+      var(--bg);
+  }
+  :root[data-theme="light"] tbody tr:hover{background:rgba(11,127,166,0.06);}
+  :root[data-theme="light"] tbody tr.row-sel{background:rgba(11,127,166,0.10);}
+  :root[data-theme="light"] .sel-bar{box-shadow:0 -6px 24px rgba(20,35,70,.18);}
+  :root[data-theme="light"] #tooltip{background:rgba(255,255,255,.98);box-shadow:0 12px 36px rgba(20,35,70,.22);}
+  :root[data-theme="light"] .btn{background:linear-gradient(180deg, rgba(11,127,166,.14), rgba(11,127,166,.04));}
+  :root[data-theme="light"] .sx-chip{background:rgba(20,35,70,.03);}
+  :root[data-theme="light"] .ttq,:root[data-theme="light"] .phase-note{background:rgba(11,127,166,.05);}
+  :root[data-theme="light"] .state-bar .seg.s657{background:linear-gradient(180deg,#8d9db8,#6b7d99);color:#fff;}
+  :root[data-theme="light"] .switch input:checked + .switch-track{background:rgba(201,134,0,.2);}
+  /* theme toggle (top right) */
+  header{position:relative;}
+  .theme-toggle{position:absolute;top:0;right:0;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;border:1px solid var(--border);background:var(--panel);color:var(--text-dim);cursor:pointer;padding:0;}
+  .theme-toggle:hover{color:var(--strong);border-color:var(--ice-dim);}
+  .theme-toggle svg{width:19px;height:19px;display:block;}
+  .theme-toggle .i-sun{display:none;}
+  .sitenav{display:flex;gap:4px;overflow-x:auto;margin:0 0 16px;padding:5px;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;font-size:11.5px;font-weight:600;letter-spacing:.09em;scrollbar-width:none;}
+  .sitenav::-webkit-scrollbar{display:none;}
+  .sitenav > a,.sitenav > span{padding:6px 13px;border-radius:7px;color:var(--text-dim);text-decoration:none;white-space:nowrap;}
+  .sitenav a:hover{color:var(--strong);background:rgba(120,140,190,.14);}
+  .sitenav > .cur{color:var(--gold);background:rgba(255,180,0,.12);box-shadow:inset 0 -2px 0 var(--gold);}
+  .sitenav .sn-s{display:none;}
+  @media (max-width:640px){ .sitenav .sn-l{display:none;} .sitenav .sn-s{display:inline;} .sitenav > a,.sitenav > span{padding:6px 10px;} }
+  .refresh-btn{right:46px;}
+  .refresh-btn svg{width:18px;height:18px;}
+  .refresh-btn.spin svg{animation:rfspin .8s linear infinite;}
+  .refresh-btn.ok{color:#2fbf71;border-color:#2fbf71;}
+  @keyframes rfspin{to{transform:rotate(360deg);}}
+  :root[data-theme="light"] .theme-toggle .i-sun{display:block;}
+  :root[data-theme="light"] .theme-toggle .i-moon{display:none;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(79,124,255,0.14), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(111,227,255,0.08), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:32px 20px 80px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* header */
+  header{margin-bottom:28px;}
+  .eyebrow{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--ice-dim);
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:8px;
+  }
+  .eyebrow::before{content:'';width:22px;height:1px;background:var(--ice-dim);display:inline-block;}
+  h1{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:clamp(26px,4vw,38px);
+    margin:0 0 6px;
+    letter-spacing:.01em;
+  }
+  h1 span{color:var(--ice);}
+  .subtitle{color:var(--text-dim);font-size:14px;margin:0;}
+
+  .divider{width:100%;height:1px;background:var(--border);margin:18px 0 26px;}
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:20px;
+  }
+
+  /* controls */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:flex-end;
+    margin-bottom:18px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--border-soft);
+  }
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    font-family:'Inter',sans-serif;
+  }
+  select,input[type="text"]{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:9px 12px;
+    border-radius:4px;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    min-width:150px;
+  }
+  select:focus,input:focus{outline:2px solid var(--ice-dim);outline-offset:1px;}
+  .seg{display:flex;flex-wrap:wrap;gap:6px;}
+  .seg button{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:8px 13px;
+    font-size:12.5px;
+    font-family:'Inter',sans-serif;
+    letter-spacing:.03em;
+    border-radius:4px;
+    cursor:pointer;
+    transition:all .12s;
+  }
+  .seg button:hover{color:var(--text);border-color:var(--ice-dim);}
+  .btn{
+    font-family:'Inter',sans-serif;
+    font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;
+    background:linear-gradient(180deg, rgba(111,227,255,.18), rgba(111,227,255,.05));
+    border:1px solid var(--ice);
+    color:var(--ice);
+    padding:10px 18px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .btn:hover{background:rgba(111,227,255,.22);box-shadow:0 0 16px rgba(111,227,255,.2);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;}
+  .copy-status{font-size:12.5px;color:var(--good);opacity:0;transition:opacity .2s;}
+  .copy-status.show{opacity:1;}
+  .chest-summary{font-size:12.5px;color:var(--text-faint);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;}
+
+  footer{margin-top:36px;text-align:center;color:var(--text-faint);font-size:11.5px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;}
+
+  /* modal */
+  .modal-overlay{
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(3,6,12,0.72);
+    z-index:100;
+    align-items:center;justify-content:center;
+    padding:24px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    max-width:820px;width:100%;
+    max-height:80vh;
+    display:flex;flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .modal-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 22px 0;
+  }
+  .modal-header h2{
+    font-family:'Inter',sans-serif;font-weight:700;font-size:18px;margin:0;color:var(--ice);
+  }
+  .modal-close{
+    background:none;border:none;color:var(--text-dim);font-size:22px;line-height:1;
+    cursor:pointer;padding:4px 8px;
+  }
+  .modal-close:hover{color:var(--text);}
+  .modal-sub{color:var(--text-faint);font-size:12.5px;padding:6px 22px 14px;margin:0;}
+  #tableWrap, #chestTableWrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  #tableWrap table, #chestTableWrap table{min-width:520px;}
+  tbody td.name, thead th{white-space:nowrap;}
+  #top100TableWrap{overflow:auto;padding:0 22px 22px;}
+  #top100TableWrap table{font-size:13px;}
+  #top100TableWrap th, #top100TableWrap td{padding:7px 10px;white-space:nowrap;}
+  #top100TableWrap thead th{position:sticky;top:0;background:var(--panel);}
+  #top100TableWrap td.num{text-align:center;}
+  #top100TableWrap th:first-child, #top100TableWrap td:first-child{position:sticky;left:0;background:var(--panel);z-index:1;box-shadow:1px 0 0 var(--border);}
+  #top100TableWrap thead th:first-child{z-index:2;}
+  .btn-secondary{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:13px;
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);
+    padding:9px 16px;border-radius:5px;cursor:pointer;transition:all .15s;
+  }
+  .btn-secondary:hover{color:var(--ice);border-color:var(--ice-dim);}
+
+
+  /* controls layout: phase buttons get their own row, filters + actions sit together below */
+  #controls > .field:first-child{flex:1 1 100%;}
+
+  /* switch */
+  .switch{display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;align-self:flex-end;padding:8px 0;}
+  .switch input{position:absolute;opacity:0;width:0;height:0;}
+  .switch-track{width:38px;height:22px;border-radius:11px;background:var(--panel-2);border:1px solid var(--border);position:relative;transition:background .2s,border-color .2s;flex:none;}
+  .switch-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text-dim);transition:transform .2s,background .2s;}
+  .switch input:checked + .switch-track{background:rgba(255,180,0,.18);border-color:var(--state646);}
+  .switch input:checked + .switch-track .switch-thumb{transform:translateX(16px);background:var(--state646);}
+  .switch input:focus-visible + .switch-track{outline:2px solid var(--ice-dim);outline-offset:2px;}
+  .switch-label{font-size:13px;color:var(--text-dim);font-weight:500;}
+  .switch input:checked ~ .switch-label{color:var(--text);}
+  #toTop{position:fixed;right:22px;bottom:22px;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text-dim);opacity:0;pointer-events:none;transition:opacity .2s,color .15s,border-color .15s;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;z-index:60;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+  #toTop svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  #toTop:hover{color:var(--strong);border-color:var(--text-dim)}
+  @media (min-width:900px) and (hover:hover){ #toTop{display:flex} #toTop.show{opacity:.55;pointer-events:auto} #toTop.show:hover{opacity:1} }
+  .st-panel{max-width:520px;}
+  .st-body{padding:4px 22px 18px;overflow:auto;}
+  .st-g{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin:16px 0 4px;}
+  .st-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+  .st-row:last-of-type{border-bottom:0;}
+  .st-t{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .st-t b{font-size:14px;font-weight:600;color:var(--text);}
+  .st-t small{font-size:12px;color:var(--text-faint);line-height:1.35;}
+  .st-row .switch{padding:0;align-self:center;width:auto;flex:none;}
+  .st-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+  .st-foot span{font-size:12px;color:var(--text-faint);}
+  .st-foot button{white-space:nowrap;flex:none;font:inherit;font-size:12.5px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--panel-2);color:var(--text-dim);cursor:pointer;}
+  .st-foot button:hover{color:var(--text);}
+  [hidden]{display:none !important;}
+  .modal-overlay{overflow:auto;}
+  @media (max-width:640px){
+    body{padding:20px 12px 60px;}
+    .wrap{max-width:100%;}
+    h1{font-size:26px;}
+    .eyebrow{font-size:10.5px;}
+    .panel{padding:14px;}
+    .modal-overlay{padding:12px;}
+    .modal-panel{max-height:88vh;}
+    .modal-header{padding:14px 14px 0;}
+    .modal-header h2{font-size:16px;}
+    .modal-sub{padding:6px 14px 12px;}
+  }
+  /* ===== Facility Planner ===== */
+  input[type="date"],input[type="datetime-local"],input[type="number"]{
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:4px;
+    font-family:'Inter',sans-serif;font-size:13px;min-width:150px;color-scheme:inherit;
+  }
+  input[type="date"]:focus,input[type="datetime-local"]:focus,input[type="number"]:focus{outline:2px solid var(--ice-dim);outline-offset:1px;}
+  .fp-mono{font-variant-numeric:tabular-nums;}
+  .fp-bar{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;margin-bottom:18px;}
+  .fp-bar .fp-sp{flex:1 1 auto;}
+  .fp-bar .btn{white-space:nowrap;}
+  .fp-info{font-size:12.5px;color:var(--text-faint);}
+  .fp-h{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin:0 0 10px;}
+  .fp-next{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:18px;}
+  .fp-nx{display:grid;grid-template-columns:150px 110px 1fr;gap:6px 14px;align-items:center;padding:7px 0;border-top:1px solid var(--border-soft);font-size:13px;}
+  .fp-nx:first-of-type{border-top:0;}
+  .fp-nx .t{font-variant-numeric:tabular-nums;color:var(--text);}
+  .fp-nx .c{font-variant-numeric:tabular-nums;color:var(--text-dim);font-size:12.5px;}
+  .fp-nx .w{color:var(--text-dim);min-width:0;}
+  .fp-nx .w b{color:var(--text);font-weight:600;}
+  .fp-kind{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:999px;margin-right:6px;vertical-align:1px;}
+  .fp-kind.reset{background:rgba(176,107,255,.16);color:#b98aff;}
+  .fp-kind.take{background:rgba(255,180,0,.16);color:var(--gold);}
+  .fp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;}
+  .fp-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;overflow:hidden;}
+  .fp-card.ok{border-color:rgba(67,230,160,.38);}
+  .fp-card.warn{border-color:rgba(255,180,0,.5);}
+  .fp-card.bad{border-color:rgba(255,93,115,.55);}
+  .fp-ch{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--border-soft);}
+  .fp-fn{font-weight:700;font-size:15px;color:var(--strong);}
+  .fp-fs{font-size:12px;color:var(--text-faint);margin-top:2px;}
+  .fp-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .fp-badge.ok{background:rgba(67,230,160,.14);color:var(--good);}
+  .fp-badge.warn{background:rgba(255,180,0,.15);color:var(--gold);}
+  .fp-badge.bad{background:rgba(255,93,115,.14);color:var(--danger);}
+  .fp-cb{padding:12px 16px;flex:1;}
+  .fp-who{font-size:13px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;}
+  .fp-who .own{color:var(--frost);} .fp-who .des{color:var(--gold);}
+  .fp-tag{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);}
+  .fp-tag.rs{border-color:rgba(176,107,255,.5);color:#b98aff;}
+  .fp-cdl{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+  .fp-cd{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin-bottom:8px;}
+  .fp-cd.soon{color:var(--gold);} .fp-cd.now{color:var(--danger);} .fp-cd.far{color:var(--good);}
+  .fp-row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:2px 0;}
+  .fp-row span:first-child{color:var(--text-faint);}
+  .fp-row span:last-child{font-variant-numeric:tabular-nums;text-align:right;}
+  .fp-cov{height:7px;border-radius:4px;background:var(--panel-2);border:1px solid var(--border-soft);position:relative;overflow:hidden;margin:8px 0 3px;}
+  .fp-cov i{position:absolute;top:0;bottom:0;background:var(--gold);}
+  .fp-warn{font-size:11.5px;color:var(--danger);margin-top:5px;line-height:1.4;}
+  .fp-warn.soft{color:var(--gold);}
+  .fp-cf{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border-soft);align-items:center;}
+  .fp-cf .sp{flex:1;}
+  .fp-b{font:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:4px;border:1px solid var(--border);background:var(--panel-2);color:var(--text-dim);cursor:pointer;}
+  .fp-b:hover{color:var(--ice);border-color:var(--ice-dim);}
+  .fp-b.danger:hover{color:var(--danger);border-color:var(--danger);}
+  .fp-empty{text-align:center;padding:56px 16px;color:var(--text-faint);font-size:14px;line-height:1.7;}
+  .fp-gate{max-width:520px;margin:30px auto;text-align:center;}
+  .fp-gate h2{margin:0 0 8px;font-size:20px;}
+  .fp-gate p{color:var(--text-dim);font-size:14px;line-height:1.6;margin:0 0 16px;}
+  .fp-gate .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  /* modals */
+  .fp-mp{max-width:720px;}
+  .fp-mb{padding:6px 22px 20px;overflow:auto;}
+  .fp-mf{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;padding:12px 22px 18px;border-top:1px solid var(--border-soft);}
+  .fp-mf .sp{flex:1;}
+  .fp-f2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .fp-f1{margin-bottom:14px;display:flex;flex-direction:column;gap:6px;}
+  .fp-f1 > label,.fp-f2 .field > label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+  .fp-f2 .field,.fp-f1 select,.fp-f1 input{min-width:0;}
+  .fp-f1 select,.fp-f1 input[type="text"],.fp-f1 input[type="date"],.fp-f1 input[type="datetime-local"],.fp-f1 input[type="number"],.fp-f2 select,.fp-f2 input{width:100%;}
+  .fp-hint{font-size:11.5px;color:var(--text-faint);line-height:1.5;}
+  .fp-hint.err{color:var(--danger);}
+  .fp-fac{border:1px solid var(--border-soft);background:var(--panel-2);border-radius:6px;padding:9px 12px;font-size:12.5px;color:var(--text-dim);margin-top:2px;line-height:1.6;}
+  .fp-chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;border:1px solid var(--border);color:var(--text);margin-right:4px;}
+  .fp-seg{display:flex;gap:6px;flex-wrap:wrap;}
+  .fp-seg button{flex:1 1 140px;text-align:left;background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);padding:9px 12px;border-radius:4px;cursor:pointer;font:inherit;font-size:12.5px;font-weight:600;line-height:1.35;}
+  .fp-seg button small{display:block;font-weight:400;font-size:11px;color:var(--text-faint);margin-top:2px;}
+  .fp-seg button:hover{border-color:var(--ice-dim);color:var(--text);}
+  .fp-seg button.on{border-color:var(--ice);color:var(--ice);background:linear-gradient(180deg,rgba(111,227,255,.10),rgba(111,227,255,.02));}
+  .fp-chips2{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+  .fp-opt{border:1px solid var(--border-soft);border-radius:6px;padding:8px 12px;margin-bottom:14px;}
+  .fp-opt summary{cursor:pointer;font-size:12.5px;color:var(--text-dim);font-weight:600;}
+  .fp-opt .fp-f2{margin:12px 0 2px;}
+  .fp-prev{border-radius:6px;padding:10px 12px;font-size:12.5px;line-height:1.6;border:1px solid var(--border);background:var(--panel-2);color:var(--text-dim);}
+  .fp-prev.ok{border-color:rgba(67,230,160,.45);} .fp-prev.warn{border-color:rgba(255,180,0,.55);} .fp-prev.bad{border-color:rgba(255,93,115,.55);}
+  .fp-prev b{color:var(--text);}
+  /* detail */
+  .fp-box{font-size:12.5px;line-height:1.6;padding:9px 12px;border-radius:6px;margin-bottom:10px;border:1px solid var(--border);background:var(--panel-2);color:var(--text-dim);}
+  .fp-box.bad{border-color:rgba(255,93,115,.55);color:var(--text);} .fp-box.warn{border-color:rgba(255,180,0,.55);}
+  .fp-tl{position:relative;height:30px;border-radius:5px;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;}
+  .fp-tl i{position:absolute;top:0;bottom:0;}
+  .fp-tl i.own{background:var(--frost);opacity:.85;}
+  .fp-tl i.des{background:var(--gold);opacity:.9;}
+  .fp-tl i.bat{background:#ffd35c;outline:1px solid #fff3;}
+  .fp-tl i.open{background:repeating-linear-gradient(135deg,transparent 0,transparent 4px,rgba(150,160,185,.45) 4px,rgba(150,160,185,.45) 8px);}
+  .fp-tl .ev{position:absolute;top:0;bottom:0;background:rgba(67,230,160,.16);border-left:2px solid var(--good);border-right:2px solid var(--good);z-index:2;}
+  .fp-tll{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-faint);margin:4px 0 8px;font-variant-numeric:tabular-nums;}
+  .fp-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--text-dim);margin-bottom:14px;}
+  .fp-leg span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--x);}
+  .fp-leg span.open::before{background:repeating-linear-gradient(135deg,var(--panel-2) 0,var(--panel-2) 2px,rgba(150,160,185,.6) 2px,rgba(150,160,185,.6) 4px);border:1px solid var(--border);}
+  .fp-step{display:flex;gap:11px;padding:9px 12px;margin-bottom:6px;border-radius:6px;background:var(--panel-2);border-left:3px solid var(--c,var(--border));}
+  .fp-step .n{width:22px;height:22px;border-radius:50%;background:var(--c,var(--border));color:#111;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px;}
+  .fp-step .b{flex:1;min-width:0;}
+  .fp-step .tp{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .fp-step .tt{font-size:13px;font-weight:600;color:var(--text);}
+  .fp-step .tm{font-size:11px;color:var(--text-dim);font-variant-numeric:tabular-nums;background:var(--panel);border:1px solid var(--border-soft);padding:1px 8px;border-radius:4px;white-space:nowrap;}
+  .fp-step .nt{font-size:12px;color:var(--text-dim);line-height:1.5;margin-top:3px;}
+  .fp-step.soft{background:transparent;border-left-style:dashed;}
+  @media (max-width:640px){
+    .fp-nx{grid-template-columns:1fr auto;} .fp-nx .w{grid-column:1/-1;}
+    .fp-f2{grid-template-columns:1fr;}
+    .fp-grid{grid-template-columns:1fr;}
+    .fp-mb{padding:6px 14px 16px;} .fp-mf{padding:10px 14px 14px;}
+    .fp-bar .btn{width:auto;}
+    .fp-seg button{flex:1 1 100%;}
+  }
+
+</style>
+</head>
+<body>
+<div class="modal-overlay" id="edModal" role="dialog" aria-modal="true" aria-labelledby="edTitle"><div class="modal-panel fp-mp">
+  <div class="modal-header"><h2 id="edTitle">New plan</h2><button type="button" class="modal-close" id="edClose" aria-label="Close">×</button></div>
+  <div class="fp-mb">
+    <div class="fp-f1"><label for="fFac">Facility</label><select id="fFac"></select><div class="fp-fac" id="fFacInfo"></div></div>
+    <div class="fp-f2">
+      <div class="field"><label for="fOwner">Current holder</label><select id="fOwner"></select></div>
+      <div class="field"><label for="fDes">Desired holder</label><select id="fDes"></select></div>
+    </div>
+    <div class="fp-f1"><label>Facility status right now</label>
+      <div class="fp-seg" id="fPhase">
+        <button type="button" data-v="shield">Shielded<small>72 h protection, nobody can attack</small></button>
+        <button type="button" data-v="open">Open<small>24 h, it can be attacked</small></button>
+      </div>
+    </div>
+    <div class="fp-f1"><label for="fRem" id="fRemL">Shield time left (d:hh:mm)</label>
+      <input type="text" id="fRem" class="fp-mono" value="2:00:00" placeholder="d:hh:mm" autocomplete="off">
+      <div class="fp-hint" id="fRemH"></div>
+      <div class="fp-chips2"><button type="button" class="fp-b" id="fFresh">Just captured (3:00:00)</button></div>
+    </div>
+    <div class="fp-f1"><label for="fEvT">Event</label>
+      <div class="fp-f2" style="margin:0">
+        <select id="fEvT">
+          <option value="sunfire">Sunfire Castle Battle (10:00–22:00 UTC)</option>
+          <option value="frostdragon">Frostdragon Tyrant (11:00–17:00 UTC)</option>
+          <option value="custom">Custom times</option>
+        </select>
+        <input type="date" id="fEvD">
+      </div>
+      <div class="fp-f2" id="fEvC" hidden style="margin:0">
+        <div class="field"><label for="fEvS">Event start (UTC)</label><input type="datetime-local" id="fEvS"></div>
+        <div class="field"><label for="fEvE">Event end (UTC)</label><input type="datetime-local" id="fEvE"></div>
+      </div>
+      <div class="fp-hint" id="fEvH"></div>
+    </div>
+    <div class="fp-f1"><label>Handover strategy</label>
+      <div class="fp-seg" id="fStr">
+        <button type="button" data-v="late">Keep it as long as possible<small>The current holder keeps it until shortly before the event</small></button>
+        <button type="button" data-v="early">Get it back ASAP<small>The current holder can retake it right after the event</small></button>
+        <button type="button" data-v="manual">Pick my own time<small>You choose when the attack arrives</small></button>
+      </div>
+      <div id="fManW" hidden>
+        <label for="fMan" style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);display:block;margin:6px 0">Attack arrives at (UTC)</label>
+        <input type="datetime-local" id="fMan" style="width:100%">
+        <div class="fp-hint" id="fManH"></div>
+      </div>
+    </div>
+    <details class="fp-opt"><summary>More options</summary>
+      <div class="fp-f2">
+        <div class="field"><label for="fMar">March time (minutes)</label><input type="number" id="fMar" min="0" max="180" value="0"></div>
+        <div class="field"><label for="fBuf">Safety buffer before event start (minutes)</label><input type="number" id="fBuf" min="0" max="720" value="0"></div>
+      </div>
+      <div class="fp-hint">The battle timer is fixed at 30 minutes. The buffer only applies to “Keep it as long as possible”.</div>
+    </details>
+    <div class="fp-prev" id="fPrev"></div>
+  </div>
+  <div class="fp-mf"><button type="button" class="btn-secondary" id="edCancel">Cancel</button><button type="button" class="btn" id="edSave">Save plan</button></div>
+</div></div>
+
+<div class="modal-overlay" id="dtModal" role="dialog" aria-modal="true" aria-labelledby="dtTitle"><div class="modal-panel fp-mp">
+  <div class="modal-header"><h2 id="dtTitle">Plan</h2><button type="button" class="modal-close" id="dtClose" aria-label="Close">×</button></div>
+  <p class="modal-sub" id="dtSub"></p>
+  <div class="fp-mb" id="dtBody"></div>
+  <div class="fp-mf"><button type="button" class="btn-secondary" id="dtCopy">Copy as text</button><span class="sp"></span><button type="button" class="btn-secondary" id="dtEdit">Edit</button><button type="button" class="btn-secondary" id="dtDone">Close</button></div>
+</div></div>
+
+<div class="wrap">
+<nav class="sitenav" aria-label="State 646 pages"><a href="index.html"><span class="sn-l">HOME</span><span class="sn-s">HOME</span></a><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><a href="rallyplan.html"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></a><a href="assignfsh.html"><span class="sn-l">FORTRESS/SH PLAN</span><span class="sn-s">FSH</span></a><span class="cur" aria-current="page"><span class="sn-l">FACILITY PLANNER</span><span class="sn-s">FACILITY</span></span></nav>
+
+    <header>
+    <button type="button" class="theme-toggle set-btn" id="setBtn" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <button type="button" class="theme-toggle refresh-btn" id="refreshBtn" aria-label="Reload the plans" title="Reload the plans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.5-4.2L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14.5 4.2L20 15.5"/><path d="M20 20v-4.5h-4.5"/></svg></button>
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch between dark and light mode" title="Dark / light mode"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    <div class="eyebrow">State 646 — Planning</div>
+    <h1>Facility <span>Planner</span></h1>
+    <p class="subtitle" id="sub">Loading …</p>
+  </header>
+
+  <div class="divider"></div>
+
+  <div id="fpMain"></div>
+
+  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp1</footer>
+</div>
+<button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<script>
+(function(){var b=document.getElementById('toTop');if(!b)return;function u(){b.classList.toggle('show',(window.pageYOffset||document.documentElement.scrollTop)>400)}window.addEventListener('scroll',u,{passive:true});u();b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})})})();
+</script>
+<script>
+/* State 646 Facility Planner - timing logic (no DOM, no network)
+ *
+ * Rules (confirmed by Peter 2026-10-28):
+ *  - A facility is shielded for 72 h. The bonus exists ONLY during the shield.
+ *  - After the shield it is OPEN (attackable) for 24 h. There is no bonus while open.
+ *  - Attack: the battle timer runs 30 min; the winner holds the facility for 72 h from the end of the battle.
+ *  - Nobody attacks within the 24 h: the current holder re-occupies it, a fresh 72 h shield starts after the 24 h.
+ *  - If the loser does not take it back, it stays with the winner.
+ *  - Friendly use: a "reset" = a friendly alliance attacks, the holder wins again -> fresh shield for the holder.
+ *
+ * Model: windows k = 0,1,2,...  open window k = [s_k, e_k], e_k = s_k + 24 h.
+ *   A capture (end of battle) at time c in [s_k + B, e_k]. Natural re-occupation = capture at e_k (nobody acts).
+ *   Next window starts at c + 72 h.  Hence s_{k+1} = s_k + 96 h - d_k, where d_k = e_k - c_k is the "shortening"
+ *   (d_k = 0: natural, d_k > 0: a reset is needed in window k).
+ *   The final capture by the desired alliance at c in window n gives it the shield [c, c + 72 h].
+ */
+(function (root) {
+  'use strict';
+  var MIN = 60000, H = 3600000;
+  var SHIELD = 72 * H, OPEN = 24 * H;
+  var DEFAULTS = { battleMs: 30 * MIN, marchMs: 0, bufferMs: 0 };
+
+  function opts(o) { return Object.assign({}, DEFAULTS, o || {}); }
+
+  /* state: {phase:'shield'|'open', until: ms}  (until = end of shield, or end of the open window)
+     Rolls stale input forward assuming nobody attacked (holder re-occupies, fresh shield). */
+  function normalizeState(st, now, opt) {
+    var s0, e0;
+    if (st.phase === 'open') { e0 = st.until; s0 = e0 - OPEN; }
+    else { s0 = st.until; e0 = s0 + OPEN; }
+    var rolled = 0;
+    while (e0 <= now) { s0 += SHIELD + OPEN; e0 += SHIELD + OPEN; rolled++; }
+    var a0 = Math.max(s0, now + opt.marchMs);
+    return { s0: s0, e0: e0, a0: a0, rolled: rolled, openNow: s0 <= now };
+  }
+
+  /* reachable capture intervals per window index n (continuous ranges) */
+  function buildWindows(norm, opt, horizon) {
+    var B = opt.battleMs, a0 = norm.a0, e0 = norm.e0;
+    var cap0 = Math.max(0, e0 - a0 - B);
+    var ws = [];
+    ws.push({ n: 0, lo: a0 + B, hi: e0, sLo: a0, sHi: a0 });
+    var sLo = e0 + SHIELD - cap0, sHi = e0 + SHIELD;
+    for (var n = 1; n <= 150; n++) {
+      ws.push({ n: n, lo: sLo + B, hi: sHi + OPEN, sLo: sLo, sHi: sHi });
+      if (sLo > horizon) break;
+      sLo += SHIELD + B; sHi += SHIELD + OPEN;
+    }
+    return ws.filter(function (w) { return w.lo <= w.hi; });
+  }
+
+  function capsFor(norm, n, opt) {
+    var caps = [Math.max(0, norm.e0 - norm.a0 - opt.battleMs)];
+    for (var k = 1; k < n; k++) caps.push(OPEN - opt.battleMs);
+    return caps;
+  }
+  function sHiOf(norm, n) {
+    return n === 0 ? norm.a0 : norm.e0 + SHIELD + (n - 1) * (SHIELD + OPEN);
+  }
+
+  /* minimal number of resets to capture at c in window n */
+  function minResets(norm, n, c, opt) {
+    if (n === 0) return 0;
+    var sHi = sHiOf(norm, n);
+    var D = sHi - Math.min(sHi, c - opt.battleMs);
+    if (D <= 0) return 0;
+    var caps = capsFor(norm, n, opt).slice().sort(function (a, b) { return b - a; });
+    var sum = 0;
+    for (var i = 0; i < caps.length; i++) { sum += caps[i]; if (sum >= D) return i + 1; }
+    return Infinity;
+  }
+
+  function pickWindow(ws, norm, c, opt) {
+    var best = null;
+    ws.forEach(function (w) {
+      if (c < w.lo || c > w.hi) return;
+      var m = minResets(norm, w.n, c, opt);
+      if (m === Infinity) return;
+      if (!best || m < best.m || (m === best.m && w.n < best.n)) best = { n: w.n, m: m };
+    });
+    return best;
+  }
+
+  function latestAtMost(ws, limit) {
+    var best = null;
+    ws.forEach(function (w) { if (w.lo <= limit) { var c = Math.min(w.hi, limit); if (best === null || c > best) best = c; } });
+    return best;
+  }
+  function earliestAtLeast(ws, from) {
+    var best = null;
+    ws.forEach(function (w) { if (w.hi >= from) { var c = Math.max(w.lo, from); if (best === null || c < best) best = c; } });
+    return best;
+  }
+
+  function overlapMs(c, Es, Ee) {
+    return Math.max(0, Math.min(c + SHIELD, Ee) - Math.max(c, Es));
+  }
+
+  /* concrete plan for capture c in window n */
+  function reconstruct(norm, n, c, opt) {
+    var B = opt.battleMs, steps = [];
+    var sN, d = [];
+    if (n === 0) {
+      sN = norm.a0;
+    } else {
+      var caps = capsFor(norm, n, opt);
+      var sHi = sHiOf(norm, n);
+      sN = Math.min(sHi, c - B);
+      var D = sHi - sN;
+      var order = caps.map(function (_, i) { return i; }).sort(function (i, j) { return caps[j] - caps[i] || i - j; });
+      var m = minResets(norm, n, c, opt);
+      var chosen = order.slice(0, m).sort(function (i, j) { return i - j; });
+      for (var k = 0; k < n; k++) d.push(0);
+      chosen.forEach(function (i) { var x = Math.min(caps[i], D); d[i] = x; D -= x; });
+    }
+    var s = null, e;
+    for (var k2 = 0; k2 < n; k2++) {
+      var winStart = k2 === 0 ? norm.s0 : s;
+      e = k2 === 0 ? norm.e0 : s + OPEN;
+      var ck = e - d[k2];
+      if (d[k2] > 0) steps.push({ kind: 'reset', window: k2, windowStart: winStart, windowEnd: e, attackAt: ck - B, captureAt: ck });
+      else steps.push({ kind: 'pass', window: k2, windowStart: winStart, windowEnd: e, returnAt: e });
+      s = ck + SHIELD;
+    }
+    var tStart = n === 0 ? norm.s0 : s;
+    var tEnd = n === 0 ? norm.e0 : s + OPEN;
+    return {
+      steps: steps,
+      takeover: { window: n, windowStart: tStart, windowEnd: tEnd, attackAt: c - B, captureAt: c, shieldEnd: c + SHIELD, openEnd: c + SHIELD + OPEN }
+    };
+  }
+
+  /* input: {state:{phase,until}, eventStart, eventEnd, strategy:'late'|'early'|'manual', manualAttackAt}
+     returns {ok, ...} */
+  function computePlan(input, now, optIn) {
+    var opt = opts(optIn), B = opt.battleMs;
+    var Es = input.eventStart, Ee = input.eventEnd;
+    if (!(Ee > now)) return { ok: false, reason: 'event_over' };
+    var norm = normalizeState(input.state, now, opt);
+    var ws = buildWindows(norm, opt, Ee + SHIELD);
+    var strategy = input.strategy || 'late';
+    var c = null, note = [];
+
+    if (strategy === 'manual') {
+      var a = input.manualAttackAt;
+      if (!(a >= now + opt.marchMs)) return { ok: false, reason: 'past', norm: norm };
+      c = a + B;
+      var pw = pickWindow(ws, norm, c, opt);
+      if (!pw) {
+        return { ok: false, reason: 'not_reachable', norm: norm,
+          before: latestAtMost(ws, c), after: earliestAtLeast(ws, c) };
+      }
+    } else {
+      var Tlo = Ee - SHIELD, Thi = Es - opt.bufferMs;
+      var full = null;
+      if (strategy === 'early') { var ce = earliestAtLeast(ws, Tlo); if (ce !== null && ce <= Thi) full = ce; }
+      else { var cl = latestAtMost(ws, Thi); if (cl !== null && cl >= Tlo) full = cl; }
+      if (full === null && Tlo <= Es) {
+        // maybe reachable only inside the buffer -> still full coverage, ignore buffer
+        var cl2 = strategy === 'early' ? earliestAtLeast(ws, Tlo) : latestAtMost(ws, Es);
+        if (cl2 !== null && cl2 >= Tlo && cl2 <= Es) { full = cl2; note.push('buffer_ignored'); }
+      }
+      if (full !== null) c = full;
+      else {
+        var cL = latestAtMost(ws, Es), cE = earliestAtLeast(ws, Es);
+        var oL = cL === null ? -1 : overlapMs(cL, Es, Ee), oE = cE === null ? -1 : overlapMs(cE, Es, Ee);
+        if (oL > oE || (oL === oE && strategy !== 'early')) c = cL; else c = cE;
+        if (c === null) c = cL !== null ? cL : cE;
+      }
+    }
+    if (c === null) return { ok: false, reason: 'no_window', norm: norm };
+    var pick = pickWindow(ws, norm, c, opt);
+    var rec = reconstruct(norm, pick.n, c, opt);
+    var cov = overlapMs(c, Es, Ee), evDur = Ee - Es;
+    var coverage = cov >= evDur ? 'full' : cov > 0 ? 'partial' : 'none';
+    var tk = rec.takeover;
+    return {
+      ok: true, strategy: strategy, norm: norm, rolled: norm.rolled, note: note,
+      coverage: coverage, covMs: cov, covPct: Math.round(cov / evDur * 100),
+      gapStartMs: Math.max(0, c - Es), gapEndMs: Math.max(0, Ee - (c + SHIELD)),
+      resets: rec.steps.filter(function (x) { return x.kind === 'reset'; }).length,
+      steps: rec.steps, takeover: tk,
+      reclaim: { from: tk.shieldEnd, lastAttack: tk.shieldEnd + OPEN - B, autoStay: tk.shieldEnd + OPEN },
+      march: opt.marchMs,
+      firstAction: (rec.steps.filter(function (x) { return x.kind === 'reset'; })[0] || { attackAt: tk.attackAt }).attackAt
+    };
+  }
+
+  var api = { MIN: MIN, H: H, SHIELD: SHIELD, OPEN: OPEN, DEFAULTS: DEFAULTS, normalizeState: normalizeState,
+    buildWindows: buildWindows, computePlan: computePlan, overlapMs: overlapMs };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.FPLogic = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function(){
+  'use strict';
+  var L = window.FPLogic;
+  var H = 3600000, MIN = 60000, SHIELD = L.SHIELD, OPEN = L.OPEN, BATTLE = L.DEFAULTS.battleMs;
+  var MOCK = /[?&]mock=1(&|$)/.test(location.search);
+  var qn = (location.search.match(/[?&]now=([^&]+)/) || [])[1];
+  var OFFSET = (MOCK && qn) ? (Date.parse(decodeURIComponent(qn)) - Date.now()) : 0;
+  function now(){ return Date.now() + OFFSET; }
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function Z(n){ return String(n).padStart(2, '0'); }
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function fmt(ms){ var d = new Date(ms); return DAYS[d.getUTCDay()] + ' ' + Z(d.getUTCDate()) + '.' + Z(d.getUTCMonth() + 1) + '. ' + Z(d.getUTCHours()) + ':' + Z(d.getUTCMinutes()) + ' UTC'; }
+  function fmtS(ms){ var d = new Date(ms); return DAYS[d.getUTCDay()] + ' ' + Z(d.getUTCHours()) + ':' + Z(d.getUTCMinutes()); }
+  function fmtT(ms){ var d = new Date(ms); return Z(d.getUTCHours()) + ':' + Z(d.getUTCMinutes()); }
+  function dur(ms){
+    if(ms <= 0) return '0m';
+    var d = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / H), m = Math.floor(ms % H / MIN), p = [];
+    if(d) p.push(d + 'd'); if(h) p.push(h + 'h'); if(m || !p.length) p.push(m + 'm');
+    return p.join(' ');
+  }
+  function cd(ms){
+    if(ms <= 0) return 'NOW';
+    var t = Math.floor(ms / 1000), d = Math.floor(t / 86400), h = Math.floor(t % 86400 / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
+    return (d > 0 ? d + 'd ' : '') + Z(h) + ':' + Z(m) + ':' + Z(s);
+  }
+  function parseRem(s){
+    var p = String(s || '').trim().split(':').map(Number);
+    if(!p.length || p.some(function(n){ return isNaN(n) || n < 0; })) return null;
+    if(p.length === 3) return ((p[0] * 24 + p[1]) * 60 + p[2]) * MIN;
+    if(p.length === 2) return (p[0] * 60 + p[1]) * MIN;
+    return null;
+  }
+  function toLocal(ms){ return new Date(ms).toISOString().slice(0, 16); }
+  function fromLocal(v){ return v ? Date.parse(v + ':00Z') : NaN; }
+
+  var EVENTS = {
+    sunfire: {label: 'Sunfire Castle Battle', s: 10, e: 22},
+    frostdragon: {label: 'Frostdragon Tyrant', s: 11, e: 17},
+    custom: {label: 'Custom event'}
+  };
+  var STRAT = {late: 'Keep it long', early: 'Back ASAP', manual: 'Manual time'};
+
+  var V = {me: null, gate: null, plans: [], fac: [], facById: {}, showDone: false, sig: '', err: ''};
+  var E = {id: null, orig: null, phase: 'shield', strategy: 'late', dirtyRem: false};
+  var DT = {id: null};
+
+  // ---------- backend ----------
+  function code(){ var c = null; try { c = localStorage.getItem('ep_code'); } catch(e) {} return c || (MOCK ? 'admin' : null); }
+  function cfgReady(){
+    return new Promise(function(res){
+      if(window.EP_CONFIG) return res(window.EP_CONFIG);
+      var s = document.createElement('script'); s.src = 'eventplan-config.js';
+      s.onload = function(){ res(window.EP_CONFIG || null); }; s.onerror = function(){ res(null); };
+      document.head.appendChild(s);
+    });
+  }
+  function mockDb(){ try { return JSON.parse(localStorage.getItem('fp_mock_db') || '[]'); } catch(e) { return []; } }
+  function mockPut(db){ try { localStorage.setItem('fp_mock_db', JSON.stringify(db)); } catch(e) {} }
+  function mockRpc(name, b){
+    if(name === 'sa_me'){
+      if(b.p_code === 'viewer') return {role: 'editor', name: 'Viewer', rallyplan: false};
+      return {role: 'admin', name: 'Mock Admin', rallyplan: true};
+    }
+    var db = mockDb();
+    if(name === 'fp_list') return db;
+    if(name === 'fp_save'){
+      var t = new Date().toISOString();
+      if(b.p_id){ db.forEach(function(x){ if(x.id === b.p_id){ x.data = b.p_data; x.updated_at = t; } }); mockPut(db); return b.p_id; }
+      var id = 'm' + Date.now() + Math.floor(Math.random() * 1000); db.push({id: id, data: b.p_data, updated_at: t}); mockPut(db); return id;
+    }
+    if(name === 'fp_delete'){ mockPut(db.filter(function(x){ return x.id !== b.p_id; })); return null; }
+    throw new Error('unknown mock rpc ' + name);
+  }
+  function rpc(name, body){
+    if(MOCK) return Promise.resolve().then(function(){ return mockRpc(name, body); });
+    return cfgReady().then(function(C){
+      if(!C || !C.url) throw new Error('No connection settings (eventplan-config.js).');
+      var h = {apikey: C.key, 'Content-Type': 'application/json'}; if(/^eyJ/.test(C.key)) h.Authorization = 'Bearer ' + C.key;
+      return fetch(C.url.replace(/\/+$/, '') + '/rest/v1/rpc/' + name, {method: 'POST', headers: h, body: JSON.stringify(body)});
+    }).then(function(r){
+      return r.json().catch(function(){ return null; }).then(function(j){
+        if(!r.ok) throw new Error((j && (j.message || j.hint)) || ('HTTP ' + r.status));
+        return j;
+      });
+    });
+  }
+
+  // ---------- data ----------
+  function loadFac(){
+    return fetch('data/facilities.json', {cache: 'no-cache'}).then(function(r){ return r.ok ? r.json() : Promise.reject(); }).then(function(j){
+      V.fac = (j.facilities || []).slice(); V.facById = {};
+      V.fac.forEach(function(f){ V.facById[f.id] = f; });
+      V.err = '';
+    }).catch(function(){ V.err = 'The facility list could not be loaded (data/facilities.json).'; });
+  }
+  function loadPlans(){
+    return rpc('fp_list', {p_code: code()}).then(function(a){
+      a = a || [];
+      var sig = JSON.stringify(a);
+      var changed = sig !== V.sig; V.sig = sig;
+      V.plans = a.map(function(x){ return {id: x.id, d: x.data, upd: x.updated_at}; });
+      return changed;
+    });
+  }
+  function refreshAll(force){
+    var c = code();
+    if(!c){ V.me = null; V.gate = 'login'; V.plans = []; render(); return Promise.resolve(); }
+    return rpc('sa_me', {p_code: c}).then(function(j){
+      if(!j){ V.me = null; V.gate = 'login'; V.plans = []; render(); return; }
+      V.me = j;
+      if(!j.rallyplan){ V.gate = 'noperm'; V.plans = []; render(); return; }
+      V.gate = null;
+      return loadPlans().then(function(){ render(); });
+    }).catch(function(e){ V.err = 'Connection problem: ' + e.message; render(); });
+  }
+
+  // ---------- calculation ----------
+  function calc(d){
+    return L.computePlan({
+      state: {phase: d.phase, until: d.until}, eventStart: d.eventStart, eventEnd: d.eventEnd,
+      strategy: d.strategy, manualAttackAt: d.manualAt
+    }, now(), {marchMs: (d.marchMin || 0) * MIN, bufferMs: (d.bufferMin || 0) * MIN});
+  }
+  function facLine(f){ return f ? f.type + ' · Lvl ' + f.level : 'Unknown facility'; }
+  function facSub(f){ return f ? f.x + '/' + f.y + (f.bonus ? ' · ' + f.bonus : '') : ''; }
+  function reasonText(r, d){
+    if(r.reason === 'past') return 'The chosen attack time is in the past (or too soon for the march time).';
+    if(r.reason === 'not_reachable'){
+      var t = 'This attack time is not possible: the facility is not open then.';
+      if(r.before != null) t += ' Latest possible attack before: ' + fmt(r.before - BATTLE) + '.';
+      if(r.after != null) t += ' Next possible attack after: ' + fmt(r.after - BATTLE) + '.';
+      return t;
+    }
+    if(r.reason === 'event_over') return 'The event is over.';
+    return 'No suitable open window was found.';
+  }
+  function statusOf(r){
+    if(!r.ok) return {cls: 'bad', badge: r.reason === 'not_reachable' ? 'Time not possible' : 'Not possible'};
+    if(r.coverage === 'full') return {cls: 'ok', badge: 'Full coverage'};
+    if(r.coverage === 'partial') return {cls: 'warn', badge: r.covPct + '% covered'};
+    return {cls: 'bad', badge: 'No coverage'};
+  }
+
+  // ---------- rendering ----------
+  function render(){
+    var m = $('fpMain'); if(!m) return;
+    if(V.gate === 'login'){
+      m.innerHTML = '<div class="panel fp-gate"><h2>Login required</h2><p>The Facility Planner contains tactics and is only visible for people with access. Please log in with Discord (or open your personal link once and reload this page).</p><div class="row"><button type="button" class="btn" data-act="login">Log in with Discord</button></div></div>';
+      $('sub').textContent = 'Login required'; return;
+    }
+    if(V.gate === 'noperm'){
+      m.innerHTML = '<div class="panel fp-gate"><h2>No access!</h2><p>You are logged in as <b>' + esc(V.me && V.me.name || '') + '</b>, but you do not have permission for the planners. Please contact Peter the Great in game or on Discord.</p><div class="row"><button type="button" class="btn-secondary" data-act="logout">Log out</button></div></div>';
+      $('sub').textContent = 'No access'; return;
+    }
+    m.innerHTML = '<div class="fp-bar"><button type="button" class="btn" id="fpNew">+ New plan</button><span class="fp-sp"></span>' +
+      '<label class="switch" title="Also show plans whose event is over"><input type="checkbox" id="fpDone"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Finished plans</span></label></div>' +
+      (V.err ? '<div class="fp-box bad">' + esc(V.err) + '</div>' : '') +
+      '<div id="fpNext"></div><div id="fpCards"></div>';
+    $('fpDone').checked = V.showDone;
+    renderPlans();
+  }
+
+  function computed(){
+    var out = [];
+    V.plans.forEach(function(p){ out.push({p: p, d: p.d, r: calc(p.d)}); });
+    return out;
+  }
+  function renderPlans(){
+    if(V.gate || !$('fpCards')) return;
+    var all = computed();
+    var done = all.filter(function(x){ return !x.r.ok && x.r.reason === 'event_over'; });
+    var act = all.filter(function(x){ return !(!x.r.ok && x.r.reason === 'event_over'); });
+    var list = V.showDone ? all : act;
+    list.sort(function(a, b){
+      var ta = a.r.ok ? a.r.firstAction : Infinity, tb = b.r.ok ? b.r.firstAction : Infinity;
+      return ta - tb;
+    });
+    $('sub').textContent = act.length + ' active plan' + (act.length === 1 ? '' : 's') + (done.length ? ' · ' + done.length + ' finished' : '') + ' · all times UTC';
+    // next actions
+    var nx = [];
+    act.forEach(function(x){
+      if(!x.r.ok) return;
+      var d = x.d, f = V.facById[d.fac];
+      x.r.steps.forEach(function(s){ if(s.kind === 'reset') nx.push({t: s.attackAt, kind: 'reset', x: x, f: f}); });
+      nx.push({t: x.r.takeover.attackAt, kind: 'take', x: x, f: f});
+    });
+    nx.sort(function(a, b){ return a.t - b.t; });
+    nx = nx.slice(0, 8);
+    var nh = '';
+    if(nx.length){
+      nh = '<div class="fp-next"><div class="fp-h">Next actions — all facilities</div>';
+      nx.forEach(function(n){
+        var d = n.x.d, march = (d.marchMin || 0) * MIN;
+        var what = n.kind === 'reset'
+          ? '<span class="fp-kind reset">RESET</span><b>' + esc(d.desired) + '</b> attacks, <b>' + esc(d.owner) + '</b> re-occupies'
+          : '<span class="fp-kind take">TAKEOVER</span><b>' + esc(d.desired) + '</b> takes it from <b>' + esc(d.owner) + '</b>';
+        nh += '<div class="fp-nx"><span class="t">' + fmt(n.t) + (march ? '<br><span class="fp-info">leave ' + fmtT(n.t - march) + '</span>' : '') + '</span><span class="c" data-cd="' + n.t + '">' + cd(n.t - now()) + '</span><span class="w">' + what + ' · ' + esc(facLine(n.f)) + ' ' + (n.f ? n.f.x + '/' + n.f.y : '') + '</span></div>';
+      });
+      nh += '</div>';
+    }
+    $('fpNext').innerHTML = nh;
+    // cards
+    var c = $('fpCards');
+    if(!list.length){
+      c.innerHTML = '<div class="fp-empty">' + (V.fac.length ? 'No plans yet.<br>Click <b>+ New plan</b> to plan a facility for an event.' : 'The facility list is empty.') + '</div>';
+      return;
+    }
+    c.innerHTML = '<div class="fp-grid">' + list.map(cardHtml).join('') + '</div>';
+  }
+
+  function cardHtml(x){
+    var d = x.d, r = x.r, f = V.facById[d.fac], st = statusOf(r);
+    var finished = !r.ok && r.reason === 'event_over';
+    var h = '<div class="fp-card ' + (finished ? '' : st.cls) + '"><div class="fp-ch"><div><div class="fp-fn">' + esc(facLine(f)) + '</div><div class="fp-fs">' + esc(facSub(f)) + '</div></div>' +
+      '<span class="fp-badge ' + (finished ? '' : st.cls) + '">' + (finished ? 'Finished' : esc(st.badge)) + '</span></div><div class="fp-cb">';
+    h += '<div class="fp-who"><b class="own">' + esc(d.owner) + '</b> → <b class="des">' + esc(d.desired) + '</b><span class="fp-tag">' + STRAT[d.strategy] + '</span>' +
+      (r.ok && r.resets ? '<span class="fp-tag rs">' + r.resets + ' reset' + (r.resets > 1 ? 's' : '') + '</span>' : '') + '</div>';
+    if(r.ok){
+      var tk = r.takeover, inMs = r.firstAction - now();
+      var first = r.steps.length && r.steps.some(function(s){ return s.kind === 'reset'; }) ? 'First reset in' : 'Attack in';
+      var cls = inMs <= 0 ? 'now' : inMs < 3600000 ? 'now' : inMs < 86400000 ? 'soon' : 'far';
+      h += '<div class="fp-cdl">' + first + '</div><div class="fp-cd ' + cls + '" data-cd="' + r.firstAction + '">' + cd(inMs) + '</div>';
+      h += '<div class="fp-row"><span>Takeover attack</span><span>' + fmt(tk.attackAt) + '</span></div>';
+      h += '<div class="fp-row"><span>' + esc(d.desired) + ' holds</span><span>' + fmtS(tk.captureAt) + ' – ' + fmtS(tk.shieldEnd) + '</span></div>';
+      h += '<div class="fp-row"><span>' + esc(EVENTS[d.eventType] ? EVENTS[d.eventType].label : 'Event') + '</span><span>' + fmtS(d.eventStart) + ' – ' + fmtT(d.eventEnd) + '</span></div>';
+      var dd = d.eventEnd - d.eventStart, left = Math.max(0, Math.min(100, (tk.captureAt - d.eventStart) / dd * 100)), w = Math.max(0, Math.min(100 - left, (Math.min(tk.shieldEnd, d.eventEnd) - Math.max(tk.captureAt, d.eventStart)) / dd * 100));
+      h += '<div class="fp-cov"><i style="left:' + left.toFixed(1) + '%;width:' + w.toFixed(1) + '%"></i></div>';
+      if(r.gapStartMs > 0 && r.coverage !== 'none') h += '<div class="fp-warn">' + esc(d.desired) + ' only holds it ' + dur(r.gapStartMs) + ' after the event start.</div>';
+      if(r.gapEndMs > 0 && r.coverage !== 'none') h += '<div class="fp-warn">The shield ends ' + dur(r.gapEndMs) + ' before the event end.</div>';
+      if(r.coverage === 'none') h += '<div class="fp-warn">The shield does not overlap the event.</div>';
+      if(r.rolled) h += '<div class="fp-warn soft">The entered timer had run out. Please update it.</div>';
+    } else if(finished){
+      h += '<div class="fp-info">The event is over.</div>';
+    } else {
+      h += '<div class="fp-warn">' + esc(reasonText(r, d)) + '</div>';
+    }
+    h += '</div><div class="fp-cf"><button type="button" class="fp-b" data-act="detail" data-id="' + esc(x.p.id) + '">Details</button><span class="sp"></span><button type="button" class="fp-b" data-act="edit" data-id="' + esc(x.p.id) + '">Edit</button><button type="button" class="fp-b danger" data-act="del" data-id="' + esc(x.p.id) + '">Delete</button></div></div>';
+    return h;
+  }
+
+  function tick(){
+    var els = document.querySelectorAll('[data-cd]'), t = now();
+    for(var i = 0; i < els.length; i++) els[i].textContent = cd(+els[i].getAttribute('data-cd') - t);
+  }
+
+  // ---------- detail ----------
+  function stepsFor(d, r){
+    var f = V.facById[d.fac], own = d.owner, des = d.desired, n = r.norm, st = [], march = (d.marchMin || 0) * MIN;
+    var leave = function(t){ return march ? ' Troops leave at ' + fmt(t - march) + '.' : ''; };
+    if(n.openNow) st.push({t: now(), c: 'var(--frost)', title: own + "'s facility is open now", note: 'It can be attacked until ' + fmt(n.e0) + '.'});
+    else st.push({t: now(), c: 'var(--frost)', title: own + ' holds the shield', note: 'The shield ends ' + fmt(n.s0) + '. Then the facility is open for 24 h.'});
+    r.steps.forEach(function(s){
+      if(s.kind === 'reset') st.push({t: s.attackAt, c: '#b06bff', title: 'RESET: ' + des + ' attacks, ' + own + ' wins', note: 'Open window ' + fmt(s.windowStart) + ' – ' + fmt(s.windowEnd) + '. ' + des + "'s attack arrives at " + fmt(s.attackAt) + ' (battle 30 min).' + leave(s.attackAt) + ' ' + own + ' re-occupies at ' + fmt(s.captureAt) + ' and gets a fresh 72 h shield until ' + fmt(s.captureAt + SHIELD) + '.'});
+      else st.push({t: s.windowStart, c: 'var(--border)', soft: true, title: 'Open window — do nothing', note: fmt(s.windowStart) + ' – ' + fmt(s.windowEnd) + '. Nobody attacks, ' + own + ' re-occupies at ' + fmt(s.windowEnd) + ' with a fresh 72 h shield.'});
+    });
+    var tk = r.takeover;
+    st.push({t: tk.attackAt, c: 'var(--gold)', dark: true, title: des + ' takes the facility', note: 'Open window ' + fmt(tk.windowStart) + ' – ' + fmt(tk.windowEnd) + '. The attack arrives at ' + fmt(tk.attackAt) + ', after 30 min ' + des + ' holds it with a 72 h shield until ' + fmt(tk.shieldEnd) + '.' + leave(tk.attackAt)});
+    var gap0 = tk.captureAt - d.eventStart;
+    st.push({t: d.eventStart, c: 'var(--good)', title: 'Event starts', note: gap0 > 0 ? 'Warning: ' + des + ' only gets the bonus ' + dur(gap0) + ' after the start.' : des + ' already has the bonus.'});
+    var gap1 = d.eventEnd - tk.shieldEnd;
+    st.push({t: d.eventEnd, c: 'var(--good)', title: 'Event ends', note: gap1 > 0 ? 'Warning: the shield ended ' + dur(gap1) + ' earlier.' : des + ' keeps the bonus until the end.'});
+    st.push({t: r.reclaim.from, c: 'var(--frost)', soft: true, title: des + "'s shield ends — " + own + ' can retake it', note: 'An attack arriving between ' + fmt(r.reclaim.from) + ' and ' + fmt(r.reclaim.lastAttack) + ' lets ' + own + ' win it back. If nobody attacks, ' + des + ' re-occupies it at ' + fmt(r.reclaim.autoStay) + ' and keeps it (fresh 72 h shield).'});
+    return st.map(function(s, i){ s.i = i; return s; }).sort(function(a, b){ return a.t - b.t || a.i - b.i; });
+  }
+  function timelineHtml(d, r){
+    var t0 = now(), Es = d.eventStart, Ee = d.eventEnd, tk = r.takeover, n = r.norm, tEnd = Ee + 4 * H, segs = [];
+    function add(a, b, cls, title){ a = Math.max(a, t0); b = Math.min(b, tEnd); if(b > a) segs.push({a: a, b: b, cls: cls, title: title}); }
+    if(n.s0 > t0) add(t0, n.s0, 'own', d.owner + ' shield');
+    r.steps.forEach(function(s){
+      if(s.kind === 'reset'){ add(s.windowStart, s.attackAt, 'open', 'Open'); add(s.attackAt, s.captureAt, 'bat', 'Battle'); add(s.captureAt, s.captureAt + SHIELD, 'own', d.owner + ' shield'); }
+      else { add(s.windowStart, s.windowEnd, 'open', 'Open'); add(s.windowEnd, s.windowEnd + SHIELD, 'own', d.owner + ' shield'); }
+    });
+    add(tk.windowStart, tk.attackAt, 'open', 'Open'); add(tk.attackAt, tk.captureAt, 'bat', 'Battle');
+    add(tk.captureAt, tk.shieldEnd, 'des', d.desired + ' shield'); add(tk.shieldEnd, tk.openEnd, 'open', 'Open');
+    var range = tEnd - t0, p = function(ms){ return Math.max(0, Math.min(100, (ms - t0) / range * 100)); };
+    var h = '<div class="fp-tl">' + segs.map(function(s){ return '<i class="' + s.cls + '" title="' + esc(s.title) + '" style="left:' + p(s.a).toFixed(2) + '%;width:' + Math.max(0.3, p(s.b) - p(s.a)).toFixed(2) + '%"></i>'; }).join('') +
+      '<div class="ev" style="left:' + p(Es).toFixed(2) + '%;width:' + Math.max(0.3, p(Ee) - p(Es)).toFixed(2) + '%"></div></div>';
+    h += '<div class="fp-tll"><span>now</span><span>event ' + fmtS(Es) + ' – ' + fmtT(Ee) + '</span><span>' + fmtS(tEnd) + '</span></div>';
+    h += '<div class="fp-leg"><span style="--x:var(--frost)">' + esc(d.owner) + ' shield</span><span style="--x:var(--gold)">' + esc(d.desired) + ' shield</span><span class="open">Open (attackable)</span><span style="--x:#ffd35c">Battle 30 min</span><span style="--x:rgba(67,230,160,.5)">Event</span></div>';
+    return h;
+  }
+  function openDetail(id){
+    var p = V.plans.filter(function(x){ return x.id === id; })[0]; if(!p) return;
+    DT.id = id;
+    var d = p.d, r = calc(d), f = V.facById[d.fac];
+    $('dtTitle').textContent = facLine(f);
+    $('dtSub').textContent = (f ? f.x + '/' + f.y + ' · ' : '') + d.owner + ' → ' + d.desired + ' · ' + (EVENTS[d.eventType] ? EVENTS[d.eventType].label : 'Event') + ' ' + fmt(d.eventStart) + ' – ' + fmtT(d.eventEnd);
+    var h = '';
+    if(!r.ok) h += '<div class="fp-box bad">' + esc(reasonText(r, d)) + '</div>';
+    else {
+      if(r.rolled) h += '<div class="fp-box warn">The entered timer had run out. This plan assumes nobody attacked in the meantime. Please update the timer with Edit.</div>';
+      if(r.coverage === 'full') h += '<div class="fp-box">✓ ' + esc(d.desired) + ' has the bonus during the whole event (shield ' + fmt(r.takeover.captureAt) + ' – ' + fmt(r.takeover.shieldEnd) + ').' + (r.resets ? ' ' + r.resets + ' reset' + (r.resets > 1 ? 's are' : ' is') + ' needed first.' : '') + '</div>';
+      else if(r.coverage === 'partial') h += '<div class="fp-box warn">⚠ Only ' + r.covPct + '% of the event can be covered. ' + (r.gapStartMs ? esc(d.desired) + ' gets the bonus ' + dur(r.gapStartMs) + ' after the start. ' : '') + (r.gapEndMs ? 'The shield ends ' + dur(r.gapEndMs) + ' before the end.' : '') + '</div>';
+      else h += '<div class="fp-box bad">The shield cannot overlap the event with the current timer.</div>';
+      h += '<div class="fp-h">Timeline (now → event end)</div>' + timelineHtml(d, r);
+      h += '<div class="fp-h">Action plan</div>';
+      stepsFor(d, r).forEach(function(s, i){
+        h += '<div class="fp-step' + (s.soft ? ' soft' : '') + '" style="--c:' + s.c + '"><span class="n">' + (i + 1) + '</span><div class="b"><div class="tp"><span class="tt">' + esc(s.title) + '</span><span class="tm">' + fmt(s.t) + '</span></div><div class="nt">' + esc(s.note) + '</div></div></div>';
+      });
+    }
+    $('dtBody').innerHTML = h;
+    $('dtModal').classList.add('open');
+  }
+  function planText(d, r){
+    var f = V.facById[d.fac], t = [];
+    t.push(facLine(f) + ' · ' + (f ? f.x + '/' + f.y : ''));
+    t.push(d.owner + ' → ' + d.desired + ' · ' + (EVENTS[d.eventType] ? EVENTS[d.eventType].label : 'Event') + ' ' + fmt(d.eventStart) + ' – ' + fmtT(d.eventEnd));
+    if(!r.ok){ t.push(reasonText(r, d)); return t.join('\n'); }
+    stepsFor(d, r).forEach(function(s, i){ t.push((i + 1) + '. ' + fmt(s.t) + ' — ' + s.title + '. ' + s.note); });
+    return t.join('\n');
+  }
+  function copyText(txt, btn){
+    var done = function(){ if(btn){ var o = btn.textContent; btn.textContent = 'Copied ✓'; setTimeout(function(){ btn.textContent = o; }, 1500); } };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done, function(){ fallback(); }); return; }
+    fallback();
+    function fallback(){ var a = document.createElement('textarea'); a.value = txt; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); done(); } catch(e) {} document.body.removeChild(a); }
+  }
+
+  // ---------- editor ----------
+  function nextSat(){ var d = new Date(now()), n = (6 - d.getUTCDay() + 7) % 7 || 7; d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  function fillFacSelect(sel){
+    var groups = {}, order = [];
+    V.fac.forEach(function(f){ if(!groups[f.type]){ groups[f.type] = []; order.push(f.type); } groups[f.type].push(f); });
+    var h = '';
+    order.forEach(function(t){
+      h += '<optgroup label="' + esc(t) + '">';
+      groups[t].forEach(function(f){ h += '<option value="' + esc(f.id) + '">' + esc(f.type + ' · Lvl ' + f.level + ' · ' + f.x + '/' + f.y) + '</option>'; });
+      h += '</optgroup>';
+    });
+    sel.innerHTML = h;
+  }
+  function opts(list, sel){ return list.map(function(a){ return '<option value="' + esc(a) + '"' + (a === sel ? ' selected' : '') + '>' + esc(a) + '</option>'; }).join(''); }
+  function onFac(keepO, keepD){
+    var f = V.facById[$('fFac').value]; if(!f) return;
+    var al = f.alliances;
+    var o = keepO && al.indexOf(keepO) >= 0 ? keepO : al[0];
+    var pref = ['PKB', 'GYN'].filter(function(x){ return al.indexOf(x) >= 0 && x !== o; })[0];
+    var dsr = keepD && al.indexOf(keepD) >= 0 && keepD !== o ? keepD : (pref || al.filter(function(x){ return x !== o; })[0] || al[0]);
+    $('fOwner').innerHTML = opts(al, o); $('fDes').innerHTML = opts(al, dsr);
+    $('fFacInfo').innerHTML = '<b>' + esc(f.type) + '</b> · Lvl ' + f.level + ' · ' + f.x + '/' + f.y + (f.bonus ? '<br>' + esc(f.bonus) : '') + '<br>Connected alliances: ' + al.map(function(a){ return '<span class="fp-chip">' + esc(a) + '</span>'; }).join('');
+  }
+  function setSeg(id, v){ var bs = $(id).querySelectorAll('button'); for(var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-v') === v); }
+  function setPhase(v){
+    E.phase = v; setSeg('fPhase', v);
+    $('fRemL').textContent = (v === 'open' ? 'Open time left' : 'Shield time left') + ' (d:hh:mm)';
+    remHint();
+  }
+  function setStrategy(v){
+    E.strategy = v; setSeg('fStr', v); $('fManW').hidden = v !== 'manual';
+  }
+  function remHint(){
+    var ms = parseRem($('fRem').value), h = $('fRemH'), max = E.phase === 'open' ? OPEN : SHIELD;
+    if(ms === null || ms <= 0){ h.textContent = 'Please use d:hh:mm, for example 2:03:00 = 2 days 3 hours.'; h.className = 'fp-hint err'; return; }
+    var txt = '= ' + dur(ms) + ' → ends ' + fmt(now() + ms);
+    if(ms > max){ txt += ' — more than the maximum of ' + (E.phase === 'open' ? '24 h' : '72 h') + '!'; h.className = 'fp-hint err'; } else h.className = 'fp-hint';
+    h.textContent = txt;
+  }
+  function evTimes(){
+    var t = $('fEvT').value;
+    if(t === 'custom'){ var s = fromLocal($('fEvS').value), e = fromLocal($('fEvE').value); return (isNaN(s) || isNaN(e)) ? null : {start: s, end: e}; }
+    var d = $('fEvD').value; if(!d) return null;
+    var p = EVENTS[t];
+    return {start: Date.parse(d + 'T' + Z(p.s) + ':00:00Z'), end: Date.parse(d + 'T' + Z(p.e) + ':00:00Z')};
+  }
+  function evUi(){
+    var c = $('fEvT').value === 'custom';
+    $('fEvD').hidden = c; $('fEvC').hidden = !c;
+    var ev = evTimes(); $('fEvH').textContent = ev ? fmt(ev.start) + ' → ' + fmt(ev.end) : '';
+  }
+  function readForm(){
+    var f = V.facById[$('fFac').value]; if(!f) return {err: 'Please choose a facility.'};
+    var owner = $('fOwner').value, des = $('fDes').value;
+    if(!owner || !des) return {err: 'Please choose both alliances.'};
+    if(owner === des) return {err: 'The current and the desired holder must be different.'};
+    var phase = E.phase, until;
+    if(E.id && !E.dirtyRem){ phase = E.orig.phase; until = E.orig.until; }
+    else {
+      var rem = parseRem($('fRem').value);
+      if(rem === null || rem <= 0) return {err: 'Please enter the time left as d:hh:mm.'};
+      if(rem > (phase === 'open' ? OPEN : SHIELD)) return {err: 'The time left is longer than the maximum (' + (phase === 'open' ? '24 h' : '72 h') + ').'};
+      until = now() + rem;
+    }
+    var ev = evTimes(); if(!ev) return {err: 'Please set the event date and time.'};
+    if(!(ev.end > ev.start)) return {err: 'The event end must be after the start.'};
+    if(ev.end <= now()) return {err: 'The event is already over.'};
+    var manual = null;
+    if(E.strategy === 'manual'){ manual = fromLocal($('fMan').value); if(isNaN(manual)) return {err: 'Please pick the attack time.'}; }
+    var d = {fac: f.id, owner: owner, desired: des, phase: phase, until: until, eventType: $('fEvT').value, eventStart: ev.start, eventEnd: ev.end,
+      strategy: E.strategy, manualAt: manual, bufferMin: Math.max(0, +$('fBuf').value || 0), marchMin: Math.max(0, +$('fMar').value || 0)};
+    return {d: d};
+  }
+  function preview(){
+    var box = $('fPrev'), fr = readForm();
+    remHint(); evUi();
+    if(fr.err){ box.className = 'fp-prev'; box.innerHTML = esc(fr.err); return fr; }
+    var d = fr.d, r = calc(d);
+    if(E.strategy === 'manual'){
+      var mh = $('fManH');
+      mh.textContent = 'The battle takes 30 min, so the shield would start ' + fmt(d.manualAt + BATTLE) + '.'; mh.className = 'fp-hint';
+    }
+    if(!r.ok){ box.className = 'fp-prev bad'; box.innerHTML = esc(reasonText(r, d)); return fr; }
+    var st = statusOf(r), tk = r.takeover, mm = (d.marchMin || 0) * MIN;
+    var h = '<b>' + (r.coverage === 'full' ? 'Full coverage' : r.coverage === 'partial' ? 'Partial coverage (' + r.covPct + '%)' : 'No coverage') + '</b> — ';
+    h += esc(d.desired) + ' holds the shield ' + fmt(tk.captureAt) + ' – ' + fmt(tk.shieldEnd) + '.<br>';
+    h += (r.resets ? r.resets + ' reset' + (r.resets > 1 ? 's' : '') + ' needed, first at ' + fmt(r.firstAction) : 'Takeover attack at ' + fmt(tk.attackAt)) + (mm ? ' (troops leave ' + fmtT(r.firstAction - mm) + ')' : '') + '.';
+    if(r.rolled) h += '<br>The entered timer had run out; assuming nobody attacked.';
+    box.className = 'fp-prev ' + st.cls; box.innerHTML = h;
+    return fr;
+  }
+  function openEditor(id){
+    if(!V.fac.length){ alert('The facility list is not loaded.'); return; }
+    var p = id ? V.plans.filter(function(x){ return x.id === id; })[0] : null;
+    E = {id: p ? p.id : null, orig: p ? p.d : null, phase: 'shield', strategy: 'late', dirtyRem: !p};
+    $('edTitle').textContent = p ? 'Edit plan' : 'New plan';
+    fillFacSelect($('fFac'));
+    if(p){
+      var d = p.d;
+      $('fFac').value = d.fac; onFac(d.owner, d.desired);
+      E.phase = d.phase; setPhase(d.phase);
+      $('fRem').value = (function(){ var ms = Math.max(0, d.until - now()), t = Math.floor(ms / MIN); return Math.floor(t / 1440) + ':' + Z(Math.floor(t % 1440 / 60)) + ':' + Z(t % 60); })();
+      $('fEvT').value = d.eventType || 'custom';
+      if(d.eventType && d.eventType !== 'custom') $('fEvD').value = new Date(d.eventStart).toISOString().slice(0, 10);
+      else { $('fEvS').value = toLocal(d.eventStart); $('fEvE').value = toLocal(d.eventEnd); }
+      setStrategy(d.strategy); $('fMan').value = d.manualAt ? toLocal(d.manualAt) : '';
+      $('fMar').value = d.marchMin || 0; $('fBuf').value = d.bufferMin || 0;
+    } else {
+      onFac();
+      setPhase('shield'); $('fRem').value = '2:00:00';
+      $('fEvT').value = 'sunfire'; $('fEvD').value = nextSat(); $('fEvS').value = ''; $('fEvE').value = '';
+      setStrategy('late'); $('fMan').value = ''; $('fMar').value = 0; $('fBuf').value = 0;
+    }
+    $('edModal').classList.add('open'); preview();
+  }
+  function closeEditor(){ $('edModal').classList.remove('open'); }
+  function saveEditor(){
+    var fr = preview(); if(fr.err) return;
+    var btn = $('edSave'); btn.disabled = true; btn.textContent = 'Saving…';
+    rpc('fp_save', {p_code: code(), p_id: E.id, p_data: fr.d}).then(function(){ closeEditor(); return loadPlans(); }).then(function(){ renderPlans(); })
+      .catch(function(e){ alert('Saving failed: ' + e.message); })
+      .then(function(){ btn.disabled = false; btn.textContent = 'Save plan'; });
+  }
+  function delPlan(id){
+    var p = V.plans.filter(function(x){ return x.id === id; })[0]; if(!p) return;
+    var f = V.facById[p.d.fac];
+    if(!confirm('Delete the plan for ' + facLine(f) + ' (' + p.d.owner + ' → ' + p.d.desired + ')?')) return;
+    rpc('fp_delete', {p_code: code(), p_id: id}).then(function(){ return loadPlans(); }).then(function(){ renderPlans(); }).catch(function(e){ alert('Delete failed: ' + e.message); });
+  }
+
+  // ---------- events ----------
+  document.addEventListener('click', function(e){
+    var t = e.target.closest ? e.target.closest('[data-act],#fpNew') : null; if(!t) return;
+    var a = t.getAttribute('data-act') || (t.id === 'fpNew' ? 'new' : '');
+    if(a === 'new') openEditor(null);
+    else if(a === 'detail') openDetail(t.getAttribute('data-id'));
+    else if(a === 'edit') openEditor(t.getAttribute('data-id'));
+    else if(a === 'del') delPlan(t.getAttribute('data-id'));
+    else if(a === 'login'){ if(window.EPDiscord) window.EPDiscord.start(); }
+    else if(a === 'logout'){ try { localStorage.removeItem('ep_code'); sessionStorage.removeItem('na_m'); } catch(x) {} location.reload(); }
+  });
+  document.addEventListener('change', function(e){
+    if(e.target && e.target.id === 'fpDone'){ V.showDone = e.target.checked; renderPlans(); }
+  });
+  $('edClose').addEventListener('click', closeEditor); $('edCancel').addEventListener('click', closeEditor);
+  $('edModal').addEventListener('click', function(e){ if(e.target === $('edModal')) closeEditor(); });
+  $('edSave').addEventListener('click', saveEditor);
+  $('fFac').addEventListener('change', function(){ onFac($('fOwner').value, $('fDes').value); preview(); });
+  ['fOwner', 'fDes', 'fEvT', 'fEvD', 'fEvS', 'fEvE', 'fMan', 'fMar', 'fBuf'].forEach(function(id){ $(id).addEventListener('input', preview); $(id).addEventListener('change', preview); });
+  $('fOwner').addEventListener('change', function(){ onFac($('fOwner').value, $('fDes').value); preview(); });
+  $('fRem').addEventListener('input', function(){ E.dirtyRem = true; preview(); });
+  $('fFresh').addEventListener('click', function(){ E.dirtyRem = true; setPhase('shield'); $('fRem').value = '3:00:00'; preview(); });
+  $('fPhase').addEventListener('click', function(e){ var b = e.target.closest('button'); if(!b) return; E.dirtyRem = true; setPhase(b.getAttribute('data-v')); preview(); });
+  $('fStr').addEventListener('click', function(e){ var b = e.target.closest('button'); if(!b) return; setStrategy(b.getAttribute('data-v')); preview(); });
+  $('dtClose').addEventListener('click', function(){ $('dtModal').classList.remove('open'); });
+  $('dtDone').addEventListener('click', function(){ $('dtModal').classList.remove('open'); });
+  $('dtModal').addEventListener('click', function(e){ if(e.target === $('dtModal')) $('dtModal').classList.remove('open'); });
+  $('dtEdit').addEventListener('click', function(){ var id = DT.id; $('dtModal').classList.remove('open'); if(id) openEditor(id); });
+  $('dtCopy').addEventListener('click', function(){
+    var p = V.plans.filter(function(x){ return x.id === DT.id; })[0]; if(!p) return;
+    copyText(planText(p.d, calc(p.d)), $('dtCopy'));
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeEditor(); $('dtModal').classList.remove('open'); } });
+
+  // theme toggle
+  (function(){
+    var root = document.documentElement;
+    function apply(t){
+      if(t === 'light') root.setAttribute('data-theme', 'light'); else root.removeAttribute('data-theme');
+      var m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content', t === 'light' ? '#f3f6fb' : '#070b15');
+    }
+    var t = 'dark'; try { if(localStorage.getItem('svs-theme') === 'light') t = 'light'; } catch(e) {}
+    if(t === 'dark'){ try { if(/(?:^|; )svs_theme=light/.test(document.cookie)) t = 'light'; } catch(e) {} }
+    apply(t);
+    $('themeToggle').addEventListener('click', function(){
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      apply(next);
+      try { localStorage.setItem('svs-theme', next); } catch(e) {}
+      try { document.cookie = 'svs_theme=' + next + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
+    });
+  })();
+
+  // reload + auto refresh
+  var lastLoad = Date.now(), loading = false;
+  function reload(){
+    if(loading) return; loading = true;
+    var b = $('refreshBtn'); if(b) b.classList.add('spin');
+    Promise.all([loadFac(), refreshAll(true)]).then(function(){ lastLoad = Date.now(); if(b){ b.classList.add('ok'); setTimeout(function(){ b.classList.remove('ok'); }, 1500); } })
+      .then(function(){ loading = false; if(b) b.classList.remove('spin'); });
+  }
+  $('refreshBtn').addEventListener('click', reload);
+  window.epSettingsApply = function(){};
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden && Date.now() - lastLoad > 600000) reload(); });
+  window.addEventListener('pageshow', function(e){ if(e.persisted && Date.now() - lastLoad > 600000) reload(); });
+  setInterval(tick, 1000);
+  setInterval(function(){
+    if(document.hidden || V.gate || $('edModal').classList.contains('open')) return;
+    loadPlans().then(function(){ renderPlans(); }).catch(function(){});
+  }, 20000);
+  window.__fp = {V: V, calc: calc, now: now};
+  loadFac().then(function(){ return refreshAll(true); }).then(function(){ lastLoad = Date.now(); });
+})();
+
+</script>
+<script>
+(function(){
+  var KEY = 'svs646_prefs';
+  var ITEMS = [
+    {g: 'All pages'},
+    {k: 'av', t: 'Avatars', d: 'Profile pictures next to the player names', def: true},
+    {k: 'bal', t: '“Battle alliance” label', d: 'The gold label next to PKB and GYN (Roster, SvS Leaderboards)', def: true},
+    {k: 'ban', t: 'Banner symbols', d: 'Gold moons and blue stars next to the alliances (Roster, SvS Leaderboards)', def: true},
+    {g: 'SvS Leaderboards'},
+    {k: 'dots', t: 'Phase dots', d: 'Five dots showing in which prep phases a player or alliance is listed', def: true},
+    {k: 'whale', t: 'Whale mode', d: 'Joke: shows a whale instead of one player’s name (Player tab)', def: false},
+    {k: 'koi', t: 'Presidents after King of Icefield', d: 'Also list them in the presidency table (Trends)', def: false},
+    {g: 'Event Planner'},
+    {k: 'epc', t: 'Compact team view', d: 'Smaller tiles in the teams', def: false}
+  ];
+  function read(){
+    var o = null;
+    try { o = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) {}
+    if(!o){ try { var m = document.cookie.match(/(?:^|; )svs646_prefs=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
+    return (o && typeof o === 'object') ? o : {};
+  }
+  function write(o){
+    var s = JSON.stringify(o);
+    try { localStorage.setItem(KEY, s); } catch(e) {}
+    try { document.cookie = 'svs646_prefs=' + encodeURIComponent(s) + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
+  }
+  function val(o, it){
+    var v = o[it.k]; if(typeof v === 'boolean') return v;
+    if(it.k === 'dots'){ try { return localStorage.getItem('svs646_dots') !== '0'; } catch(e) {} }
+    return it.def;
+  }
+  function classes(o){
+    var c = document.documentElement.classList;
+    c.toggle('no-bal', o.bal === false); c.toggle('no-ban', o.ban === false);
+  }
+  function apply(k, v){
+    var o = read(); o[k] = v; write(o); classes(o);
+    if(k === 'dots'){ try { localStorage.setItem('svs646_dots', v ? '1' : '0'); } catch(e) {} }
+    if(typeof window.epSettingsApply === 'function') window.epSettingsApply(k, v);
+  }
+  var ov = null;
+  function build(){
+    var h = '<div class="modal-panel st-panel"><div class="modal-header"><h2 id="stTitle">Settings</h2><button type="button" class="modal-close" aria-label="Close">×</button></div><div class="st-body">';
+    ITEMS.forEach(function(it){
+      if(it.g){ h += '<div class="st-g">' + it.g + '</div>'; return; }
+      h += '<label class="st-row"><span class="st-t"><b>' + it.t + '</b><small>' + it.d + '</small></span><span class="switch"><input type="checkbox" data-k="' + it.k + '"><span class="switch-track"><span class="switch-thumb"></span></span></span></label>';
+    });
+    h += '<div class="st-foot"><span>Saved in this browser, for all pages.</span><button type="button" id="stReset">Reset all</button></div></div></div>';
+    ov = document.createElement('div'); ov.className = 'modal-overlay'; ov.id = 'stModal';
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-labelledby', 'stTitle');
+    ov.innerHTML = h; document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ if(e.target === ov) close(); });
+    ov.querySelector('.modal-close').addEventListener('click', close);
+    ov.addEventListener('change', function(e){ var k = e.target && e.target.getAttribute && e.target.getAttribute('data-k'); if(k) apply(k, e.target.checked); });
+    ov.querySelector('#stReset').addEventListener('click', function(){
+      ITEMS.forEach(function(it){ if(it.k) apply(it.k, it.def); }); sync();
+    });
+  }
+  function sync(){
+    var o = read();
+    ITEMS.forEach(function(it){ if(!it.k) return; var cb = ov.querySelector('input[data-k="' + it.k + '"]'); if(cb) cb.checked = val(o, it); });
+  }
+  function open(){ if(!ov) build(); sync(); ov.classList.add('open'); var c = ov.querySelector('.modal-close'); if(c) c.focus(); }
+  function close(){ if(ov) ov.classList.remove('open'); }
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && ov && ov.classList.contains('open')) close(); });
+  var b = document.getElementById('setBtn'); if(b) b.addEventListener('click', open);
+  classes(read());
+})();
+</script>
+<script src="nav-access.js" defer></script>
+</body>
+</html>

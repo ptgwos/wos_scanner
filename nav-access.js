@@ -46,6 +46,7 @@
   function apply(mm){
     css();
     put('assignfsh.html', 'FORTRESS/SH PLAN', 'FSH', 'on');
+    put('facilityplan.html', 'FACILITY PLANNER', 'FACILITY', 'on');
     put('rallyleads.html', 'RALLY LEADS', 'LEADS', mm && mm.rallyleads ? 'on' : 'off');
     var pend = mm && mm.pending > 0 ? mm.pending : 0, dt = pend + ' open access request' + (pend === 1 ? '' : 's');
     put('access.html', 'ADMIN', 'ADMIN', mm && mm.role === 'super' ? 'on' : null, pend ? {dot: dt} : null);
