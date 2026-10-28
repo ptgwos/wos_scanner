@@ -505,7 +505,7 @@
     <div class="fp-h" id="fmFormT" style="margin-top:14px">Add facility</div>
     <div class="fp-f2">
       <div class="field"><label for="fmType">Type</label><input type="text" id="fmType" list="fmTypes" autocomplete="off" placeholder="e.g. Weapons Facility"><datalist id="fmTypes"></datalist></div>
-      <div class="field"><label for="fmLvl">Level</label><input type="number" id="fmLvl" min="1" max="99"></div>
+      <div class="field"><label for="fmLvl">Level</label><input type="number" id="fmLvl" min="1" max="4"></div>
     </div>
     <div class="fp-f1"><label for="fmBonus">Bonus</label><input type="text" id="fmBonus" autocomplete="off" placeholder="e.g. Troops' Attack + 8.0%"></div>
     <div class="fp-f2">
@@ -536,7 +536,7 @@
 
   <div id="fpMain"></div>
 
-  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp5</footer>
+  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp7</footer>
 </div>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>
@@ -1403,12 +1403,19 @@
     $('fmErr').textContent = '';
     $('fmCancel').hidden = !f;
   }
+  // The first write seeds the database with the starting list, so nothing disappears from the list.
+  function ensureSeed(){
+    if(V.facDb) return Promise.resolve();
+    var list = V.facFile.slice(), chain = Promise.resolve();
+    list.forEach(function(f){ chain = chain.then(function(){ return rpc('fp_fac_save', {p_code: code(), p_id: f.id, p_data: f}); }); });
+    return chain.then(function(){ return loadFacDb(); });
+  }
   function fmSave(){
     var x = parseInt($('fmX').value, 10), y = parseInt($('fmY').value, 10), lvl = parseInt($('fmLvl').value, 10), type = $('fmType').value.trim();
     var al = []; $('fmAl').value.split(/[,;\/]/).forEach(function(a){ a = a.trim(); if(a && al.indexOf(a) < 0) al.push(a); });
     var err = '';
     if(!type) err = 'Please enter the type.';
-    else if(!(lvl >= 1 && lvl <= 99)) err = 'Please enter the level.';
+    else if(!(lvl >= 1 && lvl <= 4)) err = 'The level must be between 1 and 4.';
     else if(!(x >= 0 && x <= 99999 && y >= 0 && y <= 99999)) err = 'Please enter both coordinates.';
     else if(!al.length) err = 'Please enter at least one connected alliance.';
     var id = FM.editId || (x + '-' + y);
@@ -1416,14 +1423,14 @@
     if(err){ $('fmErr').textContent = err; return; }
     var d = {id: id, type: type, level: lvl, bonus: $('fmBonus').value.trim(), x: FM.editId ? V.facById[id].x : x, y: FM.editId ? V.facById[id].y : y, alliances: al};
     var btn = $('fmSave'); btn.disabled = true;
-    rpc('fp_fac_save', {p_code: code(), p_id: id, p_data: d}).then(function(){ return loadFacDb(); }).then(function(){ fmList(); fmForm(null); renderPlans(); var b = $('fpAssist'); if(b) b.innerHTML = assistHtml(); })
+    ensureSeed().then(function(){ return rpc('fp_fac_save', {p_code: code(), p_id: id, p_data: d}); }).then(function(){ return loadFacDb(); }).then(function(){ fmList(); fmForm(null); renderPlans(); var b = $('fpAssist'); if(b) b.innerHTML = assistHtml(); })
       .catch(function(e){ $('fmErr').textContent = 'Saving failed: ' + e.message; }).then(function(){ btn.disabled = false; });
   }
   function fmDel(id){
     var f = V.facById[id]; if(!f) return;
     var used = V.plans.filter(function(p){ return p.d.fac === id; }).length;
     if(!confirm('Delete ' + facLine(f) + ' (' + f.x + '/' + f.y + ')?' + (used ? '\n\n' + used + ' plan(s) use it and will show "Unknown facility".' : ''))) return;
-    rpc('fp_fac_delete', {p_code: code(), p_id: id}).then(function(){ return loadFacDb(); }).then(function(){ fmList(); fmForm(null); renderPlans(); })
+    ensureSeed().then(function(){ return rpc('fp_fac_delete', {p_code: code(), p_id: id}); }).then(function(){ return loadFacDb(); }).then(function(){ fmList(); fmForm(null); renderPlans(); })
       .catch(function(e){ alert('Delete failed: ' + e.message); });
   }
   function fmImport(){
