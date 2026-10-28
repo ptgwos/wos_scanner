@@ -461,7 +461,13 @@
       <div class="fp-seg" id="fStr">
         <button type="button" data-v="late">Keep it as long as possible<small>The current holder keeps it until shortly before the event</small></button>
         <button type="button" data-v="early">Get it back ASAP<small>The current holder can retake it right after the event</small></button>
+        <button type="button" data-v="cj">After Crazy Joe<small>No attack until 45 min after Crazy Joe starts</small></button>
         <button type="button" data-v="manual">Pick my own time<small>You choose when the attack arrives</small></button>
+      </div>
+      <div id="fCjW" hidden>
+        <label for="fCj" style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);display:block;margin:6px 0">Crazy Joe starts at (UTC)</label>
+        <input type="datetime-local" id="fCj" style="width:100%">
+        <div class="fp-hint">The facility stays with the current holder during Crazy Joe (about 40 min + 5 min buffer). Resets and the takeover only happen afterwards; the takeover as early as possible, while still covering the event. The time is remembered for the next plan.</div>
       </div>
       <div id="fManW" hidden>
         <label for="fMan" style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);display:block;margin:6px 0">Attack arrives at (UTC)</label>
@@ -504,7 +510,7 @@
 
   <div id="fpMain"></div>
 
-  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp3</footer>
+  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp4</footer>
 </div>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>
@@ -643,12 +649,102 @@
     };
   }
 
-  /* input: {state:{phase,until}, eventStart, eventEnd, strategy:'late'|'early'|'manual', manualAttackAt}
+  /* Strategy 'cj' ("after Crazy Joe"): the holder wants to keep the facility during Crazy Joe.
+     input.cjStart = Crazy Joe start (ms). No attack may be active from cjStart until cjStart + 45 min (CJ lasts ~40 min + 5 min buffer).
+     The takeover attack arrives at the earliest at cjStart + 45 min and as early as possible after that while still covering the event.
+     Exact search on a minute grid: f[k][D] = fewest resets so that open window k ends at e0 + k*96h - D minutes.
+     (Natural re-occupation is no attack, so it is allowed inside the Crazy Joe gap.) */
+  var CJ_AFTER = 45 * MIN;
+  function computeCJ(input, now, opt) {
+    var B = opt.battleMs, Es = input.eventStart, Ee = input.eventEnd;
+    var fs = input.cjStart, fe = fs + CJ_AFTER;
+    if (!(Ee > now)) return { ok: false, reason: 'event_over' };
+    if (!(fs > 0)) return { ok: false, reason: 'no_cj' };
+    var norm = normalizeState(input.state, now, opt);
+    var capK = Math.floor((OPEN - B) / MIN);
+    var cap0 = Math.floor((norm.e0 - norm.a0 - B) / MIN);
+    var ePlain = function (k, D) { return norm.e0 + k * (SHIELD + OPEN) - D * MIN; };
+    var allowedReset = function (c) { return c <= fs || c >= fe + B; };
+    var K = 0; while (ePlain(K, 0) - OPEN <= Ee && K < 12) K++;
+    K = Math.min(K + 1, 12);                                  // +1: resets shorten the cycles, one more window can start before the event end
+    var f = [], par = [], maxD = [];
+    var INF = 127;
+    f[0] = new Int8Array(1); f[0][0] = 0; maxD[0] = 0; par[0] = [null];
+    for (var k = 0; k + 1 < K; k++) {
+      var cp = k === 0 ? cap0 : capK, nd = maxD[k] + Math.max(0, cp);
+      var nf = new Int8Array(nd + 1).fill(INF), pp = new Int32Array(nd + 1).fill(-1);
+      for (var D = 0; D <= maxD[k]; D++) {
+        var cost = f[k][D]; if (cost >= INF) continue;
+        var e = ePlain(k, D);
+        for (var m = 0; m <= cp; m++) {
+          if (m > 0 && !allowedReset(e - m * MIN)) continue;
+          var c2 = cost + (m > 0 ? 1 : 0), D2 = D + m;
+          if (c2 < nf[D2]) { nf[D2] = c2; pp[D2] = D * 4096 + m; }
+        }
+      }
+      f.push(nf); par.push(pp); maxD.push(nd);
+    }
+    // takeover candidates: per (window k, D) a capture range [e - cap, e], only c >= fe + B
+    var Tlo = Ee - SHIELD, L = fe + B, ranges = [];
+    for (var k2 = 0; k2 < K; k2++) {
+      var cp2 = k2 === 0 ? cap0 : capK; if (cp2 < 0) continue;
+      for (var D3 = 0; D3 <= maxD[k2]; D3++) {
+        if (f[k2][D3] >= INF) continue;
+        var e3 = ePlain(k2, D3), lo = Math.max(e3 - cp2 * MIN, L), hi = e3;
+        if (lo <= hi) ranges.push({ k: k2, D: D3, lo: lo, hi: hi, cost: f[k2][D3], e: e3 });
+      }
+    }
+    if (!ranges.length) return { ok: false, reason: 'no_window', norm: norm };
+    var c = null, best = null;
+    ranges.forEach(function (r) {               // earliest full-coverage capture
+      var x = Math.max(r.lo, Tlo);
+      if (x <= r.hi && x <= Es && (c === null || x < c)) c = x;
+    });
+    if (c === null) {
+      var cL = null, cE = null;
+      ranges.forEach(function (r) {
+        if (r.lo <= Es) { var a = Math.min(r.hi, Es); if (cL === null || a > cL) cL = a; }
+        if (r.hi >= Es) { var b2 = Math.max(r.lo, Es); if (cE === null || b2 < cE) cE = b2; }
+      });
+      var oL = cL === null ? -1 : overlapMs(cL, Es, Ee), oE = cE === null ? -1 : overlapMs(cE, Es, Ee);
+      c = oE > oL ? cE : (oL > oE ? cL : (cE !== null ? cE : cL));
+    }
+    // choose the state with the fewest resets that can capture at c
+    ranges.forEach(function (r) {
+      if (c >= r.lo && c <= r.hi && (best === null || r.cost < best.cost)) best = r;
+    });
+    // rebuild path
+    var Ds = [], ms = [], Dk = best.D;
+    for (var kk = best.k; kk >= 1; kk--) { Ds[kk] = Dk; var pv = par[kk][Dk]; var pd = Math.floor(pv / 4096), pm = pv % 4096; ms[kk - 1] = pm; Dk = pd; }
+    Ds[0] = 0;
+    var steps = [];
+    for (var j = 0; j < best.k; j++) {
+      var ej = ePlain(j, Ds[j]), wsj = j === 0 ? norm.s0 : ej - OPEN;
+      if (ms[j] > 0) steps.push({ kind: 'reset', window: j, windowStart: wsj, windowEnd: ej, attackAt: ej - ms[j] * MIN - B, captureAt: ej - ms[j] * MIN });
+      else steps.push({ kind: 'pass', window: j, windowStart: wsj, windowEnd: ej, returnAt: ej });
+    }
+    var tStart = best.k === 0 ? norm.s0 : best.e - OPEN;
+    var tk = { window: best.k, windowStart: tStart, windowEnd: best.e, attackAt: c - B, captureAt: c, shieldEnd: c + SHIELD, openEnd: c + SHIELD + OPEN };
+    var cov = overlapMs(c, Es, Ee), evDur = Ee - Es;
+    var resets = steps.filter(function (x) { return x.kind === 'reset'; });
+    return {
+      ok: true, strategy: 'cj', norm: norm, rolled: norm.rolled, note: [],
+      coverage: cov >= evDur ? 'full' : cov > 0 ? 'partial' : 'none', covMs: cov, covPct: Math.round(cov / evDur * 100),
+      gapStartMs: Math.max(0, c - Es), gapEndMs: Math.max(0, Ee - (c + SHIELD)),
+      resets: resets.length, steps: steps, takeover: tk,
+      reclaim: { from: tk.shieldEnd, lastAttack: tk.shieldEnd + OPEN - B, autoStay: tk.shieldEnd + OPEN },
+      march: opt.marchMs, cj: { start: fs, safeFrom: fe },
+      firstAction: (resets[0] || { attackAt: tk.attackAt }).attackAt
+    };
+  }
+
+  /* input: {state:{phase,until}, eventStart, eventEnd, strategy:'late'|'early'|'manual'|'cj', manualAttackAt, cjStart}
      returns {ok, ...} */
   function computePlan(input, now, optIn) {
     var opt = opts(optIn), B = opt.battleMs;
     var Es = input.eventStart, Ee = input.eventEnd;
     if (!(Ee > now)) return { ok: false, reason: 'event_over' };
+    if (input.strategy === 'cj') return computeCJ(input, now, opt);
     var norm = normalizeState(input.state, now, opt);
     var ws = buildWindows(norm, opt, Ee + SHIELD);
     var strategy = input.strategy || 'late';
@@ -747,7 +843,8 @@
     frostdragon: {label: 'Frostdragon Tyrant', s: 11, e: 17},
     custom: {label: 'Custom event'}
   };
-  var STRAT = {late: 'Keep it long', early: 'Back ASAP', manual: 'Manual time'};
+  var STRAT = {late: 'Keep it long', early: 'Back ASAP', manual: 'Manual time', cj: 'After Crazy Joe'};
+  var CJ_AFTER = 45 * MIN, CJ_LEN = 40 * MIN;
 
   var V = {me: null, gate: null, plans: [], assist: [], setId: null, fac: [], facById: {}, showDone: false, sig: '', err: ''};
   var E = {id: null, orig: null, phase: 'shield', strategy: 'late', dirtyRem: false};
@@ -828,10 +925,17 @@
   }
 
   // ---------- calculation ----------
+  var CALC_CACHE = {};
   function calc(d){
+    if(d.strategy !== 'cj') return calc0(d);
+    var key = JSON.stringify(d) + '|' + Math.floor(now() / MIN);
+    if(!CALC_CACHE[key]){ if(Object.keys(CALC_CACHE).length > 40) CALC_CACHE = {}; CALC_CACHE[key] = calc0(d); }
+    return CALC_CACHE[key];
+  }
+  function calc0(d){
     return L.computePlan({
       state: {phase: d.phase, until: d.until}, eventStart: d.eventStart, eventEnd: d.eventEnd,
-      strategy: d.strategy, manualAttackAt: d.manualAt
+      strategy: d.strategy, manualAttackAt: d.manualAt, cjStart: d.cjStart
     }, now(), {marchMs: (d.marchMin || 0) * MIN, bufferMs: (d.bufferMin || 0) * MIN});
   }
   // Who can start a reset: cooperating alliances (global Assist list) that are connected to this facility,
@@ -874,6 +978,7 @@
       return t;
     }
     if(r.reason === 'event_over') return 'The event is over.';
+    if(r.reason === 'no_cj') return 'Please enter the Crazy Joe start time.';
     return 'No suitable open window was found.';
   }
   function statusOf(r){
@@ -953,6 +1058,19 @@
 
   // When was the shield/open timer last entered? (new field timerAt; older plans fall back to the save time)
   function timerAt(p){ return p.d.timerAt || (p.upd ? Date.parse(p.upd) : now()); }
+  // Is the current holder without bonus (facility open or in battle) while Crazy Joe runs?
+  function cjGap(d, r){
+    if(!r.ok || d.strategy !== 'cj') return null;
+    var a = d.cjStart, b = a + CJ_LEN, iv = [];
+    r.steps.forEach(function(s){ iv.push([s.windowStart, s.kind === 'reset' ? s.captureAt : s.windowEnd]); });
+    iv.push([r.takeover.windowStart, r.takeover.captureAt]);
+    for(var i = 0; i < iv.length; i++) if(iv[i][0] < b && iv[i][1] > a) return {open: iv[i][0]};
+    return null;
+  }
+  function cjGapText(d, r){
+    var g = cjGap(d, r); if(!g) return '';
+    return d.owner + ' has no shield during Crazy Joe (the facility is open from ' + fmt(g.open) + '), so there is no bonus then.';
+  }
   function timerLine(p){
     var age = Math.max(0, now() - timerAt(p)), stale = age > 48 * H;
     return '<div class="fp-' + (stale ? 'warn' : 'info') + (stale ? ' soft' : '') + '">Timer last updated ' + (age < MIN ? 'just now' : dur(age) + ' ago') + (stale ? ' — please check it in the game and update it if needed.' : '.') + '</div>';
@@ -979,6 +1097,7 @@
       if(r.coverage === 'none') h += '<div class="fp-warn">The shield does not overlap the event.</div>';
       if(r.rolled) h += '<div class="fp-warn soft">The entered timer had run out. Please update it.</div>';
       else h += timerLine(x.p);
+      if(cjGapText(d, r)) h += '<div class="fp-warn">⚠ ' + esc(cjGapText(d, r)) + '</div>';
     } else if(finished){
       h += '<div class="fp-info">The event is over.</div>';
     } else {
@@ -1004,6 +1123,7 @@
       else st.push({t: s.windowStart, c: 'var(--border)', soft: true, title: 'Open window — do nothing', note: fmt(s.windowStart) + ' – ' + fmt(s.windowEnd) + '. Nobody attacks, ' + own + ' re-occupies at ' + fmt(s.windowEnd) + ' with a fresh 72 h shield.'});
     });
     var tk = r.takeover;
+    if(d.strategy === 'cj') st.push({t: d.cjStart, c: '#b06bff', soft: true, title: 'Crazy Joe', note: 'Starts ' + fmt(d.cjStart) + ' (about 40 min). No attack arrives until ' + fmt(d.cjStart + CJ_AFTER) + ', so ' + own + ' keeps the facility during Crazy Joe.'});
     st.push({t: tk.attackAt, c: 'var(--gold)', dark: true, title: des + ' takes the facility', note: 'Open window ' + fmt(tk.windowStart) + ' – ' + fmt(tk.windowEnd) + '. The attack arrives at ' + fmt(tk.attackAt) + ', after 30 min ' + des + ' holds it with a 72 h shield until ' + fmt(tk.shieldEnd) + '.' + leave(tk.attackAt)});
     var gap0 = tk.captureAt - d.eventStart;
     st.push({t: d.eventStart, c: 'var(--good)', title: 'Event starts', note: gap0 > 0 ? 'Warning: ' + des + ' only gets the bonus ' + dur(gap0) + ' after the start.' : des + ' already has the bonus.'});
@@ -1042,6 +1162,7 @@
       if(r.coverage === 'full') h += '<div class="fp-box">✓ ' + esc(d.desired) + ' has the bonus during the whole event (shield ' + fmt(r.takeover.captureAt) + ' – ' + fmt(r.takeover.shieldEnd) + ').' + (r.resets ? ' ' + r.resets + ' reset' + (r.resets > 1 ? 's are' : ' is') + ' needed first.' : '') + '</div>';
       else if(r.coverage === 'partial') h += '<div class="fp-box warn">⚠ Only ' + r.covPct + '% of the event can be covered. ' + (r.gapStartMs ? esc(d.desired) + ' gets the bonus ' + dur(r.gapStartMs) + ' after the start. ' : '') + (r.gapEndMs ? 'The shield ends ' + dur(r.gapEndMs) + ' before the end.' : '') + '</div>';
       else h += '<div class="fp-box bad">The shield cannot overlap the event with the current timer.</div>';
+      if(cjGapText(d, r)) h += '<div class="fp-box warn">⚠ ' + esc(cjGapText(d, r)) + '</div>';
       h += timerLine(p);
       h += '<div class="fp-h">Timeline (now → event end)</div>' + timelineHtml(d, r);
       h += '<div class="fp-h">Action plan</div>';
@@ -1096,8 +1217,14 @@
     $('fRemL').textContent = (v === 'open' ? 'Open time left' : 'Shield time left') + ' (d:hh:mm)';
     remHint();
   }
+  function lastThu(ms){ var d = new Date(ms); d.setUTCHours(0, 0, 0, 0); var back = (d.getUTCDay() + 3) % 7 || 7; d.setUTCDate(d.getUTCDate() - back); return d.toISOString().slice(0, 10); }
+  function cjDefault(){
+    var ev = evTimes(), t = ''; try { t = localStorage.getItem('fp_cj_time') || ''; } catch(e) {}
+    if(ev && /^\d\d:\d\d$/.test(t)) $('fCj').value = lastThu(ev.start) + 'T' + t;
+  }
   function setStrategy(v){
-    E.strategy = v; setSeg('fStr', v); $('fManW').hidden = v !== 'manual';
+    E.strategy = v; setSeg('fStr', v); $('fManW').hidden = v !== 'manual'; $('fCjW').hidden = v !== 'cj';
+    if(v === 'cj' && !$('fCj').value) cjDefault();
   }
   function remHint(){
     var ms = parseRem($('fRem').value), h = $('fRemH'), max = E.phase === 'open' ? OPEN : SHIELD;
@@ -1136,8 +1263,15 @@
     if(ev.end <= now()) return {err: 'The event is already over.'};
     var manual = null;
     if(E.strategy === 'manual'){ manual = fromLocal($('fMan').value); if(isNaN(manual)) return {err: 'Please pick the attack time.'}; }
+    var cj = null;
+    if(E.strategy === 'cj'){
+      cj = fromLocal($('fCj').value); if(isNaN(cj)) return {err: 'Please enter the Crazy Joe start time (UTC).'};
+      if(cj + CJ_AFTER <= now()) return {err: 'Crazy Joe is already over. Please check the date.'};
+      if(cj >= ev.start) return {err: 'Crazy Joe must start before the event.'};
+      try { localStorage.setItem('fp_cj_time', $('fCj').value.slice(11, 16)); } catch(e) {}
+    }
     var d = {fac: f.id, owner: owner, desired: des, phase: phase, until: until, eventType: $('fEvT').value, eventStart: ev.start, eventEnd: ev.end,
-      strategy: E.strategy, manualAt: manual, timerAt: (E.id && !E.dirtyRem) ? E.origAt : now(), bufferMin: Math.max(0, +$('fBuf').value || 0), marchMin: Math.max(0, +$('fMar').value || 0)};
+      strategy: E.strategy, manualAt: manual, cjStart: cj, timerAt: (E.id && !E.dirtyRem) ? E.origAt : now(), bufferMin: Math.max(0, +$('fBuf').value || 0), marchMin: Math.max(0, +$('fMar').value || 0)};
     return {d: d};
   }
   function preview(){
@@ -1155,6 +1289,7 @@
     h += esc(d.desired) + ' holds the shield ' + fmt(tk.captureAt) + ' – ' + fmt(tk.shieldEnd) + '.<br>';
     h += (r.resets ? r.resets + ' reset' + (r.resets > 1 ? 's' : '') + ' needed (by ' + esc(resetBy(d)) + '), first at ' + fmt(r.firstAction) : 'Takeover attack at ' + fmt(tk.attackAt)) + (mm ? ' (troops leave ' + fmtT(r.firstAction - mm) + ')' : '') + '.';
     if(r.rolled) h += '<br>The entered timer had run out; assuming nobody attacked.';
+    if(cjGapText(d, r)) h += '<br>⚠ ' + esc(cjGapText(d, r));
     box.className = 'fp-prev ' + st.cls; box.innerHTML = h;
     return fr;
   }
@@ -1172,13 +1307,14 @@
       $('fEvT').value = d.eventType || 'custom';
       if(d.eventType && d.eventType !== 'custom') $('fEvD').value = new Date(d.eventStart).toISOString().slice(0, 10);
       else { $('fEvS').value = toLocal(d.eventStart); $('fEvE').value = toLocal(d.eventEnd); }
+      $('fCj').value = d.cjStart ? toLocal(d.cjStart) : '';
       setStrategy(d.strategy); $('fMan').value = d.manualAt ? toLocal(d.manualAt) : '';
       $('fMar').value = d.marchMin || 0; $('fBuf').value = d.bufferMin || 0;
     } else {
       onFac();
       setPhase('shield'); $('fRem').value = '2:00:00';
       $('fEvT').value = 'sunfire'; $('fEvD').value = nextSat(); $('fEvS').value = ''; $('fEvE').value = '';
-      setStrategy('late'); $('fMan').value = ''; $('fMar').value = 0; $('fBuf').value = 0;
+      $('fCj').value = ''; setStrategy('late'); $('fMan').value = ''; $('fMar').value = 0; $('fBuf').value = 0;
     }
     $('edModal').classList.add('open'); preview();
   }
@@ -1217,7 +1353,7 @@
   $('edModal').addEventListener('click', function(e){ if(e.target === $('edModal')) closeEditor(); });
   $('edSave').addEventListener('click', saveEditor);
   $('fFac').addEventListener('change', function(){ onFac($('fOwner').value, $('fDes').value); preview(); });
-  ['fOwner', 'fDes', 'fEvT', 'fEvD', 'fEvS', 'fEvE', 'fMan', 'fMar', 'fBuf'].forEach(function(id){ $(id).addEventListener('input', preview); $(id).addEventListener('change', preview); });
+  ['fOwner', 'fDes', 'fEvT', 'fEvD', 'fEvS', 'fEvE', 'fMan', 'fCj', 'fMar', 'fBuf'].forEach(function(id){ $(id).addEventListener('input', preview); $(id).addEventListener('change', preview); });
   $('fOwner').addEventListener('change', function(){ onFac($('fOwner').value, $('fDes').value); preview(); });
   $('fRem').addEventListener('input', function(){ E.dirtyRem = true; preview(); });
   $('fFresh').addEventListener('click', function(){ E.dirtyRem = true; setPhase('shield'); $('fRem').value = '3:00:00'; preview(); });
