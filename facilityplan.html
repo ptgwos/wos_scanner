@@ -424,6 +424,11 @@
   .fp-frow{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--panel-2);}
   .fp-fa{display:flex;gap:6px;flex:none;}
 
+  .fp-fbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;}
+  .fp-fbar select{width:auto;min-width:0;}
+  .fp-fbar .fp-sp{flex:1 1 auto;}
+  .fp-chip.home{border-color:var(--gold);color:var(--gold);}
+
 </style>
 </head>
 <body>
@@ -513,6 +518,7 @@
       <div class="field"><label for="fmY">Y</label><input type="number" id="fmY" min="0" max="99999"></div>
     </div>
     <div class="fp-f1"><label for="fmAl">Connected alliances (comma separated)</label><input type="text" id="fmAl" autocomplete="off" placeholder="e.g. TBR, PKB, DFT"></div>
+    <div class="fp-f1"><label for="fmHome">Home alliance (optional)</label><select id="fmHome"></select><div class="fp-hint">Who the facility actually belongs to. It is preselected as the current holder in new plans. Choose from the connected alliances above.</div></div>
     <div class="fp-hint">The coordinates identify the facility and cannot be changed later. To move one, delete it and add it again.</div>
     <div class="fp-hint err" id="fmErr"></div>
     <div class="fp-chips2"><button type="button" class="btn" id="fmSave">Save facility</button><button type="button" class="btn-secondary" id="fmCancel" hidden>Cancel edit</button></div>
@@ -536,7 +542,7 @@
 
   <div id="fpMain"></div>
 
-  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp7</footer>
+  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp8</footer>
 </div>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>
@@ -1251,11 +1257,11 @@
   function onFac(keepO, keepD){
     var f = V.facById[$('fFac').value]; if(!f) return;
     var al = f.alliances;
-    var o = keepO && al.indexOf(keepO) >= 0 ? keepO : al[0];
+    var o = keepO && al.indexOf(keepO) >= 0 ? keepO : (f.home && al.indexOf(f.home) >= 0 ? f.home : al[0]);
     var pref = ['PKB', 'GYN'].filter(function(x){ return al.indexOf(x) >= 0 && x !== o; })[0];
     var dsr = keepD && al.indexOf(keepD) >= 0 && keepD !== o ? keepD : (pref || al.filter(function(x){ return x !== o; })[0] || al[0]);
     $('fOwner').innerHTML = opts(al, o); $('fDes').innerHTML = opts(al, dsr);
-    $('fFacInfo').innerHTML = '<b>' + esc(f.type) + '</b> · Lvl ' + f.level + ' · ' + f.x + '/' + f.y + (f.bonus ? '<br>' + esc(f.bonus) : '') + '<br>Connected alliances: ' + al.map(function(a){ return '<span class="fp-chip">' + esc(a) + '</span>'; }).join('');
+    $('fFacInfo').innerHTML = '<b>' + esc(f.type) + '</b> · Lvl ' + f.level + ' · ' + f.x + '/' + f.y + (f.bonus ? '<br>' + esc(f.bonus) : '') + (f.home ? '<br>Home alliance: <span class="fp-chip">' + esc(f.home) + '</span>' : '') + '<br>Connected alliances: ' + al.map(function(a){ return '<span class="fp-chip">' + esc(a) + '</span>'; }).join('');
   }
   function setSeg(id, v){ var bs = $(id).querySelectorAll('button'); for(var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-v') === v); }
   function setPhase(v){
@@ -1373,17 +1379,38 @@
       .then(function(){ btn.disabled = false; btn.textContent = 'Save plan'; });
   }
   // ---------- facility list manager ----------
-  var FM = {editId: null};
+  var FM = {editId: null, fa: '', fm: 'con'};
+  function fmShown(){
+    return V.fac.filter(function(f){ return !FM.fa || (FM.fm === 'home' ? f.home === FM.fa : (f.alliances || []).indexOf(FM.fa) >= 0); });
+  }
+  function csvCell(v){ v = String(v == null ? '' : v); return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  function fmExport(){
+    var rows = [['Lvl', 'Type', 'Bonus', 'X', 'Y', 'Home alliance', 'Connected alliances']];
+    fmShown().forEach(function(f){ rows.push([f.level, f.type, f.bonus || '', f.x, f.y, f.home || '', (f.alliances || []).join(', ')]); });
+    var txt = '\ufeff' + rows.map(function(r){ return r.map(csvCell).join(';'); }).join('\r\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], {type: 'text/csv;charset=utf-8'}));
+    a.download = 'facilities' + (FM.fa ? '-' + (FM.fm === 'home' ? 'home-' : '') + FM.fa : '') + '.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  }
+  function fmHomeOpts(sel){
+    var al = []; $('fmAl').value.split(/[,;\/]/).forEach(function(a){ a = a.trim(); if(a && al.indexOf(a) < 0) al.push(a); });
+    $('fmHome').innerHTML = '<option value="">— none —</option>' + al.map(function(a){ return '<option value="' + esc(a) + '"' + (a === sel ? ' selected' : '') + '>' + esc(a) + '</option>'; }).join('');
+  }
   function fmList(){
     var h = '';
     if(!V.facDb) h += '<div class="fp-box warn">The list still comes from the starting file. <button type="button" class="fp-b" id="fmImport">Save it to the database</button> so it can be edited here.</div>';
     if(V.facDbErr) h += '<div class="fp-box bad">Database: ' + esc(V.facDbErr) + ' (Has the SQL update been run?)</div>';
+    var shown = fmShown();
     if(!V.fac.length) h += '<div class="fp-empty">No facilities yet.</div>';
     else {
+      h += '<div class="fp-fbar"><select id="fmFA" aria-label="Alliance filter"><option value="">All alliances</option>' + allAlliances().map(function(a){ return '<option value="' + esc(a) + '"' + (a === FM.fa ? ' selected' : '') + '>' + esc(a) + '</option>'; }).join('') + '</select>' +
+        '<select id="fmFM" aria-label="Filter mode"><option value="con"' + (FM.fm === 'con' ? ' selected' : '') + '>connected with</option><option value="home"' + (FM.fm === 'home' ? ' selected' : '') + '>home alliance</option></select>' +
+        '<span class="fp-info">' + shown.length + ' of ' + V.fac.length + '</span><span class="fp-sp"></span><button type="button" class="fp-b" id="fmExp">Export CSV</button></div>';
       h += '<div class="fp-ftab">';
-      V.fac.forEach(function(f){
+      if(!shown.length) h += '<div class="fp-empty">No facility matches.</div>';
+      shown.forEach(function(f){
         var used = V.plans.filter(function(p){ return p.d.fac === f.id; }).length;
-        h += '<div class="fp-frow"><div><b>' + esc(f.type) + ' · Lvl ' + f.level + '</b> <span class="fp-info">' + f.x + '/' + f.y + (used ? ' · ' + used + ' plan' + (used > 1 ? 's' : '') : '') + '</span>' +
+        h += '<div class="fp-frow"><div><b>' + esc(f.type) + ' · Lvl ' + f.level + '</b>' + (f.home ? ' <span class="fp-chip home" title="Home alliance">' + esc(f.home) + '</span>' : '') + ' <span class="fp-info">' + f.x + '/' + f.y + (used ? ' · ' + used + ' plan' + (used > 1 ? 's' : '') : '') + '</span>' +
           '<div class="fp-info">' + esc(f.bonus || '') + '</div><div class="fp-info">' + (f.alliances || []).map(esc).join(', ') + '</div></div>' +
           '<div class="fp-fa"><button type="button" class="fp-b" data-fm="edit" data-id="' + esc(f.id) + '">Edit</button><button type="button" class="fp-b danger" data-fm="del" data-id="' + esc(f.id) + '">Delete</button></div></div>';
       });
@@ -1399,6 +1426,7 @@
     $('fmFormT').textContent = f ? 'Edit facility' : 'Add facility';
     $('fmType').value = f ? f.type : ''; $('fmLvl').value = f ? f.level : ''; $('fmBonus').value = f ? f.bonus || '' : '';
     $('fmX').value = f ? f.x : ''; $('fmY').value = f ? f.y : ''; $('fmAl').value = f ? (f.alliances || []).join(', ') : '';
+    fmHomeOpts(f ? f.home : '');
     $('fmX').disabled = $('fmY').disabled = !!f;
     $('fmErr').textContent = '';
     $('fmCancel').hidden = !f;
@@ -1421,7 +1449,8 @@
     var id = FM.editId || (x + '-' + y);
     if(!err && !FM.editId && V.facById[id]) err = 'A facility at ' + x + '/' + y + ' already exists.';
     if(err){ $('fmErr').textContent = err; return; }
-    var d = {id: id, type: type, level: lvl, bonus: $('fmBonus').value.trim(), x: FM.editId ? V.facById[id].x : x, y: FM.editId ? V.facById[id].y : y, alliances: al};
+    var home = $('fmHome').value; if(home && al.indexOf(home) < 0) home = '';
+    var d = {id: id, home: home || undefined, type: type, level: lvl, bonus: $('fmBonus').value.trim(), x: FM.editId ? V.facById[id].x : x, y: FM.editId ? V.facById[id].y : y, alliances: al};
     var btn = $('fmSave'); btn.disabled = true;
     ensureSeed().then(function(){ return rpc('fp_fac_save', {p_code: code(), p_id: id, p_data: d}); }).then(function(){ return loadFacDb(); }).then(function(){ fmList(); fmForm(null); renderPlans(); var b = $('fpAssist'); if(b) b.innerHTML = assistHtml(); })
       .catch(function(e){ $('fmErr').textContent = 'Saving failed: ' + e.message; }).then(function(){ btn.disabled = false; });
@@ -1455,6 +1484,7 @@
     if(fm){ var k = fm.getAttribute('data-fm'); if(k === 'edit'){ fmForm(fm.getAttribute('data-id')); $('fmFormT').scrollIntoView({block: 'nearest'}); } else if(k === 'del') fmDel(fm.getAttribute('data-id')); return; }
     if(e.target.id === 'fpFacs'){ openFm(); return; }
     if(e.target.id === 'fmImport'){ fmImport(); return; }
+    if(e.target.id === 'fmExp'){ fmExport(); return; }
     var as = e.target.closest ? e.target.closest('[data-as]') : null;
     if(as){ toggleAssist(as.getAttribute('data-as'), as); return; }
     var t = e.target.closest ? e.target.closest('[data-act],#fpNew') : null; if(!t) return;
@@ -1482,6 +1512,11 @@
   $('fcClose').addEventListener('click', function(){ $('fcModal').classList.remove('open'); });
   $('fcDone').addEventListener('click', function(){ $('fcModal').classList.remove('open'); });
   $('fcModal').addEventListener('click', function(e){ if(e.target === $('fcModal')) $('fcModal').classList.remove('open'); });
+  $('fmAl').addEventListener('input', function(){ fmHomeOpts($('fmHome').value); });
+  $('fmList').addEventListener('change', function(e){
+    if(e.target.id === 'fmFA') FM.fa = e.target.value; else if(e.target.id === 'fmFM') FM.fm = e.target.value; else return;
+    fmList();
+  });
   $('fmSave').addEventListener('click', fmSave); $('fmCancel').addEventListener('click', function(){ fmForm(null); });
   $('dtClose').addEventListener('click', function(){ $('dtModal').classList.remove('open'); });
   $('dtDone').addEventListener('click', function(){ $('dtModal').classList.remove('open'); });
