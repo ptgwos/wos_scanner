@@ -826,7 +826,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-26 · b83</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-10-28 · b84</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -2997,32 +2997,32 @@
   // no = running number of the presidency, koi = true when it came from the King of Icefield event.
   // id = Public ID (name and alliance are looked up by ID in the event data; name/alliance here are the fallback).
   const PRESIDENTS = {
-    '2025-05-10': {no: 1, koi: true, office: 'pres'},
+    '2025-05-10': {no: 1, koi: true, office: 'pres', id: 95638295, name: 'LucyGrayBaird', alliance: 'AIR'},
     '2025-05-24': {no: 2, office: 'supreme', state: '651', prep: true, castle: true},
-    '2025-06-07': {no: 3, koi: true, office: 'pres'},
-    '2025-06-21': {no: 4, office: 'supreme', state: '570', prep: true, castle: true},
+    '2025-06-07': {no: 3, koi: true, office: 'pres', id: 93508262, name: 'Zerethusta', alliance: 'OSM'},
+    '2025-06-21': {no: 4, office: 'supreme', id: 94704631, name: 'Peter the Great', alliance: 'RCP', state: '570', prep: true, castle: true},
     '2025-07-05': {no: 5, koi: true, office: 'pres'},
-    '2025-07-19': {no: 6, office: 'supreme', state: '688', prep: true, castle: true},
+    '2025-07-19': {no: 6, office: 'supreme', id: 79257358, name: 'Lexi', alliance: 'AIR', state: '688', prep: true, castle: true},
     '2025-08-02': {no: 7, koi: true, office: 'pres'},
-    '2025-08-16': {no: 8, office: 'pres', state: '622', prep: false, castle: true},
+    '2025-08-16': {no: 8, office: 'pres', id: 94704631, name: 'Peter the Great', alliance: 'RCP', state: '622', prep: false, castle: true},
     '2025-08-30': {no: 9, koi: true, office: 'pres'},
-    '2025-09-13': {no: 10, office: 'supreme', state: '607', prep: true, castle: true},
+    '2025-09-13': {no: 10, office: 'supreme', id: 94920602, name: 'Lady A', alliance: 'OSM', state: '607', prep: true, castle: true},
     '2025-09-27': {no: 11, koi: true, office: 'pres'},
     '2025-10-11': {no: 12, office: 'none', state: '667', prep: false, castle: false},
-    '2025-10-25': {no: 13, koi: true, office: 'pres'},
-    '2025-11-08': {no: 14, office: 'supreme', state: '656', prep: true, castle: true},
-    '2025-11-22': {no: 15, koi: true, office: 'pres'},
-    '2025-12-06': {no: 16, office: 'supreme', state: '597', prep: true, castle: true},
+    '2025-10-25': {no: 13, koi: true, office: 'pres', id: 94458498, name: 'Alice', alliance: 'OSM'},
+    '2025-11-08': {no: 14, office: 'supreme', id: 94704631, name: 'Peter the Great', alliance: 'RCP', state: '656', prep: true, castle: true},
+    '2025-11-22': {no: 15, koi: true, office: 'pres', id: 93508262, name: 'Zerethusta', alliance: 'OSM'},
+    '2025-12-06': {no: 16, office: 'supreme', id: 97777095, name: 'Amoor', state: '597', prep: true, castle: true},
     '2025-12-20': {no: 17, koi: true, office: 'pres'},
     '2026-01-03': {no: 18, office: 'supreme', state: '677', prep: true, castle: true},
     '2026-01-17': {no: 19, koi: true, office: 'pres'},
-    '2026-01-31': {no: 20, office: 'supreme', state: '648', prep: true, castle: true},
+    '2026-01-31': {no: 20, office: 'supreme', id: 79257358, name: 'Lexi', alliance: 'AIR', state: '648', prep: true, castle: true},
     '2026-02-14': {no: 21, koi: true, office: 'pres', id: 94704631, name: 'Peter the Great', alliance: 'TBR'},
     '2026-02-28': {no: 22, office: 'pres', id: 93281976, name: 'Tombdevil', alliance: 'SFZ', state: '608', prep: true, castle: false},
     '2026-03-14': {no: 23, koi: true, office: 'pres', id: 96968038, name: 'Aves', alliance: 'OSM'},
     '2026-03-28': {no: 24, office: 'pres', id: 77201201, name: 'NoName', alliance: 'DFT', state: '607', prep: true, castle: false},
     '2026-04-11': {no: 25, koi: true, office: 'pres', id: 72891035, name: 'Skinny Puppy', alliance: 'FUQ'},
-    '2026-04-25': {no: 26, office: 'none', name: 'ekaterina', alliance: '643', state: '643', prep: false, castle: false},
+    '2026-04-25': {no: 26, office: 'none', id: 93937949, name: 'ekaterina', alliance: '643', state: '643', prep: false, castle: false},
     '2026-05-09': {no: 27, koi: true, office: 'pres', id: 88140097, name: 'Yeer', alliance: 'FUQ'},
     '2026-05-23': {no: 28, office: 'supreme', id: 77831883, name: 'krotek 0 v 0', alliance: 'AIR', state: '625', prep: true, castle: true},
     '2026-06-06': {no: 29, koi: true, office: 'pres', id: 84346030, name: 'Marie', alliance: 'TBR'},
@@ -3032,7 +3032,7 @@
     '2026-08-01': {no: 33, koi: true, office: 'pres', id: 79323435, name: 'Chief13', alliance: 'AIR'},
     '2026-08-15': {no: 34, office: 'pres', id: 87934010, name: 'Bear', alliance: 'TBR', state: '667', prep: false, castle: true},
     '2026-08-29': {no: 35, koi: true, office: 'pres', id: 94920602, name: 'Lady A', alliance: 'BLP'},
-    '2026-09-12': {no: 36, office: 'none', name: 'OrbeOne', alliance: 'LoD', state: '671', prep: false, castle: false},
+    '2026-09-12': {no: 36, office: 'none', id: 71269052, name: 'OrbeOne', alliance: 'LoD', state: '671', prep: false, castle: false},
     '2026-09-26': {no: 37, koi: true, office: 'pres', id: 93557482, name: 'Lord Invader', alliance: 'AIR'},
     '2026-10-10': {no: 38, office: 'pres', id: 94704631, name: 'Peter the Great', alliance: 'TBR', state: '643', prep: false, castle: true},
     '2026-10-24': {no: 39, koi: true, office: 'pres', id: 84346030, name: 'Marie', alliance: 'TBR'}
