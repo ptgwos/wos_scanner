@@ -416,6 +416,10 @@
     .fp-seg button{flex:1 1 100%;}
   }
 
+  .fp-assist{margin:0 0 14px;padding:12px 14px;border:1px solid var(--border);border-radius:6px;background:var(--panel);}
+  .fp-assist .fp-h{margin:0 0 4px;}
+  .fp-as.on{background:var(--ice-dim);color:var(--text);border-color:var(--ice);}
+
 </style>
 </head>
 <body>
@@ -500,7 +504,7 @@
 
   <div id="fpMain"></div>
 
-  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp1</footer>
+  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp2</footer>
 </div>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>
@@ -745,7 +749,7 @@
   };
   var STRAT = {late: 'Keep it long', early: 'Back ASAP', manual: 'Manual time'};
 
-  var V = {me: null, gate: null, plans: [], fac: [], facById: {}, showDone: false, sig: '', err: ''};
+  var V = {me: null, gate: null, plans: [], assist: [], setId: null, fac: [], facById: {}, showDone: false, sig: '', err: ''};
   var E = {id: null, orig: null, phase: 'shield', strategy: 'late', dirtyRem: false};
   var DT = {id: null};
 
@@ -803,7 +807,11 @@
       a = a || [];
       var sig = JSON.stringify(a);
       var changed = sig !== V.sig; V.sig = sig;
-      V.plans = a.map(function(x){ return {id: x.id, d: x.data, upd: x.updated_at}; });
+      V.plans = []; V.setId = null; V.assist = [];
+      a.forEach(function(x){
+        if(x.data && x.data.kind === 'settings'){ V.setId = x.id; V.assist = (x.data.assist || []).slice(); }
+        else V.plans.push({id: x.id, d: x.data, upd: x.updated_at});
+      });
       return changed;
     });
   }
@@ -825,6 +833,35 @@
       state: {phase: d.phase, until: d.until}, eventStart: d.eventStart, eventEnd: d.eventEnd,
       strategy: d.strategy, manualAttackAt: d.manualAt
     }, now(), {marchMs: (d.marchMin || 0) * MIN, bufferMs: (d.bufferMin || 0) * MIN});
+  }
+  // Who can start a reset: cooperating alliances (global Assist list) that are connected to this facility,
+  // plus the desired holder itself (it may join the reset). The current holder cannot reset itself.
+  function resetters(d){
+    var f = V.facById[d.fac], con = f ? f.alliances : [], out = [];
+    (V.assist || []).forEach(function(a){ if(con.indexOf(a) >= 0 && a !== d.owner && a !== d.desired && out.indexOf(a) < 0) out.push(a); });
+    if(d.desired !== d.owner) out.push(d.desired);
+    return out;
+  }
+  function resetBy(d){ return resetters(d)[0]; }
+  function resetAlt(d){ var r = resetters(d); return r.length > 1 ? ' Alternatively: ' + r.slice(1).join(', ') + '.' : ''; }
+  function allAlliances(){
+    var m = {}; V.fac.forEach(function(f){ (f.alliances || []).forEach(function(a){ m[a] = 1; }); });
+    return Object.keys(m).sort(function(a, b){ return a.toLowerCase() < b.toLowerCase() ? -1 : 1; });
+  }
+  function assistHtml(){
+    var all = allAlliances();
+    var h = '<div class="fp-assist"><div class="fp-h">Helper alliances (Assist)</div><div class="fp-hint">Alliances that help with resets (one soldier starts the battle, the holder wins it back). Applies to all plans. The desired holder may always join in.</div><div class="fp-chips2">';
+    all.forEach(function(a){ h += '<button type="button" class="fp-b fp-as' + (V.assist.indexOf(a) >= 0 ? ' on' : '') + '" data-as="' + esc(a) + '" aria-pressed="' + (V.assist.indexOf(a) >= 0) + '">' + esc(a) + '</button>'; });
+    return h + '</div></div>';
+  }
+  function toggleAssist(a, btn){
+    var i = V.assist.indexOf(a), next = V.assist.slice();
+    if(i >= 0) next.splice(i, 1); else next.push(a);
+    btn.disabled = true;
+    rpc('fp_save', {p_code: code(), p_id: V.setId, p_data: {kind: 'settings', assist: next}})
+      .then(function(id){ V.setId = V.setId || id; return loadPlans(); })
+      .then(function(){ var b = $('fpAssist'); if(b) b.innerHTML = assistHtml(); renderPlans(); })
+      .catch(function(e){ alert('Saving failed: ' + e.message); btn.disabled = false; });
   }
   function facLine(f){ return f ? f.type + ' · Lvl ' + f.level : 'Unknown facility'; }
   function facSub(f){ return f ? f.x + '/' + f.y + (f.bonus ? ' · ' + f.bonus : '') : ''; }
@@ -860,7 +897,8 @@
     m.innerHTML = '<div class="fp-bar"><button type="button" class="btn" id="fpNew">+ New plan</button><span class="fp-sp"></span>' +
       '<label class="switch" title="Also show plans whose event is over"><input type="checkbox" id="fpDone"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Finished plans</span></label></div>' +
       (V.err ? '<div class="fp-box bad">' + esc(V.err) + '</div>' : '') +
-      '<div id="fpNext"></div><div id="fpCards"></div>';
+      '<div id="fpAssist"></div><div id="fpNext"></div><div id="fpCards"></div>';
+    $('fpAssist').innerHTML = assistHtml();
     $('fpDone').checked = V.showDone;
     renderPlans();
   }
@@ -897,7 +935,7 @@
       nx.forEach(function(n){
         var d = n.x.d, march = (d.marchMin || 0) * MIN;
         var what = n.kind === 'reset'
-          ? '<span class="fp-kind reset">RESET</span><b>' + esc(d.desired) + '</b> attacks, <b>' + esc(d.owner) + '</b> re-occupies'
+          ? '<span class="fp-kind reset">RESET</span><b>' + esc(resetBy(d)) + '</b> attacks, <b>' + esc(d.owner) + '</b> re-occupies'
           : '<span class="fp-kind take">TAKEOVER</span><b>' + esc(d.desired) + '</b> takes it from <b>' + esc(d.owner) + '</b>';
         nh += '<div class="fp-nx"><span class="t">' + fmt(n.t) + (march ? '<br><span class="fp-info">leave ' + fmtT(n.t - march) + '</span>' : '') + '</span><span class="c" data-cd="' + n.t + '">' + cd(n.t - now()) + '</span><span class="w">' + what + ' · ' + esc(facLine(n.f)) + ' ' + (n.f ? n.f.x + '/' + n.f.y : '') + '</span></div>';
       });
@@ -950,12 +988,12 @@
 
   // ---------- detail ----------
   function stepsFor(d, r){
-    var f = V.facById[d.fac], own = d.owner, des = d.desired, n = r.norm, st = [], march = (d.marchMin || 0) * MIN;
+    var f = V.facById[d.fac], own = d.owner, des = d.desired, rb = resetBy(d), n = r.norm, st = [], march = (d.marchMin || 0) * MIN;
     var leave = function(t){ return march ? ' Troops leave at ' + fmt(t - march) + '.' : ''; };
     if(n.openNow) st.push({t: now(), c: 'var(--frost)', title: own + "'s facility is open now", note: 'It can be attacked until ' + fmt(n.e0) + '.'});
     else st.push({t: now(), c: 'var(--frost)', title: own + ' holds the shield', note: 'The shield ends ' + fmt(n.s0) + '. Then the facility is open for 24 h.'});
     r.steps.forEach(function(s){
-      if(s.kind === 'reset') st.push({t: s.attackAt, c: '#b06bff', title: 'RESET: ' + des + ' attacks, ' + own + ' wins', note: 'Open window ' + fmt(s.windowStart) + ' – ' + fmt(s.windowEnd) + '. ' + des + "'s attack arrives at " + fmt(s.attackAt) + ' (battle 30 min).' + leave(s.attackAt) + ' ' + own + ' re-occupies at ' + fmt(s.captureAt) + ' and gets a fresh 72 h shield until ' + fmt(s.captureAt + SHIELD) + '.'});
+      if(s.kind === 'reset') st.push({t: s.attackAt, c: '#b06bff', title: 'RESET: ' + rb + ' attacks, ' + own + ' wins', note: 'Open window ' + fmt(s.windowStart) + ' – ' + fmt(s.windowEnd) + '. ' + rb + ' sends a single soldier, the attack arrives at ' + fmt(s.attackAt) + ' (battle 30 min).' + leave(s.attackAt) + ' ' + own + ' marches in during the battle and re-occupies at ' + fmt(s.captureAt) + ', with a fresh 72 h shield until ' + fmt(s.captureAt + SHIELD) + '.' + resetAlt(d)});
       else st.push({t: s.windowStart, c: 'var(--border)', soft: true, title: 'Open window — do nothing', note: fmt(s.windowStart) + ' – ' + fmt(s.windowEnd) + '. Nobody attacks, ' + own + ' re-occupies at ' + fmt(s.windowEnd) + ' with a fresh 72 h shield.'});
     });
     var tk = r.takeover;
@@ -1107,7 +1145,7 @@
     var st = statusOf(r), tk = r.takeover, mm = (d.marchMin || 0) * MIN;
     var h = '<b>' + (r.coverage === 'full' ? 'Full coverage' : r.coverage === 'partial' ? 'Partial coverage (' + r.covPct + '%)' : 'No coverage') + '</b> — ';
     h += esc(d.desired) + ' holds the shield ' + fmt(tk.captureAt) + ' – ' + fmt(tk.shieldEnd) + '.<br>';
-    h += (r.resets ? r.resets + ' reset' + (r.resets > 1 ? 's' : '') + ' needed, first at ' + fmt(r.firstAction) : 'Takeover attack at ' + fmt(tk.attackAt)) + (mm ? ' (troops leave ' + fmtT(r.firstAction - mm) + ')' : '') + '.';
+    h += (r.resets ? r.resets + ' reset' + (r.resets > 1 ? 's' : '') + ' needed (by ' + esc(resetBy(d)) + '), first at ' + fmt(r.firstAction) : 'Takeover attack at ' + fmt(tk.attackAt)) + (mm ? ' (troops leave ' + fmtT(r.firstAction - mm) + ')' : '') + '.';
     if(r.rolled) h += '<br>The entered timer had run out; assuming nobody attacked.';
     box.className = 'fp-prev ' + st.cls; box.innerHTML = h;
     return fr;
@@ -1153,6 +1191,8 @@
 
   // ---------- events ----------
   document.addEventListener('click', function(e){
+    var as = e.target.closest ? e.target.closest('[data-as]') : null;
+    if(as){ toggleAssist(as.getAttribute('data-as'), as); return; }
     var t = e.target.closest ? e.target.closest('[data-act],#fpNew') : null; if(!t) return;
     var a = t.getAttribute('data-act') || (t.id === 'fpNew' ? 'new' : '');
     if(a === 'new') openEditor(null);
