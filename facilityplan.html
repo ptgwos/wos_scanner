@@ -420,6 +420,10 @@
   .fp-assist .fp-h{margin:0 0 4px;}
   .fp-as.on{background:var(--ice-dim);color:var(--text);border-color:var(--ice);}
 
+  .fp-ftab{display:flex;flex-direction:column;gap:6px;}
+  .fp-frow{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--panel-2);}
+  .fp-fa{display:flex;gap:6px;flex:none;}
+
 </style>
 </head>
 <body>
@@ -494,6 +498,28 @@
   <div class="fp-mf"><button type="button" class="btn-secondary" id="dtCopy">Copy as text</button><span class="sp"></span><button type="button" class="btn-secondary" id="dtEdit">Edit</button><button type="button" class="btn-secondary" id="dtDone">Close</button></div>
 </div></div>
 
+<div class="modal-overlay" id="fcModal" role="dialog" aria-modal="true" aria-labelledby="fcTitle"><div class="modal-panel fp-mp">
+  <div class="modal-header"><h2 id="fcTitle">Facilities</h2><button type="button" class="modal-close" id="fcClose" aria-label="Close">×</button></div>
+  <div class="fp-mb">
+    <div id="fmList"></div>
+    <div class="fp-h" id="fmFormT" style="margin-top:14px">Add facility</div>
+    <div class="fp-f2">
+      <div class="field"><label for="fmType">Type</label><input type="text" id="fmType" list="fmTypes" autocomplete="off" placeholder="e.g. Weapons Facility"><datalist id="fmTypes"></datalist></div>
+      <div class="field"><label for="fmLvl">Level</label><input type="number" id="fmLvl" min="1" max="99"></div>
+    </div>
+    <div class="fp-f1"><label for="fmBonus">Bonus</label><input type="text" id="fmBonus" autocomplete="off" placeholder="e.g. Troops' Attack + 8.0%"></div>
+    <div class="fp-f2">
+      <div class="field"><label for="fmX">X</label><input type="number" id="fmX" min="0" max="99999"></div>
+      <div class="field"><label for="fmY">Y</label><input type="number" id="fmY" min="0" max="99999"></div>
+    </div>
+    <div class="fp-f1"><label for="fmAl">Connected alliances (comma separated)</label><input type="text" id="fmAl" autocomplete="off" placeholder="e.g. TBR, PKB, DFT"></div>
+    <div class="fp-hint">The coordinates identify the facility and cannot be changed later. To move one, delete it and add it again.</div>
+    <div class="fp-hint err" id="fmErr"></div>
+    <div class="fp-chips2"><button type="button" class="btn" id="fmSave">Save facility</button><button type="button" class="btn-secondary" id="fmCancel" hidden>Cancel edit</button></div>
+  </div>
+  <div class="fp-mf"><span class="sp"></span><button type="button" class="btn-secondary" id="fcDone">Close</button></div>
+</div></div>
+
 <div class="wrap">
 <nav class="sitenav" aria-label="State 646 pages"><a href="index.html"><span class="sn-l">HOME</span><span class="sn-s">HOME</span></a><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><a href="rallyplan.html"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></a><a href="assignfsh.html"><span class="sn-l">FORTRESS/SH PLAN</span><span class="sn-s">FSH</span></a><span class="cur" aria-current="page"><span class="sn-l">FACILITY PLANNER</span><span class="sn-s">FACILITY</span></span></nav>
 
@@ -510,7 +536,7 @@
 
   <div id="fpMain"></div>
 
-  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp4</footer>
+  <footer id="foot">State 646 · Facility Planner — all times UTC · build 2026-10-28 · fp5</footer>
 </div>
 <button id="toTop" type="button" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>
@@ -846,7 +872,7 @@
   var STRAT = {late: 'Keep it long', early: 'Back ASAP', manual: 'Manual time', cj: 'After Crazy Joe'};
   var CJ_AFTER = 45 * MIN, CJ_LEN = 40 * MIN;
 
-  var V = {me: null, gate: null, plans: [], assist: [], setId: null, fac: [], facById: {}, showDone: false, sig: '', err: ''};
+  var V = {facFile: [], facDb: false, facDbErr: '', me: null, gate: null, plans: [], assist: [], setId: null, fac: [], facById: {}, showDone: false, sig: '', err: ''};
   var E = {id: null, orig: null, phase: 'shield', strategy: 'late', dirtyRem: false};
   var DT = {id: null};
 
@@ -866,6 +892,13 @@
     if(name === 'sa_me'){
       if(b.p_code === 'viewer') return {role: 'editor', name: 'Viewer', rallyplan: false};
       return {role: 'admin', name: 'Mock Admin', rallyplan: true};
+    }
+    if(name.indexOf('fp_fac_') === 0){
+      var fl = []; try { fl = JSON.parse(localStorage.getItem('fp_mock_fac') || '[]'); } catch(e) {}
+      var put = function(){ try { localStorage.setItem('fp_mock_fac', JSON.stringify(fl)); } catch(e) {} };
+      if(name === 'fp_fac_list') return fl;
+      if(name === 'fp_fac_save'){ fl = fl.filter(function(x){ return x.id !== b.p_id; }); fl.push(b.p_data); put(); return b.p_id; }
+      if(name === 'fp_fac_delete'){ fl = fl.filter(function(x){ return x.id !== b.p_id; }); put(); return null; }
     }
     var db = mockDb();
     if(name === 'fp_list') return db;
@@ -892,12 +925,25 @@
   }
 
   // ---------- data ----------
+  function setFac(list){
+    V.fac = list.slice().sort(function(a, b){ return a.type < b.type ? -1 : a.type > b.type ? 1 : (a.level - b.level) || (a.x - b.x) || (a.y - b.y); });
+    V.facById = {}; V.fac.forEach(function(f){ V.facById[f.id] = f; });
+  }
+  // data/facilities.json = starting list / fallback; once the database holds facilities, the database wins.
   function loadFac(){
     return fetch('data/facilities.json', {cache: 'no-cache'}).then(function(r){ return r.ok ? r.json() : Promise.reject(); }).then(function(j){
-      V.fac = (j.facilities || []).slice(); V.facById = {};
-      V.fac.forEach(function(f){ V.facById[f.id] = f; });
+      V.facFile = (j.facilities || []).slice();
+      if(!V.facDb) setFac(V.facFile);
       V.err = '';
-    }).catch(function(){ V.err = 'The facility list could not be loaded (data/facilities.json).'; });
+    }).catch(function(){ if(!V.fac.length) V.err = 'The facility list could not be loaded (data/facilities.json).'; });
+  }
+  function loadFacDb(){
+    return rpc('fp_fac_list', {p_code: code()}).then(function(a){
+      a = a || [];
+      V.facDb = a.length > 0;
+      setFac(a.length ? a : (V.facFile || []));
+      V.facDbErr = '';
+    }).catch(function(e){ V.facDbErr = e.message; });
   }
   function loadPlans(){
     return rpc('fp_list', {p_code: code()}).then(function(a){
@@ -920,7 +966,7 @@
       V.me = j;
       if(!j.rallyplan){ V.gate = 'noperm'; V.plans = []; render(); return; }
       V.gate = null;
-      return loadPlans().then(function(){ render(); });
+      return loadFacDb().then(loadPlans).then(function(){ render(); });
     }).catch(function(e){ V.err = 'Connection problem: ' + e.message; render(); });
   }
 
@@ -999,7 +1045,7 @@
       m.innerHTML = '<div class="panel fp-gate"><h2>No access!</h2><p>You are logged in as <b>' + esc(V.me && V.me.name || '') + '</b>, but you do not have permission for the planners. Please contact Peter the Great in game or on Discord.</p><div class="row"><button type="button" class="btn-secondary" data-act="logout">Log out</button></div></div>';
       $('sub').textContent = 'No access'; return;
     }
-    m.innerHTML = '<div class="fp-bar"><button type="button" class="btn" id="fpNew">+ New plan</button><span class="fp-sp"></span>' +
+    m.innerHTML = '<div class="fp-bar"><button type="button" class="btn" id="fpNew">+ New plan</button><button type="button" class="btn-secondary" id="fpFacs">Facilities</button><span class="fp-sp"></span>' +
       '<label class="switch" title="Also show plans whose event is over"><input type="checkbox" id="fpDone"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Finished plans</span></label></div>' +
       (V.err ? '<div class="fp-box bad">' + esc(V.err) + '</div>' : '') +
       '<div id="fpAssist"></div><div id="fpNext"></div><div id="fpCards"></div>';
@@ -1326,6 +1372,69 @@
       .catch(function(e){ alert('Saving failed: ' + e.message); })
       .then(function(){ btn.disabled = false; btn.textContent = 'Save plan'; });
   }
+  // ---------- facility list manager ----------
+  var FM = {editId: null};
+  function fmList(){
+    var h = '';
+    if(!V.facDb) h += '<div class="fp-box warn">The list still comes from the starting file. <button type="button" class="fp-b" id="fmImport">Save it to the database</button> so it can be edited here.</div>';
+    if(V.facDbErr) h += '<div class="fp-box bad">Database: ' + esc(V.facDbErr) + ' (Has the SQL update been run?)</div>';
+    if(!V.fac.length) h += '<div class="fp-empty">No facilities yet.</div>';
+    else {
+      h += '<div class="fp-ftab">';
+      V.fac.forEach(function(f){
+        var used = V.plans.filter(function(p){ return p.d.fac === f.id; }).length;
+        h += '<div class="fp-frow"><div><b>' + esc(f.type) + ' · Lvl ' + f.level + '</b> <span class="fp-info">' + f.x + '/' + f.y + (used ? ' · ' + used + ' plan' + (used > 1 ? 's' : '') : '') + '</span>' +
+          '<div class="fp-info">' + esc(f.bonus || '') + '</div><div class="fp-info">' + (f.alliances || []).map(esc).join(', ') + '</div></div>' +
+          '<div class="fp-fa"><button type="button" class="fp-b" data-fm="edit" data-id="' + esc(f.id) + '">Edit</button><button type="button" class="fp-b danger" data-fm="del" data-id="' + esc(f.id) + '">Delete</button></div></div>';
+      });
+      h += '</div>';
+    }
+    $('fmList').innerHTML = h;
+    var types = {}; V.fac.forEach(function(f){ types[f.type] = 1; });
+    $('fmTypes').innerHTML = Object.keys(types).map(function(t){ return '<option value="' + esc(t) + '">'; }).join('');
+  }
+  function fmForm(id){
+    FM.editId = id || null;
+    var f = id ? V.facById[id] : null;
+    $('fmFormT').textContent = f ? 'Edit facility' : 'Add facility';
+    $('fmType').value = f ? f.type : ''; $('fmLvl').value = f ? f.level : ''; $('fmBonus').value = f ? f.bonus || '' : '';
+    $('fmX').value = f ? f.x : ''; $('fmY').value = f ? f.y : ''; $('fmAl').value = f ? (f.alliances || []).join(', ') : '';
+    $('fmX').disabled = $('fmY').disabled = !!f;
+    $('fmErr').textContent = '';
+    $('fmCancel').hidden = !f;
+  }
+  function fmSave(){
+    var x = parseInt($('fmX').value, 10), y = parseInt($('fmY').value, 10), lvl = parseInt($('fmLvl').value, 10), type = $('fmType').value.trim();
+    var al = []; $('fmAl').value.split(/[,;\/]/).forEach(function(a){ a = a.trim(); if(a && al.indexOf(a) < 0) al.push(a); });
+    var err = '';
+    if(!type) err = 'Please enter the type.';
+    else if(!(lvl >= 1 && lvl <= 99)) err = 'Please enter the level.';
+    else if(!(x >= 0 && x <= 99999 && y >= 0 && y <= 99999)) err = 'Please enter both coordinates.';
+    else if(!al.length) err = 'Please enter at least one connected alliance.';
+    var id = FM.editId || (x + '-' + y);
+    if(!err && !FM.editId && V.facById[id]) err = 'A facility at ' + x + '/' + y + ' already exists.';
+    if(err){ $('fmErr').textContent = err; return; }
+    var d = {id: id, type: type, level: lvl, bonus: $('fmBonus').value.trim(), x: FM.editId ? V.facById[id].x : x, y: FM.editId ? V.facById[id].y : y, alliances: al};
+    var btn = $('fmSave'); btn.disabled = true;
+    rpc('fp_fac_save', {p_code: code(), p_id: id, p_data: d}).then(function(){ return loadFacDb(); }).then(function(){ fmList(); fmForm(null); renderPlans(); var b = $('fpAssist'); if(b) b.innerHTML = assistHtml(); })
+      .catch(function(e){ $('fmErr').textContent = 'Saving failed: ' + e.message; }).then(function(){ btn.disabled = false; });
+  }
+  function fmDel(id){
+    var f = V.facById[id]; if(!f) return;
+    var used = V.plans.filter(function(p){ return p.d.fac === id; }).length;
+    if(!confirm('Delete ' + facLine(f) + ' (' + f.x + '/' + f.y + ')?' + (used ? '\n\n' + used + ' plan(s) use it and will show "Unknown facility".' : ''))) return;
+    rpc('fp_fac_delete', {p_code: code(), p_id: id}).then(function(){ return loadFacDb(); }).then(function(){ fmList(); fmForm(null); renderPlans(); })
+      .catch(function(e){ alert('Delete failed: ' + e.message); });
+  }
+  function fmImport(){
+    var list = V.facFile.slice(), i = 0, btn = $('fmImport'); if(btn) btn.disabled = true;
+    (function next(){
+      if(i >= list.length){ loadFacDb().then(function(){ fmList(); }); return; }
+      var f = list[i++];
+      rpc('fp_fac_save', {p_code: code(), p_id: f.id, p_data: f}).then(next).catch(function(e){ V.facDbErr = e.message; fmList(); });
+    })();
+  }
+  function openFm(){ fmList(); fmForm(null); $('fcModal').classList.add('open'); }
   function delPlan(id){
     var p = V.plans.filter(function(x){ return x.id === id; })[0]; if(!p) return;
     var f = V.facById[p.d.fac];
@@ -1335,6 +1444,10 @@
 
   // ---------- events ----------
   document.addEventListener('click', function(e){
+    var fm = e.target.closest ? e.target.closest('[data-fm]') : null;
+    if(fm){ var k = fm.getAttribute('data-fm'); if(k === 'edit'){ fmForm(fm.getAttribute('data-id')); $('fmFormT').scrollIntoView({block: 'nearest'}); } else if(k === 'del') fmDel(fm.getAttribute('data-id')); return; }
+    if(e.target.id === 'fpFacs'){ openFm(); return; }
+    if(e.target.id === 'fmImport'){ fmImport(); return; }
     var as = e.target.closest ? e.target.closest('[data-as]') : null;
     if(as){ toggleAssist(as.getAttribute('data-as'), as); return; }
     var t = e.target.closest ? e.target.closest('[data-act],#fpNew') : null; if(!t) return;
@@ -1359,6 +1472,10 @@
   $('fFresh').addEventListener('click', function(){ E.dirtyRem = true; setPhase('shield'); $('fRem').value = '3:00:00'; preview(); });
   $('fPhase').addEventListener('click', function(e){ var b = e.target.closest('button'); if(!b) return; E.dirtyRem = true; setPhase(b.getAttribute('data-v')); preview(); });
   $('fStr').addEventListener('click', function(e){ var b = e.target.closest('button'); if(!b) return; setStrategy(b.getAttribute('data-v')); preview(); });
+  $('fcClose').addEventListener('click', function(){ $('fcModal').classList.remove('open'); });
+  $('fcDone').addEventListener('click', function(){ $('fcModal').classList.remove('open'); });
+  $('fcModal').addEventListener('click', function(e){ if(e.target === $('fcModal')) $('fcModal').classList.remove('open'); });
+  $('fmSave').addEventListener('click', fmSave); $('fmCancel').addEventListener('click', function(){ fmForm(null); });
   $('dtClose').addEventListener('click', function(){ $('dtModal').classList.remove('open'); });
   $('dtDone').addEventListener('click', function(){ $('dtModal').classList.remove('open'); });
   $('dtModal').addEventListener('click', function(e){ if(e.target === $('dtModal')) $('dtModal').classList.remove('open'); });
@@ -1367,7 +1484,7 @@
     var p = V.plans.filter(function(x){ return x.id === DT.id; })[0]; if(!p) return;
     copyText(planText(p.d, calc(p.d)), $('dtCopy'));
   });
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeEditor(); $('dtModal').classList.remove('open'); } });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeEditor(); $('dtModal').classList.remove('open'); $('fcModal').classList.remove('open'); } });
 
   // theme toggle
   (function(){
@@ -1401,8 +1518,8 @@
   window.addEventListener('pageshow', function(e){ if(e.persisted && Date.now() - lastLoad > 600000) reload(); });
   setInterval(tick, 1000);
   setInterval(function(){
-    if(document.hidden || V.gate || $('edModal').classList.contains('open')) return;
-    loadPlans().then(function(){ renderPlans(); }).catch(function(){});
+    if(document.hidden || V.gate || $('edModal').classList.contains('open') || $('fcModal').classList.contains('open')) return;
+    loadFacDb().then(loadPlans).then(function(){ renderPlans(); }).catch(function(){});
   }, 20000);
   window.__fp = {V: V, calc: calc, now: now};
   loadFac().then(function(){ return refreshAll(true); }).then(function(){ lastLoad = Date.now(); });
