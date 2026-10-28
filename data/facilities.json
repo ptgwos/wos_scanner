@@ -1,0 +1,29 @@
+{
+ "updated": "2026-10-28",
+ "facilities": [
+  {
+   "id": "957-138",
+   "type": "Gathering Facility",
+   "level": 1,
+   "bonus": "Resource Gathering Speed +5.0%",
+   "x": 957,
+   "y": 138,
+   "alliances": [
+    "TBR",
+    "CLS"
+   ]
+  },
+  {
+   "id": "768-138",
+   "type": "Production Facility",
+   "level": 1,
+   "bonus": "Resource Production Speed +5.0%",
+   "x": 768,
+   "y": 138,
+   "alliances": [
+    "TBR",
+    "CLS"
+   ]
+  }
+ ]
+}
