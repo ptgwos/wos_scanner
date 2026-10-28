@@ -1065,7 +1065,7 @@
     <button type="button" class="btn" id="ixLogin">Log in</button>
   </div>
   <div id="ixMain"></div>
-  <footer id="foot">State 646 · Alliance Hub — build 2026-10-26 · i4</footer>
+  <footer id="foot">State 646 · Alliance Hub — build 2026-10-28 · i5</footer>
 </div>
 <div class="modal-overlay" id="ixModal" role="dialog" aria-modal="true" aria-labelledby="ixTitle"><div class="modal-panel"><div class="modal-header"><h2 id="ixTitle">Log in</h2><button type="button" class="modal-close" id="ixClose" aria-label="Close">×</button></div><div id="ixBody"></div></div></div>
 <div id="ixToast" role="status"></div>
@@ -1099,7 +1099,7 @@
     ]},
     {t: 'Planning', c: 'g-plan', items: [
       {h: 'eventplan.html', i: 'cal', n: 'Event Planner', d: 'Teams per target alliance for events like the Frostdragon Tyrant, with live power and who still has to join.', r: 'event'},
-      {h: 'rallyplan.html', i: 'flag', n: 'Rally Planner', d: 'Rally slots per hour, pets schedule and Battle Buddies. One shared plan per event.', r: 'rallyplan'},
+      {h: 'rallyplan.html', i: 'flag', n: 'Rally Planner', d: 'Rally slots, pets schedule, ministers and Battle Buddies. One shared plan per event. Access needed.', r: 'rallyplan'},
       {h: 'formations.html', i: 'shield', n: 'Formations', d: 'Hero formations for garrison and rally with ratios; share as text or picture.'},
       {h: 'assignfsh.html', i: 'castle', n: 'Fortress/SH Plan', d: 'Which alliance gets which fortress or stronghold in which phase, with the rewards. Everybody can look; it feeds the Discord bot.', r: 'fsh'}
     ]},
@@ -1123,7 +1123,8 @@
         var r = it.r, can = true, chip = '<span class="ix-chip">Open to all</span>', off = false, hide = false, msg = '';
         if(it.x) chip = '<span class="ix-chip ext">External</span>';
         if(r === 'event'){ if(me && (me.role === 'super' || me.role === 'admin' || me.role === 'editor')) chip = '<span class="ix-chip edit">You can edit</span>'; else chip = '<span class="ix-chip">View · edit with rights</span>'; }
-        if(r === 'rallyplan' || r === 'fsh'){ chip = me && me[r] ? '<span class="ix-chip edit">You can edit</span>' : '<span class="ix-chip">View · edit with rights</span>'; }
+        if(r === 'fsh'){ chip = me && me[r] ? '<span class="ix-chip edit">You can edit</span>' : '<span class="ix-chip">View · edit with rights</span>'; }
+        if(r === 'rallyplan'){ if(me && me.rallyplan) chip = '<span class="ix-chip edit">You have access</span>'; else { off = true; chip = '<span class="ix-chip lock">Locked</span>'; msg = me ? 'No access! ' + CONTACT : 'No access! Please log in first. ' + CONTACT; } }
         if(r === 'lead'){ if(me && me.rallyleads) chip = '<span class="ix-chip edit">You have access</span>'; else { off = true; chip = '<span class="ix-chip lock">Locked</span>'; msg = me ? 'No access! ' + CONTACT : 'No access! Please log in first. ' + CONTACT; } }
         if(r === 'admin'){ if(me && me.role === 'super') chip = '<span class="ix-chip edit">Super admin</span>'; else hide = true; }
         if(hide) return;
