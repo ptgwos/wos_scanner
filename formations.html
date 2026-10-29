@@ -1059,13 +1059,14 @@
       <div class="rp-actions">
         <button type="button" class="btn" id="btnText"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Share as text</button>
         <button type="button" class="btn" id="btnImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span class="lg">Share as picture</span><span class="sh">Share as pic</span></button>
+        <button type="button" class="btn" id="btnSave" title="Save the picture as a file (on iPhone: share menu with Save Image)" aria-label="Save picture"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>Save</span></button>
         <button type="button" class="btn-secondary rp-reset" id="btnReset">Reset plan</button>
       </div>
       <div class="rb" id="shot"></div>
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-28 · y20</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-29 · y21</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div><div id="pickGenWrap" hidden><div class="rp-gsep">Heroes by rank</div><div class="rp-grid" id="pickGen"></div></div></div></div></div>
@@ -1431,6 +1432,26 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
     } catch(e) { toast('Could not create the picture'); }
     finally { btn.disabled = false; }
   }
+  // Save: file download on a computer; on phones the share sheet (iPhone: "Save Image" puts it into Photos)
+  function fileName(){ const d = new Date(), p = n => String(n).padStart(2, '0'); return 'state646-formations' + (S.mode === 'bear' ? '-bear' : '') + '-' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '.png'; }
+  async function saveImage(btn){
+    btn.disabled = true;
+    try {
+      const b = await shotBlob(); if(!b) throw new Error('empty');
+      const name = fileName(), mobile = /iP(hone|ad|od)|Android/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if(mobile && navigator.canShare && navigator.share){
+        const f = new File([b], name, {type: 'image/png'});
+        if(navigator.canShare({files: [f]})){
+          try { await navigator.share({files: [f]}); return; } catch(e) { if(e && e.name === 'AbortError') return; }   // cancelled: fine; other errors: download instead
+        }
+      }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      toast('Picture saved');
+    } catch(e) { toast('Could not create the picture'); }
+    finally { btn.disabled = false; }
+  }
+  $('btnSave').addEventListener('click', e => saveImage(e.currentTarget));
   $('btnText').addEventListener('click', openText);
   $('btnImg').addEventListener('click', e => copyImage(e.currentTarget));
   $('btnReset').addEventListener('click', () => {
