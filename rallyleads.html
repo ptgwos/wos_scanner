@@ -975,6 +975,11 @@
   .rl-warn svg{width:16px;height:16px;}
   .rl-warn.y{color:#f2b705;} .rl-warn.r{color:#e5484d;}
   .rl-sub{color:var(--text-dim);font-size:12.5px;}
+  .rl-ocr{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px;}
+  .rl-ocr .btn{width:auto;padding:7px 14px;}
+  .rl-ocr .rl-sub{flex:1 1 240px;}
+  .rl-ocr .rl-sub.bad{color:#ff8a5c;} .rl-ocr .rl-sub.good{color:#5fbf7a;}
+  input.ocrf{border-color:#5fbf7a !important;box-shadow:0 0 0 1px rgba(95,191,122,.5);}
   .rl-subbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 10px;}
   .rl-subbar .btn{width:auto;padding:7px 14px;}
   .rl-pop{overflow:auto;border:1px solid var(--border);border-radius:6px;background:var(--panel);}
@@ -1041,7 +1046,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-25 · rl24</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-10-29 · rl26</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1415,6 +1420,37 @@
   }
 
   // ---------- edit / add dialog ----------
+  // ---- read the stat bonuses from a screenshot (OCR runs in the browser, nothing is uploaded) ----
+  var OCR_JS = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js', OCR_LANG = 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int';
+  function ocrLoad(){
+    if(window.Tesseract) return Promise.resolve();
+    return new Promise(function(res, rej){ var sc = document.createElement('script'); sc.src = window.__ocrLib || OCR_JS; sc.onload = res; sc.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(sc); });
+  }
+  function ocrPrep(file){   // darkest colour channel: green, grey and red numbers all become dark text on the light background
+    return new Promise(function(res, rej){
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function(){
+        var k = im.naturalWidth > 1600 ? 1600 / im.naturalWidth : 1, c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * k); c.height = Math.round(im.naturalHeight * k);
+        var x = c.getContext('2d'); x.drawImage(im, 0, 0, c.width, c.height);
+        var d = x.getImageData(0, 0, c.width, c.height), a = d.data;
+        for(var i = 0; i < a.length; i += 4){ var mn = Math.min(a[i], a[i + 1], a[i + 2]); a[i] = mn; a[i + 1] = mn; a[i + 2] = mn; a[i + 3] = 255; }
+        x.putImageData(d, 0, 0); URL.revokeObjectURL(u); res(c);
+      };
+      im.onerror = function(){ URL.revokeObjectURL(u); rej(new Error('img')); };
+      im.src = u;
+    });
+  }
+  function ocrParse(text){   // -> 12 numbers in STATS order (null = not found)
+    var out = [], re = /([+\-]?\s*\d[\d,]*(?:\.\d+)?)\s*%?[^A-Za-z\n]*(Infantry|Lancer|Marksm\w*)\s*(Attack|Defen[cs]e|Lethality|Health)/i, i;
+    for(i = 0; i < 12; i++) out.push(null);
+    String(text || '').split(/\n/).forEach(function(line){
+      var m = re.exec(line); if(!m) return;
+      var t = {i: 0, l: 1, m: 2}[m[2].charAt(0).toLowerCase()], q = {a: 0, d: 1, l: 2, h: 3}[m[3].charAt(0).toLowerCase()], v = Number(m[1].replace(/[+,\s]/g, ''));   // the number BEFORE the label = left side
+      if(t == null || q == null || !isFinite(v) || Math.abs(v) > 20000) return;
+      if(out[t * 4 + q] == null) out[t * 4 + q] = v;
+    });
+    return out;
+  }
   function fmtIn(v){ return has(v) ? (v * 100).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 3}) : ''; }
   function parseUS(s){ s = String(s == null ? '' : s).replace(/[,%\s]/g, ''); if(s === '') return null; var n = Number(s); return isFinite(n) ? n : NaN; }
   function fmtPow(n){ return n >= 1e9 ? (n / 1e9).toFixed(2) + ' B' : (n / 1e6).toFixed(0) + ' M'; }
@@ -1442,7 +1478,7 @@
     h += '<div class="rl-h">Player</div><div class="seg rl-mode" id="emode"><button type="button" data-m="game"' + (mode === 'game' ? ' class="active"' : '') + (gameOk ? '' : ' disabled') + '>From game data</button><button type="button" data-m="hand"' + (mode === 'hand' ? ' class="active"' : '') + '>Enter by hand</button></div>';
     h += '<div class="rl-grid2" id="egame"><div class="field"><label for="eal">Alliance</label>' + (gameOk ? '<select id="eal">' + allianceTags().map(function(t){ return '<option' + (t === curTag ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') + '</select>' : '<select id="eal"></select>') + '</div><div class="field"><label for="epl">Player</label><select id="epl">' + (gameOk ? memberOpts(curTag, p && p.pid) : '<option value="">–</option>') + '</select></div></div>';
     h += '<div class="rl-grid2" id="ehand"><div class="field"><label for="enm">Name</label><input type="text" id="enm" maxlength="60" value="' + esc(p ? p.name : '') + '"></div><div class="field"><label for="etg">Alliance</label><input type="text" id="etg" maxlength="12" value="' + esc(p ? (p.tag || curTag) : '') + '"></div><div class="field"><label for="eid">Public ID <span>(optional – for avatar and power)</span></label><input type="text" id="eid" inputmode="numeric" value="' + esc(p && p.pid ? p.pid : '') + '"></div></div>';
-    h += '<div class="rl-h">Stats <span>(as shown in the game, e.g. 3,216.00)</span></div><div class="rl-grid2"><div class="field"><label for="edt">Date info collected</label><input type="date" id="edt" value="' + esc(p && p.date ? p.date : ds) + '"></div></div><div class="rl-grid4">';
+    h += '<div class="rl-h">Stats <span>(as shown in the game, e.g. 3,216.00)</span></div><div class="rl-ocr"><button type="button" class="btn" id="eocr">Read from screenshot</button><input type="file" id="eocrf" accept="image/*" hidden><span class="rl-sub" id="eocrs">Mail screenshot with “Stat Bonuses”: the values on the LEFT side are read. Any colour works. The picture stays on this device.</span></div><div class="rl-grid2"><div class="field"><label for="edt">Date info collected</label><input type="date" id="edt" value="' + esc(p && p.date ? p.date : ds) + '"></div></div><div class="rl-grid4">';
     STATS.forEach(function(n, i){ h += '<div class="field"><label for="es' + i + '">' + n + '</label><input type="text" id="es' + i + '" inputmode="decimal" autocomplete="off" value="' + esc(p ? fmtIn(p.stats[i]) : '') + '"></div>'; });
     h += '</div><div class="rl-h">Heroes <span>(star level)</span></div><div class="rl-grid3">';
     HSEL.forEach(function(n, i){ h += '<div class="field"><label for="eh' + i + '">' + esc(n) + ' (' + (HTN[HTY[n]] || '') + ')</label>' + sel('eh' + i, sl, p && starN(p.hs[n])) + '</div>'; });
@@ -1458,6 +1494,22 @@
       function showMode(){ $('egame').style.display = cur === 'game' ? '' : 'none'; $('ehand').style.display = cur === 'hand' ? '' : 'none'; Array.prototype.forEach.call($('emode').querySelectorAll('button'), function(b){ b.classList.toggle('active', b.getAttribute('data-m') === cur); }); }
       showMode();
       $('emode').addEventListener('click', function(e){ var b = e.target.closest('button[data-m]'); if(!b || b.disabled) return; cur = b.getAttribute('data-m'); showMode(); });
+      var ob = $('eocr'), of = $('eocrf'), os = $('eocrs');
+      ob.addEventListener('click', function(){ of.value = ''; of.click(); });
+      of.addEventListener('change', function(){
+        var f = of.files && of.files[0]; if(!f) return;
+        ob.disabled = true; os.className = 'rl-sub'; os.textContent = 'Reading the screenshot … (the first time this takes a few seconds)';
+        var worker = null;
+        ocrLoad().then(function(){ return Promise.all([ocrPrep(f), window.Tesseract.createWorker('eng', 1, {langPath: OCR_LANG, gzip: true})]); }).then(function(r){
+          worker = r[1]; return worker.recognize(r[0]);
+        }).then(function(r){
+          var v = ocrParse(r.data.text), n = 0;
+          v.forEach(function(x, i){ if(x == null) return; var inp = $('es' + i); inp.value = x.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 3}); inp.classList.add('ocrf'); n++; });
+          os.className = 'rl-sub ' + (n === 12 ? 'good' : 'bad');
+          os.textContent = n === 12 ? 'Read all 12 values (green frames). Please check them before saving.' : n ? 'Read ' + n + ' of 12 values (green frames). Please fill in the rest by hand and check the others.' : 'Could not find the values. Use the screen with “Stat Bonuses” fully visible, or enter them by hand.';
+        }).catch(function(){ os.className = 'rl-sub bad'; os.textContent = 'Reading did not work (no connection to the reading library?). Please enter the values by hand.'; }).then(function(){ ob.disabled = false; if(worker) worker.terminate(); });
+      });
+      STATS.forEach(function(n, i){ $('es' + i).addEventListener('input', function(){ this.classList.remove('ocrf'); }); });
       if($('eal')) $('eal').addEventListener('change', function(){ $('epl').innerHTML = memberOpts(this.value, null); });
       $('esv').addEventListener('click', function(){
         var pid = null, name = '', tag = '';
