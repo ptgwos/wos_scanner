@@ -1126,6 +1126,39 @@
   .ap-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
   .ap-chk{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:12px;} .ap-chk input{width:18px;height:18px;accent-color:var(--good);}
   .ap-ma{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px;} .ap-ma .btn{width:auto;padding:8px 18px;}
+  .ap-big{max-width:1200px;height:92vh;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;padding:14px 16px 14px;}
+  .as-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+  .as-top h3{margin:0 10px 0 0;}
+  .as-top .btn{width:auto;padding:7px 14px;} .as-top .sp{flex:1;}
+  .as-dt{background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+  .as-dt.on{color:var(--gold);border-color:var(--gold);}
+  .as-g{display:grid;grid-template-columns:330px 1fr;gap:14px;flex:1;min-height:0;}
+  .as-c{min-height:0;overflow:auto;border:1px solid var(--border);border-radius:8px;background:var(--panel-2);padding:8px;}
+  .as-s{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:5px;cursor:pointer;min-height:20px;}
+  .as-s:hover{border-color:var(--ice);} .as-s.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;}
+  .as-s.ov{border-color:var(--good);background:rgba(80,200,120,.14);}
+  .as-s .t{font-weight:800;font-variant-numeric:tabular-nums;width:46px;color:var(--strong);flex:none;}
+  .as-s .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;}
+  .as-s .n.free{color:var(--text-faint);}
+  .as-s .n b{cursor:grab;color:var(--good);}
+  .as-s .k{font-size:11px;color:var(--text-faint);flex:none;white-space:nowrap;} .as-s .k b{color:var(--gold);}
+  .as-s .x{background:none;border:0;color:var(--text-dim);cursor:pointer;font-size:15px;padding:0 4px;flex:none;} .as-s .x:hover{color:var(--danger);}
+  .as-ph{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+  .as-ph b{color:var(--strong);font-size:15px;} .as-ph .ap-in{width:auto;padding:6px 8px;font-size:13px;}
+  .as-sec{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);font-weight:800;margin:12px 0 6px;}
+  .as-cur{border:1px solid var(--good);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;}
+  .as-pl{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;}
+  .as-p{border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:8px 10px;cursor:grab;} .as-p:active{cursor:grabbing;}
+  .as-p.first{border-color:var(--gold);}
+  .as-p .h{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;} .as-p .h b{color:var(--strong);font-size:14px;}
+  .as-p .rk{font-size:11px;font-weight:800;padding:1px 8px;border-radius:999px;background:rgba(120,140,190,.18);color:var(--text-dim);margin-left:auto;} .as-p.first .rk{background:rgba(255,180,0,.2);color:var(--gold);}
+  .as-p .st{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;font-size:12px;} .as-p .st span{display:flex;justify-content:space-between;gap:6px;color:var(--text-faint);} .as-p .st span b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;}
+  .as-p .st span.rel b{color:var(--gold);font-weight:800;}
+  .as-p .go{margin-top:7px;width:100%;padding:5px 8px;font-size:12px;}
+  .as-hint{font-size:12.5px;color:var(--text-faint);margin:0 0 8px;}
+  @media (max-width:640px){
+    .ap-big{height:96vh;max-height:96vh;padding:10px;} .as-g{grid-template-columns:1fr;grid-template-rows:38% 1fr;gap:8px;} .as-pl{grid-template-columns:1fr;}
+  }
   @media (max-width:640px){
     .ap-vals{grid-template-columns:1fr 1fr;} .ap-tiles{grid-template-columns:repeat(4,1fr);}
     .ap-p{padding:14px 12px 16px;} .ap-dg{grid-template-columns:1fr;} .ap-3{grid-template-columns:1fr;}
@@ -1197,10 +1230,11 @@
     </div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-10-31 · ap2</footer>
+  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-10-31 · ap3</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
+<div class="ap-m" id="apAs"><div class="ap-mp ap-big" id="apAsp"></div></div>
 <script src="eventplan-config.js"></script>
 <script>
 (function(){
@@ -1263,6 +1297,13 @@
         can: function(c){ return Promise.resolve(can(c)); },
         current: function(){ var d = load(), e = d.events.slice().sort(function(a, b){ return b.t - a.t; })[0]; return Promise.resolve(e ? cp(e) : null); },
         counts: function(ev){ var d = load(), o = {}; ['1', '2', '3'].forEach(function(k){ o[k] = []; for(var i = 0; i < 48; i++){ var f = 0, t = 0; d.entries.forEach(function(e){ if(e.event_id !== ev) return; var s = e.slots[k] || []; if(s[0] === i) f++; if(s.indexOf(i) >= 0) t++; }); o[k].push([f, t]); } }); return Promise.resolve(o); },
+        asList: function(c, ev){ var n = need(c, 'view'); if(n) return n; return Promise.resolve(cp((load().assign || []).filter(function(a){ return a.event_id === ev; }).map(function(a){ return {day: a.day, slot: a.slot, pid: a.pid}; }))); },
+        asSet: function(c, ev, day, slot, pid){ var n = need(c, 'view'); if(n) return n; var d = load(); d.assign = d.assign || [];
+          if(!d.entries.some(function(e){ return e.event_id === ev && e.pid === pid; })) return Promise.reject(new Error('This player has no sign-up in this week.'));
+          d.assign = d.assign.filter(function(a){ return !(a.event_id === ev && a.day === day && (a.slot === slot || a.pid === pid)); }); d.assign.push({event_id: ev, day: day, slot: slot, pid: pid}); save(d);
+          return Promise.resolve(cp(d.assign.filter(function(a){ return a.event_id === ev; }))); },
+        asClear: function(c, ev, day, slot){ var n = need(c, 'view'); if(n) return n; var d = load(); d.assign = (d.assign || []).filter(function(a){ return !(a.event_id === ev && a.day === day && a.slot === slot); }); save(d);
+          return Promise.resolve(cp(d.assign.filter(function(a){ return a.event_id === ev; }))); },
         get: function(ev, pid){ var e = load().entries.filter(function(x){ return x.event_id === ev && x.pid === pid; })[0]; return Promise.resolve(e ? cp(e) : null); },
         save: function(a){
           var d = load(), ev = d.events.filter(function(x){ return x.id === a.p_event; })[0];
@@ -1276,7 +1317,7 @@
         },
         evList: function(c){ var n = need(c, 'view'); if(n) return n; var d = load(); return Promise.resolve(cp(d.events).sort(function(a, b){ return b.t - a.t; }).map(function(e){ e.n = d.entries.filter(function(x){ return x.event_id === e.id; }).length; return e; })); },
         list: function(c, ev){ var n = need(c, 'view'); if(n) return n; return Promise.resolve(cp(load().entries.filter(function(x){ return x.event_id === ev; }))); },
-        del: function(c, id){ var n = need(c, 'view'); if(n) return n; var d = load(); d.entries = d.entries.filter(function(x){ return x.id !== id; }); save(d); return Promise.resolve(); },
+        del: function(c, id){ var n = need(c, 'view'); if(n) return n; var d = load(); var gone = d.entries.filter(function(x){ return x.id === id; })[0]; d.entries = d.entries.filter(function(x){ return x.id !== id; }); if(gone) d.assign = (d.assign || []).filter(function(a){ return !(a.event_id === gone.event_id && a.pid === gone.pid); }); save(d); return Promise.resolve(); },
         evSave: function(c, a){ var n = need(c, 'manage'); if(n) return n; var d = load(); if(!a.p_title.trim()) return Promise.reject(new Error('A title (max 80 characters) is needed.'));
           if(a.p_id){ var e = d.events.filter(function(x){ return x.id === a.p_id; })[0]; e.title = a.p_title; e.d1 = a.p_d1; e.d2 = a.p_d2; e.d3 = a.p_d3; e.closed = !!a.p_closed; }
           else d.events.push({id: 'e' + Date.now(), title: a.p_title, d1: a.p_d1, d2: a.p_d2, d3: a.p_d3, closed: !!a.p_closed, t: Date.now()});
@@ -1296,6 +1337,9 @@
       current: function(){ return rpc('ap_current'); },
       get: function(ev, pid){ return rpc('ap_get', {p_event: ev, p_pid: pid}); },
       counts: function(ev){ return rpc('ap_counts', {p_event: ev}); },
+      asList: function(c, ev){ return rpc('ap_assign_list', {p_code: c, p_event: ev}); },
+      asSet: function(c, ev, day, slot, pid){ return rpc('ap_assign_set', {p_code: c, p_event: ev, p_day: day, p_slot: slot, p_pid: pid}); },
+      asClear: function(c, ev, day, slot){ return rpc('ap_assign_clear', {p_code: c, p_event: ev, p_day: day, p_slot: slot}); },
       save: function(a){ return rpc('ap_save', a); },
       evList: function(c){ return rpc('ap_events_list', {p_code: c}); },
       list: function(c, ev){ return rpc('ap_list', {p_code: c, p_event: ev}); },
@@ -1609,13 +1653,14 @@
   function ovShell(){
     var ov = $('apOv'); ov.style.display = '';
     ov.innerHTML = '<h2>Overview <span class="ap-tag">authorised only</span></h2><p class="ap-sub">Everything people signed up with. Click a column to sort, click a row for all chosen times.</p>' +
-      '<div class="ap-bar"><select class="ap-in" id="oEv" style="min-width:200px"></select>' + (CAN.manage ? '<button type="button" class="btn btn-secondary" id="oMg">Manage weeks</button>' : '') + '<button type="button" class="btn btn-secondary" id="oCp">Copy table</button><button type="button" class="btn btn-secondary" id="oRl">Reload</button><span class="ap-st" id="oCnt"></span></div>' +
+      '<div class="ap-bar"><select class="ap-in" id="oEv" style="min-width:200px"></select>' + '<button type="button" class="btn" id="oAs" style="width:auto;padding:7px 16px">Assign slots</button>' + (CAN.manage ? '<button type="button" class="btn btn-secondary" id="oMg">Manage weeks</button>' : '') + '<button type="button" class="btn btn-secondary" id="oCp">Copy table</button><button type="button" class="btn btn-secondary" id="oRl">Reload</button><span class="ap-st" id="oCnt"></span></div>' +
       '<div class="ap-tabs"><button type="button" class="ap-tab" data-t="p">Players</button><button type="button" class="ap-tab" data-t="s">Time slots</button></div>' +
       '<div class="ap-bar" id="oFl"></div><div id="oBody"></div>';
     $('oEv').addEventListener('change', function(){ O.evId = this.value; ovLoad(); });
     $('oRl').addEventListener('click', function(){ ovLoad(true); });
     $('oCp').addEventListener('click', copyTable);
     if($('oMg')) $('oMg').addEventListener('click', openMg);
+    $('oAs').addEventListener('click', openAs);
     ov.querySelectorAll('.ap-tab').forEach(function(t){ t.addEventListener('click', function(){ O.tab = t.getAttribute('data-t'); ovFilters(); ovDraw(); }); });
   }
   function ovEvents(keep){
@@ -1690,6 +1735,10 @@
         list.map(function(s){ return '<tr><td class="l nm">' + tl(s.i) + '</td><td class="s">' + (s.f.length ? '<span class="f1">' + s.f.length + '</span> · ' + s.f.map(nm).join(', ') : '–') + '</td><td class="s">' + (s.a.length ? s.a.length + ' · ' + s.a.map(nm).join(', ') : '–') + '</td></tr>'; }).join('') + '</tbody></table></div>' + (list.length ? '' : '<div class="ap-gate">No sign-ups match.</div>');
     }
   }
+  function clipText(t, okMsg){
+    function fb(){ var a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); var ok = false; try { ok = document.execCommand('copy'); } catch(e) {} document.body.removeChild(a); toast(ok ? okMsg : 'Copy did not work.', ok); }
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast(okMsg, true); }, fb); else fb();
+  }
   function copyTable(){
     var rows = sortRows(rowsF()), L = [['Name', 'Alliance', 'ID'].concat(VK.map(function(k){ return VL[k]; })).concat(DAYS.map(function(d){ return d.n + ' (' + d.w + ')'; })).join('\t')];
     rows.forEach(function(r){ L.push([r.name, r.tag || '', r.pid].concat(VK.map(function(k){ return r.vals && r.vals[k] != null ? r.vals[k] : ''; })).concat(DAYS.map(function(d){ return (r.slots[d.k] || []).map(tl).join(' | '); })).join('\t')); });
@@ -1697,6 +1746,106 @@
     function fb(){ var a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); var ok = false; try { ok = document.execCommand('copy'); } catch(e) {} document.body.removeChild(a); toast(ok ? 'Table copied (paste into Excel / Sheets).' : 'Copy did not work.', ok); }
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast('Table copied (paste into Excel / Sheets).', true); }, fb); else fb();
   }
+
+  /* ---------- final assignment ---------- */
+  var A = {day: '1', slot: null, asg: [], q: '', all: false, sort: 'name', drag: null};
+  function evInfo(){ return O.events.filter(function(e){ return e.id === O.evId; })[0] || {}; }
+  function aMap(){ var s = {}, p = {}; A.asg.forEach(function(a){ if(a.day === A.day){ s[a.slot] = a.pid; p[a.pid] = a.slot; } }); return {s: s, p: p}; }
+  function byPid(){ var m = {}; O.rows.forEach(function(r){ m[r.pid] = r; }); return m; }
+  var REL = {'1': 'sc', '2': 'sr', '3': 'st'};
+  function openAs(){
+    if(!O.evId){ toast('There is no week yet.'); return; }
+    A.slot = null; $('apAs').classList.add('open'); $('apAsp').innerHTML = '<div class="ap-gate">Loading …</div>';
+    Promise.all([api.list(code, O.evId), api.asList(code, O.evId)]).then(function(r){ O.rows = r[0] || []; A.asg = r[1] || []; asShell(); }).catch(function(e){ $('apAsp').innerHTML = '<div class="ap-gate">' + esc(e.message) + '</div><div class="ap-ma"><button type="button" class="btn btn-secondary" id="asX">Close</button></div>'; $('asX').addEventListener('click', function(){ $('apAs').classList.remove('open'); }); });
+  }
+  function asShell(){
+    $('apAsp').innerHTML = '<div class="as-top"><h3>Assign slots</h3>' + DAYS.map(function(d){ return '<button type="button" class="as-dt" data-day="' + d.k + '">' + d.s + ' · ' + d.w + '</button>'; }).join('') + '<span class="sp"></span><button type="button" class="btn btn-secondary" id="asCd">Copy this day</button><button type="button" class="btn btn-secondary" id="asCa">Copy all days</button><button type="button" class="btn btn-secondary" id="asX">Close</button></div>' +
+      '<div class="as-g"><div class="as-c" id="asSl"></div><div class="as-c" id="asPl"></div></div>';
+    $('apAsp').querySelectorAll('.as-dt').forEach(function(b){ b.addEventListener('click', function(){ A.day = b.getAttribute('data-day'); A.slot = null; asDraw(); }); });
+    $('asX').addEventListener('click', function(){ $('apAs').classList.remove('open'); });
+    $('asCd').addEventListener('click', function(){ clipText(asText([A.day]), 'Copied. Paste it into Discord.'); });
+    $('asCa').addEventListener('click', function(){ clipText(asText(['1', '2', '3']), 'Copied. Paste it into Discord.'); });
+    $('asSl').addEventListener('click', function(e){
+      var x = e.target.closest('[data-clr]'); if(x){ e.stopPropagation(); asDo(api.asClear(code, O.evId, A.day, +x.getAttribute('data-clr'))); return; }
+      var s = e.target.closest('[data-slot]'); if(s){ A.slot = +s.getAttribute('data-slot'); asDraw(); }
+    });
+    var sl = $('asSl');
+    sl.addEventListener('dragover', function(e){ var s = e.target.closest('[data-slot]'); if(!s || !A.drag) return; e.preventDefault(); sl.querySelectorAll('.ov').forEach(function(x){ x.classList.remove('ov'); }); s.classList.add('ov'); });
+    sl.addEventListener('dragleave', function(e){ if(!sl.contains(e.relatedTarget)) sl.querySelectorAll('.ov').forEach(function(x){ x.classList.remove('ov'); }); });
+    sl.addEventListener('drop', function(e){ var s = e.target.closest('[data-slot]'); if(!s || !A.drag) return; e.preventDefault(); var pid = A.drag; A.drag = null; sl.querySelectorAll('.ov').forEach(function(x){ x.classList.remove('ov'); }); A.slot = +s.getAttribute('data-slot'); asPut(pid, A.slot); });
+    $('asPl').addEventListener('click', function(e){ var b = e.target.closest('[data-go]'); if(b && A.slot != null) asPut(b.getAttribute('data-go'), A.slot); var c = e.target.closest('[data-rm]'); if(c) asDo(api.asClear(code, O.evId, A.day, A.slot)); });
+    if(!A.dl){ A.dl = 1;
+    document.addEventListener('dragstart', function(e){ var t = e.target.closest && e.target.closest('[data-pid]'); if(!t || !$('apAs').contains(t)) return; A.drag = t.getAttribute('data-pid'); try { e.dataTransfer.setData('text/plain', A.drag); e.dataTransfer.effectAllowed = 'move'; } catch(x) {} });
+    document.addEventListener('dragend', function(){ A.drag = null; }); }
+    asDraw();
+  }
+  function asPut(pid, slot){ asDo(api.asSet(code, O.evId, A.day, slot, pid)); }
+  function asDo(p){ p.then(function(l){ A.asg = l || []; asDraw(); }).catch(function(e){ toast(e.message); }); }
+  function cands(day, slot, m){   // players who picked this time and are not placed yet on this day
+    var pm = byPid(), out = [];
+    O.rows.forEach(function(r){ if(m.p[r.pid] != null) return; var pos = (r.slots[day] || []).indexOf(slot); if(pos >= 0) out.push({r: r, pos: pos}); });
+    return out;
+  }
+  function asDraw(){
+    var m = aMap(), pm = byPid(), d = A.day, h = '';
+    $('apAsp').querySelectorAll('.as-dt').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-day') === d); });
+    for(var i = 0; i < 48; i++){
+      var pid = m.s[i], r = pid ? pm[pid] : null, cs = pid ? [] : cands(d, i, m), f = cs.filter(function(c){ return c.pos === 0; }).length;
+      h += '<div class="as-s' + (A.slot === i ? ' sel' : '') + '" data-slot="' + i + '"><span class="t">' + tl(i) + '</span>' +
+        (pid ? '<span class="n"><b draggable="true" data-pid="' + esc(pid) + '" title="Drag to another slot to move">' + esc(r ? r.name : pid) + '</b>' + (r && r.tag ? ' <span class="ap-tag">' + esc(r.tag) + '</span>' : '') + '</span><button type="button" class="x" data-clr="' + i + '" title="Remove" aria-label="Remove">×</button>'
+             : '<span class="n free">free</span><span class="k">' + (cs.length ? '<b>' + f + '</b> first · ' + cs.length + ' total' : '–') + '</span>') + '</div>';
+    }
+    $('asSl').innerHTML = h;
+    asPool();
+  }
+  function relV(r){ return (r.vals && r.vals[REL[A.day]]) || 0; }
+  function asPool(){
+    var pl = $('asPl'), m = aMap(), pm = byPid(), d = A.day, dy = DAYS.filter(function(x){ return x.k === d; })[0];
+    if(A.slot == null){ pl.innerHTML = '<p class="as-hint">Pick a slot on the left to see the players who signed up for it. Then drag a player onto a slot, or press “Assign here”. Players that are placed disappear from all other slots of this day.</p>' + asSummary(m, pm); return; }
+    var pid = m.s[A.slot], cur = pid ? pm[pid] : null, q = A.q.trim().toLowerCase();
+    var fl = function(c){ return !q || (c.r.name || '').toLowerCase().indexOf(q) >= 0 || String(c.r.pid).indexOf(q) >= 0; };
+    var srt = function(a, b){ if(A.sort === 'su') return relV(b.r) - relV(a.r) || (a.r.name || '').localeCompare(b.r.name || ''); if(A.sort === 'fc') return ((b.r.vals && b.r.vals.fc) || 0) - ((a.r.vals && a.r.vals.fc) || 0) || (a.r.name || '').localeCompare(b.r.name || ''); return (a.r.name || '').toLowerCase() < (b.r.name || '').toLowerCase() ? -1 : 1; };
+    var cs = cands(d, A.slot, m).filter(fl), first = cs.filter(function(c){ return c.pos === 0; }).sort(srt), alt = cs.filter(function(c){ return c.pos > 0; }).sort(function(a, b){ return (a.pos - b.pos) || srt(a, b); });
+    var h = '<div class="as-ph"><b>' + tl(A.slot) + ' UTC · ' + dy.n + ' · ' + dy.w + '</b><span class="sp" style="flex:1"></span><input class="ap-in" id="asQ" placeholder="Search name or ID" value="' + esc(A.q) + '" style="width:170px"><select class="ap-in" id="asSo"><option value="name"' + (A.sort === 'name' ? ' selected' : '') + '>Sort: name</option><option value="su"' + (A.sort === 'su' ? ' selected' : '') + '>Sort: ' + esc(dy.w) + ' speedups</option><option value="fc"' + (A.sort === 'fc' ? ' selected' : '') + '>Sort: FCs</option></select></div>';
+    if(cur) h += '<div class="as-cur"><span>Assigned:</span> <b>' + esc(cur.name) + '</b>' + (cur.tag ? ' <span class="ap-tag">' + esc(cur.tag) + '</span>' : '') + ' · ID ' + esc(cur.pid) + '<span style="flex:1"></span><button type="button" class="ap-x" data-rm="1">Remove</button></div>';
+    function tile(c, fst){
+      var r = c.r, v = r.vals || {};
+      function st(l, k, rel){ var x = v[k]; return '<span' + (rel ? ' class="rel"' : '') + '>' + l + ' <b' + (x != null && /^s/.test(k) ? ' title="' + mins(x) + '"' : '') + '>' + (x == null ? '–' : fmt(x)) + '</b></span>'; }
+      var rk = REL[d];
+      return '<div class="as-p' + (fst ? ' first' : '') + '" draggable="true" data-pid="' + esc(r.pid) + '"><div class="h"><b>' + esc(r.name) + '</b>' + (r.tag ? '<span class="ap-tag">' + esc(r.tag) + '</span>' : '') + '<span class="rk">' + (c.pos === 0 ? '1st choice' : 'Alt #' + c.pos) + '</span></div>' +
+        '<div class="st">' + st('FC', 'fc') + st('Constr.', 'sc', rk === 'sc') + st('rFC', 'fcr') + st('Research', 'sr', rk === 'sr') + st('Shards', 'fcs') + st('Troops', 'st', rk === 'st') + '<span></span>' + st('General', 'sg') + '</div>' +
+        '<button type="button" class="btn btn-secondary go" data-go="' + esc(r.pid) + '">Assign here</button></div>';
+    }
+    h += '<div class="as-sec">First choice (' + first.length + ')</div><div class="as-pl">' + (first.map(function(c){ return tile(c, true); }).join('') || '<span class="as-hint">nobody</span>') + '</div>' +
+      '<div class="as-sec">Alternatives (' + alt.length + ')</div><div class="as-pl">' + (alt.map(function(c){ return tile(c, false); }).join('') || '<span class="as-hint">nobody</span>') + '</div>';
+    h += '<label class="ap-chk" style="margin-top:14px"><input type="checkbox" id="asAll"' + (A.all ? ' checked' : '') + '> Also show players who did not pick this time (last-minute fills)</label>';
+    if(A.all){
+      var inSlot = {}; cs.forEach(function(c){ inSlot[c.r.pid] = 1; });
+      var oth = O.rows.filter(function(r){ return m.p[r.pid] == null && !inSlot[r.pid] && (!q || (r.name || '').toLowerCase().indexOf(q) >= 0 || String(r.pid).indexOf(q) >= 0); }).map(function(r){ return {r: r, pos: -1}; }).sort(srt).slice(0, 80);
+      h += '<div class="as-sec">Others (' + oth.length + (oth.length === 80 ? '+' : '') + ')</div><div class="as-pl">' + oth.map(function(c){ return tile(c, false).replace('Alt #-1', 'not picked'); }).join('') + '</div>';
+    }
+    pl.innerHTML = h;
+    if($('asQ')) $('asQ').addEventListener('input', function(){ A.q = this.value; var p = this.selectionStart; asPool(); var n = $('asQ'); n.focus(); try { n.setSelectionRange(p, p); } catch(e) {} });
+    if($('asSo')) $('asSo').addEventListener('change', function(){ A.sort = this.value; asPool(); });
+    if($('asAll')) $('asAll').addEventListener('change', function(){ A.all = this.checked; asPool(); });
+  }
+  function asSummary(m, pm){
+    var n = Object.keys(m.s).length;
+    return '<div class="as-sec">' + DAYS.filter(function(x){ return x.k === A.day; })[0].n + ': ' + n + ' of 48 slots filled, ' + (48 - n) + ' free</div>';
+  }
+  function asText(days){
+    var pm = byPid(), out = [], ev = evInfo();
+    days.forEach(function(k){
+      var dy = DAYS.filter(function(x){ return x.k === k; })[0], m = {}; A.asg.forEach(function(a){ if(a.day === k) m[a.slot] = a.pid; });
+      var dt = dateOf2(ev['d' + k]);
+      out.push(dy.w.toUpperCase() + (dt ? ' (' + dt + ')' : ''), '');
+      for(var i = 0; i < 48; i++){ var r = m[i] ? pm[m[i]] : null; out.push(tl(i) + ' | ' + (r ? r.name + ' | ' + (r.tag || '–') + ' | ' + r.pid : (m[i] ? m[i] : '-'))); }
+      out.push('');
+    });
+    return out.join('\n').replace(/\n+$/, '');
+  }
+  function dateOf2(d){ if(!d) return ''; var x = new Date(d + 'T00:00:00Z'); return isNaN(x) ? '' : x.toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'}); }
+  $('apAs').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
 
   /* ---------- manage weeks ---------- */
   function openMg(){
