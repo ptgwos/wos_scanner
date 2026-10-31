@@ -1115,7 +1115,7 @@
     </div>
     <div class="ch-act"><button type="button" class="btn" id="chShare">Copy list for Discord</button><button type="button" class="btn btn-secondary" id="chClr">Clear all</button></div>
   </div>
-  <footer id="foot">State 646 · Presidential Chests — saved in this browser · build 2026-10-31 · ch1</footer>
+  <footer id="foot">State 646 · Presidential Chests — saved in this browser · build 2026-10-31 · ch2</footer>
 </div>
 <div id="toast"></div>
 <div class="ch-m" id="chM"><div class="ch-mp" id="chMp"></div></div>
@@ -1225,8 +1225,6 @@
   window.epSettingsApply = function(k, v){ if(k === 'av'){ avOn = v !== false; draw(); } };
   load(); draw();
   fetch('data/players.json?_=' + Math.floor(Date.now() / 300000), {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(j){ D = {players: j.players || {}, alliances: j.alliances || {}}; draw(); }).catch(function(){});
-})();
-</script>
 })();
 </script>
 <script>
