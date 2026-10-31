@@ -1078,6 +1078,11 @@
   .ap-tiles{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;}
   .ap-t{position:relative;border:1px solid var(--border);background:var(--panel);color:var(--text-dim);border-radius:6px;padding:9px 0 8px;font:inherit;font-size:12.5px;cursor:pointer;text-align:center;font-variant-numeric:tabular-nums;}
   .ap-t:hover{border-color:var(--ice);color:var(--text);}
+  .ap-t small{display:block;font-size:10.5px;line-height:1;margin-top:3px;color:var(--text-faint);min-height:10px;font-weight:600;}
+  .ap-t.h1{background:rgba(255,160,60,.10);} .ap-t.h2{background:rgba(255,140,50,.22);} .ap-t.h3{background:rgba(255,110,50,.36);} .ap-t.h4{background:rgba(255,80,60,.5);} .ap-t.h5{background:rgba(255,50,60,.66);}
+  .ap-t.h4 small,.ap-t.h5 small{color:var(--strong);}
+  .ap-heat{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-faint);margin:0 0 12px;flex-wrap:wrap;}
+  .ap-heat span.sw{width:16px;height:12px;border-radius:3px;display:inline-block;border:1px solid var(--border);}
   .ap-t.on{border-color:var(--ice);background:rgba(110,231,255,.14);color:var(--strong);font-weight:700;}
   .ap-t.on.first{border-color:var(--gold);background:rgba(255,180,0,.2);}
   .ap-t i{position:absolute;top:-6px;right:-4px;min-width:17px;height:17px;border-radius:9px;background:var(--ice);color:#04101c;font-size:10.5px;font-style:normal;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px;box-sizing:border-box;}
@@ -1181,6 +1186,8 @@
       <div class="ap-p">
         <h2><span class="n">3</span> Your times</h2>
         <p class="ap-sub">Pick <b>at least 3 times</b> per day (UTC). Your <b>first tap is your first choice</b> (gold), every further tap is an alternative (numbered in the order you tap). Tap a selected time again to remove it. Use the arrows below the tiles to change the order.</p>
+        <p class="ap-heat"><b>Heat map:</b> the number on a tile shows how many players already picked it, and the redder it is, the more crowded. Try to avoid the red times if you can.
+          <span class="sw" style="background:rgba(255,160,60,.15)"></span>few <span class="sw" style="background:rgba(255,110,50,.4)"></span>some <span class="sw" style="background:rgba(255,50,60,.66)"></span>many</p>
         <div class="ap-days" id="apDays"></div>
       </div>
       <div class="ap-p ap-save">
@@ -1190,7 +1197,7 @@
     </div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-10-31 · ap1</footer>
+  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-10-31 · ap2</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
@@ -1235,7 +1242,7 @@
   var VK = ['fc', 'fcr', 'fcs', 'sg', 'st', 'sc', 'sr', 'sl', 'sh'];
   var VL = {fc: 'FCs', fcr: 'Refined FCs', fcs: 'FC Shards', sg: 'General', st: 'Troop Training', sc: 'Construction', sr: 'Research', sl: 'Learning', sh: 'Troop Healing'};
   var code = ''; try { code = localStorage.getItem('ep_code') || ''; } catch(e) {}
-  var D = {players: {}, alliances: {}}, EV = null, CAN = {view: false, manage: false, super: false}, F = {slots: {'1': [], '2': [], '3': []}};
+  var C = {}, loadedPid = '', D = {players: {}, alliances: {}}, EV = null, CAN = {view: false, manage: false, super: false}, F = {slots: {'1': [], '2': [], '3': []}};
 
   /* ---------- backend ---------- */
   var api = (function(){
@@ -1255,6 +1262,7 @@
       return {
         can: function(c){ return Promise.resolve(can(c)); },
         current: function(){ var d = load(), e = d.events.slice().sort(function(a, b){ return b.t - a.t; })[0]; return Promise.resolve(e ? cp(e) : null); },
+        counts: function(ev){ var d = load(), o = {}; ['1', '2', '3'].forEach(function(k){ o[k] = []; for(var i = 0; i < 48; i++){ var f = 0, t = 0; d.entries.forEach(function(e){ if(e.event_id !== ev) return; var s = e.slots[k] || []; if(s[0] === i) f++; if(s.indexOf(i) >= 0) t++; }); o[k].push([f, t]); } }); return Promise.resolve(o); },
         get: function(ev, pid){ var e = load().entries.filter(function(x){ return x.event_id === ev && x.pid === pid; })[0]; return Promise.resolve(e ? cp(e) : null); },
         save: function(a){
           var d = load(), ev = d.events.filter(function(x){ return x.id === a.p_event; })[0];
@@ -1287,6 +1295,7 @@
       can: function(c){ return c ? rpc('ap_can', {p_code: c}) : Promise.resolve({view: false, manage: false, super: false}); },
       current: function(){ return rpc('ap_current'); },
       get: function(ev, pid){ return rpc('ap_get', {p_event: ev, p_pid: pid}); },
+      counts: function(ev){ return rpc('ap_counts', {p_event: ev}); },
       save: function(a){ return rpc('ap_save', a); },
       evList: function(c){ return rpc('ap_events_list', {p_code: c}); },
       list: function(c, ev){ return rpc('ap_list', {p_code: c, p_event: ev}); },
@@ -1516,11 +1525,14 @@
       VK.forEach(function(k){ setVal(k, e.vals ? e.vals[k] : null); });
       F.slots = {'1': (e.slots['1'] || []).slice(), '2': (e.slots['2'] || []).slice(), '3': (e.slots['3'] || []).slice()};
       if(!D.players[pid] && e.name) $('apNm').value = e.name;
-      drawDays(); whoUpdate();
+      loadedPid = pid; drawDays(); whoUpdate();
       $('apSaveS').className = 'ap-st'; $('apSaveS').textContent = 'Your earlier entry was loaded. Saving will replace it.';
     }).catch(function(){});
   }
-  function onId(){ whoUpdate(); loadMine(); }
+  function clearData(){
+    VK.forEach(function(k){ setVal(k, null); }); F.slots = {'1': [], '2': [], '3': []}; loadedPid = ''; ocrMsg(''); drawDays();
+  }
+  function onId(){ whoUpdate(); if(loadedPid && who.pid !== loadedPid){ clearData(); $('apSaveS').textContent = ''; } loadMine(); }
 
   /* ---------- time tiles ---------- */
   function dateOf(k){ var d = EV && EV['d' + k]; if(!d) return ''; var x = new Date(d + 'T00:00:00Z'); if(isNaN(x)) return ''; return x.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', timeZone: 'UTC'}); }
@@ -1529,7 +1541,10 @@
     DAYS.forEach(function(dy){
       var s = F.slots[dy.k], n = s.length, dt = dateOf(dy.k);
       h += '<div class="ap-day" data-d="' + dy.k + '"><div class="ap-dh"><b>' + dy.n + (dt ? ' · ' + dt : '') + ' · <span>' + dy.w + '</span></b><span class="ap-cnt ' + (n >= 3 ? 'ok' : 'low') + '">' + n + ' selected' + (n < 3 ? ' · at least 3 needed' : '') + '</span></div><div class="ap-tiles">';
-      for(var i = 0; i < 48; i++){ var p = s.indexOf(i); h += '<button type="button" class="ap-t' + (p >= 0 ? ' on' + (p === 0 ? ' first' : '') : '') + '" data-d="' + dy.k + '" data-i="' + i + '" aria-pressed="' + (p >= 0) + '" title="' + tl(i) + ' UTC">' + tl(i) + (p >= 0 ? '<i>' + (p + 1) + '</i>' : '') + '</button>'; }
+      var cc = C[dy.k] || [], mx = 0, i;
+      cc.forEach(function(x){ if(x[1] > mx) mx = x[1]; });
+      for(i = 0; i < 48; i++){ var p = s.indexOf(i), ct = cc[i] || [0, 0], lv = ct[1] > 0 && mx ? Math.max(1, Math.ceil(5 * ct[1] / mx)) : 0;
+        h += '<button type="button" class="ap-t' + (lv ? ' h' + lv : '') + (p >= 0 ? ' on' + (p === 0 ? ' first' : '') : '') + '" data-d="' + dy.k + '" data-i="' + i + '" aria-pressed="' + (p >= 0) + '" title="' + tl(i) + ' UTC · ' + ct[1] + ' signed up (' + ct[0] + ' as first choice)">' + tl(i) + '<small>' + (ct[1] ? ct[1] : '') + '</small>' + (p >= 0 ? '<i>' + (p + 1) + '</i>' : '') + '</button>'; }
       h += '</div>';
       if(n) h += '<div class="ap-ord">' + s.map(function(v, p){ return '<span class="ap-ch' + (p === 0 ? ' f' : '') + '">' + (p + 1) + ' · ' + tl(v) + (p > 0 ? '<button type="button" data-act="up" data-d="' + dy.k + '" data-p="' + p + '" aria-label="Move up in order" title="Make earlier choice">↑</button>' : '') + '<button type="button" data-act="rm" data-d="' + dy.k + '" data-p="' + p + '" aria-label="Remove" title="Remove">×</button></span>'; }).join('') + '</div>';
       h += '</div>';
@@ -1581,8 +1596,10 @@
     for(var i = 0; i < 3; i++){ if(F.slots[DAYS[i].k].length < 3){ s.className = 'ap-st bad'; s.textContent = 'Please pick at least 3 times on ' + DAYS[i].n + '.'; return; } }
     var b = $('apSave'); b.disabled = true; s.textContent = 'Saving …';
     api.save({p_event: EV.id, p_pid: who.pid, p_name: name, p_tag: who.tag || '', p_vals: rv.vals, p_slots: F.slots}).then(function(){
-      s.className = 'ap-st good'; s.textContent = 'Saved. You can come back and change it any time until sign-up closes.'; toast('Saved ✓', true);
-      try { localStorage.setItem('ap_pid', who.pid); } catch(e) {}
+      var nm = name;
+      clearData(); $('apAl').value = ''; fillPlayers(''); $('apId').value = ''; $('apNm').value = ''; whoUpdate();
+      s.className = 'ap-st good'; s.textContent = 'Saved for ' + nm + '. The form is empty again, so you can sign up another account. Come back any time to change an entry.'; toast('Saved ✓', true);
+      loadCounts();
       if(CAN.view) ovLoad(true);
     }).catch(function(e){ s.className = 'ap-st bad'; s.textContent = e.message; }).then(function(){ b.disabled = false; });
   });
@@ -1713,7 +1730,8 @@
     h.innerHTML = '<h2>' + esc(EV.title) + (EV.closed ? ' <span class="ap-badge">Sign-up closed</span>' : '') + '</h2><p class="ap-sub" style="margin:0">' + esc(ds) + '. Sign up for the minister office you want on each day. There are more sign-ups than slots, so please choose several times.</p>';
     $('apForm').style.display = EV.closed ? 'none' : '';
   }
-  function loadEvent(){ return api.current().then(function(e){ EV = e; drawEvent(); if(EV && !EV.closed) drawDays(); }); }
+  function loadCounts(){ if(!EV) return Promise.resolve(); return api.counts(EV.id).then(function(c){ C = c || {}; drawDays(); }).catch(function(){}); }
+  function loadEvent(){ return api.current().then(function(e){ EV = e; drawEvent(); if(EV && !EV.closed){ drawDays(); return loadCounts(); } }); }
   function start(){
     drawDays();
     var dp = fetch('data/players.json?_=' + Math.floor(Date.now() / 300000), {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(j){ D = {players: j.players || {}, alliances: j.alliances || {}}; }).catch(function(){});
