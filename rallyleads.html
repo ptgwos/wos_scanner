@@ -1047,7 +1047,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-11-01 · rl27</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-11-01 · rl28</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1479,8 +1479,8 @@
     h += '<div class="rl-h">Player</div><div class="seg rl-mode" id="emode"><button type="button" data-m="game"' + (mode === 'game' ? ' class="active"' : '') + (gameOk ? '' : ' disabled') + '>From game data</button><button type="button" data-m="hand"' + (mode === 'hand' ? ' class="active"' : '') + '>Enter by hand</button></div>';
     h += '<div class="rl-grid2" id="egame"><div class="field"><label for="eal">Alliance</label>' + (gameOk ? '<select id="eal">' + allianceTags().map(function(t){ return '<option' + (t === curTag ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') + '</select>' : '<select id="eal"></select>') + '</div><div class="field"><label for="epl">Player</label><select id="epl">' + (gameOk ? memberOpts(curTag, p && p.pid) : '<option value="">–</option>') + '</select></div></div>';
     h += '<div class="rl-grid2" id="ehand"><div class="field"><label for="enm">Name</label><input type="text" id="enm" maxlength="60" value="' + esc(p ? p.name : '') + '"></div><div class="field"><label for="etg">Alliance</label><input type="text" id="etg" maxlength="12" value="' + esc(p ? (p.tag || curTag) : '') + '"></div><div class="field"><label for="eid">Public ID <span>(optional – for avatar and power)</span></label><input type="text" id="eid" inputmode="numeric" value="' + esc(p && p.pid ? p.pid : '') + '"></div></div>';
-    h += '<div class="rl-h">Stats <span>(as shown in the game, e.g. 3,216.00)</span></div><div class="rl-ocr"><button type="button" class="btn" id="eocr">Read from screenshot</button><input type="file" id="eocrf" accept="image/*" hidden><span class="rl-sub" id="eocrs">Mail screenshot with “Stat Bonuses”: the values on the LEFT side are read. Any colour works. The picture stays on this device.</span></div><div class="rl-grid2"><div class="field"><label for="edt">Date info collected</label><input type="date" id="edt" value="' + esc(p && p.date ? p.date : ds) + '"></div></div><div class="rl-grid4">';
-    STATS.forEach(function(n, i){ h += '<div class="field"><label for="es' + i + '">' + n + '</label><input type="text" id="es' + i + '" inputmode="decimal" autocomplete="off" value="' + esc(p ? fmtIn(p.stats[i]) : '') + '"></div>'; });
+    h += '<div class="rl-h">Stats <span>(as shown in the game, e.g. 3,216.00)</span></div><div class="rl-ocr"><button type="button" class="btn" id="eocr">Read from screenshot</button><input type="file" id="eocrf" accept="image/*" hidden><span class="rl-sub" id="eocrs">Mail screenshot with “Stat Bonuses”: the values on the LEFT side are read. Any colour works. The picture stays on this device.</span></div><div class="rl-grid2" style="margin-bottom:14px"><div class="field"><label for="edt">Date info collected</label><input type="date" id="edt" value="' + esc(p && p.date ? p.date : ds) + '"></div></div><div class="rl-grid4">';
+    STATS.forEach(function(n, i){ h += '<div class="field"><label for="es' + i + '">' + n.replace('Infantry', 'INF').replace('Lancer', 'LAN').replace('Marksmen', 'MAR') + '</label><input type="text" id="es' + i + '" inputmode="decimal" autocomplete="off" value="' + esc(p ? fmtIn(p.stats[i]) : '') + '"></div>'; });
     h += '</div><div class="rl-h">Heroes <span>(star level)</span></div><div class="rl-grid3">';
     HSEL.forEach(function(n, i){ h += '<div class="field"><label for="eh' + i + '">' + esc(n) + ' (' + (HTN[HTY[n]] || '') + ')</label>' + sel('eh' + i, sl, p && starN(p.hs[n])) + '</div>'; });
     if(!HSEL.length) h += '<div class="rl-sub">No heroes are shown at the moment (button “Change heroes”).</div>';
