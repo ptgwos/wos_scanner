@@ -891,7 +891,9 @@
   table.rl thead tr.rl-r1 th,table.rl thead tr.rl-r2.rl-n th{border-bottom:0;}
   table.rl thead th{position:relative;z-index:3;background:var(--panel-2);color:var(--strong);text-transform:none;letter-spacing:0;cursor:default;font-size:13px;font-weight:700;border-bottom:1px solid var(--border);}
   table.rl thead th:hover{color:var(--strong);}
-  table.rl th.rl-l,table.rl td.rl-l{position:sticky;left:0;z-index:2;text-align:left;background:var(--panel);font-weight:600;min-width:150px;max-width:230px;white-space:normal;border-right:1px solid var(--border);}
+  table.rl th.rl-l,table.rl td.rl-l{position:sticky;left:0;z-index:2;text-align:left;background:var(--panel);font-weight:600;min-width:196px;max-width:230px;white-space:normal;border-right:1px solid var(--border);}
+  .rl-pl svg.rl-pw{width:.95em;height:.95em;fill:currentColor;vertical-align:-1px;margin-left:5px;opacity:.85;}
+  @media (min-width:641px){ .rl-pl{white-space:nowrap;} }   /* pet rows stay on one line on desktop */
   table.rl thead th.rl-l{z-index:4;background:var(--panel-2);}
   table.rl tbody tr:hover td{background:rgba(111,227,255,.05);}
   table.rl tbody tr:hover td.rl-l{background:var(--panel-2);}
@@ -1047,7 +1049,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-11-01 · rl28</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-11-02 · rl29</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1247,6 +1249,8 @@
 
   // ---------- layout: the rows are defined once and used by the table, the highlights, the comparison and the pictures ----------
   var LAYOUT = null;
+  var PAWI = '<svg class="rl-pw" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg>';
+  function pl(t){ return '<span class="rl-pl">' + t + PAWI + '</span>'; }   // pet row label: text + paw instead of "(Pets)"
   function R(label, cell, vf, cls, raw){ return {t: 'row', label: label, cell: cell, vf: vf, cls: cls, raw: raw}; }
   var SP = {t: 'sp'};
   function layout(){
@@ -1257,10 +1261,10 @@
     L.push(R('∑ 60/40 stats', function(p){ return pcs(p.s6040); }, function(p){ return p.s6040; }, 'rl-sum'));
     L.push(R('∑ 50/0/50 stats', function(p){ return pcs(p.s5050); }, function(p){ return p.s5050; }, 'rl-sum'));
     L.push(SP);
-    L.push({t: 'tg', key: 'pets', text: 'detailed stats (Pets)', rows: STATS.map(function(n, i){ return R(n + ' (Pets)', function(p){ return pc(p.pets[i]); }, function(p){ return p.pets[i]; }); })});
-    L.push(R('∑ all stats (Pets)', function(p){ return pcs(p.pAll); }, function(p){ return p.pAll; }, 'rl-sum'));
-    L.push(R('∑ 60/40 (Pets)', function(p){ return pcs(p.p6040); }, function(p){ return p.p6040; }, 'rl-sum'));
-    L.push(R('∑ 50/0/50 stats (Pets)', function(p){ return pcs(p.p5050); }, function(p){ return p.p5050; }, 'rl-sum'));
+    L.push({t: 'tg', key: 'pets', text: 'detailed stats (Pets)', rows: STATS.map(function(n, i){ return R(pl(esc(n)), function(p){ return pc(p.pets[i]); }, function(p){ return p.pets[i]; }, null, true); })});
+    L.push(R(pl('∑ all stats'), function(p){ return pcs(p.pAll); }, function(p){ return p.pAll; }, 'rl-sum', true));
+    L.push(R(pl('∑ 60/40'), function(p){ return pcs(p.p6040); }, function(p){ return p.p6040; }, 'rl-sum', true));
+    L.push(R(pl('∑ 50/0/50 stats'), function(p){ return pcs(p.p5050); }, function(p){ return p.p5050; }, 'rl-sum', true));
     L.push(SP);
     if(HSEL.length) L.push({t: 'tg', key: 'heroes', text: 'Heroes', plain: true, rows: HSEL.map(function(n){ return R(heroLabel(n), function(p){ return stars(p.hs[n]); }, function(p){ return starN(p.hs[n]); }, 'rl-hero', true); })});
     L.push(SP);
@@ -1484,7 +1488,7 @@
     h += '</div><div class="rl-h">Heroes <span>(star level)</span></div><div class="rl-grid3">';
     HSEL.forEach(function(n, i){ h += '<div class="field"><label for="eh' + i + '">' + esc(n) + ' (' + (HTN[HTY[n]] || '') + ')</label>' + sel('eh' + i, sl, p && starN(p.hs[n])) + '</div>'; });
     if(!HSEL.length) h += '<div class="rl-sub">No heroes are shown at the moment (button “Change heroes”).</div>';
-    h += '</div><div class="rl-h">Sizes</div><div class="rl-grid3"><div class="field"><label for="em">Unbuffed march size</label><input type="text" id="em" inputmode="numeric" value="' + esc(p && has(p.march) ? p.march.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ec">Unbuffed cap size</label><input type="text" id="ec" inputmode="numeric" value="' + esc(p && has(p.cap) ? p.cap.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ev">Valeria Crushing Force level</label>' + sel('ev', cf, p && has(p.val) ? p.val : '') + '</div></div>';
+    h += '</div><div class="rl-h">Sizes</div><div class="rl-grid3"><div class="field"><label for="em">Unbuffed march size</label><input type="text" id="em" inputmode="numeric" value="' + esc(p && has(p.march) ? p.march.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ec">Unbuffed cap size</label><input type="text" id="ec" inputmode="numeric" value="' + esc(p && has(p.cap) ? p.cap.toLocaleString('en-US') : '') + '"></div><div class="field"><label for="ev" title="Valeria Crushing Force level">Valeria CF level</label>' + sel('ev', cf, p && has(p.val) ? p.val : '') + '</div></div>';
     h += '<div class="rl-h">T12</div><div class="rl-grid3">';
     ['Infantry', 'Lancers', 'Marksmen'].forEach(function(n, i){ h += '<div class="field"><label for="et' + i + '">T12 ' + n + '</label>' + sel('et' + i, yn, p && p.t12[i]) + '</div>'; });
     h += '</div><div class="rl-h">T12 skills <span>(level 0-3)</span></div><div class="rl-grid3">';
