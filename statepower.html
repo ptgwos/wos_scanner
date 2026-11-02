@@ -955,7 +955,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp1</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp2</footer>
 </div>
 
 <script>
@@ -1072,6 +1072,8 @@
       D = x[0]; PL = (x[1] && x[1].players) || {};
       $('spSample').classList.toggle('on', !!D.sample);
       build(); totals(); subtitle(); render();
+      var sk = (D.stale || []).map(function(k){ var c = COLS.filter(function(x){ return x.k === k; })[0]; return c ? c.l : k; });
+      $('note').textContent = 'Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.' + (sk.length ? ' Not updated in the last run: ' + sk.join(', ') + '.' : '');
     }).catch(function(){ $('sub').textContent = 'No data yet.'; $('spTbl').innerHTML = '<tbody><tr><td class="sp-empty">The data file data/power.json could not be loaded.</td></tr></tbody>'; });
   }
 
