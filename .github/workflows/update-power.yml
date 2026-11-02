@@ -1,0 +1,42 @@
+name: Update State Power
+
+# Manual: Actions -> "Update State Power" -> Run workflow.
+# Daily: the schedule below (GitHub may start it late), and/or trigger it from the VPS like the hourly player job.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 1 * * *'     # 01:10 UTC (the game captures the boards at about 00:38 UTC)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-power
+  cancel-in-progress: false
+
+jobs:
+  power:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch state totals and top-100 boards
+        env:
+          WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+        run: python tools/update_power.py
+      - name: Commit and push (one commit)
+        if: always()
+        run: |
+          git config user.name  "state646-bot"
+          git config user.email "state646-bot@users.noreply.github.com"
+          git add data/power.json data/power
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git commit -m "State Power: daily data"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push && exit 0
+            sleep 10
+          done
+          exit 1
