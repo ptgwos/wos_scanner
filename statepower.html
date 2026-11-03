@@ -889,7 +889,10 @@
   .sp-st-a{background:rgba(79,124,255,.22);color:#7fa2ff;border:1px solid rgba(79,124,255,.55);}
   .sp-st-b{background:rgba(255,122,26,.2);color:#ff9a4d;border:1px solid rgba(255,122,26,.55);}
   :root[data-theme="light"] .sp-st-a{color:#2a4fc4;} :root[data-theme="light"] .sp-st-b{color:#c25400;}
-  .sp-tot-c{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));}
+  .sp-tot.sp-tot-c{grid-template-columns:repeat(5,minmax(0,1fr));}
+  .sp-cc{min-width:0;}
+  @media (max-width:900px){ .sp-tot.sp-tot-c{grid-template-columns:repeat(3,minmax(0,1fr));} }
+  @media (max-width:640px){ .sp-tot.sp-tot-c{grid-template-columns:repeat(2,minmax(0,1fr));} }
   .sp-cc{position:relative;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:6px;padding:8px 10px;}
   .sp-cc small{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
   .sp-cc span{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--strong);font-variant-numeric:tabular-nums;padding-top:2px;}
@@ -991,7 +994,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp8</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp9</footer>
 </div>
 
 <script>
