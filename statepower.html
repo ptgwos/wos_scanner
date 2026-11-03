@@ -891,7 +891,7 @@
   .sp-tot b{font-size:15px;color:var(--strong);font-variant-numeric:tabular-nums;font-weight:600;}
   .sp-wrap{overflow:auto;max-height:calc(100vh - 120px);border:1px solid var(--border-soft);border-radius:6px;}
   table.sp{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums;font-size:14px;}
-  table.sp th{position:sticky;top:0;z-index:3;background:var(--panel-2);color:var(--text-dim);font-size:11px;font-weight:600;letter-spacing:.1em;line-height:1.35;text-transform:uppercase;padding:9px 12px;text-align:right;white-space:nowrap;vertical-align:middle;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);}
+  table.sp th{position:sticky;top:0;z-index:3;background:var(--panel-2);color:var(--text-dim);font-size:11px;font-weight:600;letter-spacing:.1em;line-height:1.35;text-transform:uppercase;padding:9px 20px;text-align:center;white-space:nowrap;vertical-align:middle;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);}
   table.sp th.sp-l{text-align:left;}
   table.sp th:hover{color:var(--strong);}
   table.sp th.sp-on{color:#ff7a1a;}
@@ -919,9 +919,12 @@
   table.sp th .sp-pm:hover{border-color:var(--gold);color:var(--gold);}
   table.sp th.sp-kid{background-color:var(--panel-2);font-weight:500;}
   table.sp td.sp-kid{color:var(--text-dim);}
-  table.sp th .hd{display:flex;align-items:center;justify-content:flex-end;gap:2px;}
+  table.sp th .hd{display:flex;align-items:center;justify-content:center;}
   table.sp th.sp-l .hd{justify-content:flex-start;}
-  table.sp th .lb{display:inline-block;text-align:right;}
+  table.sp th .lb{display:inline-block;text-align:center;}
+  table.sp th.sp-hp{padding-left:30px;}
+  table.sp th .ar{position:absolute;right:5px;top:50%;transform:translateY(-50%);margin:0;width:auto;}
+  table.sp th .sp-pm{position:absolute;left:4px;top:50%;transform:translateY(-50%);margin:0;}
   /* open Labyrinth block: tint + frame */
   :root{--sp-grp:rgba(130,160,220,.12);--sp-grpb:rgba(130,160,220,.45);}
   :root[data-theme="light"]{--sp-grp:rgba(70,100,160,.10);--sp-grpb:rgba(70,100,160,.40);}
@@ -933,7 +936,7 @@
   .sp-cols label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;}
   .sp-ch{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:12px 0 4px;}
   @media (max-width:640px){
-    table.sp th{padding:8px 9px;font-size:10px;letter-spacing:.06em;}
+    table.sp th{padding:8px 16px;font-size:10px;letter-spacing:.06em;}
     table.sp td{padding:9px 10px;font-size:13px;}
     table.sp th.sp-p,table.sp td.sp-p{left:34px;}
     table.sp td.sp-n{width:34px;padding-right:2px;}
@@ -970,7 +973,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp5</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp6</footer>
 </div>
 
 <script>
@@ -1080,7 +1083,7 @@
     var h = '<thead><tr><th class="sp-n" data-s="">#</th><th class="sp-p sp-l" data-s="n">Player' + (s === 'n' ? '' : '') + '</th>';
     cols.forEach(function(c){
       var on = c.k === s, open = c.kids && st.exp[c.kids];
-      h += '<th class="' + (on ? 'sp-on ' : '') + (c.g ? 'sp-kid' : '') + gcls(cols, c) + '" data-s="' + c.k + '" title="' + esc(c.t) + '"><div class="hd">' +
+      h += '<th class="' + (on ? 'sp-on ' : '') + (c.g ? 'sp-kid' : '') + (c.kids ? ' sp-hp' : '') + gcls(cols, c) + '" data-s="' + c.k + '" title="' + esc(c.t) + '"><div class="hd">' +
         (c.kids ? '<span class="sp-pm" data-t="' + c.kids + '" role="button" tabindex="0" title="' + (open ? 'Hide' : 'Show') + ' the six Labyrinth zones">' + (open ? '−' : '+') + '</span>' : '') +
         '<span class="lb">' + c.l.split('|').map(esc).join('<br>') + '<span class="ar">' + (on ? (st.dir < 0 ? '▼' : '▲') : '▾') + '</span></span></div></th>';
     });
