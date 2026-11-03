@@ -962,7 +962,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp3</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp4</footer>
 </div>
 
 <script>
@@ -970,14 +970,14 @@
   'use strict';
   var COLS = [
     {k:'state_transfer', l:'Real power', t:'State transfer score', on:true},
-    {k:'labyrinth', l:'Labyrinth', t:'The Labyrinth', on:true},
-    {k:'island_prosperity', l:'Island', t:'Island prosperity (+ shows the six island areas)', on:true, kids:'island'},
-    {k:'land_of_heroes', l:'Land of Heroes', t:'Land of Heroes', g:'island'},
-    {k:'cave_of_monsters', l:'Cave of Monsters', t:'Cave of Monsters', g:'island'},
-    {k:'charm_mine', l:'Charm Mine', t:'Charm Mine', g:'island'},
-    {k:'research_center', l:'Research Center', t:'Research Center', g:'island'},
-    {k:'gear_forge', l:'Gear Forge', t:'Gear Forge', g:'island'},
-    {k:'gaia_heart', l:'Gaia Heart', t:'Gaia Heart', g:'island'},
+    {k:'labyrinth', l:'Labyrinth', t:'The Labyrinth: stages cleared (+ shows the six zones)', on:true, kids:'lab'},
+    {k:'land_of_heroes', l:'Land of Heroes', t:'Land of Heroes', g:'lab'},
+    {k:'cave_of_monsters', l:'Cave of Monsters', t:'Cave of Monsters', g:'lab'},
+    {k:'charm_mine', l:'Charm Mine', t:'Charm Mine', g:'lab'},
+    {k:'research_center', l:'Research Center', t:'Research Center', g:'lab'},
+    {k:'gear_forge', l:'Gear Forge', t:'Gear Forge', g:'lab'},
+    {k:'gaia_heart', l:'Gaia Heart', t:'Gaia Heart', g:'lab'},
+    {k:'island_prosperity', l:'Island', t:'Island prosperity', on:true},
     {k:'pet_power', l:'Pet power', t:'Pet power', on:true},
     {k:'hero_total', l:'Hero tot.', t:'Hero total (all heroes)', on:true},
     {k:'single_hero', l:'Hero', t:'Hero power (heroes without total)', on:true},
@@ -1004,6 +1004,7 @@
   function save(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function prefs(){ var o = null; try { o = JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch(e) {} if(!o){ try { var m = document.cookie.match(/(?:^|; )svs646_prefs=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} } return o && typeof o === 'object' ? o : {}; }
   function dots(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function stg(v){ var n = v % 10000; if(n <= 0) return '0'; var l = Math.ceil(n / 10); return l + '-' + (n - (l - 1) * 10); }   // 518 -> 52-8
   function fmt(v){ if(v == null) return '–'; if(v >= 1e9) return (v / 1e9).toFixed(2) + 'B'; return dots(Math.round(v)); }
   function cur(){ return st.cols || COLS.filter(function(c){ return c.on; }).map(function(c){ return c.k; }); }
   function persist(){ save(KEY, {cols:st.cols, exp:st.exp}); }
@@ -1066,7 +1067,7 @@
       var on = c.k === s, open = c.kids && st.exp[c.kids];
       var first = c.g && cols[cols.indexOf(c) - 1] && !cols[cols.indexOf(c) - 1].g;
       h += '<th class="' + (on ? 'sp-on ' : '') + (c.g ? 'sp-kid' : '') + (first ? ' sp-k1' : '') + '" data-s="' + c.k + '" title="' + esc(c.t) + '">' +
-        (c.kids ? '<span class="sp-pm" data-t="' + c.kids + '" role="button" tabindex="0" title="' + (open ? 'Hide' : 'Show') + ' the six island areas">' + (open ? '−' : '+') + '</span>' : '') +
+        (c.kids ? '<span class="sp-pm" data-t="' + c.kids + '" role="button" tabindex="0" title="' + (open ? 'Hide' : 'Show') + ' the six Labyrinth zones">' + (open ? '−' : '+') + '</span>' : '') +
         esc(c.l) + '<span class="ar">' + (on ? (st.dir < 0 ? '▼' : '▲') : '▾') + '</span></th>';
     });
     h += '</tr></thead><tbody>';
@@ -1076,7 +1077,7 @@
       cols.forEach(function(c){
         var v = r.val[c.k], k1 = c.g && cols[cols.indexOf(c) - 1] && !cols[cols.indexOf(c) - 1].g ? ' sp-k1' : '', kd = c.g ? ' sp-kid' : '';
         if(v == null) h += '<td class="sp-no' + kd + k1 + '" title="Not in the top 100">–</td>';
-        else { var rk = r.rk[c.k]; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + '">' + (rk >= 1 && rk <= 3 ? medal(rk, c.t + ' · place ' + rk) : '') + fmt(v) + '</td>'; }
+        else { var rk = r.rk[c.k]; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + (c.g ? ' · ' + (v % 10000) + ' stages' : '') + '">' + (rk >= 1 && rk <= 3 ? medal(rk, c.t + ' · place ' + rk) : '') + (c.g ? stg(v) : fmt(v)) + '</td>'; }
       });
       h += '</tr>';
     });
@@ -1116,7 +1117,7 @@
       if(!c.on && !more){ more = true; h += '</div><div class="sp-ch">More</div><div class="sp-cols">'; }
       h += '<label><input type="checkbox" data-k="' + c.k + '"' + (on.indexOf(c.k) >= 0 ? ' checked' : '') + '> ' + esc(c.l) + '</label>';
     });
-    $('colList').innerHTML = h + '</div><div class="sp-ch" style="text-transform:none;letter-spacing:0">The six island areas open with the + next to “Island”.</div>';
+    $('colList').innerHTML = h + '</div><div class="sp-ch" style="text-transform:none;letter-spacing:0">The six Labyrinth zones open with the + next to “Labyrinth”.</div>';
     $('colModal').classList.add('open');
   }
   $('colBtn').addEventListener('click', colOpen);
