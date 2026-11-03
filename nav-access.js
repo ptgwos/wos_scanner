@@ -29,7 +29,7 @@
       '.sitenav.na-g .na-dd{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:210px;background:var(--panel,#10172b);border:1px solid var(--border,#26304d);border-radius:9px;padding:5px;box-shadow:0 14px 36px rgba(0,0,0,.45);z-index:80}' +
       '.sitenav.na-g .na-dd.r{left:auto;right:0}' +
       '.sitenav.na-g .na-grp.open > .na-dd{display:block}' +
-      '.sitenav.na-g .na-dd a,.sitenav.na-g .na-dd span.na-i{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:6px;color:var(--text-dim);text-decoration:none;white-space:nowrap;font-size:12px}' +
+      '.sitenav.na-g .na-dd a,.sitenav.na-g .na-dd span.na-i{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:6px;color:var(--text-dim);text-decoration:none;white-space:nowrap;font-size:13px;font-variant-caps:small-caps;letter-spacing:.07em;font-weight:600}' +
       '.sitenav.na-g .na-dd a:hover{color:var(--strong);background:rgba(120,140,190,.16)}' +
       '.sitenav.na-g .na-dd .na-cur{color:var(--gold);background:rgba(255,180,0,.12)}' +
       '.sitenav.na-g .na-off{opacity:.42;cursor:not-allowed}.sitenav.na-g .na-off:hover{opacity:.6}' +
@@ -40,7 +40,7 @@
   }
   var GROUPS = [
     {k: 'home', f: 'index.html', l: 'HOME', s: 'HOME'},
-    {k: 'info', l: 'INFORMATION', s: 'INFO', items: [['roster.html', 'Roster'], ['svslb.html', 'SvS Leaderboards'], ['rallyleads.html', 'Rally Leads']]},
+    {k: 'info', l: 'INFORMATION', s: 'INFO', items: [['roster.html', 'Roster'], ['svslb.html', 'SvS Leaderboards'], ['statepower.html', 'State Power'], ['rallyleads.html', 'Rally Leads']]},
     {k: 'plan', l: 'PLANNING', s: 'PLAN', items: [['eventplan.html', 'Event Planner'], ['rallyplan.html', 'Rally Planner'], ['assignfsh.html', 'Fortress/SH Plan'], ['appointments.html', 'Appointments']]},
     {k: 'tool', l: 'TOOLS', s: 'TOOLS', items: [['formations.html', 'Formations'], ['chests.html', 'Presidential Chests']]},
     {k: 'admin', f: 'access.html', l: 'ADMIN', s: 'ADMIN'}
