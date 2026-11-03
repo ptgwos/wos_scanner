@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name  "state646-bot"
           git config user.email "state646-bot@users.noreply.github.com"
-          git add data/power.json data/power
+          git add -A data
           if git diff --cached --quiet; then echo "No changes."; exit 0; fi
           git commit -m "State Power: daily data"
           for i in 1 2 3 4; do
