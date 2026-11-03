@@ -973,7 +973,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp6</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp7</footer>
 </div>
 
 <script>
@@ -1006,7 +1006,7 @@
   var TAG_COLORS = {BLP: TAG_RED, OSM: TAG_RED, osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'}, AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'}, TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'}, TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, PKB: TAG_GOLD, GYN: TAG_GOLD};
   var KEY = 'svs646_sp', PKEY = 'svs646_prefs';
   var D = null, ROWS = [], PL = {};   // PL = players.json (for local avatars)
-  var st = {sort:'hero_total', dir:-1, q:'', cols:null, exp:{}, av:true};
+  var st = {sort:'state_transfer', dir:-1, q:'', cols:null, exp:{}, av:true};
   var lastLoad = 0;
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
