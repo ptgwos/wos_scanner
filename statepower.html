@@ -882,6 +882,21 @@
   .sp-bar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:14px;}
   .sp-sample{display:none;margin:0 0 14px;padding:9px 12px;border:1px dashed var(--gold);border-radius:6px;color:var(--gold);font-size:12.5px;}
   .sp-sample.on{display:block;}
+  .sp-view{display:none;margin:0 0 14px;padding:9px 12px;border:1px solid #ff7a1a;border-radius:6px;color:#ff7a1a;font-size:12.5px;}
+  .sp-view.on{display:block;}
+  .btn.sp-act{background:rgba(255,122,26,.18);border-color:#ff7a1a;color:#ff7a1a;}
+  .sp-st{display:inline-block;flex:none;font-style:normal;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;letter-spacing:.04em;}
+  .sp-st-a{background:rgba(79,124,255,.22);color:#7fa2ff;border:1px solid rgba(79,124,255,.55);}
+  .sp-st-b{background:rgba(255,122,26,.2);color:#ff9a4d;border:1px solid rgba(255,122,26,.55);}
+  :root[data-theme="light"] .sp-st-a{color:#2a4fc4;} :root[data-theme="light"] .sp-st-b{color:#c25400;}
+  .sp-tot-c{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));}
+  .sp-cc{position:relative;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:6px;padding:8px 10px;}
+  .sp-cc small{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+  .sp-cc span{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--strong);font-variant-numeric:tabular-nums;padding-top:2px;}
+  .sp-cc span i{min-width:34px;text-align:center;}
+  .sp-cr{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+  .sp-cc em{font-style:normal;font-size:12px;font-weight:700;white-space:nowrap;}
+  .sp-cc em.up{color:var(--good,#2fcf8f);} .sp-cc em.down{color:var(--danger,#ff6b6b);}
   .sp-det{margin:0 0 16px;}
   .sp-det summary{cursor:pointer;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);padding:4px 0 10px;user-select:none;}
   .sp-det summary:hover{color:var(--text);}
@@ -963,17 +978,20 @@
 
   <div class="panel">
     <div class="sp-sample" id="spSample">Sample data: only the columns Real power, Labyrinth, Island, Power and Kills are real, the others are made up to show the layout.</div>
+    <div class="sp-view" id="spView"></div>
     <details class="sp-det" id="spDet"><summary>State totals</summary><div class="sp-tot" id="spTot"></div></details>
     <div class="sp-bar">
       <div class="field"><label for="spq">Search</label><span class="rq-box"><input type="text" id="spq" placeholder="Player name or alliance …" autocomplete="off"></span></div>
       <button type="button" class="btn" id="colBtn" title="Choose the columns">Columns …</button>
+      <button type="button" class="btn" id="oppBtn" hidden title="Opponent state: top 100 per category">Show opponent state</button>
+      <button type="button" class="btn" id="cmpBtn" hidden title="Both states in one list, with totals side by side">Compare both states</button>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
     </div>
     <div class="sp-wrap"><table class="sp" id="spTbl"></table></div>
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp7</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp8</footer>
 </div>
 
 <script>
@@ -1005,7 +1023,7 @@
   var TAG_GOLD = {bg:'#f2b705', fg:'#2a1b00', bd:'#f2b705'}, TAG_RED = {bg:'#b8283a', fg:'#ffffff', bd:'#b8283a'};
   var TAG_COLORS = {BLP: TAG_RED, OSM: TAG_RED, osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'}, AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'}, TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'}, TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, PKB: TAG_GOLD, GYN: TAG_GOLD};
   var KEY = 'svs646_sp', PKEY = 'svs646_prefs';
-  var D = null, ROWS = [], PL = {};   // PL = players.json (for local avatars)
+  var D = null, O = null, OPP = null, view = 'own', ROWS = [], PL = {};   // PL = players.json (for local avatars)
   var st = {sort:'state_transfer', dir:-1, q:'', cols:null, exp:{}, av:true};
   var lastLoad = 0;
 
@@ -1055,16 +1073,27 @@
     return ph;
   }
 
+  function ownLabel(){ return String((D && D.kid) || 646); }
+  function oppLabel(){ return String((O && O.kid) || (OPP && OPP.kid) || ''); }
   function build(){
+    var src = view === 'opp' ? [[O, oppLabel()]] : view === 'cmp' ? [[D, ownLabel()], [O, oppLabel()]] : [[D, ownLabel()]];
     var by = {};
-    Object.keys(D.boards || {}).forEach(function(k){
-      D.boards[k].forEach(function(e){
-        var id = String(e[0]), p = D.players[id] || {};
-        var r = by[id] || (by[id] = {id:id, n:p.n || '?', a:p.a || '', v:p.v || '', val:{}, rk:{}});
-        r.val[k] = e[1]; r.rk[k] = e[2];
+    src.forEach(function(sx){
+      var X = sx[0]; if(!X) return;
+      Object.keys(X.boards || {}).forEach(function(k){
+        X.boards[k].forEach(function(e){
+          var id = String(e[0]), p = X.players[id] || {};
+          var r = by[id] || (by[id] = {id:id, s:sx[1], n:p.n || '?', a:p.a || '', v:p.v || '', val:{}, rk:{}, mp:{}});
+          r.val[k] = e[1]; r.rk[k] = e[2];
+        });
       });
     });
     ROWS = Object.keys(by).map(function(i){ return by[i]; });
+    if(view === 'cmp'){   // medals over both states together
+      COLS.forEach(function(c){
+        ROWS.filter(function(r){ return r.val[c.k] != null; }).sort(function(a, b){ return b.val[c.k] - a.val[c.k]; }).slice(0, 3).forEach(function(r, i){ r.mp[c.k] = i + 1; });
+      });
+    }
   }
 
   function render(){
@@ -1072,7 +1101,7 @@
     var cols = visible();
     if(!cols.some(function(c){ return c.k === st.sort; })) st.sort = cols.length ? cols[0].k : 'personal_power';
     var q = st.q.trim().toLowerCase();
-    var rows = ROWS.filter(function(r){ return !q || r.n.toLowerCase().indexOf(q) >= 0 || r.a.toLowerCase().indexOf(q) >= 0; });
+    var rows = ROWS.filter(function(r){ return !q || r.n.toLowerCase().indexOf(q) >= 0 || r.a.toLowerCase().indexOf(q) >= 0 || (view === 'cmp' && r.s.indexOf(q) >= 0); });
     var s = st.sort;
     rows.sort(function(a, b){
       var x = a.val[s], y = b.val[s];
@@ -1090,11 +1119,11 @@
     h += '</tr></thead><tbody>';
     if(!rows.length) h += '<tr><td colspan="' + (cols.length + 2) + '" class="sp-empty">No players found.</td></tr>';
     rows.forEach(function(r, i){
-      h += '<tr><td class="sp-n">' + (i + 1) + '</td><td class="sp-p"><span class="sp-pn">' + avatar(r) + '<span class="nm" title="' + esc(r.n) + '">' + esc(r.n) + '</span>' + tagChip(r.a) + '</span></td>';
+      h += '<tr><td class="sp-n">' + (i + 1) + '</td><td class="sp-p"><span class="sp-pn">' + avatar(r) + '<span class="nm" title="' + esc(r.n) + '">' + esc(r.n) + '</span>' + (view === 'cmp' ? '<span class="sp-st ' + (r.s === ownLabel() ? 'sp-st-a' : 'sp-st-b') + '" title="State ' + esc(r.s) + '">' + esc(r.s) + '</span>' : '') + tagChip(r.a) + '</span></td>';
       cols.forEach(function(c){
         var v = r.val[c.k], k1 = gcls(cols, c), kd = c.g ? ' sp-kid' : '';
         if(v == null) h += '<td class="sp-no' + kd + k1 + '" title="Not in the top 100">–</td>';
-        else { var rk = r.rk[c.k]; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + (c.g ? ' · ' + (v % 10000) + ' stages' : '') + '">' + (rk >= 1 && rk <= 3 ? medal(rk, c.t + ' · place ' + rk) : '') + (c.g ? stg(v) : fmt(v)) + '</td>'; }
+        else { var rk = r.rk[c.k], pl = view === 'cmp' ? r.mp[c.k] : rk; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + (view === 'cmp' ? ' in state ' + esc(r.s) : '') + (c.g ? ' · ' + (v % 10000) + ' stages' : '') + '">' + (pl >= 1 && pl <= 3 ? medal(pl, c.t + ' · place ' + pl + (view === 'cmp' ? ' of both states' : '')) : '') + (c.g ? stg(v) : fmt(v)) + '</td>'; }
       });
       h += '</tr>';
     });
@@ -1102,25 +1131,63 @@
   }
 
   function totals(){
-    var s = D.state || {}, h = '';
+    var el = $('spTot');
+    if(view === 'cmp' && O){
+      var a = D.state || {}, b = O.state || {}, hc = '';
+      TOT.concat([['player_count', 'Players']]).forEach(function(t){
+        var x = a[t[0]], y = b[t[0]]; if(x == null || y == null) return;
+        var d = y ? (x / y - 1) * 100 : 0, cls = d >= 0 ? 'up' : 'down';
+        var f = t[0] === 'player_count' ? dots : fmt;
+        hc += '<div class="sp-cc"><div class="sp-cr"><small>' + esc(t[1]) + '</small><em class="' + cls + '" title="' + esc(ownLabel()) + ' compared with ' + esc(oppLabel()) + '">' + (d >= 0 ? '+' : '−') + Math.abs(d).toFixed(1).replace('.', ',') + ' %</em></div><span><i class="sp-st sp-st-a">' + esc(ownLabel()) + '</i>' + f(x) + '</span><span><i class="sp-st sp-st-b">' + esc(oppLabel()) + '</i>' + f(y) + '</span></div>';
+      });
+      el.className = 'sp-tot sp-tot-c'; el.innerHTML = hc; return;
+    }
+    el.className = 'sp-tot';
+    var X = view === 'opp' && O ? O : D;
+    var s = X.state || {}, h = '';
     TOT.forEach(function(t){ if(s[t[0]] != null) h += '<div><small>' + esc(t[1]) + '</small><b>' + fmt(s[t[0]]) + '</b></div>'; });
     if(s.player_count != null) h += '<div><small>Players</small><b>' + dots(s.player_count) + '</b></div>';
     $('spTot').innerHTML = h;
   }
-  function subtitle(){
-    var t = D.captured ? new Date(D.captured * 1000) : null, txt = 'Top 100 per category';
-    if(t){ var p = function(n){ return (n < 10 ? '0' : '') + n; }; txt += ' · status of ' + t.getUTCFullYear() + '-' + p(t.getUTCMonth() + 1) + '-' + p(t.getUTCDate()) + ' ' + p(t.getUTCHours()) + ':' + p(t.getUTCMinutes()) + ' UTC'; }
-    $('sub').textContent = txt;
+  function stamp(X){
+    var t = X && X.captured ? new Date(X.captured * 1000) : null; if(!t) return '';
+    var p = function(n){ return (n < 10 ? '0' : '') + n; };
+    return t.getUTCFullYear() + '-' + p(t.getUTCMonth() + 1) + '-' + p(t.getUTCDate()) + ' ' + p(t.getUTCHours()) + ':' + p(t.getUTCMinutes()) + ' UTC';
   }
+  function subtitle(){
+    var txt = 'Top 100 per category', X = view === 'opp' && O ? O : D;
+    if(view === 'cmp' && O){
+      txt = 'State ' + ownLabel() + ' vs ' + oppLabel() + ' · top 100 per category and state';
+      var s1 = stamp(D), s2 = stamp(O); txt += s1 === s2 ? ' · status of ' + s1 : ' · status of ' + s1 + ' / ' + s2;
+    } else if(stamp(X)) txt += ' · status of ' + stamp(X);
+    $('sub').textContent = txt;
+    var vb = $('spView');
+    vb.className = 'sp-view' + (view === 'own' ? '' : ' on');
+    vb.textContent = view === 'opp' ? 'Opponent state ' + oppLabel() + ' (not our state)' : view === 'cmp' ? 'Both states in one list: the rank number counts over both states, the medals go to the three best of the two states together.' : '';
+  }
+  function btns(){
+    var has = !!(O && OPP), ob = $('oppBtn'), cb = $('cmpBtn');
+    ob.hidden = cb.hidden = !has; if(!has) return;
+    ob.textContent = view === 'opp' ? 'Show our state (' + ownLabel() + ')' : 'Show opponent state (' + oppLabel() + ')';
+    cb.textContent = view === 'cmp' ? 'Back to state ' + ownLabel() : 'Compare both states';
+    ob.classList.toggle('sp-act', view === 'opp'); cb.classList.toggle('sp-act', view === 'cmp');
+  }
+  function setView(v){ view = v; build(); totals(); subtitle(); btns(); render(); }
 
   function loadAll(){
     lastLoad = Date.now();
     var a = fetch('data/power.json', {cache:'no-cache'}).then(function(r){ return r.ok ? r.json() : Promise.reject(); });
     var b = fetch('data/players.json', {cache:'no-cache'}).then(function(r){ return r.ok ? r.json() : {}; }).catch(function(){ return {}; });
-    return Promise.all([a, b]).then(function(x){
+    var c = fetch('data/opponent.json', {cache:'no-cache'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }).then(function(cfg){
+      var today = new Date().toISOString().slice(0, 10);
+      if(!cfg || !/^\d+$/.test(String(cfg.kid || '')) || String(cfg.until || '') < today) return null;
+      return fetch('data/power-' + cfg.kid + '.json', {cache:'no-cache'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(o){ return o && o.boards ? {cfg: cfg, o: o} : null; }).catch(function(){ return null; });
+    });
+    return Promise.all([a, b, c]).then(function(x){
       D = x[0]; PL = (x[1] && x[1].players) || {};
+      OPP = x[2] ? x[2].cfg : null; O = x[2] ? x[2].o : null; if(!O) view = 'own';
       $('spSample').classList.toggle('on', !!D.sample);
-      build(); totals(); subtitle(); render();
+      build(); totals(); subtitle(); btns(); render();
       var sk = (D.stale || []).map(function(k){ var c = COLS.filter(function(x){ return x.k === k; })[0]; return c ? c.l : k; });
       $('note').textContent = 'Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.' + (sk.length ? ' Not updated in the last run: ' + sk.join(', ') + '.' : '');
     }).catch(function(){ $('sub').textContent = 'No data yet.'; $('spTbl').innerHTML = '<tbody><tr><td class="sp-empty">The data file data/power.json could not be loaded.</td></tr></tbody>'; });
@@ -1158,6 +1225,8 @@
   });
   $('spq').addEventListener('input', function(){ st.q = this.value; render(); });
   $('refreshBtn').addEventListener('click', function(){ loadAll(); });
+  $('oppBtn').addEventListener('click', function(){ setView(view === 'opp' ? 'own' : 'opp'); });
+  $('cmpBtn').addEventListener('click', function(){ setView(view === 'cmp' ? 'own' : 'cmp'); });
   function avApply(v){ st.av = v !== false; document.body.classList.toggle('sp-noav', !st.av); $('avSw').checked = st.av; }
   $('avSw').addEventListener('change', function(){
     var o = prefs(); o.av = this.checked; var s = JSON.stringify(o);
