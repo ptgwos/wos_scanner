@@ -913,6 +913,13 @@
   .sp-pn .av.ph{font-size:14px;}
   .sp-pn .tag{flex:none;font-size:10.5px;padding:1px 7px;}
   body.sp-noav .sp-pn .av{display:none;}
+  .sp-md{display:inline-block;vertical-align:middle;line-height:0;margin-right:6px;}
+  .sp-md svg{width:16px;height:16px;display:block;}
+  table.sp th .sp-pm{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;margin-right:6px;border:1px solid var(--border);border-radius:4px;font-size:13px;line-height:1;letter-spacing:0;color:var(--text);background:var(--panel);vertical-align:1px;}
+  table.sp th .sp-pm:hover{border-color:var(--gold);color:var(--gold);}
+  table.sp th.sp-kid{background:var(--panel-2);font-weight:500;}
+  table.sp td.sp-kid{color:var(--text-dim);}
+  table.sp .sp-k1{border-left:1px solid var(--border);}
   .sp-empty{padding:28px;text-align:center;color:var(--text-dim);}
   .sp-cols{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;padding:4px 2px;}
   .sp-cols label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;}
@@ -944,7 +951,7 @@
   <div class="divider"></div>
 
   <div class="panel">
-    <div class="sp-sample" id="spSample">Sample data: only the columns Real power, Labyrinth, Island and Power are real, the others are made up to show the layout.</div>
+    <div class="sp-sample" id="spSample">Sample data: only the columns Real power, Labyrinth, Island, Power and Kills are real, the others are made up to show the layout.</div>
     <details class="sp-det" id="spDet"><summary>State totals</summary><div class="sp-tot" id="spTot"></div></details>
     <div class="sp-bar">
       <div class="field"><label for="spq">Search</label><span class="rq-box"><input type="text" id="spq" placeholder="Player name or alliance …" autocomplete="off"></span></div>
@@ -955,7 +962,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp2</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-02 · sp3</footer>
 </div>
 
 <script>
@@ -964,7 +971,13 @@
   var COLS = [
     {k:'state_transfer', l:'Real power', t:'State transfer score', on:true},
     {k:'labyrinth', l:'Labyrinth', t:'The Labyrinth', on:true},
-    {k:'island_prosperity', l:'Island', t:'Island prosperity', on:true},
+    {k:'island_prosperity', l:'Island', t:'Island prosperity (+ shows the six island areas)', on:true, kids:'island'},
+    {k:'land_of_heroes', l:'Land of Heroes', t:'Land of Heroes', g:'island'},
+    {k:'cave_of_monsters', l:'Cave of Monsters', t:'Cave of Monsters', g:'island'},
+    {k:'charm_mine', l:'Charm Mine', t:'Charm Mine', g:'island'},
+    {k:'research_center', l:'Research Center', t:'Research Center', g:'island'},
+    {k:'gear_forge', l:'Gear Forge', t:'Gear Forge', g:'island'},
+    {k:'gaia_heart', l:'Gaia Heart', t:'Gaia Heart', g:'island'},
     {k:'pet_power', l:'Pet power', t:'Pet power', on:true},
     {k:'hero_total', l:'Hero tot.', t:'Hero total (all heroes)', on:true},
     {k:'single_hero', l:'Hero', t:'Hero power (heroes without total)', on:true},
@@ -974,8 +987,6 @@
     {k:'troop_power', l:'Troops', t:'Troop power', on:false},
     {k:'building_power', l:'Buildings', t:'Building power', on:false},
     {k:'research_power', l:'Research', t:'Research power', on:false},
-    {k:'hero_no_equip', l:'Hero w/o equip', t:'Hero power without equipment', on:false},
-    {k:'hero_equip', l:'Hero equip', t:'Hero equipment power', on:false},
     {k:'chief_gear', l:'Chief gear', t:'Chief gear power', on:false},
     {k:'chief_charm', l:'Chief charm', t:'Chief charm power', on:false}
   ];
@@ -984,7 +995,7 @@
   var TAG_COLORS = {BLP: TAG_RED, OSM: TAG_RED, osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'}, AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'}, TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'}, TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, PKB: TAG_GOLD, GYN: TAG_GOLD};
   var KEY = 'svs646_sp', PKEY = 'svs646_prefs';
   var D = null, ROWS = [], PL = {};   // PL = players.json (for local avatars)
-  var st = {sort:'hero_total', dir:-1, q:'', cols:null, av:true};
+  var st = {sort:'hero_total', dir:-1, q:'', cols:null, exp:{}, av:true};
   var lastLoad = 0;
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -995,6 +1006,22 @@
   function dots(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
   function fmt(v){ if(v == null) return '–'; if(v >= 1e9) return (v / 1e9).toFixed(2) + 'B'; return dots(Math.round(v)); }
   function cur(){ return st.cols || COLS.filter(function(c){ return c.on; }).map(function(c){ return c.k; }); }
+  function persist(){ save(KEY, {cols:st.cols, exp:st.exp}); }
+  var MCOL = {1: ['#f7c948', '#9a6b00'], 2: ['#d5dbe3', '#5b6573'], 3: ['#d9893f', '#7a3f0f']};
+  function medal(place, title){
+    var c = MCOL[place];
+    return '<span class="sp-md" title="' + esc(title) + '"><svg viewBox="0 0 20 20" role="img" aria-label="' + esc(title) + '"><circle cx="10" cy="10" r="9" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="1.5"/><text x="10" y="14.2" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" font-weight="800" fill="' + c[1] + '">' + place + '</text></svg></span>';
+  }
+  // visible columns in order: enabled main columns, each followed by its detail columns when expanded
+  function visible(){
+    var on = cur(), out = [];
+    COLS.forEach(function(c){
+      if(c.g || on.indexOf(c.k) < 0) return;
+      out.push(c);
+      if(c.kids && st.exp[c.kids]) COLS.forEach(function(k){ if(k.g === c.kids) out.push(k); });
+    });
+    return out;
+  }
 
   function tagChip(tag){
     if(!tag) return '';
@@ -1023,7 +1050,7 @@
 
   function render(){
     if(!D){ return; }
-    var cols = cur().map(function(k){ return COLS.filter(function(c){ return c.k === k; })[0]; }).filter(Boolean);
+    var cols = visible();
     if(!cols.some(function(c){ return c.k === st.sort; })) st.sort = cols.length ? cols[0].k : 'personal_power';
     var q = st.q.trim().toLowerCase();
     var rows = ROWS.filter(function(r){ return !q || r.n.toLowerCase().indexOf(q) >= 0 || r.a.toLowerCase().indexOf(q) >= 0; });
@@ -1036,16 +1063,20 @@
     });
     var h = '<thead><tr><th class="sp-n" data-s="">#</th><th class="sp-p sp-l" data-s="n">Player' + (s === 'n' ? '' : '') + '</th>';
     cols.forEach(function(c){
-      var on = c.k === s;
-      h += '<th class="' + (on ? 'sp-on' : '') + '" data-s="' + c.k + '" title="' + esc(c.t) + '">' + esc(c.l) + '<span class="ar">' + (on ? (st.dir < 0 ? '▼' : '▲') : '▾') + '</span></th>';
+      var on = c.k === s, open = c.kids && st.exp[c.kids];
+      var first = c.g && cols[cols.indexOf(c) - 1] && !cols[cols.indexOf(c) - 1].g;
+      h += '<th class="' + (on ? 'sp-on ' : '') + (c.g ? 'sp-kid' : '') + (first ? ' sp-k1' : '') + '" data-s="' + c.k + '" title="' + esc(c.t) + '">' +
+        (c.kids ? '<span class="sp-pm" data-t="' + c.kids + '" role="button" tabindex="0" title="' + (open ? 'Hide' : 'Show') + ' the six island areas">' + (open ? '−' : '+') + '</span>' : '') +
+        esc(c.l) + '<span class="ar">' + (on ? (st.dir < 0 ? '▼' : '▲') : '▾') + '</span></th>';
     });
     h += '</tr></thead><tbody>';
     if(!rows.length) h += '<tr><td colspan="' + (cols.length + 2) + '" class="sp-empty">No players found.</td></tr>';
     rows.forEach(function(r, i){
       h += '<tr><td class="sp-n">' + (i + 1) + '</td><td class="sp-p"><span class="sp-pn">' + avatar(r) + '<span class="nm" title="' + esc(r.n) + '">' + esc(r.n) + '</span>' + tagChip(r.a) + '</span></td>';
       cols.forEach(function(c){
-        var v = r.val[c.k];
-        h += v == null ? '<td class="sp-no" title="Not in the top 100">–</td>' : '<td class="' + (c.k === s ? 'sp-s' : '') + '" title="Rank #' + r.rk[c.k] + '">' + fmt(v) + '</td>';
+        var v = r.val[c.k], k1 = c.g && cols[cols.indexOf(c) - 1] && !cols[cols.indexOf(c) - 1].g ? ' sp-k1' : '', kd = c.g ? ' sp-kid' : '';
+        if(v == null) h += '<td class="sp-no' + kd + k1 + '" title="Not in the top 100">–</td>';
+        else { var rk = r.rk[c.k]; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + '">' + (rk >= 1 && rk <= 3 ? medal(rk, c.t + ' · place ' + rk) : '') + fmt(v) + '</td>'; }
       });
       h += '</tr>';
     });
@@ -1079,12 +1110,13 @@
 
   // ---- columns popup ----
   function colOpen(){
-    var on = cur(), h = '<div class="sp-ch">Main columns</div><div class="sp-cols">';
-    COLS.forEach(function(c, i){
-      if(i === 8) h += '</div><div class="sp-ch">More</div><div class="sp-cols">';
+    var on = cur(), h = '<div class="sp-ch">Main columns</div><div class="sp-cols">', more = false;
+    COLS.forEach(function(c){
+      if(c.g) return;
+      if(!c.on && !more){ more = true; h += '</div><div class="sp-ch">More</div><div class="sp-cols">'; }
       h += '<label><input type="checkbox" data-k="' + c.k + '"' + (on.indexOf(c.k) >= 0 ? ' checked' : '') + '> ' + esc(c.l) + '</label>';
     });
-    $('colList').innerHTML = h + '</div>';
+    $('colList').innerHTML = h + '</div><div class="sp-ch" style="text-transform:none;letter-spacing:0">The six island areas open with the + next to “Island”.</div>';
     $('colModal').classList.add('open');
   }
   $('colBtn').addEventListener('click', colOpen);
@@ -1092,12 +1124,14 @@
   $('colModal').addEventListener('click', function(e){ if(e.target === $('colModal')) $('colModal').classList.remove('open'); });
   $('colList').addEventListener('change', function(){
     var k = []; COLS.forEach(function(c){ var cb = $('colList').querySelector('input[data-k="' + c.k + '"]'); if(cb && cb.checked) k.push(c.k); });
-    st.cols = k; save(KEY, {cols:k}); render();
+    st.cols = k; persist(); render();
   });
-  $('colReset').addEventListener('click', function(){ st.cols = null; save(KEY, {}); colOpen(); render(); });
+  $('colReset').addEventListener('click', function(){ st.cols = null; st.exp = {}; persist(); colOpen(); render(); });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') $('colModal').classList.remove('open'); });
 
   $('spTbl').addEventListener('click', function(e){
+    var pm = e.target.closest ? e.target.closest('.sp-pm') : null;
+    if(pm){ var g = pm.getAttribute('data-t'); st.exp[g] = !st.exp[g]; persist(); render(); return; }
     var th = e.target.closest ? e.target.closest('th') : null; if(!th) return;
     var k = th.getAttribute('data-s'); if(!k) return;
     if(k === 'n'){ st.sort = 'n'; }
@@ -1137,7 +1171,7 @@
   })();
 
   if(window.innerWidth <= 640) $('spDet').removeAttribute('open'); else $('spDet').setAttribute('open', '');
-  var sv = load(KEY); if(sv && sv.cols) st.cols = sv.cols;
+  var sv = load(KEY); if(sv && sv.cols) st.cols = sv.cols; if(sv && sv.exp) st.exp = sv.exp;
   avApply(prefs().av);
   loadAll();
 })();
