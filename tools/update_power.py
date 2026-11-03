@@ -4,7 +4,7 @@
 Writes   data/power.json              latest status (read by statepower.html)
          data/power/YYYY-MM-DD.json   one snapshot per day (history), date = day the game captured the boards (UTC)
 
-Cost per run: 1 request (state) + 16 requests (boards) = 17 of the 5000 per day.
+Cost per run: 1 request (state) + 20 requests (boards) = 21 of the 5000 per day.
 Only the Python standard library. The key comes from the environment variable WOS_API_KEY (GitHub secret).
 If a board fails, the previous values of that board are kept and the key is listed under "stale".
 """
@@ -16,7 +16,8 @@ UA = 'state646-board/1.0 (+https://www.state646.com)'
 PAUSE = float(os.environ.get('WOS_PAUSE', '1.2'))
 OUT = os.environ.get('WOS_OUT', 'data')
 BOARDS = ['personal_power', 'kills', 'single_hero', 'hero_total', 'troop_power', 'building_power', 'research_power',
-          'hero_no_equip', 'hero_equip', 'chief_gear', 'chief_charm', 'pet_power', 'island_prosperity',
+          'chief_gear', 'chief_charm', 'pet_power', 'island_prosperity',
+          'land_of_heroes', 'cave_of_monsters', 'charm_mine', 'research_center', 'gear_forge', 'gaia_heart',
           'state_transfer', 'labyrinth', 'master_power']
 KEY = os.environ.get('WOS_API_KEY', '').strip()
 if not KEY:
