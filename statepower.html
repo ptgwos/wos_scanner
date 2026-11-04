@@ -1038,6 +1038,14 @@
   .sp-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   /* tags inside the report: centred by flex, so that the picture export does not depend on font metrics */
   .sp-rps .tag{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:18px;padding:0 7px;line-height:1;}
+
+  .sp-plc{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:2px 0 12px;}
+  .sp-plc select{width:auto;min-width:0;}
+  .sp-plc label{display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+  .sp-shf{margin-top:12px;font-size:11px;color:var(--text-faint);text-align:center;}
+  #plShot.sp-rps .sp-card:last-of-type{margin-bottom:0;}
+  @media (max-width:640px){ .sp-plc .btn{flex:1 1 140px;} .sp-plc select{flex:1 1 120px;} }
+  .sp-plc .btn{padding:8px 12px;}
 </style>
 </head>
 <body>
@@ -1080,7 +1088,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort. Tap a player name to see the history of that player.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-04 · sp12</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-04 · sp13</footer>
 </div>
 
 <script>
@@ -1163,7 +1171,7 @@
   }
 
   // ---- history: change over a period, report, player history, state trend ----
-  var IDX = null, HIST = {}, BASE = null, BASED = '', ENDM = null, ENDD = '', LATEST = '', RG = 30, dtok = 0, plId = '', plK = 'state_transfer', plDs = [], rpMode = 'abs', gid = 0, tt = 0;
+  var IDX = null, HIST = {}, BASE = null, BASED = '', ENDM = null, ENDD = '', LATEST = '', RG = 30, dtok = 0, plId = '', plK = 'state_transfer', plDs = [], plIdx = [], plRg = 30, plFrom = '', plTo = '', rpMode = 'abs', gid = 0, tt = 0;
   var TRK = TOT.concat([['kills', 'Kills'], ['player_count', 'Players']]);
   function p2(n){ return (n < 10 ? '0' : '') + n; }
   function ymd(t){ return t.getUTCFullYear() + '-' + p2(t.getUTCMonth() + 1) + '-' + p2(t.getUTCDate()); }
@@ -1353,7 +1361,7 @@
     KPI.forEach(function(t){
       var c = colOf(t[0]), a = plSeries(id, c), li = lastIdx(a), fi = firstIdx(a);
       var now = li >= 0 ? a[li][1] : null, dr = li >= 0 && fi < li ? now - a[fi][1] : null;
-      kp += '<div class="sp-kp"><small>' + esc(t[1]) + '</small><b>' + (now == null ? '–' : (c.g ? stg : fmt)(now)) + '</b>' + (r.rk[t[0]] ? '<em>#' + r.rk[t[0]] + '</em>' : '') + (dr == null ? '' : dspan(dr, c) ) + '</div>';
+      kp += '<div class="sp-kp"><small>' + esc(t[1]) + '</small><b>' + (now == null ? '–' : (c.g ? stg : fmt)(now)) + '</b>' + (r.rk[t[0]] ? '<em>#' + r.rk[t[0]] + '</em>' : '') + (dr == null ? '' : dspan(dr, c)) + '</div>';
     });
     var rows = '';
     COLS.forEach(function(c){
@@ -1362,27 +1370,47 @@
       rows += '<tr data-k="' + c.k + '" class="' + (c.k === plK ? 'sel' : '') + (c.g ? ' kid' : '') + '"><td class="l">' + esc(lab(c)) + (r.rk[c.k] ? '<small class="sp-rkn">#' + r.rk[c.k] + '</small>' : '') + '</td><td>' + spark(a) + '</td><td>' + f(now) + dspan(d1, c) + '</td><td>' + (dr == null ? '<span class="sp-d z">–</span>' : dspan(dr, c)) + '</td></tr>';
     });
     var c0 = colOf(plK) || COLS[0], pts = plSeries(id, c0);
-    var opt = function(v, t){ return '<option value="' + v + '"' + (RG === v ? ' selected' : '') + '>' + t + '</option>'; };
-    $('plBody').innerHTML =
-      '<div class="sp-hero">' + avatar(r) + '<div class="sp-hn"><div class="sp-hnm">' + esc(r.n) + ' ' + tagChip(r.a) + '</div><div class="sp-hsub">State ' + esc(ownLabel()) + (r.rk.state_transfer ? ' · #' + r.rk.state_transfer + ' by Real Power' : '') + ' · ' + plural(plDs.length, 'day') + ' of data' + (plDs.length > 1 ? ' (' + esc(first) + ' – ' + esc(lastD) + ')' : '') + '</div></div>' +
-      '<select id="plRange" aria-label="Period">' + opt(14, 'Last 14 days') + opt(30, 'Last 30 days') + opt(90, 'Last 90 days') + opt(0, 'All days') + '</select></div>' +
+    var ro = function(v, t){ return '<option value="' + v + '"' + (String(plRg) === String(v) ? ' selected' : '') + '>' + t + '</option>'; };
+    var so = function(a, cur){ return a.map(function(d){ return '<option value="' + d + '"' + (d === cur ? ' selected' : '') + '>' + d + '</option>'; }).join('') || '<option value="">–</option>'; };
+    var cus = plRg === 'c';
+    var ctl = '<div class="sp-plc"><select id="plRange" aria-label="Period">' + ro(14, 'Last 14 days') + ro(30, 'Last 30 days') + ro(90, 'Last 90 days') + ro(0, 'All days') + ro('c', 'Range (from – to) …') + '</select>' +
+      (cus ? '<label>From <select id="plFrom">' + so(plIdx.filter(function(d){ return d < plTo; }).reverse(), plFrom) + '</select></label><label>To <select id="plTo">' + so(plIdx.filter(function(d){ return d > plFrom; }).reverse(), plTo) + '</select></label>' : '') +
+      '<span class="sp-rpsp"></span><button type="button" class="btn" data-act="copy" title="Copy the player card as a picture">Copy picture</button><button type="button" class="btn" data-act="save" title="Download the player card as a picture">Save picture</button></div>';
+    $('plBody').innerHTML = ctl + '<div id="plShot" class="sp-rps">' +
+      '<div class="sp-hero">' + avatar(r) + '<div class="sp-hn"><div class="sp-hnm">' + esc(r.n) + ' ' + tagChip(r.a) + '</div><div class="sp-hsub">State ' + esc(ownLabel()) + (r.rk.state_transfer ? ' · #' + r.rk.state_transfer + ' by Real Power' : '') + ' · ' + plural(plDs.length, 'day') + ' of data' + (plDs.length > 1 ? ' (' + esc(first) + ' – ' + esc(lastD) + ')' : '') + '</div></div></div>' +
       '<div class="sp-kpis">' + kp + '</div>' +
       (med ? '<div class="sp-meds"><small>Top 3 places</small>' + med + '</div>' : '') +
       '<div class="sp-card"><div class="sp-chh">' + esc(lab(c0)) + '</div>' + chartSvg(pts, c0.g ? stg : axB, c0.g ? stg : function(v){ return dots(Math.round(v)); }) + '</div>' +
       '<div class="sp-card"><table class="sp-pt"><thead><tr><th class="l">Value</th><th>Trend</th><th>Now</th><th>Change</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-      '<div class="sp-note-s">Tap a row to show its curve. “Change” = now compared with the oldest day shown' + (span ? ' (' + plural(span, 'day') + ' ago)' : '') + '. A gap in a curve means the player was not in the top 100 of that column that day.</div></div>';
+      '<div class="sp-note-s">Tap a row to show its curve. “Change” = now compared with the oldest day shown' + (span ? ' (' + plural(span, 'day') + ' ago)' : '') + '. A gap in a curve means the player was not in the top 100 of that column that day.</div></div>' +
+      '<div class="sp-shf">state646.com · State Power · ' + esc(first) + (plDs.length > 1 ? ' – ' + esc(lastD) : '') + '</div></div>';
   }
   function plLoad(){
     var id = plId;
     $('plBody').innerHTML = '<div class="sp-empty">Loading …</div>';
-    loadRange(RG).then(function(ds){ if(id !== plId) return; plDs = ds; renderPl(); });
+    loadIndex().then(function(ds){
+      if(id !== plId) return;
+      plIdx = ds;
+      var use;
+      if(plRg === 'c'){
+        if(ds.indexOf(plTo) < 0) plTo = LATEST;
+        if(ds.indexOf(plFrom) < 0 || plFrom >= plTo) plFrom = ds.filter(function(d){ return d < plTo; })[0] || plTo;
+        use = ds.filter(function(d){ return d >= plFrom && d <= plTo; });
+      } else {
+        var from = plRg ? addDays(LATEST, -plRg) : '';
+        use = ds.filter(function(d){ return !from || d >= from; });
+      }
+      return Promise.all(use.map(fetchDay)).then(function(r){
+        if(id !== plId) return;
+        plDs = use.filter(function(d, i){ return r[i]; }); renderPl();
+      });
+    });
   }
-  function openPl(id){ plId = id; $('plModal').classList.add('open'); plLoad(); }
+  function openPl(id){ plId = id; $('plModal').classList.add('open'); plLoad(); loadLib().catch(function(){}); }
   function closePl(){ plId = ''; $('plModal').classList.remove('open'); }
   function setRg(v){
     RG = v; $('spTrRg').value = String(v);
     if($('spTr').open) renderTrend();
-    if(plId) plLoad();
   }
 
   // ---- state trend ----
@@ -1449,27 +1477,45 @@
     if(window.htmlToImage) return Promise.resolve();
     return new Promise(function(res, rej){ var s = document.createElement('script'); s.src = window.__rpLib || LIBU; s.onload = res; s.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(s); });
   }
-  function shotBlob(){
+  // Safari/iOS: html-to-image cannot re-fetch images inside its SVG snapshot, so they are inlined as data URIs first
+  function inlineImgs(root){
+    var undo = [];
+    Array.prototype.forEach.call(root.querySelectorAll('img'), function(im){
+      try {
+        if(!im.complete || !im.naturalWidth) return;
+        var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+        c.getContext('2d').drawImage(im, 0, 0);
+        var old = im.getAttribute('src'); im.removeAttribute('loading');
+        im.src = c.toDataURL('image/png'); undo.push([im, old]);
+      } catch(e) {}
+    });
+    return Promise.all(undo.map(function(u){ return u[0].decode ? u[0].decode().catch(function(){}) : 0; })).then(function(){ return function(){ undo.forEach(function(u){ u[0].setAttribute('src', u[1]); }); }; });
+  }
+  function shotBlob(el){
     return loadLib().then(function(){
-      var el = $('rpShot'), bg = getComputedStyle(document.querySelector('#rpModal .modal-panel')).backgroundColor || '#0f1626';
-      var opt = {pixelRatio: 2, backgroundColor: bg, cacheBust: false, skipFonts: true};
+      var bg = getComputedStyle(el.closest('.modal-panel')).backgroundColor || '#0f1626';
+      var opt = {pixelRatio: 2, backgroundColor: bg, cacheBust: false, skipFonts: true, imagePlaceholder: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='};
       var safari = /iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent);
-      return (safari ? window.htmlToImage.toBlob(el, opt).catch(function(){}) : Promise.resolve()).then(function(){ return window.htmlToImage.toBlob(el, opt); });
+      var run = function(){ return window.htmlToImage.toBlob(el, opt); };
+      return inlineImgs(el).then(function(restore){
+        return (safari ? run().catch(function(){}) : Promise.resolve()).then(run).then(function(b){ restore(); return b; }, function(e){ restore(); throw e; });
+      });
     }).then(function(b){ if(!b) throw new Error('empty'); return b; });
   }
-  function copyImage(btn){
+  // mode 'copy': into the clipboard (download as fallback); mode 'save': download
+  function copyImage(btn, el, fname, mode){
     btn.disabled = true;
     var end = function(){ btn.disabled = false; };
-    var save = function(){
-      return shotBlob().then(function(b){
-        var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'state646-report.png';
+    var save = function(msg){
+      return shotBlob(el).then(function(b){
+        var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = fname;
         document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
-        toast('Clipboard not available – picture downloaded');
+        toast(msg);
       }).catch(function(){ toast('Could not create the picture'); });
     };
-    if(navigator.clipboard && window.ClipboardItem){
-      navigator.clipboard.write([new ClipboardItem({'image/png': shotBlob()})]).then(function(){ toast('Picture copied'); end(); }, function(){ save().then(end); });
-    } else save().then(end);
+    if(mode === 'copy' && navigator.clipboard && window.ClipboardItem){
+      navigator.clipboard.write([new ClipboardItem({'image/png': shotBlob(el)})]).then(function(){ toast('Picture copied'); end(); }, function(){ save('Clipboard not available – picture downloaded').then(end); });
+    } else save(mode === 'copy' ? 'Clipboard not available – picture downloaded' : 'Picture saved').then(end);
   }
   function openReport(){
     if(!BASE){ dinfo(st.dm === 'off' ? 'Choose a period under “Change” first: the report shows the biggest gains of that period.' : 'There is no earlier day to compare with yet, so no report can be made.'); return; }
@@ -1485,8 +1531,18 @@
     $('spTrRg').addEventListener('change', function(){ setRg(+this.value); });
     $('plClose').addEventListener('click', closePl);
     $('plModal').addEventListener('click', function(e){ if(e.target === $('plModal')) closePl(); });
-    $('plBody').addEventListener('change', function(e){ if(e.target && e.target.id === 'plRange') setRg(+e.target.value); });
+    $('plBody').addEventListener('change', function(e){
+      var t = e.target; if(!t) return;
+      if(t.id === 'plRange'){ plRg = t.value === 'c' ? 'c' : +t.value; if(plRg === 'c'){ plFrom = ''; plTo = LATEST; } plLoad(); }
+      else if(t.id === 'plFrom'){ plFrom = t.value; plLoad(); }
+      else if(t.id === 'plTo'){ plTo = t.value; plLoad(); }
+    });
     $('plBody').addEventListener('click', function(e){
+      var bt = e.target.closest ? e.target.closest('button[data-act]') : null;
+      if(bt){
+        var rr = ROWS.filter(function(x){ return x.id === plId; })[0], nm = ((rr && rr.n) || '').replace(/[^A-Za-z0-9_-]+/g, '') || ('player-' + plId);
+        copyImage(bt, $('plShot'), 'state646-' + nm + '.png', bt.getAttribute('data-act')); return;
+      }
       var tr = e.target.closest ? e.target.closest('tr[data-k]') : null; if(!tr) return;
       plK = tr.getAttribute('data-k'); renderPl(); $('plBody').scrollTop = 0;
     });
@@ -1500,7 +1556,7 @@
     $('rpAbs').addEventListener('click', function(){ rpMode = 'abs'; repRender(); });
     $('rpPct').addEventListener('click', function(){ rpMode = 'pct'; repRender(); });
     $('rpTxt').addEventListener('click', function(){ copyText(repText()); });
-    $('rpImg').addEventListener('click', function(){ copyImage(this); });
+    $('rpImg').addEventListener('click', function(){ copyImage(this, $('rpShot'), 'state646-report.png', 'copy'); });
   })();
 
   function ownLabel(){ return String((D && D.kid) || 646); }
