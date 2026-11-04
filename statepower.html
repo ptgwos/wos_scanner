@@ -1046,6 +1046,9 @@
   #plShot.sp-rps .sp-card:last-of-type{margin-bottom:0;}
   @media (max-width:640px){ .sp-plc .btn{flex:1 1 140px;} .sp-plc select{flex:1 1 120px;} }
   .sp-plc .btn{padding:8px 12px;}
+  /* no line breaks inside chips, tiles and labels: the picture export uses a different (wider) fallback font and would wrap them */
+  .sp-mc,.sp-meds small,.sp-kp small,.sp-kp b,.sp-kp .sp-d,.sp-rt,.sp-chh,.sp-rv,.sp-rv small{white-space:nowrap;}
+  .sp-mc{flex:none;}
 </style>
 </head>
 <body>
@@ -1088,7 +1091,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort. Tap a player name to see the history of that player.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-04 · sp13</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-04 · sp14</footer>
 </div>
 
 <script>
