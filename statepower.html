@@ -962,10 +962,38 @@
     .sp-bar .btn{width:auto;}
     .sp-cols{grid-template-columns:1fr;}
   }
+
+  /* history: change, player popup, charts */
+  .sp-d{display:block;font-size:11px;font-weight:600;line-height:1.25;margin-top:2px;}
+  .sp-d.up{color:var(--good);} .sp-d.down{color:var(--danger);} .sp-d.z,.sp-d.nw{color:var(--text-faint);font-weight:500;}
+  .sp-dinfo{margin:-4px 0 12px;font-size:12px;color:var(--text-faint);}
+  .sp-pn.sp-lk{cursor:pointer;} .sp-pn.sp-lk:hover .nm{text-decoration:underline;}
+  .sp-trc{padding:0 0 6px;}
+  .sp-trc .sp-bar{margin-bottom:10px;}
+  .sp-chart{width:100%;height:auto;display:block;}
+  .sp-ch-l{fill:none;stroke:#ff7a1a;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+  .sp-ch-p{fill:#ff7a1a;} .sp-ch-g{stroke:var(--border-soft);stroke-width:1;}
+  .sp-ch-t{fill:var(--text-faint);font-size:11px;font-family:'Inter',sans-serif;}
+  .sp-plh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px;}
+  .sp-plh select{margin-left:auto;min-width:0;width:auto;}
+  .sp-pls{font-size:12px;color:var(--text-faint);}
+  .sp-chh{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:4px 0 2px;}
+  .sp-note-s{font-size:12px;color:var(--text-faint);margin:6px 0 10px;}
+  table.sp-pt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px;}
+  .sp-pt th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);font-weight:600;text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);}
+  .sp-pt td{text-align:right;padding:8px;border-bottom:1px solid var(--border-soft);vertical-align:middle;}
+  .sp-pt th.l,.sp-pt td.l{text-align:left;}
+  .sp-pt tbody tr{cursor:pointer;} .sp-pt tbody tr:hover,.sp-pt tbody tr.sel{background:var(--panel-2);}
+  .sp-pt tr.sel td.l{color:#ff7a1a;font-weight:600;}
+  .sp-pt tr.kid td.l{padding-left:20px;color:var(--text-dim);}
+  .sp-spark{width:84px;height:24px;display:block;margin-left:auto;} .sp-sl{fill:none;stroke:#ff7a1a;stroke-width:1.6;stroke-linejoin:round;}
+  @media (max-width:640px){ .sp-pt th,.sp-pt td{padding:7px 4px;} .sp-pt th{white-space:nowrap;letter-spacing:.04em;} .sp-spark{width:52px;} .sp-pt td.l{font-size:12.5px;} }
+.sp-chart{max-width:760px;}
 </style>
 </head>
 <body>
 <div class="modal-overlay" id="colModal" role="dialog" aria-modal="true" aria-labelledby="colTitle"><div class="modal-panel" style="max-width:460px"><div class="modal-header"><h2 id="colTitle">Columns</h2><button type="button" class="modal-close" id="colClose" aria-label="Close">×</button></div><div style="padding:6px 18px 18px"><div id="colList"></div><div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button type="button" class="btn" id="colReset">Default</button></div></div></div></div>
+<div class="modal-overlay" id="plModal" role="dialog" aria-modal="true" aria-labelledby="plTitle"><div class="modal-panel" style="max-width:720px"><div class="modal-header"><h2 id="plTitle">Player</h2><button type="button" class="modal-close" id="plClose" aria-label="Close">×</button></div><div id="plBody" style="padding:6px 18px 18px;overflow:auto"></div></div></div>
 <div class="wrap">
 <nav class="sitenav" aria-label="State 646 pages"><a href="index.html"><span class="sn-l">HOME</span><span class="sn-s">HOME</span></a><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><a href="rallyplan.html"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></a><a href="assignfsh.html"><span class="sn-l">FORTRESS/SH PLAN</span><span class="sn-s">FSH</span></a></nav>
   <header>
@@ -983,15 +1011,20 @@
     <div class="sp-sample" id="spSample">Sample data: only the columns Real power, Labyrinth, Island, Power and Kills are real, the others are made up to show the layout.</div>
     <div class="sp-view" id="spView"></div>
     <details class="sp-det" id="spDet"><summary>State totals</summary><div class="sp-tot" id="spTot"></div></details>
+    <details class="sp-det" id="spTr"><summary>State trend</summary><div class="sp-trc"><div class="sp-bar"><div class="field"><label for="spTrSel">Value</label><select id="spTrSel"></select></div><div class="field"><label for="spTrRg">Period</label><select id="spTrRg"><option value="14">Last 14 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="0">All days</option></select></div></div><div id="spTrChart"></div></div></details>
     <div class="sp-bar">
       <div class="field"><label for="spq">Search</label><span class="rq-box"><input type="text" id="spq" placeholder="Player name or alliance …" autocomplete="off"></span></div>
       <button type="button" class="btn" id="colBtn" title="Choose the columns">Columns …</button>
       <button type="button" class="btn" id="oppBtn" hidden title="Opponent state: top 100 per category">Show opponent state</button>
       <button type="button" class="btn" id="cmpBtn" hidden title="Both states in one list, with totals side by side">Compare both states</button>
+      <div class="field" id="spDmBox"><label for="spDm">Change</label><select id="spDm"><option value="off">Off</option><option value="1">Since the previous day</option><option value="7">Since 7 days ago</option><option value="30">Since 30 days ago</option><option value="date">Since a date …</option></select></div>
+      <div class="field" id="spDdBox" style="display:none"><label for="spDd">Date</label><select id="spDd"></select></div>
+      <label class="switch" id="spDsBox" style="display:none" title="Sort the table by the change of the chosen column"><input type="checkbox" id="spDs"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Sort by change</span></label>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
     </div>
+    <div class="sp-dinfo" id="spDinfo" style="display:none"></div>
     <div class="sp-wrap"><table class="sp" id="spTbl"></table></div>
-    <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.</div>
+    <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort. Tap a player name to see the history of that player.</div>
   </div>
 
   <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-04 · sp10</footer>
@@ -1024,10 +1057,10 @@
   ];
   var TOT = [['personal_power','Chief power'],['hero_total','Hero total'],['troop_power','Troops'],['research_power','Research'],['pet_power','Pets'],['state_transfer','Real power'],['island_prosperity','Island'],['labyrinth','Labyrinth']];
   var TAG_GOLD = {bg:'#f2b705', fg:'#2a1b00', bd:'#f2b705'}, TAG_RED = {bg:'#b8283a', fg:'#ffffff', bd:'#b8283a'};
-  var TAG_COLORS = {BLP: TAG_RED, OSM: TAG_RED, osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'}, AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'}, TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'}, TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, OMG: {bg:'#ffe55c', fg:'#2a2400', bd:'#ffe55c'}, PKB: TAG_GOLD, GYN: TAG_GOLD};
+  var TAG_COLORS = {BLP: TAG_RED, OSM: TAG_RED, osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'}, AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'}, TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'}, TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, PKB: TAG_GOLD, GYN: TAG_GOLD};
   var KEY = 'svs646_sp', PKEY = 'svs646_prefs';
   var D = null, O = null, OPP = null, view = 'own', ROWS = [], PL = {};   // PL = players.json (for local avatars)
-  var st = {sort:'state_transfer', dir:-1, q:'', cols:null, exp:{}, av:true};
+  var st = {sort:'state_transfer', dir:-1, q:'', cols:null, exp:{}, av:true, dm:'off', dd:'', ds:false};
   var lastLoad = 0;
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -1046,7 +1079,7 @@
     if(c.g) return ' sp-gp' + (nx && nx.g === c.g ? '' : ' sp-gl');
     return '';
   }
-  function persist(){ save(KEY, {cols:st.cols, exp:st.exp}); }
+  function persist(){ save(KEY, {cols:st.cols, exp:st.exp, dm:st.dm, dd:st.dd, ds:st.ds}); }
   var MCOL = {1: ['#f7c948', '#9a6b00'], 2: ['#d5dbe3', '#5b6573'], 3: ['#d9893f', '#7a3f0f']};
   function medal(place, title){
     var c = MCOL[place];
@@ -1075,6 +1108,230 @@
     if(r.v) return '<img class="av" src="' + esc(r.v) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=this.getAttribute(\'data-ph\')" data-ph="' + esc(ph) + '">';
     return ph;
   }
+
+  // ---- history: change since an earlier day, player history, state trend ----
+  var IDX = null, HIST = {}, BASE = null, BASED = '', LATEST = '', RG = 30, dtok = 0, plId = '', plK = 'state_transfer', plDs = [];
+  var TRK = TOT.concat([['kills', 'Kills'], ['player_count', 'Players']]);
+  function p2(n){ return (n < 10 ? '0' : '') + n; }
+  function ymd(t){ return t.getUTCFullYear() + '-' + p2(t.getUTCMonth() + 1) + '-' + p2(t.getUTCDate()); }
+  function dayOf(X){ return X && X.captured ? ymd(new Date(X.captured * 1000)) : ''; }
+  function addDays(d, n){ var t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return ymd(t); }
+  function dayDiff(a, b){ return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000); }
+  function plural(n, w){ return n + ' ' + w + (n === 1 ? '' : 's'); }
+  function getJson(u){ return fetch(u, {cache:'no-cache'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
+  function snapOf(d){ return d === LATEST ? D : (HIST[d] || null); }
+  function fetchDay(d){
+    if(d === LATEST && D) return Promise.resolve(D);
+    if(HIST[d]) return Promise.resolve(HIST[d]);
+    return getJson('data/power/' + d + '.json').then(function(x){ if(x && x.boards){ HIST[d] = x; return x; } return null; });
+  }
+  // list of available days: data/power/index.json (written by the job); without it the last 14 days are probed
+  function loadIndex(){
+    if(IDX) return Promise.resolve(IDX);
+    if(!LATEST) return Promise.resolve([]);
+    return getJson('data/power/index.json').then(function(x){
+      if(x && x.dates && x.dates.length) return x.dates.slice();
+      var c = []; for(var i = 0; i < 14; i++) c.push(addDays(LATEST, -i));
+      return Promise.all(c.map(fetchDay)).then(function(r){ return c.filter(function(d, i){ return r[i]; }); });
+    }).then(function(ds){
+      ds = ds.filter(function(d){ return d <= LATEST; });
+      if(ds.indexOf(LATEST) < 0) ds.push(LATEST);
+      ds.sort(); IDX = ds; return ds;
+    });
+  }
+  function loadRange(n){
+    return loadIndex().then(function(ds){
+      var from = n ? addDays(LATEST, -n) : '';
+      var use = ds.filter(function(d){ return !from || d >= from; });
+      return Promise.all(use.map(fetchDay)).then(function(r){ return use.filter(function(d, i){ return r[i]; }); });
+    });
+  }
+  function bmap(X){
+    if(X._m) return X._m;
+    var m = {};
+    Object.keys(X.boards || {}).forEach(function(k){ var o = {}; X.boards[k].forEach(function(e){ o[e[0]] = e[1]; }); m[k] = o; });
+    Object.defineProperty(X, '_m', {value: m, enumerable: false});
+    return m;
+  }
+  function fmtD(d, c){ var s = d > 0 ? '+' : d < 0 ? '−' : '±', a = Math.abs(d); return s + (c && c.g ? dots(a) : fmt(a)); }
+  // change of one cell: undefined = nothing to show, null = player was not in the top 100 back then
+  function dval(r, c){
+    if(view !== 'own' || !BASE) return undefined;
+    var v = r.val[c.k]; if(v == null) return undefined;
+    var b = BASE[c.k] && BASE[c.k][r.id];
+    if(b == null) return null;
+    return c.g ? (v % 10000) - (b % 10000) : v - b;
+  }
+  function dlt(r, c){
+    var d = dval(r, c);
+    if(d === undefined) return '';
+    if(d === null) return '<span class="sp-d nw" title="Not in the top 100 of this column on ' + esc(BASED) + '">new</span>';
+    return '<span class="sp-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'z') + '">' + fmtD(d, c) + '</span>';
+  }
+  function pickBase(ds){
+    if(st.dm === 'off') return '';
+    var prev = ds.filter(function(d){ return d < LATEST; });
+    if(!prev.length) return '';
+    if(st.dm === '1') return prev[prev.length - 1];
+    if(st.dm === 'date') return prev.indexOf(st.dd) >= 0 ? st.dd : '';
+    var tg = addDays(LATEST, -(+st.dm)), cand = prev.filter(function(d){ return d <= tg; });
+    return cand.length ? cand[cand.length - 1] : prev[0];
+  }
+  function fillDates(ds){
+    var prev = ds.filter(function(d){ return d < LATEST; }).reverse(), sel = $('spDd');
+    if(prev.indexOf(st.dd) < 0) st.dd = prev[0] || '';
+    sel.innerHTML = prev.map(function(d){ return '<option value="' + d + '">' + d + '</option>'; }).join('') || '<option value="">–</option>';
+    sel.value = st.dd;
+  }
+  function dmUi(){
+    var own = view === 'own';
+    $('spDmBox').style.display = own ? '' : 'none';
+    $('spDdBox').style.display = own && st.dm === 'date' ? '' : 'none';
+    $('spDsBox').style.display = own && st.dm !== 'off' ? '' : 'none';
+    $('spTr').style.display = own ? '' : 'none';
+    dinfo();
+  }
+  function dinfo(){
+    var el = $('spDinfo');
+    if(view !== 'own' || st.dm === 'off'){ el.style.display = 'none'; return; }
+    el.style.display = '';
+    if(!IDX){ el.textContent = 'Loading the history …'; return; }
+    if(!BASED){ el.textContent = 'No earlier day to compare with yet (' + plural(IDX.length, 'day') + ' of history so far). The history grows by one day every morning.'; return; }
+    var n = dayDiff(BASED, LATEST), t = 'Change since ' + BASED + ' (' + plural(n, 'day') + ' before the current status)';
+    if(/^\d+$/.test(st.dm) && n < +st.dm) t += ', the history is not that long yet';
+    t += '. “new” = the player was not in the top 100 of that column back then.' + (st.ds ? ' Sorted by change.' : '');
+    el.textContent = t;
+  }
+  function applyDelta(){
+    var tok = ++dtok; BASE = null; BASED = '';
+    if(st.dm === 'off' || !D){ dmUi(); render(); return Promise.resolve(); }
+    dinfo();
+    return loadIndex().then(function(ds){
+      if(tok !== dtok) return;
+      fillDates(ds);
+      var b = pickBase(ds);
+      if(!b){ dmUi(); render(); return; }
+      return fetchDay(b).then(function(X){
+        if(tok !== dtok) return;
+        if(X){ BASE = bmap(X); BASED = b; }
+        dmUi(); render();
+      });
+    });
+  }
+
+  // ---- charts (plain SVG) ----
+  function sgn(d){ return (d > 0 ? '+' : d < 0 ? '−' : '±') + dots(Math.abs(Math.round(d))); }
+  function axB(v){ return v >= 1e9 ? (v / 1e9).toFixed(3) + 'B' : dots(Math.round(v)); }
+  function chartSvg(pts, axf, full){
+    var ok = pts.filter(function(p){ return p[1] != null; });
+    if(ok.length < 2) return '<div class="sp-empty">Not enough data for a curve yet: ' + plural(ok.length, 'day') + ' so far. The history grows by one day every morning.</div>';
+    var W = window.innerWidth <= 640 ? 340 : 640, H = window.innerWidth <= 640 ? 210 : 230, L = 70, R = 16, T = 14, B = 30;
+    var t0 = Date.parse(pts[0][0] + 'T00:00:00Z'), t1 = Date.parse(pts[pts.length - 1][0] + 'T00:00:00Z'); if(t1 === t0) t1 = t0 + 86400000;
+    var vs = ok.map(function(p){ return p[1]; }), mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs), lo = mn, hi = mx;
+    if(hi === lo){ hi += 1; lo -= 1; }
+    var pad = (hi - lo) * 0.1; lo -= pad; hi += pad; if(mn >= 0 && lo < 0) lo = 0;
+    function X(d){ return L + (Date.parse(d + 'T00:00:00Z') - t0) / (t1 - t0) * (W - L - R); }
+    function Y(v){ return T + (hi - v) / (hi - lo) * (H - T - B); }
+    var g = '', i;
+    for(i = 0; i < 3; i++){
+      var gv = lo + (hi - lo) * i / 2, gy = Y(gv).toFixed(1);
+      g += '<line class="sp-ch-g" x1="' + L + '" x2="' + (W - R) + '" y1="' + gy + '" y2="' + gy + '"/><text class="sp-ch-t" x="' + (L - 8) + '" y="' + (+gy + 4) + '" text-anchor="end">' + esc(axf(gv)) + '</text>';
+    }
+    var path = '', pen = false, dots2 = '', prev = null, r = ok.length > 60 ? 2 : 3.2;
+    pts.forEach(function(p){
+      if(p[1] == null){ pen = false; return; }
+      var x = X(p[0]).toFixed(1), y = Y(p[1]).toFixed(1);
+      path += (pen ? 'L' : 'M') + x + ' ' + y; pen = true;
+      dots2 += '<circle class="sp-ch-p" cx="' + x + '" cy="' + y + '" r="' + r + '"><title>' + esc(p[0] + ': ' + full(p[1]) + (prev != null ? ' (' + sgn(p[1] - prev) + ' since the previous value)' : '')) + '</title></circle>';
+      prev = p[1];
+    });
+    return '<svg class="sp-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Curve over time">' + g +
+      '<text class="sp-ch-t" x="' + L + '" y="' + (H - 8) + '" text-anchor="start">' + esc(pts[0][0]) + '</text><text class="sp-ch-t" x="' + (W - R) + '" y="' + (H - 8) + '" text-anchor="end">' + esc(pts[pts.length - 1][0]) + '</text>' +
+      '<path class="sp-ch-l" d="' + path + '"/>' + dots2 + '</svg>';
+  }
+  function spark(pts){
+    var ok = pts.filter(function(p){ return p[1] != null; });
+    if(ok.length < 2) return '';
+    var vs = ok.map(function(p){ return p[1]; }), mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs), n = pts.length;
+    var d = '', pen = false;
+    pts.forEach(function(p, i){
+      if(p[1] == null){ pen = false; return; }
+      var x = 2 + (n > 1 ? i / (n - 1) : 0) * 80, y = mx === mn ? 12 : 22 - (p[1] - mn) / (mx - mn) * 20;
+      d += (pen ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); pen = true;
+    });
+    return '<svg class="sp-spark" viewBox="0 0 84 24" aria-hidden="true"><path class="sp-sl" d="' + d + '"/></svg>';
+  }
+
+  // ---- player history (popup) ----
+  function lab(c){ return c.k === 'state_transfer' ? 'Real Power' : c.l.replace('|', ' '); }
+  function colOf(k){ return COLS.filter(function(c){ return c.k === k; })[0]; }
+  function plSeries(id, c){
+    return plDs.map(function(d){ var s = snapOf(d), m = s && bmap(s)[c.k], v = m ? m[id] : null; return [d, v == null ? null : (c.g ? v % 10000 : v)]; });
+  }
+  function lastIdx(a){ for(var i = a.length - 1; i >= 0; i--) if(a[i][1] != null) return i; return -1; }
+  function firstIdx(a){ for(var i = 0; i < a.length; i++) if(a[i][1] != null) return i; return -1; }
+  function renderPl(){
+    var id = plId, r = ROWS.filter(function(x){ return x.id === id; })[0] || {n: id, a: ''};
+    var rows = '', first = plDs[0] || '', lastD = plDs[plDs.length - 1] || '';
+    COLS.forEach(function(c){
+      var a = plSeries(id, c), li = lastIdx(a); if(li < 0) return;
+      var fi = firstIdx(a), now = a[li][1], f = c.g ? stg : fmt, d1 = li > 0 && a[li - 1][1] != null ? now - a[li - 1][1] : null, dr = fi < li ? now - a[fi][1] : null;
+      var dc = function(d){ return d == null ? '' : '<span class="sp-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'z') + '">' + fmtD(d, c) + '</span>'; };
+      rows += '<tr data-k="' + c.k + '" class="' + (c.k === plK ? 'sel' : '') + (c.g ? ' kid' : '') + '"><td class="l">' + esc(lab(c)) + '</td><td>' + spark(a) + '</td><td>' + f(now) + dc(d1) + '</td><td>' + (dr == null ? '<span class="sp-d z">–</span>' : dc(dr)) + '</td></tr>';
+    });
+    var c0 = colOf(plK) || COLS[0], pts = plSeries(id, c0);
+    var span = plDs.length > 1 ? dayDiff(first, lastD) : 0;
+    var opt = function(v, t){ return '<option value="' + v + '"' + (RG === v ? ' selected' : '') + '>' + t + '</option>'; };
+    $('plBody').innerHTML =
+      '<div class="sp-plh">' + tagChip(r.a) + '<span class="sp-pls">' + plural(plDs.length, 'day') + ' of data' + (plDs.length > 1 ? ' (' + esc(first) + ' – ' + esc(lastD) + ')' : '') + '</span>' +
+      '<select id="plRange" aria-label="Period">' + opt(14, 'Last 14 days') + opt(30, 'Last 30 days') + opt(90, 'Last 90 days') + opt(0, 'All days') + '</select></div>' +
+      '<div class="sp-chh">' + esc(lab(c0)) + '</div>' +
+      chartSvg(pts, c0.g ? stg : axB, c0.g ? stg : function(v){ return dots(Math.round(v)); }) +
+      '<div class="sp-note-s">Tap a row to show its curve. “Change” = now compared with the oldest day shown' + (span ? ' (' + plural(span, 'day') + ' ago)' : '') + '. A gap in a curve means the player was not in the top 100 of that column that day.</div>' +
+      '<table class="sp-pt"><thead><tr><th class="l">Value</th><th>Trend</th><th>Now</th><th>Change</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+  function plLoad(){
+    var id = plId;
+    $('plBody').innerHTML = '<div class="sp-empty">Loading …</div>';
+    loadRange(RG).then(function(ds){ if(id !== plId) return; plDs = ds; renderPl(); });
+  }
+  function openPl(id){
+    var r = ROWS.filter(function(x){ return x.id === id; })[0];
+    plId = id; $('plTitle').textContent = r ? r.n : id;
+    $('plModal').classList.add('open'); plLoad();
+  }
+  function closePl(){ plId = ''; $('plModal').classList.remove('open'); }
+  function setRg(v){
+    RG = v; $('spTrRg').value = String(v);
+    if($('spTr').open) renderTrend();
+    if(plId) plLoad();
+  }
+
+  // ---- state trend ----
+  function renderTrend(){
+    var key = $('spTrSel').value, box = $('spTrChart');
+    box.innerHTML = '<div class="sp-empty">Loading …</div>';
+    loadRange(RG).then(function(ds){
+      var pts = ds.map(function(d){ var s = snapOf(d), v = s && s.state ? s.state[key] : null; return [d, v == null ? null : v]; });
+      box.innerHTML = chartSvg(pts, axB, function(v){ return dots(Math.round(v)); });
+    });
+  }
+  (function(){
+    $('spTrSel').innerHTML = TRK.map(function(t){ return '<option value="' + t[0] + '">' + esc(t[1]) + '</option>'; }).join('');
+    $('spTr').addEventListener('toggle', function(){ if(this.open) renderTrend(); });
+    $('spTrSel').addEventListener('change', renderTrend);
+    $('spTrRg').addEventListener('change', function(){ setRg(+this.value); });
+    $('plClose').addEventListener('click', closePl);
+    $('plModal').addEventListener('click', function(e){ if(e.target === $('plModal')) closePl(); });
+    $('plBody').addEventListener('change', function(e){ if(e.target && e.target.id === 'plRange') setRg(+e.target.value); });
+    $('plBody').addEventListener('click', function(e){
+      var tr = e.target.closest ? e.target.closest('tr[data-k]') : null; if(!tr) return;
+      plK = tr.getAttribute('data-k'); renderPl(); $('plBody').scrollTop = 0;
+    });
+    $('spDm').addEventListener('change', function(){ st.dm = this.value; persist(); dmUi(); applyDelta(); });
+    $('spDd').addEventListener('change', function(){ st.dd = this.value; persist(); applyDelta(); });
+    $('spDs').addEventListener('change', function(){ st.ds = this.checked; persist(); dinfo(); render(); });
+  })();
 
   function ownLabel(){ return String((D && D.kid) || 646); }
   function oppLabel(){ return String((O && O.kid) || (OPP && OPP.kid) || ''); }
@@ -1106,8 +1363,9 @@
     var q = st.q.trim().toLowerCase();
     var rows = ROWS.filter(function(r){ return !q || r.n.toLowerCase().indexOf(q) >= 0 || r.a.toLowerCase().indexOf(q) >= 0 || (view === 'cmp' && r.s.indexOf(q) >= 0); });
     var s = st.sort;
+    var useD = st.ds && BASE && view === 'own' && s !== 'n', sc = colOf(s);
     rows.sort(function(a, b){
-      var x = a.val[s], y = b.val[s];
+      var x = useD ? dval(a, sc) : a.val[s], y = useD ? dval(b, sc) : b.val[s];
       if(x == null && y == null) return a.n.localeCompare(b.n);
       if(x == null) return 1; if(y == null) return -1;
       return (x - y) * st.dir || a.n.localeCompare(b.n);
@@ -1122,11 +1380,11 @@
     h += '</tr></thead><tbody>';
     if(!rows.length) h += '<tr><td colspan="' + (cols.length + 2) + '" class="sp-empty">No players found.</td></tr>';
     rows.forEach(function(r, i){
-      h += '<tr><td class="sp-n">' + (i + 1) + '</td><td class="sp-p"><span class="sp-pn">' + avatar(r) + '<span class="nm" title="' + esc(r.n) + '">' + esc(r.n) + '</span>' + (view === 'cmp' ? '<span class="sp-st ' + (r.s === ownLabel() ? 'sp-st-a' : 'sp-st-b') + '" title="State ' + esc(r.s) + '">' + esc(r.s) + '</span>' : '') + tagChip(r.a) + '</span></td>';
+      h += '<tr data-id="' + esc(r.id) + '"><td class="sp-n">' + (i + 1) + '</td><td class="sp-p"><span class="sp-pn' + (view === 'own' ? ' sp-lk" title="Show the history of this player' : '') + '">' + avatar(r) + '<span class="nm" title="' + esc(r.n) + '">' + esc(r.n) + '</span>' + (view === 'cmp' ? '<span class="sp-st ' + (r.s === ownLabel() ? 'sp-st-a' : 'sp-st-b') + '" title="State ' + esc(r.s) + '">' + esc(r.s) + '</span>' : '') + tagChip(r.a) + '</span></td>';
       cols.forEach(function(c){
         var v = r.val[c.k], k1 = gcls(cols, c), kd = c.g ? ' sp-kid' : '';
         if(v == null) h += '<td class="sp-no' + kd + k1 + '" title="Not in the top 100">–</td>';
-        else { var rk = r.rk[c.k], pl = view === 'cmp' ? r.mp[c.k] : rk; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + (view === 'cmp' ? ' in state ' + esc(r.s) : '') + (c.g ? ' · ' + (v % 10000) + ' stages' : '') + '">' + (pl >= 1 && pl <= 3 ? medal(pl, c.t + ' · place ' + pl + (view === 'cmp' ? ' of both states' : '')) : '') + (c.g ? stg(v) : fmt(v)) + '</td>'; }
+        else { var rk = r.rk[c.k], pl = view === 'cmp' ? r.mp[c.k] : rk; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + (view === 'cmp' ? ' in state ' + esc(r.s) : '') + (c.g ? ' · ' + (v % 10000) + ' stages' : '') + '">' + (pl >= 1 && pl <= 3 ? medal(pl, c.t + ' · place ' + pl + (view === 'cmp' ? ' of both states' : '')) : '') + (c.g ? stg(v) : fmt(v)) + dlt(r, c) + '</td>'; }
       });
       h += '</tr>';
     });
@@ -1169,6 +1427,7 @@
     vb.textContent = view === 'opp' ? 'Opponent state ' + oppLabel() + ' (not our state)' : view === 'cmp' ? 'Both states in one list: the rank number counts over both states, the medals go to the three best of the two states together.' : '';
   }
   function btns(){
+    dmUi();
     var has = !!(O && OPP), ob = $('oppBtn'), cb = $('cmpBtn');
     ob.hidden = cb.hidden = !has; if(!has) return;
     ob.textContent = view === 'opp' ? 'Show our state (' + ownLabel() + ')' : 'Show opponent state (' + oppLabel() + ')';
@@ -1190,9 +1449,10 @@
       D = x[0]; PL = (x[1] && x[1].players) || {};
       OPP = x[2] ? x[2].cfg : null; O = x[2] ? x[2].o : null; if(!O) view = 'own';
       $('spSample').classList.toggle('on', !!D.sample);
-      build(); totals(); subtitle(); btns(); render();
+      var nl = dayOf(D); if(nl !== LATEST) HIST = {}; LATEST = nl; IDX = null;
+      build(); totals(); subtitle(); btns(); render(); applyDelta();
       var sk = (D.stale || []).map(function(k){ var c = COLS.filter(function(x){ return x.k === k; })[0]; return c ? c.l : k; });
-      $('note').textContent = 'Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort.' + (sk.length ? ' Not updated in the last run: ' + sk.join(', ') + '.' : '');
+      $('note').textContent = 'Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort' + (view === 'own' ? ', tap a player name for the history of that player' : '') + '.' + (sk.length ? ' Not updated in the last run: ' + sk.join(', ') + '.' : '');
     }).catch(function(){ $('sub').textContent = 'No data yet.'; $('spTbl').innerHTML = '<tbody><tr><td class="sp-empty">The data file data/power.json could not be loaded.</td></tr></tbody>'; });
   }
 
@@ -1215,9 +1475,11 @@
     st.cols = k; persist(); render();
   });
   $('colReset').addEventListener('click', function(){ st.cols = null; st.exp = {}; persist(); colOpen(); render(); });
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') $('colModal').classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ $('colModal').classList.remove('open'); closePl(); } });
 
   $('spTbl').addEventListener('click', function(e){
+    var pn = e.target.closest ? e.target.closest('.sp-pn') : null;
+    if(pn && view === 'own'){ var tr0 = pn.closest('tr'); if(tr0 && tr0.getAttribute('data-id')){ openPl(tr0.getAttribute('data-id')); return; } }
     var pm = e.target.closest ? e.target.closest('.sp-pm') : null;
     if(pm){ var g = pm.getAttribute('data-t'); st.exp[g] = !st.exp[g]; persist(); render(); return; }
     var th = e.target.closest ? e.target.closest('th') : null; if(!th) return;
@@ -1262,6 +1524,8 @@
 
   if(window.innerWidth <= 640) $('spDet').removeAttribute('open'); else $('spDet').setAttribute('open', '');
   var sv = load(KEY); if(sv && sv.cols) st.cols = sv.cols; if(sv && sv.exp) st.exp = sv.exp;
+  if(sv && /^(off|1|7|30|date)$/.test(String(sv.dm))) st.dm = String(sv.dm); if(sv && /^\d{4}-\d{2}-\d{2}$/.test(String(sv.dd))) st.dd = sv.dd; if(sv && sv.ds === true) st.ds = true;
+  $('spDm').value = st.dm; $('spDs').checked = st.ds;
   avApply(prefs().av);
   loadAll();
 })();
