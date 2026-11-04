@@ -988,12 +988,61 @@
   .sp-pt tr.kid td.l{padding-left:20px;color:var(--text-dim);}
   .sp-spark{width:84px;height:24px;display:block;margin-left:auto;} .sp-sl{fill:none;stroke:#ff7a1a;stroke-width:1.6;stroke-linejoin:round;}
   @media (max-width:640px){ .sp-pt th,.sp-pt td{padding:7px 4px;} .sp-pt th{white-space:nowrap;letter-spacing:.04em;} .sp-spark{width:52px;} .sp-pt td.l{font-size:12.5px;} }
-.sp-chart{max-width:760px;}
+.sp-chart{max-width:760px;margin:0 auto;}
+
+  /* player popup (hero, tiles, cards) */
+  .sp-hero{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--border-soft);border-radius:10px;background:linear-gradient(135deg,rgba(255,122,26,.13),rgba(79,124,255,.10));}
+  .sp-hero .av{width:64px;height:64px;margin:0;flex:none;font-size:26px;border:2px solid rgba(255,122,26,.55);}
+  .sp-hn{min-width:0;flex:1;}
+  .sp-hnm{font-size:22px;font-weight:800;color:var(--strong);line-height:1.2;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .sp-hnm .tag{font-size:11px;padding:2px 8px;}
+  .sp-hsub{font-size:12px;color:var(--text-faint);margin-top:4px;}
+  .sp-hero select{min-width:0;width:auto;align-self:flex-start;}
+  .sp-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px;}
+  .sp-kp{position:relative;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:10px 12px;}
+  .sp-kp small{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+  .sp-kp b{display:block;font-size:19px;color:var(--strong);font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;}
+  .sp-kp em{position:absolute;top:9px;right:10px;font-style:normal;font-size:11px;font-weight:700;color:#ff7a1a;}
+  .sp-meds{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:12px;}
+  .sp-meds small{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-right:2px;}
+  .sp-mc{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:3px 9px 3px 6px;border:1px solid var(--border-soft);border-radius:999px;background:var(--panel-2);color:var(--text);}
+  .sp-mc .sp-md{margin:0;}
+  .sp-card{margin-top:12px;border:1px solid var(--border-soft);border-radius:10px;background:var(--panel-2);padding:12px 14px;}
+  .sp-card .sp-chh{margin:0 0 4px;color:#ff7a1a;font-weight:700;}
+  .sp-card table.sp-pt th{background:transparent;}
+  .sp-rkn{margin-left:6px;font-size:10.5px;color:var(--text-faint);font-weight:600;}
+  .sp-ch-e{fill:rgba(255,122,26,.22);}
+  .sp-ch-v{fill:var(--strong);font-size:11.5px;font-weight:700;font-family:'Inter',sans-serif;}
+  @media (max-width:640px){
+    .sp-hero{flex-wrap:wrap;} .sp-hero .av{width:52px;height:52px;} .sp-hnm{font-size:18px;} .sp-hero select{width:100%;}
+    .sp-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  /* report */
+  .sp-rpbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:2px 0 14px;}
+  .sp-rpsp{flex:1;}
+  .sp-rps{background:var(--panel);padding:14px;border-radius:8px;}
+  .sp-rph{margin-bottom:12px;} .sp-rph b{display:block;font-size:15px;color:var(--strong);} .sp-rph span{font-size:12px;color:var(--text-faint);}
+  .sp-rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;}
+  .sp-rc{background:var(--panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:10px 12px;min-width:0;}
+  .sp-rc.kid{border-style:dashed;}
+  .sp-rt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#ff7a1a;font-weight:700;margin-bottom:6px;}
+  .sp-rz{font-size:12.5px;color:var(--text-faint);padding:6px 0;}
+  .sp-rr{display:flex;align-items:center;gap:7px;padding:5px 0;border-top:1px solid var(--border-soft);font-size:13px;}
+  .sp-rr:first-of-type{border-top:0;}
+  .sp-rn{width:18px;flex:none;text-align:center;color:var(--text-faint);font-weight:700;font-size:12px;} .sp-rn .sp-md{margin:0;}
+  .sp-rnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--strong);}
+  .sp-rr .tag{flex:none;font-size:10px;padding:1px 6px;}
+  .sp-rv{flex:none;text-align:right;font-weight:700;color:var(--good);font-variant-numeric:tabular-nums;line-height:1.2;}
+  .sp-rv small{display:block;font-size:10.5px;font-weight:500;color:var(--text-faint);}
+  .sp-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--panel-2);color:var(--strong);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;opacity:0;pointer-events:none;transition:all .2s;z-index:300;}
+  .sp-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 <div class="modal-overlay" id="colModal" role="dialog" aria-modal="true" aria-labelledby="colTitle"><div class="modal-panel" style="max-width:460px"><div class="modal-header"><h2 id="colTitle">Columns</h2><button type="button" class="modal-close" id="colClose" aria-label="Close">×</button></div><div style="padding:6px 18px 18px"><div id="colList"></div><div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button type="button" class="btn" id="colReset">Default</button></div></div></div></div>
-<div class="modal-overlay" id="plModal" role="dialog" aria-modal="true" aria-labelledby="plTitle"><div class="modal-panel" style="max-width:720px"><div class="modal-header"><h2 id="plTitle">Player</h2><button type="button" class="modal-close" id="plClose" aria-label="Close">×</button></div><div id="plBody" style="padding:6px 18px 18px;overflow:auto"></div></div></div>
+<div class="modal-overlay" id="plModal" role="dialog" aria-modal="true" aria-labelledby="plTitle"><div class="modal-panel" style="max-width:760px"><div class="modal-header"><h2 id="plTitle">Player history</h2><button type="button" class="modal-close" id="plClose" aria-label="Close">×</button></div><div id="plBody" style="padding:10px 18px 18px;overflow:auto"></div></div></div>
+<div class="modal-overlay" id="rpModal" role="dialog" aria-modal="true" aria-labelledby="rpTitle"><div class="modal-panel" style="max-width:1020px"><div class="modal-header"><h2 id="rpTitle">Report</h2><button type="button" class="modal-close" id="rpClose" aria-label="Close">×</button></div><div style="padding:10px 18px 18px;overflow:auto"><div class="sp-rpbar"><div class="seg"><button type="button" id="rpAbs" class="active">Absolute gain</button><button type="button" id="rpPct">Percent gain</button></div><span class="sp-rpsp"></span><button type="button" class="btn" id="rpTxt">Copy as text</button><button type="button" class="btn" id="rpImg">Copy as picture</button></div><div id="rpShot" class="sp-rps"></div></div></div></div>
+<div class="sp-toast" id="spToast" role="status"></div>
 <div class="wrap">
 <nav class="sitenav" aria-label="State 646 pages"><a href="index.html"><span class="sn-l">HOME</span><span class="sn-s">HOME</span></a><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><a href="rallyplan.html"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></a><a href="assignfsh.html"><span class="sn-l">FORTRESS/SH PLAN</span><span class="sn-s">FSH</span></a></nav>
   <header>
@@ -1017,8 +1066,10 @@
       <button type="button" class="btn" id="colBtn" title="Choose the columns">Columns …</button>
       <button type="button" class="btn" id="oppBtn" hidden title="Opponent state: top 100 per category">Show opponent state</button>
       <button type="button" class="btn" id="cmpBtn" hidden title="Both states in one list, with totals side by side">Compare both states</button>
-      <div class="field" id="spDmBox"><label for="spDm">Change</label><select id="spDm"><option value="off">Off</option><option value="1">Since the previous day</option><option value="7">Since 7 days ago</option><option value="30">Since 30 days ago</option><option value="date">Since a date …</option></select></div>
-      <div class="field" id="spDdBox" style="display:none"><label for="spDd">Date</label><select id="spDd"></select></div>
+      <div class="field" id="spDmBox"><label for="spDm">Change</label><select id="spDm"><option value="off">Off</option><option value="1">Since the previous day</option><option value="7">Since 7 days ago</option><option value="30">Since 30 days ago</option><option value="date">Since a date …</option><option value="range">Range (from – to) …</option></select></div>
+      <div class="field" id="spDdBox" style="display:none"><label for="spDd" id="spDdL">Date</label><select id="spDd"></select></div>
+      <div class="field" id="spDeBox" style="display:none"><label for="spDe">To</label><select id="spDe"></select></div>
+      <button type="button" class="btn" id="rpBtn" title="Report: the five biggest gains per category in the chosen period">Report …</button>
       <label class="switch" id="spDsBox" style="display:none" title="Sort the table by the change of the chosen column"><input type="checkbox" id="spDs"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Sort by change</span></label>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
     </div>
@@ -1027,7 +1078,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort. Tap a player name to see the history of that player.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-04 · sp10</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-04 · sp11</footer>
 </div>
 
 <script>
@@ -1060,7 +1111,7 @@
   var TAG_COLORS = {BLP: TAG_RED, OSM: TAG_RED, osm: {bg:'#ff8f8f', fg:'#2b0509', bd:'#ff8f8f'}, AIR: {bg:'#2563eb', fg:'#ffffff', bd:'#2563eb'}, TBR: {bg:'#1e8449', fg:'#ffffff', bd:'#1e8449'}, TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, PKB: TAG_GOLD, GYN: TAG_GOLD};
   var KEY = 'svs646_sp', PKEY = 'svs646_prefs';
   var D = null, O = null, OPP = null, view = 'own', ROWS = [], PL = {};   // PL = players.json (for local avatars)
-  var st = {sort:'state_transfer', dir:-1, q:'', cols:null, exp:{}, av:true, dm:'off', dd:'', ds:false};
+  var st = {sort:'state_transfer', dir:-1, q:'', cols:null, exp:{}, av:true, dm:'off', dd:'', de:'', ds:false};
   var lastLoad = 0;
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -1079,7 +1130,7 @@
     if(c.g) return ' sp-gp' + (nx && nx.g === c.g ? '' : ' sp-gl');
     return '';
   }
-  function persist(){ save(KEY, {cols:st.cols, exp:st.exp, dm:st.dm, dd:st.dd, ds:st.ds}); }
+  function persist(){ save(KEY, {cols:st.cols, exp:st.exp, dm:st.dm, dd:st.dd, de:st.de, ds:st.ds}); }
   var MCOL = {1: ['#f7c948', '#9a6b00'], 2: ['#d5dbe3', '#5b6573'], 3: ['#d9893f', '#7a3f0f']};
   function medal(place, title){
     var c = MCOL[place];
@@ -1109,8 +1160,8 @@
     return ph;
   }
 
-  // ---- history: change since an earlier day, player history, state trend ----
-  var IDX = null, HIST = {}, BASE = null, BASED = '', LATEST = '', RG = 30, dtok = 0, plId = '', plK = 'state_transfer', plDs = [];
+  // ---- history: change over a period, report, player history, state trend ----
+  var IDX = null, HIST = {}, BASE = null, BASED = '', ENDM = null, ENDD = '', LATEST = '', RG = 30, dtok = 0, plId = '', plK = 'state_transfer', plDs = [], rpMode = 'abs', gid = 0, tt = 0;
   var TRK = TOT.concat([['kills', 'Kills'], ['player_count', 'Players']]);
   function p2(n){ return (n < 10 ? '0' : '') + n; }
   function ymd(t){ return t.getUTCFullYear() + '-' + p2(t.getUTCMonth() + 1) + '-' + p2(t.getUTCDate()); }
@@ -1154,13 +1205,19 @@
     return m;
   }
   function fmtD(d, c){ var s = d > 0 ? '+' : d < 0 ? '−' : '±', a = Math.abs(d); return s + (c && c.g ? dots(a) : fmt(a)); }
+  function pct1(p){ return (p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1).replace('.', ',') + ' %'; }
+  // value at the end of the period and at its start; b == null: the player was not in the top 100 back then
+  function dpair(r, c){
+    if(view !== 'own' || !BASE) return null;
+    var v = ENDM ? (ENDM[c.k] ? ENDM[c.k][r.id] : null) : r.val[c.k];
+    if(v == null) return null;
+    return {v: v, b: BASE[c.k] ? BASE[c.k][r.id] : null};
+  }
   // change of one cell: undefined = nothing to show, null = player was not in the top 100 back then
   function dval(r, c){
-    if(view !== 'own' || !BASE) return undefined;
-    var v = r.val[c.k]; if(v == null) return undefined;
-    var b = BASE[c.k] && BASE[c.k][r.id];
-    if(b == null) return null;
-    return c.g ? (v % 10000) - (b % 10000) : v - b;
+    var p = dpair(r, c); if(!p) return undefined;
+    if(p.b == null) return null;
+    return c.g ? (p.v % 10000) - (p.b % 10000) : p.v - p.b;
   }
   function dlt(r, c){
     var d = dval(r, c);
@@ -1173,47 +1230,55 @@
     var prev = ds.filter(function(d){ return d < LATEST; });
     if(!prev.length) return '';
     if(st.dm === '1') return prev[prev.length - 1];
-    if(st.dm === 'date') return prev.indexOf(st.dd) >= 0 ? st.dd : '';
+    if(st.dm === 'date' || st.dm === 'range') return prev.indexOf(st.dd) >= 0 ? st.dd : '';
     var tg = addDays(LATEST, -(+st.dm)), cand = prev.filter(function(d){ return d <= tg; });
     return cand.length ? cand[cand.length - 1] : prev[0];
   }
+  function pickEnd(ds, b){ return st.dm === 'range' && ds.indexOf(st.de) >= 0 && st.de > b ? st.de : LATEST; }
+  function opts(a){ return a.map(function(d){ return '<option value="' + d + '">' + d + '</option>'; }).join('') || '<option value="">–</option>'; }
   function fillDates(ds){
-    var prev = ds.filter(function(d){ return d < LATEST; }).reverse(), sel = $('spDd');
+    var prev = ds.filter(function(d){ return d < LATEST; }).reverse();
     if(prev.indexOf(st.dd) < 0) st.dd = prev[0] || '';
-    sel.innerHTML = prev.map(function(d){ return '<option value="' + d + '">' + d + '</option>'; }).join('') || '<option value="">–</option>';
-    sel.value = st.dd;
+    $('spDd').innerHTML = opts(prev); $('spDd').value = st.dd;
+    var ends = ds.filter(function(d){ return d > st.dd; }).reverse();
+    if(ends.indexOf(st.de) < 0) st.de = ends[0] || '';
+    $('spDe').innerHTML = opts(ends); $('spDe').value = st.de;
   }
   function dmUi(){
     var own = view === 'own';
     $('spDmBox').style.display = own ? '' : 'none';
-    $('spDdBox').style.display = own && st.dm === 'date' ? '' : 'none';
+    $('spDdBox').style.display = own && (st.dm === 'date' || st.dm === 'range') ? '' : 'none';
+    $('spDeBox').style.display = own && st.dm === 'range' ? '' : 'none';
+    $('spDdL').textContent = st.dm === 'range' ? 'From' : 'Date';
     $('spDsBox').style.display = own && st.dm !== 'off' ? '' : 'none';
+    $('rpBtn').style.display = own ? '' : 'none';
     $('spTr').style.display = own ? '' : 'none';
     dinfo();
   }
-  function dinfo(){
+  function dinfo(msg){
     var el = $('spDinfo');
+    if(msg){ el.style.display = ''; el.textContent = msg; return; }
     if(view !== 'own' || st.dm === 'off'){ el.style.display = 'none'; return; }
     el.style.display = '';
     if(!IDX){ el.textContent = 'Loading the history …'; return; }
     if(!BASED){ el.textContent = 'No earlier day to compare with yet (' + plural(IDX.length, 'day') + ' of history so far). The history grows by one day every morning.'; return; }
-    var n = dayDiff(BASED, LATEST), t = 'Change since ' + BASED + ' (' + plural(n, 'day') + ' before the current status)';
-    if(/^\d+$/.test(st.dm) && n < +st.dm) t += ', the history is not that long yet';
-    t += '. “new” = the player was not in the top 100 of that column back then.' + (st.ds ? ' Sorted by change.' : '');
-    el.textContent = t;
+    var n = dayDiff(BASED, ENDD), t;
+    if(ENDD !== LATEST) t = 'Change from ' + BASED + ' to ' + ENDD + ' (' + plural(n, 'day') + ')';
+    else { t = 'Change since ' + BASED + ' (' + plural(n, 'day') + ' before the current status)'; if(/^\d+$/.test(st.dm) && n < +st.dm) t += ', the history is not that long yet'; }
+    el.textContent = t + '. “new” = the player was not in the top 100 of that column at the start.' + (st.ds ? ' Sorted by change.' : '');
   }
   function applyDelta(){
-    var tok = ++dtok; BASE = null; BASED = '';
+    var tok = ++dtok; BASE = null; BASED = ''; ENDM = null; ENDD = '';
     if(st.dm === 'off' || !D){ dmUi(); render(); return Promise.resolve(); }
     dinfo();
     return loadIndex().then(function(ds){
       if(tok !== dtok) return;
       fillDates(ds);
-      var b = pickBase(ds);
+      var b = pickBase(ds), e = b ? pickEnd(ds, b) : '';
       if(!b){ dmUi(); render(); return; }
-      return fetchDay(b).then(function(X){
+      return Promise.all([fetchDay(b), e === LATEST ? Promise.resolve(D) : fetchDay(e)]).then(function(x){
         if(tok !== dtok) return;
-        if(X){ BASE = bmap(X); BASED = b; }
+        if(x[0] && x[1]){ BASE = bmap(x[0]); BASED = b; ENDD = e; ENDM = e === LATEST ? null : bmap(x[1]); }
         dmUi(); render();
       });
     });
@@ -1225,29 +1290,34 @@
   function chartSvg(pts, axf, full){
     var ok = pts.filter(function(p){ return p[1] != null; });
     if(ok.length < 2) return '<div class="sp-empty">Not enough data for a curve yet: ' + plural(ok.length, 'day') + ' so far. The history grows by one day every morning.</div>';
-    var W = window.innerWidth <= 640 ? 340 : 640, H = window.innerWidth <= 640 ? 210 : 230, L = 70, R = 16, T = 14, B = 30;
+    var sm = window.innerWidth <= 640, W = sm ? 340 : 640, H = sm ? 210 : 240, L = 70, R = 18, T = 22, B = 30;
     var t0 = Date.parse(pts[0][0] + 'T00:00:00Z'), t1 = Date.parse(pts[pts.length - 1][0] + 'T00:00:00Z'); if(t1 === t0) t1 = t0 + 86400000;
     var vs = ok.map(function(p){ return p[1]; }), mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs), lo = mn, hi = mx;
     if(hi === lo){ hi += 1; lo -= 1; }
-    var pad = (hi - lo) * 0.1; lo -= pad; hi += pad; if(mn >= 0 && lo < 0) lo = 0;
+    var pad = (hi - lo) * 0.12; lo -= pad; hi += pad; if(mn >= 0 && lo < 0) lo = 0;
     function X(d){ return L + (Date.parse(d + 'T00:00:00Z') - t0) / (t1 - t0) * (W - L - R); }
     function Y(v){ return T + (hi - v) / (hi - lo) * (H - T - B); }
-    var g = '', i;
+    var id = 'spg' + (++gid), base = (H - B).toFixed(1), g = '', i;
     for(i = 0; i < 3; i++){
       var gv = lo + (hi - lo) * i / 2, gy = Y(gv).toFixed(1);
       g += '<line class="sp-ch-g" x1="' + L + '" x2="' + (W - R) + '" y1="' + gy + '" y2="' + gy + '"/><text class="sp-ch-t" x="' + (L - 8) + '" y="' + (+gy + 4) + '" text-anchor="end">' + esc(axf(gv)) + '</text>';
     }
-    var path = '', pen = false, dots2 = '', prev = null, r = ok.length > 60 ? 2 : 3.2;
+    var line = '', area = '', seg = [], dots2 = '', prev = null, r = ok.length > 45 ? 2 : 3.4;
+    function flush(){ if(!seg.length) return; line += 'M' + seg.join('L'); area += 'M' + seg[0].split(' ')[0] + ' ' + base + 'L' + seg.join('L') + 'L' + seg[seg.length - 1].split(' ')[0] + ' ' + base + 'Z'; seg = []; }
+    var lx = 0, ly = 0, lv = null;
     pts.forEach(function(p){
-      if(p[1] == null){ pen = false; return; }
+      if(p[1] == null){ flush(); return; }
       var x = X(p[0]).toFixed(1), y = Y(p[1]).toFixed(1);
-      path += (pen ? 'L' : 'M') + x + ' ' + y; pen = true;
+      seg.push(x + ' ' + y); lx = +x; ly = +y; lv = p[1];
       dots2 += '<circle class="sp-ch-p" cx="' + x + '" cy="' + y + '" r="' + r + '"><title>' + esc(p[0] + ': ' + full(p[1]) + (prev != null ? ' (' + sgn(p[1] - prev) + ' since the previous value)' : '')) + '</title></circle>';
       prev = p[1];
     });
-    return '<svg class="sp-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Curve over time">' + g +
+    flush();
+    return '<svg class="sp-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Curve over time"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a1a" stop-opacity=".32"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></linearGradient></defs>' + g +
       '<text class="sp-ch-t" x="' + L + '" y="' + (H - 8) + '" text-anchor="start">' + esc(pts[0][0]) + '</text><text class="sp-ch-t" x="' + (W - R) + '" y="' + (H - 8) + '" text-anchor="end">' + esc(pts[pts.length - 1][0]) + '</text>' +
-      '<path class="sp-ch-l" d="' + path + '"/>' + dots2 + '</svg>';
+      '<path d="' + area + '" fill="url(#' + id + ')"/><path class="sp-ch-l" d="' + line + '"/>' + dots2 +
+      '<circle class="sp-ch-e" cx="' + lx + '" cy="' + ly + '" r="' + (r + 3.5) + '"/><circle class="sp-ch-p" cx="' + lx + '" cy="' + ly + '" r="' + (r + 0.8) + '"/>' +
+      '<text class="sp-ch-v" x="' + lx + '" y="' + Math.max(12, ly - 11) + '" text-anchor="end">' + esc(full(lv)) + '</text></svg>';
   }
   function spark(pts){
     var ok = pts.filter(function(p){ return p[1] != null; });
@@ -1270,36 +1340,42 @@
   }
   function lastIdx(a){ for(var i = a.length - 1; i >= 0; i--) if(a[i][1] != null) return i; return -1; }
   function firstIdx(a){ for(var i = 0; i < a.length; i++) if(a[i][1] != null) return i; return -1; }
+  var KPI = [['state_transfer', 'Real Power'], ['personal_power', 'Chief Power'], ['labyrinth', 'Labyrinth'], ['hero_total', 'Hero Total']];
+  function dspan(d, c){ return d == null ? '' : '<span class="sp-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'z') + '">' + fmtD(d, c) + '</span>'; }
   function renderPl(){
-    var id = plId, r = ROWS.filter(function(x){ return x.id === id; })[0] || {n: id, a: ''};
-    var rows = '', first = plDs[0] || '', lastD = plDs[plDs.length - 1] || '';
+    var id = plId, r = ROWS.filter(function(x){ return x.id === id; })[0] || {id: id, n: id, a: '', v: '', val: {}, rk: {}};
+    var first = plDs[0] || '', lastD = plDs[plDs.length - 1] || '', span = plDs.length > 1 ? dayDiff(first, lastD) : 0;
+    var med = '';
+    COLS.forEach(function(c){ var k = r.rk[c.k]; if(k >= 1 && k <= 3) med += '<span class="sp-mc">' + medal(k, lab(c) + ' · place ' + k) + esc(lab(c)) + '</span>'; });
+    var kp = '';
+    KPI.forEach(function(t){
+      var c = colOf(t[0]), a = plSeries(id, c), li = lastIdx(a), fi = firstIdx(a);
+      var now = li >= 0 ? a[li][1] : null, dr = li >= 0 && fi < li ? now - a[fi][1] : null;
+      kp += '<div class="sp-kp"><small>' + esc(t[1]) + '</small><b>' + (now == null ? '–' : (c.g ? stg : fmt)(now)) + '</b>' + (r.rk[t[0]] ? '<em>#' + r.rk[t[0]] + '</em>' : '') + (dr == null ? '' : dspan(dr, c) ) + '</div>';
+    });
+    var rows = '';
     COLS.forEach(function(c){
       var a = plSeries(id, c), li = lastIdx(a); if(li < 0) return;
       var fi = firstIdx(a), now = a[li][1], f = c.g ? stg : fmt, d1 = li > 0 && a[li - 1][1] != null ? now - a[li - 1][1] : null, dr = fi < li ? now - a[fi][1] : null;
-      var dc = function(d){ return d == null ? '' : '<span class="sp-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'z') + '">' + fmtD(d, c) + '</span>'; };
-      rows += '<tr data-k="' + c.k + '" class="' + (c.k === plK ? 'sel' : '') + (c.g ? ' kid' : '') + '"><td class="l">' + esc(lab(c)) + '</td><td>' + spark(a) + '</td><td>' + f(now) + dc(d1) + '</td><td>' + (dr == null ? '<span class="sp-d z">–</span>' : dc(dr)) + '</td></tr>';
+      rows += '<tr data-k="' + c.k + '" class="' + (c.k === plK ? 'sel' : '') + (c.g ? ' kid' : '') + '"><td class="l">' + esc(lab(c)) + (r.rk[c.k] ? '<small class="sp-rkn">#' + r.rk[c.k] + '</small>' : '') + '</td><td>' + spark(a) + '</td><td>' + f(now) + dspan(d1, c) + '</td><td>' + (dr == null ? '<span class="sp-d z">–</span>' : dspan(dr, c)) + '</td></tr>';
     });
     var c0 = colOf(plK) || COLS[0], pts = plSeries(id, c0);
-    var span = plDs.length > 1 ? dayDiff(first, lastD) : 0;
     var opt = function(v, t){ return '<option value="' + v + '"' + (RG === v ? ' selected' : '') + '>' + t + '</option>'; };
     $('plBody').innerHTML =
-      '<div class="sp-plh">' + tagChip(r.a) + '<span class="sp-pls">' + plural(plDs.length, 'day') + ' of data' + (plDs.length > 1 ? ' (' + esc(first) + ' – ' + esc(lastD) + ')' : '') + '</span>' +
+      '<div class="sp-hero">' + avatar(r) + '<div class="sp-hn"><div class="sp-hnm">' + esc(r.n) + ' ' + tagChip(r.a) + '</div><div class="sp-hsub">State ' + esc(ownLabel()) + (r.rk.state_transfer ? ' · #' + r.rk.state_transfer + ' by Real Power' : '') + ' · ' + plural(plDs.length, 'day') + ' of data' + (plDs.length > 1 ? ' (' + esc(first) + ' – ' + esc(lastD) + ')' : '') + '</div></div>' +
       '<select id="plRange" aria-label="Period">' + opt(14, 'Last 14 days') + opt(30, 'Last 30 days') + opt(90, 'Last 90 days') + opt(0, 'All days') + '</select></div>' +
-      '<div class="sp-chh">' + esc(lab(c0)) + '</div>' +
-      chartSvg(pts, c0.g ? stg : axB, c0.g ? stg : function(v){ return dots(Math.round(v)); }) +
-      '<div class="sp-note-s">Tap a row to show its curve. “Change” = now compared with the oldest day shown' + (span ? ' (' + plural(span, 'day') + ' ago)' : '') + '. A gap in a curve means the player was not in the top 100 of that column that day.</div>' +
-      '<table class="sp-pt"><thead><tr><th class="l">Value</th><th>Trend</th><th>Now</th><th>Change</th></tr></thead><tbody>' + rows + '</tbody></table>';
+      '<div class="sp-kpis">' + kp + '</div>' +
+      (med ? '<div class="sp-meds"><small>Top 3 places</small>' + med + '</div>' : '') +
+      '<div class="sp-card"><div class="sp-chh">' + esc(lab(c0)) + '</div>' + chartSvg(pts, c0.g ? stg : axB, c0.g ? stg : function(v){ return dots(Math.round(v)); }) + '</div>' +
+      '<div class="sp-card"><table class="sp-pt"><thead><tr><th class="l">Value</th><th>Trend</th><th>Now</th><th>Change</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<div class="sp-note-s">Tap a row to show its curve. “Change” = now compared with the oldest day shown' + (span ? ' (' + plural(span, 'day') + ' ago)' : '') + '. A gap in a curve means the player was not in the top 100 of that column that day.</div></div>';
   }
   function plLoad(){
     var id = plId;
     $('plBody').innerHTML = '<div class="sp-empty">Loading …</div>';
     loadRange(RG).then(function(ds){ if(id !== plId) return; plDs = ds; renderPl(); });
   }
-  function openPl(id){
-    var r = ROWS.filter(function(x){ return x.id === id; })[0];
-    plId = id; $('plTitle').textContent = r ? r.n : id;
-    $('plModal').classList.add('open'); plLoad();
-  }
+  function openPl(id){ plId = id; $('plModal').classList.add('open'); plLoad(); }
   function closePl(){ plId = ''; $('plModal').classList.remove('open'); }
   function setRg(v){
     RG = v; $('spTrRg').value = String(v);
@@ -1316,6 +1392,90 @@
       box.innerHTML = chartSvg(pts, axB, function(v){ return dots(Math.round(v)); });
     });
   }
+
+  // ---- report: the five biggest gains per category ----
+  function toast(msg){ var t = $('spToast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(function(){ t.classList.remove('show'); }, 2400); }
+  function repData(){
+    return COLS.map(function(c){
+      var arr = [];
+      ROWS.forEach(function(r){
+        var p = dpair(r, c); if(!p || p.b == null) return;
+        var vv = c.g ? p.v % 10000 : p.v, bb = c.g ? p.b % 10000 : p.b, d = vv - bb;
+        if(d > 0 && (rpMode !== 'pct' || bb > 0)) arr.push({r: r, d: d, pct: bb > 0 ? d / bb * 100 : null});
+      });
+      arr.sort(function(a, b){ var x = rpMode === 'pct' ? a.pct : a.d, y = rpMode === 'pct' ? b.pct : b.d; return (y - x) || a.r.n.localeCompare(b.r.n); });
+      return {c: c, rows: arr.slice(0, 5)};
+    });
+  }
+  function rvals(e, c){
+    var a = '+' + (c.g ? dots(e.d) : fmt(e.d)), p = e.pct == null ? '' : pct1(e.pct);
+    return rpMode === 'pct' ? [p, a] : [a, p];
+  }
+  function repTitle(){ return 'Biggest gains · ' + BASED + ' → ' + ENDD + ' (' + plural(dayDiff(BASED, ENDD), 'day') + ')'; }
+  function repRender(){
+    var h = '<div class="sp-rph"><b>State ' + esc(ownLabel()) + ' · ' + esc(repTitle()) + '</b><span>Top 5 per category, ranked by ' + (rpMode === 'pct' ? 'percentage' : 'absolute') + ' gain</span></div><div class="sp-rg">';
+    repData().forEach(function(s){
+      h += '<div class="sp-rc' + (s.c.g ? ' kid' : '') + '"><div class="sp-rt">' + esc(lab(s.c)) + '</div>';
+      if(!s.rows.length) h += '<div class="sp-rz">No gains in this period</div>';
+      s.rows.forEach(function(e, i){
+        var v = rvals(e, s.c);
+        h += '<div class="sp-rr"><span class="sp-rn">' + (i < 3 ? medal(i + 1, 'Place ' + (i + 1)) : (i + 1)) + '</span><span class="sp-rnm" title="' + esc(e.r.n) + '">' + esc(e.r.n) + '</span>' + tagChip(e.r.a) + '<span class="sp-rv">' + v[0] + '<small>' + v[1] + '</small></span></div>';
+      });
+      h += '</div>';
+    });
+    $('rpShot').innerHTML = h + '</div>';
+    $('rpAbs').classList.toggle('active', rpMode !== 'pct'); $('rpPct').classList.toggle('active', rpMode === 'pct');
+  }
+  function repText(){
+    var t = 'State ' + ownLabel() + ' – ' + repTitle() + '\nTop 5 per category, ranked by ' + (rpMode === 'pct' ? 'percentage' : 'absolute') + ' gain\n';
+    repData().forEach(function(s){
+      t += '\n' + lab(s.c) + '\n';
+      if(!s.rows.length) t += '–\n';
+      s.rows.forEach(function(e, i){ var v = rvals(e, s.c); t += (i + 1) + '. ' + e.r.n + (e.r.a ? ' [' + e.r.a + ']' : '') + '  ' + v[0] + (v[1] ? ' (' + v[1] + ')' : '') + '\n'; });
+    });
+    return t;
+  }
+  function copyText(text){
+    var done = function(ok){ toast(ok ? 'Text copied' : 'Copy failed'); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ fallback(); }); } else fallback();
+    function fallback(){
+      try { var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0;'; document.body.appendChild(ta); ta.select(); var ok = document.execCommand('copy'); ta.remove(); done(ok); } catch(e) { done(false); }
+    }
+  }
+  var LIBU = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+  function loadLib(){
+    if(window.htmlToImage) return Promise.resolve();
+    return new Promise(function(res, rej){ var s = document.createElement('script'); s.src = window.__rpLib || LIBU; s.onload = res; s.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(s); });
+  }
+  function shotBlob(){
+    return loadLib().then(function(){
+      var el = $('rpShot'), bg = getComputedStyle(document.querySelector('#rpModal .modal-panel')).backgroundColor || '#0f1626';
+      var opt = {pixelRatio: 2, backgroundColor: bg, cacheBust: false, skipFonts: true};
+      var safari = /iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent);
+      return (safari ? window.htmlToImage.toBlob(el, opt).catch(function(){}) : Promise.resolve()).then(function(){ return window.htmlToImage.toBlob(el, opt); });
+    }).then(function(b){ if(!b) throw new Error('empty'); return b; });
+  }
+  function copyImage(btn){
+    btn.disabled = true;
+    var end = function(){ btn.disabled = false; };
+    var save = function(){
+      return shotBlob().then(function(b){
+        var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'state646-report.png';
+        document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+        toast('Clipboard not available – picture downloaded');
+      }).catch(function(){ toast('Could not create the picture'); });
+    };
+    if(navigator.clipboard && window.ClipboardItem){
+      navigator.clipboard.write([new ClipboardItem({'image/png': shotBlob()})]).then(function(){ toast('Picture copied'); end(); }, function(){ save().then(end); });
+    } else save().then(end);
+  }
+  function openReport(){
+    if(!BASE){ dinfo(st.dm === 'off' ? 'Choose a period under “Change” first: the report shows the biggest gains of that period.' : 'There is no earlier day to compare with yet, so no report can be made.'); return; }
+    $('rpModal').classList.add('open'); repRender();
+    loadLib().catch(function(){});   // preload, so that the picture button works inside the click
+  }
+  function closeReport(){ $('rpModal').classList.remove('open'); }
+
   (function(){
     $('spTrSel').innerHTML = TRK.map(function(t){ return '<option value="' + t[0] + '">' + esc(t[1]) + '</option>'; }).join('');
     $('spTr').addEventListener('toggle', function(){ if(this.open) renderTrend(); });
@@ -1330,7 +1490,15 @@
     });
     $('spDm').addEventListener('change', function(){ st.dm = this.value; persist(); dmUi(); applyDelta(); });
     $('spDd').addEventListener('change', function(){ st.dd = this.value; persist(); applyDelta(); });
+    $('spDe').addEventListener('change', function(){ st.de = this.value; persist(); applyDelta(); });
     $('spDs').addEventListener('change', function(){ st.ds = this.checked; persist(); dinfo(); render(); });
+    $('rpBtn').addEventListener('click', openReport);
+    $('rpClose').addEventListener('click', closeReport);
+    $('rpModal').addEventListener('click', function(e){ if(e.target === $('rpModal')) closeReport(); });
+    $('rpAbs').addEventListener('click', function(){ rpMode = 'abs'; repRender(); });
+    $('rpPct').addEventListener('click', function(){ rpMode = 'pct'; repRender(); });
+    $('rpTxt').addEventListener('click', function(){ copyText(repText()); });
+    $('rpImg').addEventListener('click', function(){ copyImage(this); });
   })();
 
   function ownLabel(){ return String((D && D.kid) || 646); }
@@ -1475,7 +1643,7 @@
     st.cols = k; persist(); render();
   });
   $('colReset').addEventListener('click', function(){ st.cols = null; st.exp = {}; persist(); colOpen(); render(); });
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ $('colModal').classList.remove('open'); closePl(); } });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ $('colModal').classList.remove('open'); closePl(); closeReport(); } });
 
   $('spTbl').addEventListener('click', function(e){
     var pn = e.target.closest ? e.target.closest('.sp-pn') : null;
@@ -1524,7 +1692,7 @@
 
   if(window.innerWidth <= 640) $('spDet').removeAttribute('open'); else $('spDet').setAttribute('open', '');
   var sv = load(KEY); if(sv && sv.cols) st.cols = sv.cols; if(sv && sv.exp) st.exp = sv.exp;
-  if(sv && /^(off|1|7|30|date)$/.test(String(sv.dm))) st.dm = String(sv.dm); if(sv && /^\d{4}-\d{2}-\d{2}$/.test(String(sv.dd))) st.dd = sv.dd; if(sv && sv.ds === true) st.ds = true;
+  if(sv && /^(off|1|7|30|date|range)$/.test(String(sv.dm))) st.dm = String(sv.dm); if(sv && /^\d{4}-\d{2}-\d{2}$/.test(String(sv.dd))) st.dd = sv.dd; if(sv && /^\d{4}-\d{2}-\d{2}$/.test(String(sv.de))) st.de = sv.de; if(sv && sv.ds === true) st.ds = true;
   $('spDm').value = st.dm; $('spDs').checked = st.ds;
   avApply(prefs().av);
   loadAll();
