@@ -57,6 +57,10 @@ def load(p):
         return None
 
 
+def stamp(t):
+    return time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(t)) if t else 'unknown'
+
+
 def run(kid, latest, hist_prefix):
     """Fetch one state. Returns True when something usable was fetched."""
     old = load(os.path.join(OUT, latest)) or {}
@@ -64,6 +68,7 @@ def run(kid, latest, hist_prefix):
     boards, players, captured, stale = {}, {}, [], []
 
     st = get(f'/states/{kid}')
+    fresh_flag = (st or {}).get('fresh')
     if st and isinstance(st.get('state'), dict):
         s = st['state']
         state = {k: s.get(k) for k in ('player_count', 'active_7d', 'alliance_count', 'power')}
@@ -107,7 +112,7 @@ def run(kid, latest, hist_prefix):
            'state': state, 'boards': boards, 'players': players}
 
     if old.get('captured') == cap and not stale and old.get('boards') == boards:
-        print(f'State {kid}: boards unchanged since the last run, nothing written.'); return True
+        print(f'State {kid}: boards unchanged since the last run (game capture {stamp(cap)}, API fresh={fresh_flag}), nothing written.'); return True
 
     os.makedirs(os.path.join(OUT, 'power'), exist_ok=True)
     day = time.strftime('%Y-%m-%d', time.gmtime(cap)) if cap else time.strftime('%Y-%m-%d', time.gmtime())
@@ -117,7 +122,7 @@ def run(kid, latest, hist_prefix):
         tmp = path + '.tmp'
         with open(tmp, 'w', encoding='utf-8') as f: f.write(data)
         os.replace(tmp, path)
-    print(f'State {kid} OK {day}: {len(fresh)}/{len(BOARDS)} boards, {len(players)} players' + (f', stale: {stale}' if stale else ''), flush=True)
+    print(f'State {kid} OK {day} (game capture {stamp(cap)}, API fresh={fresh_flag}): {len(fresh)}/{len(BOARDS)} boards, {len(players)} players' + (f', stale: {stale}' if stale else ''), flush=True)
     return True
 
 
