@@ -11,7 +11,10 @@ Opponent state (optional, only while data/opponent.json says so, e.g. {"kid": 62
     After the "until" date (UTC, inclusive) the opponent is not fetched any more; to start a new one just edit opponent.json.
 
 Also writes data/usage.json (remaining API allowance of the day, shown in access.html; /usage is free).
-Cost per state and run: 1 request (state) + 20 requests (boards) = 21 of the 5000 per day.
+Probe first: the job may be triggered several times in the night (e.g. every 30 minutes from 01:10 UTC). Each run asks ONE request
+(top-1 of the personal power board) when the game captured the boards. If that capture is not newer than the stored one, the run ends
+right there ("not yet"), otherwise the full fetch follows. Set WOS_FORCE=1 to skip the probe.
+Cost per state and run: 1 request probe, then (only when new) 1 request (state) + 20 requests (boards) = 21 of the 5000 per day.
 Only the Python standard library. The key comes from the environment variable WOS_API_KEY (GitHub secret).
 If a board fails, the previous values of that board are kept and the key is listed under "stale".
 """
@@ -31,12 +34,12 @@ if not KEY:
     sys.exit('WOS_API_KEY is not set.')
 
 
-def get(path):
+def get(path, timeout=30, tries=4):
     """GET with retries (429 -> wait, 5xx -> retry). Returns parsed JSON or None."""
-    for attempt in range(4):
+    for attempt in range(tries):
         req = urllib.request.Request(BASE + path, headers={'Authorization': 'Bearer ' + KEY, 'User-Agent': UA, 'Accept': 'application/json'})
         try:
-            with urllib.request.urlopen(req, timeout=30) as r:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
                 return json.loads(r.read().decode('utf-8'))
         except urllib.error.HTTPError as e:
             if e.code == 429:
@@ -82,10 +85,32 @@ def stamp(t):
     return time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(t)) if t else 'unknown'
 
 
+FORCE = os.environ.get('WOS_FORCE', '') == '1'
+FETCHED = False          # a full fetch happened in this run (then usage.json is refreshed)
+
+
+def probe(kid, old_cap):
+    """True = fetch the full boards (new capture, or unknown), False = nothing new yet. One request; the API may wait up to 90 s for a refresh."""
+    if FORCE or not old_cap:
+        return True
+    d = get(f'/states/{kid}/ranks?board=personal_power&limit=1', timeout=100, tries=2)
+    cap = None
+    for x in (d or {}).get('boards') or []:
+        if x.get('key') == 'personal_power' and x.get('captured_at'): cap = float(x['captured_at'])
+    if cap is None:
+        print(f'State {kid}: probe gave no capture time, fetching the full boards to be safe.', flush=True); return True
+    if cap <= float(old_cap):
+        print(f'State {kid}: not yet - the API still serves the capture of {stamp(cap)} (stored: {stamp(float(old_cap))}); checked {stamp(time.time())}.', flush=True); return False
+    print(f'State {kid}: NEW capture {stamp(cap)} is available (checked {stamp(time.time())}, {int((time.time() - cap) / 60)} min after the capture).', flush=True)
+    return True
+
+
 def run(kid, latest, hist_prefix):
     """Fetch one state. Returns True when something usable was fetched."""
     old = load(os.path.join(OUT, latest)) or {}
     if old.get('sample'): old = {}                      # never carry sample data over
+    if not probe(kid, old.get('captured')): return True
+    global FETCHED; FETCHED = True
     boards, players, captured, stale = {}, {}, [], []
 
     st = get(f'/states/{kid}')
@@ -176,7 +201,7 @@ if kid.isdigit() and kid != OWN and str(opp.get('until') or '') >= today:
 elif kid:
     print(f'Opponent state {kid}: not active (until {opp.get("until")}, today {today}).')
 
-write_usage(BASE, KEY, UA, os.path.join(OUT, 'usage.json'), 'state power job')
+if FETCHED: write_usage(BASE, KEY, UA, os.path.join(OUT, 'usage.json'), 'state power job')
 
 if not ok_own:
     sys.exit(1)
