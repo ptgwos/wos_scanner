@@ -1151,7 +1151,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-10-28 · rp26</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-05 · rp27</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1699,7 +1699,7 @@ ${escapeHtml(lab)}</textarea></div>`;
   const MK = 'rp_mock_db';
   function mdb(){ let d = null; try { d = JSON.parse(localStorage.getItem(MK) || 'null'); } catch(e) {} if(!d || !Array.isArray(d.events)) d = {events: [{id: 'e1', title: 'Test event', starts_on: '2026-11-01', state: {blocks: []}, version: 1, locked: false, updated_by: ''}]}; return d; }
   function msave(d){ try { localStorage.setItem(MK, JSON.stringify(d)); } catch(e) {} }
-  const MUSERS = {admin: {role: 'admin', name: 'Admin', pages: [], rallyleads: false, rallyplan: true}, 'super': {role: 'super', name: 'Peter', pages: [], rallyleads: true, rallyplan: true}, ed2: {role: 'editor', name: 'Second', pages: ['rallyplan'], rallyleads: false, rallyplan: true}, viewer: {role: 'editor', name: 'Viewer', pages: [], rallyleads: false, rallyplan: false}};
+  const MUSERS = {admin: {role: 'admin', name: 'Admin', pages: [], rallyleads: false, rallyplan: true}, 'super': {role: 'super', name: 'Peter', pages: [], rallyleads: true, rallyplan: true}, ed2: {role: 'editor', name: 'Second', pages: ['rallyplan'], rallyleads: false, rallyplan: true}, viewer: {role: 'editor', name: 'Viewer', pages: [], rallyleads: false, rallyplan: false}, reader: {role: 'editor', name: 'Reader', pages: ['rallyplan_view'], rallyleads: false, rallyplan: false, rallyplan_view: true}};
   function mockRest(path){
     const d = mdb(); const cp = o => JSON.parse(JSON.stringify(o));
     let m = path.match(/^rp_events\?id=eq\.([^&]+)/);
@@ -1709,7 +1709,8 @@ ${escapeHtml(lab)}</textarea></div>`;
   function mockRpc(fn, a){
     const u = MUSERS[a.p_code]; const d = mdb();
     if(fn === 'sa_me') return u || null;
-    if(!u || !u.rallyplan) throw new Error('Not allowed (no Rally Planner permission).');
+    const mRead = !!u && (u.rallyplan || u.rallyplan_view || (u.pages || []).indexOf('rallyplan_view') >= 0);
+    if(!mRead || (fn !== 'rp_event_list' && fn !== 'rp_event_get' && !u.rallyplan)) throw new Error('Not allowed (no Rally Planner permission).');
     if(fn === 'rp_event_list') return d.events.slice().sort((x, y) => (y.starts_on || '') < (x.starts_on || '') ? -1 : 1).map(e => ({id: e.id, title: e.title, starts_on: e.starts_on, version: e.version, locked: e.locked, updated_by: e.updated_by}));
     if(fn === 'rp_event_get'){ const e = d.events.find(x => x.id === a.p_id); return e ? JSON.parse(JSON.stringify({id: e.id, title: e.title, state: e.state, version: e.version, locked: e.locked})) : null; }
     if(fn === 'rp_event_save'){
@@ -1741,6 +1742,7 @@ ${escapeHtml(lab)}</textarea></div>`;
   }
   // ---- helpers ----
   function canEditNow(){ return !!(V.me && V.me.rallyplan); }
+  function canViewNow(){ const m = V.me; return !!(m && (m.rallyplan || m.rallyplan_view || m.role === 'super' || m.role === 'admin' || (m.pages || []).indexOf('rallyplan_view') >= 0)); }
   function isSuper(){ return !!(V.me && V.me.role === 'super'); }
   function curEv(){ return V.events.find(e => e.id === V.evId) || null; }
   function modalOpen(){ return !!document.querySelector('.modal-overlay.open'); }
@@ -1771,7 +1773,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     if(!V.dirty && !V.pushing){
       if(!V.evId) setStat(''); else if(V.locked) setStat('This event is locked – nobody can change it. Share pic and Pets schedule still work.', true);
       else if(!V.me) setStat('Read only – log in with your personal link to edit.');
-      else if(!V.canEdit) setStat('Read only – you have no Rally Planner permission. Ask Peter the Great.', true);
+      else if(!V.canEdit) setStat('View only – you may look at the plan but not change it. Ask Peter the Great for edit rights.', true);
       else if(V.offline) setStat('No connection to the server …', true); else setStat(V.savedAt ? 'Saved ' + V.savedAt + ' – visible for everybody.' : 'Changes are saved automatically for everybody.');
     }
     applyRo();
@@ -1802,7 +1804,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     V.lastJson = JSON.stringify({kind: KIND, blocks: S.blocks}); V.dirty = false;
     render();
   }
-  function gated(){ return !(V.me && V.me.rallyplan); }
+  function gated(){ return !canViewNow(); }
   function applyGate(){
     const g = gated(); el('rpGate').hidden = !g; el('rpGate').style.display = g ? '' : 'none'; el('rpMain').style.display = g ? 'none' : '';
     el('rpBar').style.display = g ? 'none' : '';
@@ -1825,7 +1827,7 @@ ${escapeHtml(lab)}</textarea></div>`;
       if(V.evId){ if(first) await loadState(true); else { const ev = curEv(); if(ev && (ev.version !== V.ver || !!ev.locked !== V.locked) && !V.dirty && !V.pushing && !modalOpen() && !(document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && grid.contains(document.activeElement))) await loadState(false); } }
       else { S.blocks = [newBlock()]; render(); }
       setHash(); renderBar();
-    } catch(e) { if(/Not allowed/i.test(String(e && e.message))){ V.me = Object.assign({}, V.me, {rallyplan: false}); S.blocks = [newBlock()]; applyGate(); return; } V.offline = true; renderBar(); }
+    } catch(e) { if(/Not allowed/i.test(String(e && e.message))){ V.me = Object.assign({}, V.me, {rallyplan: false, rallyplan_view: false, role: 'editor', pages: []}); S.blocks = [newBlock()]; applyGate(); return; } V.offline = true; renderBar(); }
   }
   async function push(){
     if(!V.evId || !V.canEdit) return;
