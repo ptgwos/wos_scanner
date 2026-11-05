@@ -4,16 +4,18 @@
 Own state (646):
     data/power.json                latest status (read by statepower.html)
     data/power/YYYY-MM-DD.json     one snapshot per day (history), date = day the game captured the boards (UTC)
+    data/power/index.json          list of the available days (own state), read by statepower.html for the history views
 Opponent state (optional, only while data/opponent.json says so, e.g. {"kid": 622, "until": "2026-11-07"}):
     data/power-622.json            latest status of the opponent
     data/power/k622-YYYY-MM-DD.json   history of the opponent
     After the "until" date (UTC, inclusive) the opponent is not fetched any more; to start a new one just edit opponent.json.
 
+Also writes data/usage.json (remaining API allowance of the day, shown in access.html; /usage is free).
 Cost per state and run: 1 request (state) + 20 requests (boards) = 21 of the 5000 per day.
 Only the Python standard library. The key comes from the environment variable WOS_API_KEY (GitHub secret).
 If a board fails, the previous values of that board are kept and the key is listed under "stale".
 """
-import json, os, sys, time, urllib.request, urllib.error
+import json, os, re, sys, time, urllib.request, urllib.error
 
 BASE = os.environ.get('WOS_API_BASE', 'https://api.whiteoutstats.com/v1')
 OWN = os.environ.get('WOS_KID', '646')
@@ -48,6 +50,25 @@ def get(path):
         except Exception as e:
             print(f'  error on {path}: {e}', flush=True); time.sleep(5 * (attempt + 1))
     return None
+
+
+def write_usage(base, key, ua, path, by):
+    """data/usage.json: remaining API allowance (GET /usage does not count against the limits). Never breaks the run."""
+    try:
+        req = urllib.request.Request(base + '/usage', headers={'Authorization': 'Bearer ' + key, 'User-Agent': ua, 'Accept': 'application/json'})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            d = json.loads(r.read().decode('utf-8'))
+        dl = d.get('daily') or {}
+        if not d.get('ok') or not isinstance(dl.get('remaining'), int): return
+        out = {'frosty': bool(d.get('frosty')), 'daily': {k: dl.get(k) for k in ('limit', 'used', 'remaining', 'resets_at')},
+               'minute_limit': (d.get('minute') or {}).get('limit'), 'updated': int(time.time()), 'by': by}
+        os.makedirs(os.path.dirname(str(path)) or '.', exist_ok=True)
+        tmp = str(path) + '.tmp'
+        with open(tmp, 'w', encoding='utf-8') as f: json.dump(out, f, separators=(',', ':'))
+        os.replace(tmp, str(path))
+        print(f"usage: {dl.get('remaining')} of {dl.get('limit')} requests left today", flush=True)
+    except Exception as e:
+        print(f'usage skipped: {e}', flush=True)
 
 
 def load(p):
@@ -126,7 +147,21 @@ def run(kid, latest, hist_prefix):
     return True
 
 
+def update_index():
+    """data/power/index.json: sorted list of the own-state day files (the page cannot list a folder on its own)."""
+    d = os.path.join(OUT, 'power')
+    if not os.path.isdir(d): return
+    days = sorted(f[:-5] for f in os.listdir(d) if re.fullmatch(r'\d{4}-\d{2}-\d{2}\.json', f))
+    p = os.path.join(d, 'index.json')
+    if (load(p) or {}).get('dates') == days: return
+    tmp = p + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f: json.dump({'dates': days}, f, separators=(',', ':'))
+    os.replace(tmp, p)
+    print(f'History index updated: {len(days)} days.', flush=True)
+
+
 ok_own = run(OWN, 'power.json', '')
+update_index()
 
 # ---- opponent state: only while data/opponent.json is active (until = last day, UTC, inclusive) ----
 opp = load(os.path.join(OUT, 'opponent.json')) or {}
@@ -140,6 +175,8 @@ if kid.isdigit() and kid != OWN and str(opp.get('until') or '') >= today:
         print(f'Opponent state failed: {e}', flush=True)
 elif kid:
     print(f'Opponent state {kid}: not active (until {opp.get("until")}, today {today}).')
+
+write_usage(BASE, KEY, UA, os.path.join(OUT, 'usage.json'), 'state power job')
 
 if not ok_own:
     sys.exit(1)

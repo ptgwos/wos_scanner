@@ -8,7 +8,8 @@ and write data/players.json + avatars/<id>.webp (small copies of the profile pic
 - players that are not in any fetched alliance keep their last known entry
 - if an alliance cannot be fetched, its players keep their last known entry
 - data/history.json: log of alliance changes (who moved from which alliance to which, when)
-- nothing is written when nothing changed, so there is no commit noise
+- data/usage.json: remaining API allowance of the day (shown in access.html); changes with every run
+- nothing else is written when nothing changed, so there is no commit noise
 """
 import io, json, os, sys, time, urllib.parse, urllib.request, urllib.error, datetime, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -51,6 +52,25 @@ def get(url, headers=None, tries=4):
         except urllib.error.URLError:
             if i < tries - 1: time.sleep(5); continue
             raise
+
+def write_usage(base, key, ua, path, by):
+    """data/usage.json: remaining API allowance (GET /usage does not count against the limits). Never breaks the run."""
+    try:
+        req = urllib.request.Request(base + '/usage', headers={'Authorization': 'Bearer ' + key, 'User-Agent': ua, 'Accept': 'application/json'})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            d = json.loads(r.read().decode('utf-8'))
+        dl = d.get('daily') or {}
+        if not d.get('ok') or not isinstance(dl.get('remaining'), int): return
+        out = {'frosty': bool(d.get('frosty')), 'daily': {k: dl.get(k) for k in ('limit', 'used', 'remaining', 'resets_at')},
+               'minute_limit': (d.get('minute') or {}).get('limit'), 'updated': int(time.time()), 'by': by}
+        os.makedirs(os.path.dirname(str(path)) or '.', exist_ok=True)
+        tmp = str(path) + '.tmp'
+        with open(tmp, 'w', encoding='utf-8') as f: json.dump(out, f, separators=(',', ':'))
+        os.replace(tmp, str(path))
+        print(f"usage: {dl.get('remaining')} of {dl.get('limit')} requests left today", flush=True)
+    except Exception as e:
+        print(f'usage skipped: {e}', flush=True)
+
 
 old = json.loads(DATA.read_text(encoding='utf-8')) if DATA.exists() else {'alliances': {}, 'players': {}}
 players = {k: dict(v) for k, v in old.get('players', {}).items()}
@@ -139,5 +159,6 @@ if stable(new) != stable(old):
     print(f'written: {len(players)} players, {dl} new pictures')
 else:
     print('no changes')
+write_usage(API, key, UA, ROOT / 'data' / 'usage.json', 'player update')
 if failed:
     print('FAILED alliances: ' + ', '.join(failed)); sys.exit(1)
