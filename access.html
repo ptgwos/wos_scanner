@@ -1033,6 +1033,11 @@
   .dq-id{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:var(--text-dim);}
   .dq-set{display:flex;gap:4px;align-items:center;} .dq-set input{background:var(--panel-2,#161d33);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 6px;font:inherit;font-size:12px;width:150px;} .dq-set button{font-size:11.5px;padding:3px 8px;}
   .dq.nu{border-color:var(--border);background:rgba(120,140,190,.06);}
+  .us{border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:0 0 16px;background:rgba(120,140,190,.06);max-width:760px;}
+  .us-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:13px;margin-bottom:7px;} .us-h b{font-size:13.5px;}
+  .us-bar{height:9px;border-radius:99px;background:rgba(120,140,190,.2);overflow:hidden;} .us-bar i{display:block;height:100%;border-radius:99px;background:#35c27a;}
+  .us.warn .us-bar i{background:#e0a030;} .us.low .us-bar i{background:#e5484d;} .us.low .us-h b{color:#e5484d;} .us.warn .us-h b{color:#e0a030;}
+  .us small{display:block;color:var(--text-faint);font-size:11.5px;margin-top:6px;}
   .ad-nm{background:transparent;color:inherit;border:1px solid transparent;border-radius:6px;padding:4px 6px;font:inherit;width:100%;min-width:110px;}
   .ad-nm:hover,.ad-nm:focus{border-color:var(--border);background:var(--panel-2,#161d33);}
   table.ad{border-collapse:collapse;width:100%;font-size:14px;}
@@ -1066,7 +1071,7 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-05 · a13</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-05 · a14</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1151,11 +1156,11 @@
   }
   function load(){
     $('adm').innerHTML = '<div class="rl-empty">Loading users …</div>';
-    Promise.all([api.list(st.code), api.reqs(st.code).catch(function(){ return null; })]).then(function(a){ var u = a[0]; if(!Array.isArray(u)) throw new Error('Unexpected answer from sa_list: ' + JSON.stringify(u).slice(0, 200)); st.users = u; st.reqs = Array.isArray(a[1]) ? a[1] : []; st.noDc = !Array.isArray(a[1]); draw(); }).catch(function(e){ gate(esc(e.message), false); });
+    Promise.all([api.list(st.code), api.reqs(st.code).catch(function(){ return null; }), getUsage()]).then(function(a){ st.usage = a[2]; var u = a[0]; if(!Array.isArray(u)) throw new Error('Unexpected answer from sa_list: ' + JSON.stringify(u).slice(0, 200)); st.users = u; st.reqs = Array.isArray(a[1]) ? a[1] : []; st.noDc = !Array.isArray(a[1]); draw(); }).catch(function(e){ gate(esc(e.message), false); });
   }
   var RN = {super: 'Super admin', admin: 'Admin', editor: 'Editor'};
   function draw(){
-    var h = reqHtml() + newUserHtml() + '<p class="ad-note"><b>Rally Leads:</b> tick who may open it (read and edit). The super admin always may; an admin of the Event Planner does <b>not</b> automatically see Rally Leads. <b>Rally Planner:</b> “Read” = may open the plans but not change them, “Read + write” = may also edit. Without a right the page says “No access”. Admins always have read + write. <b>Appointments:</b> everybody may sign up; tick who may see, sort and filter the overview of all sign-ups (admins may create the weeks). Changes are saved immediately. <b>Event Planner:</b> change a role or block a user (the change is also written to the Event Planner log). New users, alliances and personal links are still managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p>' +
+    var h = usageHtml() + reqHtml() + newUserHtml() + '<p class="ad-note"><b>Rally Leads:</b> tick who may open it (read and edit). The super admin always may; an admin of the Event Planner does <b>not</b> automatically see Rally Leads. <b>Rally Planner:</b> “Read” = may open the plans but not change them, “Read + write” = may also edit. Without a right the page says “No access”. Admins always have read + write. <b>Appointments:</b> everybody may sign up; tick who may see, sort and filter the overview of all sign-ups (admins may create the weeks). Changes are saved immediately. <b>Event Planner:</b> change a role or block a user (the change is also written to the Event Planner log). New users, alliances and personal links are still managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p>' +
       '<div class="ad-box"><table class="ad"><thead><tr><th>Name</th><th>Event Planner<br><span class="ad-sh">role (edit)</span></th><th>Alliances<br><span class="ad-sh">editors only</span></th><th class="c">Rally Planner<br><span class="ad-sh">none / read / read + write</span></th><th class="c">Rally Leads<br><span class="ad-sh">see + edit</span></th><th class="c">Fortress/SH Plan<br><span class="ad-sh">edit</span></th><th class="c">Appointments<br><span class="ad-sh">overview</span></th><th class="c">Active<br><span class="ad-sh">untick = blocked</span></th><th>Discord</th><th>Last login</th></tr></thead><tbody>';
     st.users.forEach(function(u){
       var sup = u.role === 'super', adm = u.role === 'admin', on = sup || (u.pages || []).indexOf('rallyleads') >= 0, rpw = sup || adm || (u.pages || []).indexOf('rallyplan') >= 0, rpr = (u.pages || []).indexOf('rallyplan_view') >= 0, rpv = rpw ? 'w' : rpr ? 'r' : 'n';
@@ -1180,6 +1185,19 @@
       '<tr><td>Fortress/SH Plan</td><td>everybody</td><td>only the users ticked above (the Discord bot reads this data)</td></tr>' +
       '<tr><td>Rally Leads</td><td colspan="2">only the users ticked above (and the super admin) – everybody else sees “No access”</td></tr></tbody></table></div></div>';
     $('adm').innerHTML = h;
+  }
+  function getUsage(){
+    return fetch('data/usage.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+  }
+  function usageHtml(){
+    var u = st.usage, d = u && u.daily;
+    if(!d || typeof d.limit !== 'number' || typeof d.remaining !== 'number') return '<div class="us"><div class="us-h"><b>Whiteout Stats API</b><span>no usage data yet – it appears after the next run of the update jobs</span></div></div>';
+    var pct = Math.max(0, Math.min(100, Math.round(d.remaining / d.limit * 100))), cls = pct < 5 ? 'low' : pct < 20 ? 'warn' : '';
+    var fmt = function(n){ return Number(n).toLocaleString('en-US'); };
+    var tm = function(x){ var t = typeof x === 'number' ? x * 1000 : Date.parse(x); if(!t) return '?'; return new Date(t).toLocaleString('en-GB', {timeZone: 'Europe/Vienna', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'}); };
+    var age = u.updated ? (Date.now() / 1000 - u.updated) / 3600 : null;
+    return '<div class="us ' + cls + '"><div class="us-h"><b>API requests left today: ' + fmt(d.remaining) + ' of ' + fmt(d.limit) + ' (' + pct + ' %)</b><span>resets ' + esc(tm(d.resets_at)) + ' (Vienna time)</span></div>' +
+      '<div class="us-bar"><i style="width:' + pct + '%"></i></div><small>Used so far today: ' + fmt(d.used) + (u.frosty ? ' · Frosty key (double limit)' : '') + ' · status of ' + esc(tm(u.updated)) + ' (Vienna time)' + (u.by ? ', written by ' + esc(u.by) : '') + (age !== null && age > 3 ? ' · <span class="dq-no">older than 3 hours – are the update jobs running?</span>' : '') + '</small></div>';
   }
   function newUserHtml(){
     return '<div class="dq nu"><h3>Add a user in advance</h3><div class="dq-r" style="border-top:0"><div class="dq-w"><b>Before the first Discord login</b><small>Discord: Settings → Advanced → Developer Mode on; then right-click the person → Copy User ID (15–25 digits). After the first login with Discord everything is ready.</small></div>' +
