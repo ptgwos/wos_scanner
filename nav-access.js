@@ -41,7 +41,7 @@
   var GROUPS = [
     {k: 'home', f: 'index.html', l: 'HOME', s: 'HOME'},
     {k: 'info', l: 'INFORMATION', s: 'INFO', items: [['roster.html', 'Roster'], ['svslb.html', 'SvS Leaderboards'], ['statepower.html', 'State Power'], ['rallyleads.html', 'Rally Leads']]},
-    {k: 'plan', l: 'PLANNING', s: 'PLAN', items: [['eventplan.html', 'Event Planner'], ['rallyplan.html', 'Rally Planner'], ['assignfsh.html', 'Fortress/SH Plan'], ['appointments.html', 'Appointments']]},
+    {k: 'plan', l: 'PLANNING', s: 'PLAN', items: [['eventplan.html', 'Event Planner'], ['rallyplan.html', 'Rally Planner'], ['pool.html', 'Rally Pool'], ['assignfsh.html', 'Fortress/SH Plan'], ['appointments.html', 'Appointments']]},
     {k: 'tool', l: 'TOOLS', s: 'TOOLS', items: [['formations.html', 'Formations'], ['chests.html', 'Presidential Chests']]},
     {k: 'admin', f: 'access.html', l: 'ADMIN', s: 'ADMIN'}
   ];
