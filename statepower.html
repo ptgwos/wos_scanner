@@ -1091,7 +1091,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort. Tap a player name to see the history of that player.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-04 · sp14</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-05 · sp15</footer>
 </div>
 
 <script>
@@ -1167,8 +1167,8 @@
   }
   function avatar(r){
     var ph = '<span class="av ph" aria-hidden="true">' + esc((Array.from(r.n || '?')[0] || '?').toUpperCase()) + '</span>';
-    var local = PL[r.id] && PL[r.id].au;
-    if(local) return '<img class="av" src="avatars/' + esc(r.id) + '.webp" alt="" loading="lazy" onerror="this.outerHTML=this.getAttribute(\'data-ph\')" data-ph="' + esc(ph) + '">';
+    var lk = PL[r.id] ? r.id : (r.c && PL[r.c] ? r.c : ''), local = lk && PL[lk].au;   // the roster may key its players by uid or by chief id
+    if(local) return '<img class="av" src="avatars/' + esc(lk) + '.webp" alt="" loading="lazy" onerror="this.outerHTML=this.getAttribute(\'data-ph\')" data-ph="' + esc(ph) + '">';
     if(r.v) return '<img class="av" src="' + esc(r.v) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=this.getAttribute(\'data-ph\')" data-ph="' + esc(ph) + '">';
     return ph;
   }
@@ -1483,16 +1483,27 @@
   // Safari/iOS: html-to-image cannot re-fetch images inside its SVG snapshot, so they are inlined as data URIs first
   function inlineImgs(root){
     var undo = [];
-    Array.prototype.forEach.call(root.querySelectorAll('img'), function(im){
+    var jobs = Array.prototype.map.call(root.querySelectorAll('img'), function(im){
+      var src = im.getAttribute('src') || '';
+      var apply = function(url){ im.removeAttribute('loading'); im.src = url; undo.push(function(){ im.setAttribute('src', src); }); return im.decode ? im.decode().catch(function(){}) : 0; };
+      var ph = function(){   // picture from another site that the browser may not read: show the letter circle instead of an empty one
+        var h = im.getAttribute('data-ph'), par = im.parentNode; if(!h || !par) return;
+        var t = document.createElement('div'); t.innerHTML = h; var n = t.firstChild; par.replaceChild(n, im);
+        undo.push(function(){ if(n.parentNode) n.parentNode.replaceChild(im, n); });
+      };
       try {
-        if(!im.complete || !im.naturalWidth) return;
-        var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
-        c.getContext('2d').drawImage(im, 0, 0);
-        var old = im.getAttribute('src'); im.removeAttribute('loading');
-        im.src = c.toDataURL('image/png'); undo.push([im, old]);
+        if(im.complete && im.naturalWidth){
+          var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+          c.getContext('2d').drawImage(im, 0, 0);
+          return Promise.resolve(apply(c.toDataURL('image/png')));
+        }
       } catch(e) {}
+      if(!/^https?:/i.test(src)){ return Promise.resolve(); }
+      return fetch(src, {mode: 'cors', referrerPolicy: 'no-referrer'}).then(function(r){ if(!r.ok) throw new Error('http'); return r.blob(); }).then(function(b){
+        return new Promise(function(res, rej){ var fr = new FileReader(); fr.onload = function(){ res(fr.result); }; fr.onerror = rej; fr.readAsDataURL(b); });
+      }).then(apply).catch(ph);
     });
-    return Promise.all(undo.map(function(u){ return u[0].decode ? u[0].decode().catch(function(){}) : 0; })).then(function(){ return function(){ undo.forEach(function(u){ u[0].setAttribute('src', u[1]); }); }; });
+    return Promise.all(jobs).then(function(){ return function(){ undo.forEach(function(f){ f(); }); }; });
   }
   function shotBlob(el){
     return loadLib().then(function(){
@@ -1572,7 +1583,7 @@
       Object.keys(X.boards || {}).forEach(function(k){
         X.boards[k].forEach(function(e){
           var id = String(e[0]), p = X.players[id] || {};
-          var r = by[id] || (by[id] = {id:id, s:sx[1], n:p.n || '?', a:p.a || '', v:p.v || '', val:{}, rk:{}, mp:{}});
+          var r = by[id] || (by[id] = {id:id, s:sx[1], n:p.n || '?', a:p.a || '', v:p.v || '', c:p.c || '', val:{}, rk:{}, mp:{}});
           r.val[k] = e[1]; r.rk[k] = e[2];
         });
       });
