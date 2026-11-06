@@ -1166,7 +1166,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp33</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp34</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1632,14 +1632,14 @@ ${escapeHtml(lab)}</textarea></div>`;
     const q = norm(pkQ.value).trim();
     if(!POOL.ok){ pkList.innerHTML = '<div class="rp-empty">' + (POOL.err ? 'The pool could not be loaded: ' + escapeHtml(POOL.err) : 'Loading the pool …') + '</div>'; return; }
     const blk0 = S.blocks[cur.b], used = new Set(cur.k == null ? Object.values(blk0.cells).map(String) : Object.values(blk0.buds).flat().map(x => x && x.id).filter(Boolean).map(String));
-    const hour = POOL.rows.filter(x => poolHas(x, cur.c));
+    const hour = POOL.rows.filter(x => poolHas(x, cur.c) && (cur.k == null || x.bb));
     document.getElementById('pkPn').textContent = '(' + hour.length + ')';
     let arr = hour.filter(fltOk).map(x => ({x, p: D && D.players && D.players[x.pid]}));
     if(q) arr = arr.filter(o => (o.p && norm(o.p.n).includes(q)) || String(o.x.pid).includes(q));
     arr.sort((a, b) => ((b.p && b.p.p) || 0) - ((a.p && a.p.p) || 0));
     pkList.innerHTML = arr.length ? arr.map(o => { const id = String(o.x.pid), busy = slotWhere(id, cur.c, cur.b, cur.r, cur.k).length > 0;
-      return '<button type="button" class="rp-row pl" data-id="' + escapeHtml(id) + '">' + avatar(id, o.p, 24) + '<span class="nm">' + escapeHtml(o.p ? (o.p.n || id) : 'ID ' + id) + '</span>' + (used.has(id) ? '<span class="used">placed</span>' : '') + (busy ? '<span class="busy">busy this hour</span>' : '') + ((o.x.heal || o.x.boost) ? '<span class="ex">' + (o.x.heal ? 'Heal ' : '') + (o.x.boost ? '+20%' : '') + '</span>' : '') + (cur.k == null && o.p ? '<span class="pw">' + fmtM(o.p.p) + '</span>' : '') + '<span class="pk-tr">' + troopHtml(o.x) + '</span></button>'; }).join('')
-      : '<div class="rp-empty">' + (hour.length ? 'Nobody in the pool matches these filters for ' + escapeHtml(TIMES[cur.c]) + '.' : 'Nobody in the pool is available at ' + escapeHtml(TIMES[cur.c]) + ' yet.') + '</div>';
+      return '<button type="button" class="rp-row pl" data-id="' + escapeHtml(id) + '">' + avatar(id, o.p, 24) + '<span class="nm">' + escapeHtml(o.p ? (o.p.n || id) : 'ID ' + id) + '</span>' + (used.has(id) ? '<span class="used">placed</span>' : '') + (busy ? '<span class="busy">busy this hour</span>' : '') + ((o.x.heal || o.x.boost || o.x.bb) ? '<span class="ex">' + (o.x.bb ? '🤠 ' : '') + (o.x.heal ? 'Heal ' : '') + (o.x.boost ? '+20%' : '') + '</span>' : '') + (cur.k == null && o.p ? '<span class="pw">' + fmtM(o.p.p) + '</span>' : '') + '<span class="pk-tr">' + troopHtml(o.x) + '</span></button>'; }).join('')
+      : '<div class="rp-empty">' + (hour.length ? 'Nobody matches these filters for ' + escapeHtml(TIMES[cur.c]) + '.' : (cur.k == null ? 'Nobody in the pool is available at ' : 'Nobody in the pool offered to be a Battle Buddy at ') + escapeHtml(TIMES[cur.c]) + ' yet.') + '</div>';
   }
   function setMode(m){
     pkMode = m; try { localStorage.setItem(PK_KEY, m); } catch(e) {}

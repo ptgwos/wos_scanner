@@ -1098,6 +1098,7 @@
   .pl-grid select{width:100%;min-width:0;min-height:44px;font-size:16px;}
   .pl-tier{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .pl-extras{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px;}
+  .pl-bb{font-size:17px;line-height:1;vertical-align:-2px;}
   .pl-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
   .pl-actions .btn{min-height:46px;}
   .pl-actions .grow{flex:1 1 200px;}
@@ -1147,7 +1148,7 @@
     <div class="pl-stack" id="plMain">
     <div class="rl-empty">Loading …</div>
   </div>
-  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl6</footer>
+  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl7</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1191,7 +1192,7 @@
   function H(){ return KINDS[kindOf(curEv())].hours; }
   function FULL(){ return (1 << H().length) - 1; }
   var UNITS = ['Infantry', 'Lancer', 'Marksman'];
-  var S = {players: {}, alliances: {}, tags: [], events: [], evId: null, pid: '', code: '', me: null, hours: 0, fc: [null, null, null], tier: [null, null, null], skill: [null, null, null], heal: false, boost: false,
+  var S = {players: {}, alliances: {}, tags: [], events: [], evId: null, pid: '', code: '', me: null, hours: 0, fc: [null, null, null], tier: [null, null, null], skill: [null, null, null], heal: false, boost: false, bb: false,
            have: false, pool: null, poolHour: -1, loadTok: 0};
 
   /* ---------- server (or the mock in this browser) ---------- */
@@ -1219,13 +1220,13 @@
       if(!/^[0-9]{3,12}$/.test(a.p_pid || '')) throw new Error('Please choose a player.');
       if(!(a.p_hours >= 1 && a.p_hours <= (ev.kind === 'fdt' ? 63 : 31))) throw new Error('Please tick at least one hour.');
       for(var i = 0; i < 3; i++){ if(a.p_skill[i] != null && a.p_tier[i] !== 12) throw new Error('A T12 skill level needs T12.'); }
-      d.profiles[a.p_pid] = {fc: a.p_fc, tier: a.p_tier, skill: a.p_skill, heal: !!a.p_heal, boost: !!a.p_boost};
-      var old = ent(a.p_event)[a.p_pid]; ent(a.p_event)[a.p_pid] = {created_at: old ? old.created_at : new Date().toISOString(), hours: a.p_hours, fc: a.p_fc, tier: a.p_tier, skill: a.p_skill, heal: !!a.p_heal, boost: !!a.p_boost, updated_at: new Date().toISOString()}; msave(d); return null;
+      d.profiles[a.p_pid] = {fc: a.p_fc, tier: a.p_tier, skill: a.p_skill, heal: !!a.p_heal, boost: !!a.p_boost, bb: !!a.p_bb};
+      var old = ent(a.p_event)[a.p_pid]; ent(a.p_event)[a.p_pid] = {created_at: old ? old.created_at : new Date().toISOString(), hours: a.p_hours, fc: a.p_fc, tier: a.p_tier, skill: a.p_skill, heal: !!a.p_heal, boost: !!a.p_boost, bb: !!a.p_bb, updated_at: new Date().toISOString()}; msave(d); return null;
     }
     if(fn === 'pool_remove'){ var ev2 = chk(); if(!ev2.open) throw new Error('Sign-up for this event is closed.'); delete ent(a.p_event)[a.p_pid]; msave(d); return null; }
     if(fn === 'pool_list'){
       if(!u || !(u.rallyplan || u.rallyplan_view || isAdm)) throw new Error('Not allowed (no Rally Planner permission).');
-      var m = ent(a.p_event); return Object.keys(m).map(function(k){ var x = m[k]; return {pid: k, hours: x.hours, fc: x.fc, tier: x.tier, skill: x.skill, heal: x.heal, boost: x.boost, created_at: x.created_at || x.updated_at, updated_at: x.updated_at}; });
+      var m = ent(a.p_event); return Object.keys(m).map(function(k){ var x = m[k]; return {pid: k, hours: x.hours, fc: x.fc, tier: x.tier, skill: x.skill, heal: x.heal, boost: x.boost, bb: !!x.bb, created_at: x.created_at || x.updated_at, updated_at: x.updated_at}; });
     }
     throw new Error('unknown rpc');
   }
@@ -1297,7 +1298,7 @@
           '<div class="f full"><label class="l" for="plSk' + i + '">T12 skill level</label><select id="plSk' + i + '" data-sk="' + i + '" disabled><option value="">–</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>' +
           '</div></div>';
       }).join('') +
-      '<div class="pl-extras"><label class="pl-chip"><input type="checkbox" id="plHeal"><span>Auto-Heal (VIP)</span></label><label class="pl-chip"><input type="checkbox" id="plBoost"><span>20% Deployment Boost</span></label></div>' +
+      '<div class="pl-extras"><label class="pl-chip"><input type="checkbox" id="plHeal"><span>Auto-Heal (VIP)</span></label><label class="pl-chip"><input type="checkbox" id="plBoost"><span>20% Deployment Boost</span></label><label class="pl-chip"><input type="checkbox" id="plBb"><span>Battle Buddy <span aria-hidden="true">🤠</span></span></label></div>' +
       '<div class="pl-actions" style="margin-top:20px"><button type="button" class="btn grow" id="plSave">Save</button><button type="button" class="btn btn-secondary" id="plRem" hidden>Remove my entry</button></div>' +
       '<div class="pl-stat" id="plStat" role="status"></div>' +
       '</div></fieldset>';
@@ -1346,10 +1347,10 @@
       [11, 12].forEach(function(t){ var c = fs.querySelector('input[data-t="' + i + ':' + t + '"]'); if(c) c.checked = S.tier[i] === t; });
       var sk = $('plSk' + i); if(sk){ sk.disabled = S.tier[i] !== 12 || !curEv() || !curEv().open; if(S.tier[i] !== 12) S.skill[i] = null; sk.value = S.skill[i] == null ? '' : S.skill[i]; }
     }
-    var hl = $('plHeal'); if(hl) hl.checked = !!S.heal; var bo = $('plBoost'); if(bo) bo.checked = !!S.boost;
+    var hl = $('plHeal'); if(hl) hl.checked = !!S.heal; var bo = $('plBoost'); if(bo) bo.checked = !!S.boost; var bb = $('plBb'); if(bb) bb.checked = !!S.bb;
     var rem = $('plRem'); if(rem) rem.hidden = !S.have || !(curEv() && curEv().open);
   }
-  function resetFields(){ S.hours = 0; S.fc = [null, null, null]; S.tier = [null, null, null]; S.skill = [null, null, null]; S.heal = false; S.boost = false; }
+  function resetFields(){ S.hours = 0; S.fc = [null, null, null]; S.tier = [null, null, null]; S.skill = [null, null, null]; S.heal = false; S.boost = false; S.bb = false; }
   function bindForm(){
     var f = $('plForm');
     $('plId').addEventListener('input', function(){ setPid(this.value); });
@@ -1359,6 +1360,7 @@
       var t = e.target;
       if(t.id === 'plHeal'){ S.heal = t.checked; return; }
       if(t.id === 'plBoost'){ S.boost = t.checked; return; }
+      if(t.id === 'plBb'){ S.bb = t.checked; return; }
       if(t.id === 'plAll'){ S.hours = t.checked ? FULL() : 0; syncFields(); return; }
       var h = t.getAttribute && t.getAttribute('data-h');
       if(h != null){
@@ -1386,7 +1388,7 @@
     rpc('pool_get', {p_event: e.id, p_pid: S.pid}).then(function(r){
       if(tok !== S.loadTok) return;
       resetFields(); S.have = !!r && !r.profile;
-      if(r){ S.hours = r.profile ? 0 : r.hours | 0; S.fc = (r.fc || []).concat([null, null, null]).slice(0, 3); S.tier = (r.tier || []).concat([null, null, null]).slice(0, 3); S.skill = (r.skill || []).concat([null, null, null]).slice(0, 3); S.heal = !!r.heal; S.boost = !!r.boost; }
+      if(r){ S.hours = r.profile ? 0 : r.hours | 0; S.fc = (r.fc || []).concat([null, null, null]).slice(0, 3); S.tier = (r.tier || []).concat([null, null, null]).slice(0, 3); S.skill = (r.skill || []).concat([null, null, null]).slice(0, 3); S.heal = !!r.heal; S.boost = !!r.boost; S.bb = !!r.bb; }
       syncFields(); syncPlayerUi(); stat(!r ? '' : r.profile ? 'Welcome back! Your troop data from your last sign-up were loaded. Please check them, update what changed and tick your hours for this event.' : 'Your saved entry was loaded. Change what you like and save again.');
     }).catch(function(err){ if(tok === S.loadTok) stat('Could not load your entry: ' + err.message, 'err'); });
   }
@@ -1395,7 +1397,7 @@
     if(!pInfo(S.pid)){ stat('Please enter your player ID or choose your name first.', 'err'); toast('Please choose a player first.'); return; }
     if(!S.hours){ stat('Please tick at least one hour.', 'err'); toast('Please tick at least one hour.'); return; }
     var b = $('plSave'); b.disabled = true; stat('Saving …');
-    rpc('pool_save', {p_event: e.id, p_pid: S.pid, p_hours: S.hours, p_fc: S.fc, p_tier: S.tier, p_skill: S.skill, p_heal: S.heal, p_boost: S.boost}).then(function(){
+    rpc('pool_save', {p_event: e.id, p_pid: S.pid, p_hours: S.hours, p_fc: S.fc, p_tier: S.tier, p_skill: S.skill, p_heal: S.heal, p_boost: S.boost, p_bb: S.bb}).then(function(){
       var nm = (pInfo(S.pid) || {}).n || S.pid, d = new Date(); b.disabled = false;
       clearForm();
       stat('Saved for ' + nm + ' at ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + '. Thank you! To change it, enter your ID again until sign-up closes.', 'ok'); toast('Saved. Thank you!', true);
@@ -1479,7 +1481,7 @@
           var fc = (r.fc || [])[i], t = (r.tier || [])[i], s = (r.skill || [])[i];
           h += '<td class="pl-tt">' + (fc == null && t == null ? '–' : '<b>' + (fc != null ? 'FC' + fc : '–') + '</b> · ' + (t == null ? '–' : '<span' + (t === 12 && s === 3 ? ' class="top"' : '') + '>T' + t + (s != null ? ' S' + s : '') + '</span>')) + '</td>';
         }
-        h += '<td class="pl-tt">' + ((r.heal || r.boost) ? (r.heal ? '<b>Heal</b>' : '') + (r.heal && r.boost ? ' · ' : '') + (r.boost ? '<b>+20%</b>' : '') : '–') + '</td><td class="pl-tt pl-ts" title="Added: ' + esc(tsTxt(r.created_at)) + ' · Updated: ' + esc(tsTxt(r.updated_at)) + '">' + esc(tsTxt(r.updated_at)) + (r.created_at && r.updated_at && Math.abs(new Date(r.updated_at) - new Date(r.created_at)) > 60000 ? ' <small>(added ' + esc(tsTxt(r.created_at)) + ')</small>' : '') + '</td></tr>';
+        h += '<td class="pl-tt">' + ((r.heal || r.boost || r.bb) ? [r.heal ? '<b>Heal</b>' : '', r.boost ? '<b>+20%</b>' : '', r.bb ? '<span class="pl-bb" title="Battle Buddy" aria-label="Battle Buddy">🤠</span>' : ''].filter(Boolean).join(' · ') : '–') + '</td><td class="pl-tt pl-ts" title="Added: ' + esc(tsTxt(r.created_at)) + ' · Updated: ' + esc(tsTxt(r.updated_at)) + '">' + esc(tsTxt(r.updated_at)) + (r.created_at && r.updated_at && Math.abs(new Date(r.updated_at) - new Date(r.created_at)) > 60000 ? ' <small>(added ' + esc(tsTxt(r.created_at)) + ')</small>' : '') + '</td></tr>';
       });
       h += '</tbody></table></div>';
     }
