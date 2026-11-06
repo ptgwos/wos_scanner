@@ -1116,7 +1116,8 @@
   table.pl-t tr:last-child td{border-bottom:0;}
   .pl-pn{display:flex;align-items:center;gap:8px;} .pl-pn img{width:24px;height:24px;border-radius:50%;object-fit:cover;} .pl-pn small{color:var(--text-faint);}
   .pl-hh{display:inline-flex;gap:3px;} .pl-hh i{width:15px;height:15px;border-radius:3px;background:rgba(120,140,190,.16);display:block;} .pl-hh i.on{background:var(--ice);}
-  .pl-tt{color:var(--text-dim);} .pl-tt b{color:var(--text);font-weight:600;} .pl-tt .top{color:var(--danger);font-weight:800;}
+  .pl-tt{color:var(--text-dim);} .pl-tt b{color:var(--text);font-weight:600;} .pl-ts{white-space:nowrap;font-size:12px;} .pl-ts small{display:block;opacity:.75;}
+  .pl-tt .top{color:var(--danger);font-weight:800;}
   .pl-modal-f{padding:6px 22px 20px;display:flex;flex-direction:column;gap:12px;}
   .pl-modal-f .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;}
   @media (min-width:641px){
@@ -1146,7 +1147,7 @@
     <div class="pl-stack" id="plMain">
     <div class="rl-empty">Loading …</div>
   </div>
-  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl4</footer>
+  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl6</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1219,12 +1220,12 @@
       if(!(a.p_hours >= 1 && a.p_hours <= (ev.kind === 'fdt' ? 63 : 31))) throw new Error('Please tick at least one hour.');
       for(var i = 0; i < 3; i++){ if(a.p_skill[i] != null && a.p_tier[i] !== 12) throw new Error('A T12 skill level needs T12.'); }
       d.profiles[a.p_pid] = {fc: a.p_fc, tier: a.p_tier, skill: a.p_skill, heal: !!a.p_heal, boost: !!a.p_boost};
-      ent(a.p_event)[a.p_pid] = {hours: a.p_hours, fc: a.p_fc, tier: a.p_tier, skill: a.p_skill, heal: !!a.p_heal, boost: !!a.p_boost, updated_at: new Date().toISOString()}; msave(d); return null;
+      var old = ent(a.p_event)[a.p_pid]; ent(a.p_event)[a.p_pid] = {created_at: old ? old.created_at : new Date().toISOString(), hours: a.p_hours, fc: a.p_fc, tier: a.p_tier, skill: a.p_skill, heal: !!a.p_heal, boost: !!a.p_boost, updated_at: new Date().toISOString()}; msave(d); return null;
     }
     if(fn === 'pool_remove'){ var ev2 = chk(); if(!ev2.open) throw new Error('Sign-up for this event is closed.'); delete ent(a.p_event)[a.p_pid]; msave(d); return null; }
     if(fn === 'pool_list'){
       if(!u || !(u.rallyplan || u.rallyplan_view || isAdm)) throw new Error('Not allowed (no Rally Planner permission).');
-      var m = ent(a.p_event); return Object.keys(m).map(function(k){ var x = m[k]; return {pid: k, hours: x.hours, fc: x.fc, tier: x.tier, skill: x.skill, heal: x.heal, boost: x.boost, updated_at: x.updated_at}; });
+      var m = ent(a.p_event); return Object.keys(m).map(function(k){ var x = m[k]; return {pid: k, hours: x.hours, fc: x.fc, tier: x.tier, skill: x.skill, heal: x.heal, boost: x.boost, created_at: x.created_at || x.updated_at, updated_at: x.updated_at}; });
     }
     throw new Error('unknown rpc');
   }
@@ -1247,6 +1248,7 @@
     if(p && p.au) return '<img loading="lazy" decoding="async" width="' + sz + '" height="' + sz + '" src="avatars/' + esc(id) + '.webp" alt="" onerror="this.outerHTML=\'<span class=ph>' + esc(String((name || '?').charAt(0)).toUpperCase()) + '</span>\'">';
     return '<span class="ph">' + esc(String((name || '?').charAt(0)).toUpperCase()) + '</span>';
   }
+  function tsTxt(t){ if(!t) return '–'; var d = new Date(t); if(isNaN(d)) return '–'; function z(n){ return ('0' + n).slice(-2); } return z(d.getDate()) + '.' + z(d.getMonth() + 1) + '. ' + z(d.getHours()) + ':' + z(d.getMinutes()); }
   function dateTxt(d){ return d ? String(d).slice(0, 10) : ''; }
 
   /* ---------- page skeleton ---------- */
@@ -1285,7 +1287,7 @@
       '<div class="pl-who" id="plWho" hidden></div>' +
       '<div id="plRest" style="margin-top:22px">' +
       '<h2><i>2</i>When can you join? (UTC)</h2>' +
-      '<div class="pl-hours">' + H().map(function(t, i){ return '<label class="pl-chip"><input type="checkbox" data-h="' + i + '"><span>' + t + '</span></label>'; }).join('') + '<label class="pl-chip all"><input type="checkbox" id="plAll"><span>Whole time</span></label></div>' +
+      '<div class="pl-hours">' + H().map(function(t, i){ return '<label class="pl-chip"><input type="checkbox" data-h="' + i + '"><span>' + t + '</span></label>'; }).join('') + (kindOf(curEv()) === 'tal' ? '' : '<label class="pl-chip all"><input type="checkbox" id="plAll"><span>Whole time</span></label>') + '</div>' +
       '<h2 style="margin-top:22px"><i>3</i>Your troops</h2>' +
       '<p class="pl-note">Optional, but it helps the planners a lot. Choose the tier and T12 skill level only for the troops you really have.</p>' +
       UNITS.map(function(u, i){
@@ -1359,7 +1361,8 @@
       if(t.id === 'plBoost'){ S.boost = t.checked; return; }
       if(t.id === 'plAll'){ S.hours = t.checked ? FULL() : 0; syncFields(); return; }
       var h = t.getAttribute && t.getAttribute('data-h');
-      if(h != null){ if(t.checked) S.hours |= (1 << +h); else S.hours &= ~(1 << +h); syncFields(); return; }
+      if(h != null){
+        if(t.checked) S.hours |= (1 << +h); else S.hours &= ~(1 << +h); syncFields(); return; }
       var fc = t.getAttribute && t.getAttribute('data-fc');
       if(fc != null){ S.fc[+fc] = t.value ? +t.value : null; return; }
       var tr = t.getAttribute && t.getAttribute('data-t');
@@ -1468,7 +1471,7 @@
       H().map(function(t, i){ return '<button type="button" data-ph="' + i + '" class="' + (S.poolHour === i ? 'on' : '') + '">' + t + ' · ' + cnt[i] + '</button>'; }).join('') + '</div>';
     if(!shown.length) h += '<p class="pl-note">Nobody yet.</p>';
     else {
-      h += '<div class="pl-tw"><table class="pl-t"><thead><tr><th>Player</th><th>Hours</th>' + UNITS.map(function(u){ return '<th>' + u + '</th>'; }).join('') + '<th>Extras</th></tr></thead><tbody>';
+      h += '<div class="pl-tw"><table class="pl-t"><thead><tr><th>Player</th><th>Hours</th>' + UNITS.map(function(u){ return '<th>' + u + '</th>'; }).join('') + '<th>Extras</th><th>Updated</th></tr></thead><tbody>';
       shown.forEach(function(r){
         var p = pInfo(r.pid), nm = p ? p.n : 'ID ' + r.pid;
         h += '<tr><td><div class="pl-pn">' + (p ? avatar(r.pid, 24, nm) : '') + '<span>' + esc(nm) + (p && p.a ? ' <small>' + esc(p.a) + '</small>' : '') + '</span></div></td><td><span class="pl-hh" title="' + esc(H().filter(function(_, i){ return r.hours & (1 << i); }).join(', ')) + '">' + H().map(function(_, i){ return '<i class="' + ((r.hours & (1 << i)) ? 'on' : '') + '"></i>'; }).join('') + '</span></td>';
@@ -1476,7 +1479,7 @@
           var fc = (r.fc || [])[i], t = (r.tier || [])[i], s = (r.skill || [])[i];
           h += '<td class="pl-tt">' + (fc == null && t == null ? '–' : '<b>' + (fc != null ? 'FC' + fc : '–') + '</b> · ' + (t == null ? '–' : '<span' + (t === 12 && s === 3 ? ' class="top"' : '') + '>T' + t + (s != null ? ' S' + s : '') + '</span>')) + '</td>';
         }
-        h += '<td class="pl-tt">' + ((r.heal || r.boost) ? (r.heal ? '<b>Heal</b>' : '') + (r.heal && r.boost ? ' · ' : '') + (r.boost ? '<b>+20%</b>' : '') : '–') + '</td></tr>';
+        h += '<td class="pl-tt">' + ((r.heal || r.boost) ? (r.heal ? '<b>Heal</b>' : '') + (r.heal && r.boost ? ' · ' : '') + (r.boost ? '<b>+20%</b>' : '') : '–') + '</td><td class="pl-tt pl-ts" title="Added: ' + esc(tsTxt(r.created_at)) + ' · Updated: ' + esc(tsTxt(r.updated_at)) + '">' + esc(tsTxt(r.updated_at)) + (r.created_at && r.updated_at && Math.abs(new Date(r.updated_at) - new Date(r.created_at)) > 60000 ? ' <small>(added ' + esc(tsTxt(r.created_at)) + ')</small>' : '') + '</td></tr>';
       });
       h += '</tbody></table></div>';
     }
