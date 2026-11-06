@@ -1080,6 +1080,21 @@
   .ld-chart .l{fill:none;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round;} .ld-chart .l.me{stroke-width:3.4;}
   .ld-chart .lb{font-size:11.5px;font-weight:700;font-family:'Inter',sans-serif;}
   .ld-empty{padding:26px 10px;text-align:center;color:var(--text-dim);}
+
+#ldShot{padding:16px 18px 12px;background:transparent;width:600px;box-sizing:border-box;margin:0;flex:none}
+.ld-sh-t{font-size:12px;letter-spacing:.14em;color:var(--accent,#66e3ff);font-weight:700}
+.ld-sh-s{font-size:12px;color:var(--text-faint);margin-top:2px}
+.ld-sh-m{font-size:16px;margin:10px 0 6px}.ld-sh-m b{color:#f2b705}
+.ld-sh-f{font-size:11px;color:var(--text-faint);text-align:right;margin-top:8px}
+.ld-shbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 18px 0}
+.ld-shbar select{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font:inherit}
+.ld-shbar .sp{flex:1}
+#ldShot table.sp{width:100%}
+#ldShot table.sp th{padding:7px 8px;position:static}
+#ldShot table.sp td{padding:6px 8px;font-size:13px}
+#ldShot table.sp th.sp-n,#ldShot table.sp td.sp-n,#ldShot table.sp th.sp-p,#ldShot table.sp td.sp-p{position:static}
+#ldShot table.sp td.sp-n{width:34px}
+#ldShot table.sp td.ld-sc{min-width:150px}
 </style>
 </head>
 <body>
@@ -1103,6 +1118,7 @@
       <div class="field"><label for="ldq">State</label><span class="rq-box"><input type="text" id="ldq" inputmode="numeric" placeholder="Number …" autocomplete="off" style="width:120px"></span></div>
       <button type="button" class="btn" id="ldTop" title="Only the first ten">Top 10</button>
       <button type="button" class="btn" id="ldMe" title="Jump to our state">Our state</button>
+      <button type="button" class="btn" id="ldShBtn" title="Picture of the ranking for sharing">Share pic</button>
     </div>
     <div class="sp-wrap"><table class="sp" id="ldTbl"></table></div>
     <div class="ld-h">History</div>
@@ -1110,8 +1126,12 @@
     <div id="ldChart"></div>
     <div class="sp-note" id="ldNote" style="margin-top:14px;font-size:12px;color:var(--text-faint)"></div>
   </div>
+  <div class="modal-overlay" id="ldShare" role="dialog" aria-modal="true" aria-labelledby="ldShTitle"><div class="modal-panel" style="max-width:700px"><div class="modal-header"><h2 id="ldShTitle">Share pic</h2><button type="button" class="modal-close" id="ldShClose" aria-label="Close">×</button></div>
+    <div class="ld-shbar"><label for="ldShN" style="font-size:12px;color:var(--text-faint)">Show</label><select id="ldShN"><option value="10">Top 10</option><option value="20" selected>Top 20</option><option value="30">Top 30</option><option value="50">Top 50</option></select><span class="sp"></span><button type="button" class="btn" id="ldShCopy">Copy as picture</button><button type="button" class="btn" id="ldShSave">Save picture</button></div>
+    <div style="overflow:auto;padding:6px 0 14px"><div id="ldShot"></div></div></div></div>
+  <div class="sp-toast" id="spToast" role="status"></div>
 
-  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-06 · l2</footer>
+  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-06 · l3</footer>
 </div>
 
 <script>
@@ -1153,6 +1173,15 @@
     if(!st.sel){ st.sel = arr.slice(0, 5).map(function(r){ return r.k; }); if(st.sel.indexOf(OWN) < 0 && D.states[OWN]) st.sel.push(OWN); }
   }
 
+  function rowHtml(r, mx, full){
+      var me2 = r.k === OWN;
+      return '<tr class="' + (me2 ? 'ld-own' : '') + '"><td class="sp-n">' + r.rank + '</td><td class="sp-p"><b>' + esc(r.k) + '</b>' + (me2 ? '<span class="ld-me">US</span>' : '') + (r.stale ? '<span class="ld-old" title="The last fetch failed, these are older values.">old</span>' : '') + '</td>'
+        + '<td class="sp-s ld-sc" title="' + esc(dots(r.s)) + '">' + fmt(r.s) + '<span class="ld-bar"><i style="width:' + Math.max(2, (r.s - mx * 0.9) / (mx * 0.1) * 100).toFixed(1) + '%"></i></span></td>'
+        + '<td>' + (r.rank === 1 ? '–' : '<span class="ld-down">' + sgn(r.gap) + '</span>') + '</td>'
+        + '<td>' + (r.d == null ? '<span class="sp-no">–</span>' : '<span class="' + (r.d >= 0 ? 'ld-up' : 'ld-down') + '">' + sgn(r.d) + '</span>' + (r.dr ? ' <small class="' + (r.dr > 0 ? 'ld-up' : 'ld-down') + '">' + (r.dr > 0 ? '▲' : '▼') + Math.abs(r.dr) + '</small>' : '')) + '</td>'
+        + (full ? '<td>' + fmt(r.avg) + '</td><td title="Score of the 100th player (the cutoff)">' + fmt(r.c) + '</td>' : '') + '</tr>';
+  }
+
   function render(){
     if(!D) return;
     var n = ROWS.length;
@@ -1176,14 +1205,7 @@
     var key = st.sort === 'rank' ? 's' : st.sort, dir = st.sort === 'rank' ? -st.dir : st.dir;
     rows.sort(function(x, y){ var a1 = key === 'k' ? +x.k : x[key], b1 = key === 'k' ? +y.k : y[key]; if(a1 == null) a1 = -Infinity; if(b1 == null) b1 = -Infinity; return (a1 - b1) * dir || x.rank - y.rank; });
     var mx = ROWS.length ? ROWS[0].s : 1, t = '<thead><tr>' + COLS.map(function(c){ return '<th class="' + (c[2] || '') + (st.sort === c[0] ? ' sp-on' : '') + '" data-k="' + c[0] + '">' + esc(c[1]) + '<span class="ar">' + (st.sort === c[0] ? (st.dir < 0 ? '▼' : '▲') : '') + '</span></th>'; }).join('') + '</tr></thead><tbody>';
-    t += rows.map(function(r){
-      var me2 = r.k === OWN;
-      return '<tr class="' + (me2 ? 'ld-own' : '') + '"><td class="sp-n">' + r.rank + '</td><td class="sp-p"><b>' + esc(r.k) + '</b>' + (me2 ? '<span class="ld-me">US</span>' : '') + (r.stale ? '<span class="ld-old" title="The last fetch failed, these are older values.">old</span>' : '') + '</td>'
-        + '<td class="sp-s ld-sc" title="' + esc(dots(r.s)) + '">' + fmt(r.s) + '<span class="ld-bar"><i style="width:' + Math.max(2, (r.s - mx * 0.9) / (mx * 0.1) * 100).toFixed(1) + '%"></i></span></td>'
-        + '<td>' + (r.rank === 1 ? '–' : '<span class="ld-down">' + sgn(r.gap) + '</span>') + '</td>'
-        + '<td>' + (r.d == null ? '<span class="sp-no">–</span>' : '<span class="' + (r.d >= 0 ? 'ld-up' : 'ld-down') + '">' + sgn(r.d) + '</span>' + (r.dr ? ' <small class="' + (r.dr > 0 ? 'ld-up' : 'ld-down') + '">' + (r.dr > 0 ? '▲' : '▼') + Math.abs(r.dr) + '</small>' : '')) + '</td>'
-        + '<td>' + fmt(r.avg) + '</td><td title="Score of the 100th player (the cutoff)">' + fmt(r.c) + '</td></tr>';
-    }).join('') + (rows.length ? '' : '<tr><td colspan="7" class="sp-no" style="text-align:center;padding:20px">No state matches.</td></tr>') + '</tbody>';
+    t += rows.map(function(r){ return rowHtml(r, mx, true); }).join('') + (rows.length ? '' : '<tr><td colspan="7" class="sp-no" style="text-align:center;padding:20px">No state matches.</td></tr>') + '</tbody>';
     $('ldTbl').innerHTML = t;
     // note
     var mg = D.merged || {}, gone = Object.keys(D.gone || {}).filter(function (k) { return !mg[k]; });
@@ -1246,6 +1268,57 @@
     if(!D.states[k]){ e.target.value = ''; e.target.placeholder = k + ' not found'; return; }
     if(st.sel.indexOf(k) < 0 && st.sel.length < 10) st.sel.push(k); chart();
   });
+
+  // ---- share picture ----
+  var tt = 0;
+  function toast(msg){ var t = $('spToast'); if(!t) return; t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(function(){ t.classList.remove('show'); }, 2400); }
+  var LIBU = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+  function loadLib(){
+    if(window.htmlToImage) return Promise.resolve();
+    return new Promise(function(res, rej){ var s = document.createElement('script'); s.src = window.__rpLib || LIBU; s.onload = res; s.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(s); });
+  }
+  function shotBlob(el){
+    return loadLib().then(function(){
+      var bg = getComputedStyle(el.closest('.modal-panel')).backgroundColor || '#0f1626';
+      var opt = {pixelRatio: 2, backgroundColor: bg, cacheBust: false, skipFonts: true};
+      var safari = /iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent);
+      var run = function(){ return window.htmlToImage.toBlob(el, opt); };
+      return (safari ? run().catch(function(){}) : Promise.resolve()).then(run);
+    }).then(function(b){ if(!b) throw new Error('empty'); return b; });
+  }
+  function shareImage(btn, mode){
+    var el = $('ldShot'), end = function(){ btn.disabled = false; };
+    btn.disabled = true;
+    var save = function(msg){
+      return shotBlob(el).then(function(b){
+        var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'state646-leading-state.png';
+        document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500); toast(msg);
+      }).catch(function(){ toast('Could not create the picture'); });
+    };
+    if(mode === 'copy' && navigator.clipboard && window.ClipboardItem){
+      navigator.clipboard.write([new ClipboardItem({'image/png': shotBlob(el)})]).then(function(){ toast('Picture copied'); end(); }, function(){ save('Clipboard not available – picture downloaded').then(end); });
+    } else save(mode === 'copy' ? 'Clipboard not available – picture downloaded' : 'Picture saved').then(end);
+  }
+  function shareRender(){
+    if(!D || !ROWS.length) return;
+    var n = +$('ldShN').value || 20, mx = ROWS[0].s, me = ROWS.filter(function(r){ return r.k === OWN; })[0];
+    var rows = ROWS.slice(0, n), extra = me && me.rank > n ? ROWS.slice(Math.max(n, me.rank - 2), me.rank + 1) : [];
+    var head = '<thead><tr><th class="sp-n">#</th><th class="sp-p sp-l">State</th><th>Transfer score</th><th>Gap to #1</th><th>Change</th></tr></thead><tbody>';
+    var t = head + rows.map(function(r){ return rowHtml(r, mx, false); }).join('');
+    if(extra.length){ if(extra[0].rank > n + 1) t += '<tr><td colspan="5" class="sp-no" style="text-align:center">…</td></tr>'; t += extra.map(function(r){ return rowHtml(r, mx, false); }).join(''); }
+    t += '</tbody>';
+    var line = me ? 'State ' + OWN + ' is <b>#' + me.rank + '</b> of ' + ROWS.length + (me.rank > 1 ? ' · gap to #1: ' + fmt(-me.gap) : '') : '';
+    $('ldShot').innerHTML = '<div class="ld-sh-h"><div class="ld-sh-t">LEADING STATE · top 100 transfer score</div><div class="ld-sh-s">States ' + D.first + '–' + D.last + ' · game capture ' + stamp(D.captured) + '</div>' + (line ? '<div class="ld-sh-m">' + line + '</div>' : '') + '</div><table class="sp">' + t + '</table><div class="ld-sh-f">state646.com</div>';
+  }
+  function shareOpen(){ $('ldShare').classList.add('open'); shareRender(); loadLib().catch(function(){}); }
+  function shareClose(){ $('ldShare').classList.remove('open'); }
+  $('ldShBtn').addEventListener('click', shareOpen);
+  $('ldShClose').addEventListener('click', shareClose);
+  $('ldShare').addEventListener('click', function(e){ if(e.target === $('ldShare')) shareClose(); });
+  $('ldShN').addEventListener('change', shareRender);
+  $('ldShCopy').addEventListener('click', function(){ shareImage(this, 'copy'); });
+  $('ldShSave').addEventListener('click', function(){ shareImage(this, 'save'); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') shareClose(); });
   var rb = $('refreshBtn'); if(rb) rb.addEventListener('click', function(){ load(); });
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && D && Date.now() / 1000 - D.updated > 900) load(); });
   var th0 = $('themeToggle');
