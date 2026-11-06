@@ -6,6 +6,7 @@
     data/leading/index.json        list of the available days
 
 Cost: ONE request per state (GET /states/<kid>/ranks?board=state_transfer&limit=100). Bracket 536-803 = 268 requests (the daily limit is 5000).
+Merged states (e.g. 631 -> 646: the API answers for the old number with the data of the new one) are recognised by identical top-100 data and counted once.
 States that do not exist (any more), e.g. 631 after a merger, are detected (HTTP 4xx or an empty answer), remembered under "gone" and only
 checked again every GONE_RECHECK days, so they cost (almost) nothing and never break the run.
 A state that fails for other reasons (timeout, 5xx) keeps its old values and is marked "stale".
@@ -90,7 +91,31 @@ def fetch_state(kid):
     if not rows: return 'gone', None                       # answered, but there is no ranking: the state does not exist (any more)
     scores = [float(r['score']) for r in rows]
     cap = (b or {}).get('captured_at')
-    return 'ok', {'s': int(sum(scores)), 'n': len(scores), 't1': int(max(scores)), 'c': int(min(scores)), 'cap': int(float(cap)) if cap else None}
+    # Merged states: the API may answer for the old number with the data of the state it was merged into. If the answer names its own state, remember it.
+    own = None
+    for src in (d, b or {}):
+        for f in ('kid', 'state', 'state_id', 'stateId'):
+            v = (src or {}).get(f)
+            if isinstance(v, int) or (isinstance(v, str) and v.isdigit()): own = int(v); break
+        if own: break
+    return 'ok', {'kid': own, 's': int(sum(scores)), 'n': len(scores), 't1': int(max(scores)), 'c': int(min(scores)), 'cap': int(float(cap)) if cap else None}
+
+
+def dedupe(states, gone, today):
+    """Merged states: several numbers that answer with the very same top 100 are ONE state. Keep one, the others go to "gone" and "merged"."""
+    OWN = int(os.environ.get('WOS_OWN', '646') or 646)
+    groups = {}
+    for k, v in states.items(): groups.setdefault((v.get('s'), v.get('n'), v.get('t1'), v.get('c')), []).append(k)
+    merged = {}
+    for ks in groups.values():
+        if len(ks) < 2: continue
+        def score(k):                                   # the real state: the one the API names itself, else our own state, else the highest number
+            v = states[k]; return (v.get('kid') == int(k), int(k) == OWN, int(k))
+        keep = max(ks, key=score)
+        for k in ks:
+            if k != keep:
+                merged[k] = int(keep); states.pop(k, None); gone[k] = today
+    return merged
 
 
 def main():
@@ -122,16 +147,20 @@ def main():
             if k in states: states[k]['stale'] = True
             if fails_in_row >= 8: print('8 failures in a row: the API seems to have a problem, stopping. Old values are kept.', flush=True); break
         time.sleep(PAUSE)
+    merged = dedupe(states, gone, today)
+    if merged: print('Merged states (identical data, dropped): ' + ', '.join(f'{a} -> {b}' for a, b in sorted(merged.items())), flush=True)
+    old_merged = dict(old.get('merged') or {}); old_merged.update(merged)
+    merged = {a: b for a, b in old_merged.items() if a in gone}
     caps = [v['cap'] for v in states.values() if v.get('cap') and not v.get('stale')]
     cap = max(caps) if caps else old.get('captured')
     for k, v in states.items():
         if k in {str(x) for x in kids} and not v.get('stale'): v.pop('stale', None)
     out = {'sample': False, 'board': BOARD, 'first': FIRST, 'last': LAST, 'captured': cap, 'updated': int(time.time()),
-           'states': dict(sorted(states.items(), key=lambda kv: int(kv[0]))), 'gone': dict(sorted(gone.items(), key=lambda kv: int(kv[0])))}
+           'states': dict(sorted(states.items(), key=lambda kv: int(kv[0]))), 'gone': dict(sorted(gone.items(), key=lambda kv: int(kv[0]))), 'merged': merged}
     print(f'{n_req} requests: {n_ok} ok, {n_gone} without ranking (gone), {n_err} failed, {n_skip} known-gone skipped. Game capture {stamp(cap)}.', flush=True)
     if n_ok == 0:
         print('Nothing usable was fetched, files left as they were.'); return 1
-    same = old.get('states') == out['states'] and old.get('gone') == out['gone'] and old.get('captured') == cap
+    same = old.get('states') == out['states'] and old.get('gone') == out['gone'] and old.get('merged') == out['merged'] and old.get('captured') == cap
     if same:
         print('Nothing changed since the last run, nothing written.'); write_usage(os.path.join(OUT, 'usage.json'), 'leading state job'); return 0
     os.makedirs(os.path.join(OUT, 'leading'), exist_ok=True)
