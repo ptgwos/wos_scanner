@@ -1,0 +1,39 @@
+name: Update Leading State
+
+# Manual only: Actions -> "Update Leading State" -> Run workflow.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-leading
+  cancel-in-progress: false
+
+jobs:
+  leading:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch top-100 transfer scores of states 536-803
+        env:
+          WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+        run: python tools/update_leading.py
+      - name: Commit and push (one commit)
+        if: always()
+        run: |
+          git config user.name  "state646-bot"
+          git config user.email "state646-bot@users.noreply.github.com"
+          git add -A data
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git commit -m "Leading State: data"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push && exit 0
+            sleep 10
+          done
+          exit 1
