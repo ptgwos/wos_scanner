@@ -896,6 +896,10 @@
   .rp-add{width:100%;height:100%;min-height:56px;background:none;border:0;color:var(--text-faint);font-size:26px;font-weight:300;line-height:1;cursor:pointer;border-radius:6px;font-family:'Inter',sans-serif;}
   .rp-add:hover{color:var(--ice);}
   .rp-cell.has{border-style:solid;background:var(--panel-2);}
+  #rpBlocks.fx .rp-cell,#rpBlocks.fx .bb-slot{opacity:.2;transition:opacity .18s;}
+  #rpBlocks.fx .fx-hit{opacity:1;outline:2px solid var(--gold);outline-offset:1px;border-radius:6px;box-shadow:0 0 14px rgba(255,180,0,.55);}
+  .fx-chip{position:fixed;z-index:9999;pointer-events:none;max-width:340px;background:var(--panel);border:1px solid var(--gold);border-radius:8px;padding:9px 12px;font-size:12.5px;line-height:1.4;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.45);}
+  .fx-chip b{color:var(--gold);} .fx-chip ul{margin:6px 0 0;padding-left:16px;} .fx-chip li{margin:1px 0;}
   .rp-pick{width:100%;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:8px 26px 8px 10px;background:none;border:0;color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;min-width:0;}
   .rp-pick .av{margin:0;width:30px;height:30px;}
   .rp-pick .tx{display:flex;flex-direction:column;min-width:0;}
@@ -1075,7 +1079,10 @@
   .rp-bh{flex-wrap:wrap;}
   #rpShot{position:fixed;left:-12000px;top:0;width:1080px;box-sizing:border-box;padding:22px;background:var(--panel);color:var(--text);font-family:'Inter',sans-serif;}
   #rpShot .rp-grid{grid-template-columns:150px repeat(var(--nc,5),minmax(0,1fr));width:auto;min-width:0;}
-  .sh-block + .sh-block{margin-top:26px;padding-top:22px;border-top:1px solid var(--border-soft);}
+  .sh-block + .sh-block{margin-top:40px;padding-top:30px;border-top:6px solid var(--gold);}
+  #rpShot .rp-sep.grp{height:4px;border-radius:2px;background:var(--ice-dim);margin:12px 0 6px;}
+  #rpShot .rp-sep.thin{height:1px;background:var(--border);margin:2px 0;}
+  #rpShot .bb-cell{border-left:3px solid var(--ice-dim);}
   .sh-title{font-size:22px;font-weight:800;letter-spacing:.08em;color:var(--gold);text-align:center;margin-bottom:14px;text-transform:uppercase;}
   .sh-lab{width:100%;box-sizing:border-box;display:flex;align-items:center;padding:10px 12px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;font-weight:700;font-size:13px;color:var(--ice);}
   .rp-cell.sh-empty{border-style:dashed;opacity:.55;}
@@ -1151,7 +1158,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp30</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp32</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1279,9 +1286,9 @@ ${escapeHtml(lab)}</textarea></div>`;
         TIMES.forEach((t, c) => {
           const id = blk.cells[rk + '-' + c], pall = id != null ? petAll(id) : {hrs: [], dup: []}, pet = pall.hrs.includes(c), pwarn = pet && petIssues(pall.hrs, pall.dup).length > 0, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${rk}" data-c="${c}"`;
           if(id && p){
-            h += `<div class="rp-cell has rp-has${pet ? ' pet' + (pwarn ? ' petwarn' : '') : ''}${mnCls(id, c)}">${mnTag(id, c)}<button type="button" class="rp-pick" ${at} title="Change">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p.n || id)}</span><span class="pw">${fmtM(p.p)}</span></span></button><button type="button" class="rp-paw" ${at} aria-label="Pets" title="${pet ? 'Pets active' : 'Pets'}"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg></button><button type="button" class="rp-x" ${at} aria-label="Clear" title="Clear">×</button></div>`;
+            h += `<div data-pid="${escapeHtml(String(id))}" class="rp-cell has rp-has${pet ? ' pet' + (pwarn ? ' petwarn' : '') : ''}${mnCls(id, c)}">${mnTag(id, c)}<button type="button" class="rp-pick" ${at} title="Change">${avatar(id, p, 30)}<span class="tx"><span class="nm">${escapeHtml(p.n || id)}</span><span class="pw">${fmtM(p.p)}</span></span></button><button type="button" class="rp-paw" ${at} aria-label="Pets" title="${pet ? 'Pets active' : 'Pets'}"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2.2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="14.5" cy="6.5" rx="2.2" ry="2.9"/><ellipse cx="18.5" cy="11" rx="2.2" ry="2.8"/><path d="M12 11.5c-3.2 0-6 3.4-6 6 0 1.9 1.5 2.7 3 2.7 1.1 0 1.9-.5 3-.5s1.9.5 3 .5c1.5 0 3-.8 3-2.7 0-2.6-2.8-6-6-6z"/></svg></button><button type="button" class="rp-x" ${at} aria-label="Clear" title="Clear">×</button></div>`;
           } else if(id){
-            h += `<div class="rp-cell has"><button type="button" class="rp-pick" ${at}><span class="tx"><span class="nm">ID ${escapeHtml(id)}</span><span class="pw">–</span></span></button><button type="button" class="rp-x" ${at} aria-label="Clear">×</button></div>`;
+            h += `<div data-pid="${escapeHtml(String(id))}" class="rp-cell has"><button type="button" class="rp-pick" ${at}><span class="tx"><span class="nm">ID ${escapeHtml(id)}</span><span class="pw">–</span></span></button><button type="button" class="rp-x" ${at} aria-label="Clear">×</button></div>`;
           } else {
             h += `<div class="rp-cell"><button type="button" class="rp-add" ${at} aria-label="Add player" title="Add player">+</button></div>`;
           }
@@ -1294,7 +1301,7 @@ ${escapeHtml(lab)}</textarea></div>`;
             for(let q = 0; q < 4; q++){
               const e0 = arr[q] || {}, id = e0.id, hn = e0.hero, p = id && D && D.players && D.players[id], at = `data-b="${bi}" data-r="${rk}" data-c="${c}" data-k="${q}"`;
               const hb = `<button type="button" class="bb-h" ${at} title="${hn ? escapeHtml(hn) : 'Hero'}" aria-label="Hero">${hn ? heroImg(hn) : '<span class="bb-img bb-none">+</span>'}</button>`;
-              cell += `<div class="bb-slot${id ? ' has' : ''}">${hb}<button type="button" class="nm" ${at} aria-label="Battle Buddy ${q + 1}">${id ? escapeHtml(p ? (p.n || id) : 'ID ' + id) : '+'}</button>${(id || hn) ? `<button type="button" class="bb-x" ${at} aria-label="Clear" title="Clear">×</button>` : ''}</div>`;
+              cell += `<div${id ? ` data-pid="${escapeHtml(String(id))}"` : ''} class="bb-slot${id ? ' has' : ''}">${hb}<button type="button" class="nm" ${at} aria-label="Battle Buddy ${q + 1}">${id ? escapeHtml(p ? (p.n || id) : 'ID ' + id) : '+'}</button>${(id || hn) ? `<button type="button" class="bb-x" ${at} aria-label="Clear" title="Clear">×</button>` : ''}</div>`;
             }
             h += `<div class="bb-cell">${cell}</div>`;
           });
@@ -1425,6 +1432,48 @@ ${escapeHtml(lab)}</textarea></div>`;
     });
     return out;
   }
+  // ---- hover focus: rest after 0.5 s on a player tile -> all tiles of that player stay bright, everything else dims, a chip lists where he is placed ----
+  (function(){
+    if(!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    let tm = null, act = null, chip = null;
+    function where(id){
+      const out = [];
+      S.blocks.forEach((blk, j) => blk.rows.forEach((lab, r) => { for(let l = 0; l < blk.nl[r]; l++){
+        const rk = l ? r + '.' + l : String(r);
+        const name = (S.blocks.length > 1 ? blockName(j) + ' · ' : '') + String(lab).split('\n')[0].trim() + (blk.nl[r] > 1 ? ' (' + (l + 1) + ')' : '');
+        [['rally lead', c => blk.cells[rk + '-' + c] != null && String(blk.cells[rk + '-' + c]) === String(id)], ['Battle Buddy', c => (blk.buds[rk + '-' + c] || []).some(x => x && x.id != null && String(x.id) === String(id))]].forEach(([role, f]) => {
+          let run = null;
+          TIMES.forEach((t, c) => { if(f(c)){ if(run && run.e === c - 1) run.e = c; else { run = {s: c, e: c}; out.push({name, role, run}); } } });
+        });
+      } }));
+      return out.map(o => escapeHtml(o.name) + ' · ' + TIMES[o.run.s].split(' – ')[0] + '–' + TIMES[o.run.e].split(' – ')[1] + ' · ' + o.role);
+    }
+    function off(){
+      clearTimeout(tm); tm = null;
+      if(act){ act = null; grid.classList.remove('fx'); grid.querySelectorAll('.fx-hit').forEach(x => x.classList.remove('fx-hit')); }
+      if(chip){ chip.remove(); chip = null; }
+    }
+    function on(id, el){
+      act = id; grid.classList.add('fx');
+      grid.querySelectorAll('[data-pid]').forEach(x => { if(x.dataset.pid === String(id)) x.classList.add('fx-hit'); });
+      const L = where(id); chip = document.createElement('div'); chip.className = 'fx-chip';
+      chip.innerHTML = '<b>' + escapeHtml(bmNameOf(id)) + '</b> · ' + 'placed ' + grid.querySelectorAll('.fx-hit').length + '×<ul>' + L.slice(0, 10).map(x => '<li>' + x + '</li>').join('') + (L.length > 10 ? '<li>… +' + (L.length - 10) + ' more</li>' : '') + '</ul>';
+      document.body.appendChild(chip);
+      const rc = el.getBoundingClientRect(), cw = chip.offsetWidth, ch = chip.offsetHeight;
+      let x = Math.min(Math.max(8, rc.left), innerWidth - cw - 8), y = rc.bottom + 8; if(y + ch > innerHeight - 8) y = Math.max(8, rc.top - ch - 8);
+      chip.style.left = x + 'px'; chip.style.top = y + 'px';
+    }
+    grid.addEventListener('mouseover', e => {
+      if(document.querySelector('.modal-overlay.open')) return;
+      const t = e.target.closest && e.target.closest('[data-pid]');
+      if(!t){ off(); return; }
+      if(act === t.dataset.pid) return;
+      off(); tm = setTimeout(() => { if(document.querySelector('.modal-overlay.open')) return; on(t.dataset.pid, t); }, 500);
+    });
+    grid.addEventListener('mouseleave', off);
+    window.addEventListener('scroll', off, {passive: true});
+    document.addEventListener('mousedown', off); document.addEventListener('keydown', off);
+  })();
   const pov = document.getElementById('ptModal'), ptOpts = document.getElementById('ptOpts'), ptWarn = document.getElementById('ptWarn');
   let pcur = null;
   function fillPet(){
@@ -1992,7 +2041,7 @@ ${escapeHtml(lab)}</textarea></div>`;
           if(sl){ bhas = true; bcells += `<div class="bb-cell">${sl}</div>`; } else bcells += '<div></div>';
         }
       });
-      if((has || bhas) && !sepDone){ sepDone = true; if(any) rows += '<div class="rp-sep"></div>'; }
+      if(has || bhas){ if(!sepDone){ sepDone = true; if(any) rows += '<div class="rp-sep grp"></div>'; } else rows += '<div class="rp-sep thin"></div>'; }
       if(has){ any = true; rows += `<div class="rp-lab">${shownLab ? '' : `<div class="sh-lab">${escapeHtml(lab)}</div>`}</div>${cells}`; shownLab = true; }
       if(bhas){ any = true; rows += `<div class="rp-lab sub">${has ? 'Buddies' : (shownLab ? '' : escapeHtml(lab) + ' · ') + 'Buddies'}</div>${bcells}`; shownLab = true; }
      }
