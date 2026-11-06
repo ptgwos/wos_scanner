@@ -1114,7 +1114,7 @@
 </head>
 <body>
 <div class="modal-overlay" id="evModal" role="dialog" aria-modal="true" aria-labelledby="evTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="evTitle"></h2><button type="button" class="modal-close" id="evClose" aria-label="Close">×</button></div><div class="ev-f" id="evBody"></div></div></div>
-<div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><select id="pkAl" aria-label="Alliance"></select><input type="text" id="pkQ" placeholder="Search name …" autocomplete="off"></div><div class="rp-list" id="pkList"></div></div></div>
+<div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><select id="pkAl" aria-label="Alliance"></select><input type="text" id="pkQ" placeholder="Search name …" autocomplete="off"></div><div class="pt-warn" id="pkWarn" hidden></div><div class="rp-list" id="pkList"></div></div></div>
 <div class="modal-overlay" id="ptModal" role="dialog" aria-modal="true" aria-labelledby="ptTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="ptTitle">Pets</h2><button type="button" class="modal-close" id="ptClose" aria-label="Close">×</button></div><p class="modal-sub" id="ptSub"></p><div class="pt-opts" id="ptOpts"></div><div id="mnSec" hidden><h3 class="mn-h">Minister office (30 minutes each, tap to change: none, MoD, MoS)</h3><div class="pt-opts" id="mnOpts"></div></div><div class="pt-warn" id="ptWarn" hidden></div><p class="pt-note">Pets run for 2 hours in a row at most and can only be activated once per day (all blocks together). Pick one hour per tap (times in UTC); tap an active hour again to remove it.</p></div></div>
 <div class="modal-overlay" id="hrModal" role="dialog" aria-modal="true" aria-labelledby="hrTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="hrTitle">Joiner hero</h2><button type="button" class="modal-close" id="hrClose" aria-label="Close">×</button></div><p class="modal-sub" id="hrSub"></p><div class="rp-ms"><input type="text" id="hrQ" placeholder="Hero name …" autocomplete="off"></div><div class="hr-grid" id="hrGrid"></div></div></div>
 <div id="rpShot" aria-hidden="true"></div>
@@ -1151,7 +1151,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp29</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp30</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1555,17 +1555,42 @@ ${escapeHtml(lab)}</textarea></div>`;
     cur = {b, r, c, k: Number.isInteger(k) ? k : null};
     document.getElementById('pkTitle').textContent = cur.k == null ? 'Select player' : 'Battle Buddy ' + (cur.k + 1);
     document.getElementById('pkSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + String(S.blocks[b].rows[parseInt(r, 10)]).replace(/\s*\n\s*/g, ' ') + (String(r).includes('.') ? ' (' + (+String(r).split('.')[1] + 1) + ')' : '') + ' · ' + TIMES[c];
-    pkQ.value = ''; fillAlliances(); fillList(); ov.classList.add('open');
+    pkWarn.hidden = true; pkWarn.innerHTML = ''; pkQ.value = ''; fillAlliances(); fillList(); ov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) pkQ.focus();
   }
-  function closePick(){ ov.classList.remove('open'); cur = null; }
+  function closePick(){ ov.classList.remove('open'); cur = null; pkWarn.hidden = true; pkWarn.innerHTML = ''; }
   pkQ.addEventListener('input', fillList);
+  // where is this player already placed in the same hour (as rally lead or Battle Buddy)? The target cell itself does not count.
+  function slotWhere(id, c, tb, tr, tk){
+    const out = [];
+    S.blocks.forEach((blk, j) => {
+      blk.rows.forEach((lab, r) => { for(let l = 0; l < blk.nl[r]; l++){
+        const rk = l ? r + '.' + l : String(r), key = rk + '-' + c;
+        const name = (S.blocks.length > 1 ? blockName(j) + ': ' : '') + String(lab).split('\n')[0] + (blk.nl[r] > 1 ? ' (' + (l + 1) + ')' : '');
+        if(blk.cells[key] != null && String(blk.cells[key]) === String(id) && !(j === tb && rk === tr && tk == null)) out.push(escapeHtml(name) + ' as rally lead');
+        (blk.buds[key] || []).forEach((bd, k) => { if(bd && bd.id != null && String(bd.id) === String(id) && !(j === tb && rk === tr && tk === k)) out.push(escapeHtml(name) + ' as Battle Buddy'); });
+      } });
+    });
+    return out;
+  }
+  const pkWarn = document.getElementById('pkWarn');
+  function pkPlace(id){
+    const blk = S.blocks[cur.b];
+    if(cur.k == null) blk.cells[cur.r + '-' + cur.c] = id;
+    else { const key = cur.r + '-' + cur.c, a = blk.buds[key] || [{}, {}, {}, {}].map(() => ({id: null, hero: null})); a[cur.k].id = id; blk.buds[key] = a; }
+    save(); closePick(); render();
+  }
   pkList.addEventListener('click', e => {
     const b = e.target.closest('.rp-row'); if(!b || !cur) return;
-    const blk = S.blocks[cur.b];
-    if(cur.k == null) blk.cells[cur.r + '-' + cur.c] = b.dataset.id;
-    else { const key = cur.r + '-' + cur.c, a = blk.buds[key] || [{}, {}, {}, {}].map(() => ({id: null, hero: null})); a[cur.k].id = b.dataset.id; blk.buds[key] = a; }
-    save(); closePick(); render();
+    const where = slotWhere(b.dataset.id, cur.c, cur.b, cur.r, cur.k);
+    if(!where.length){ pkPlace(b.dataset.id); return; }
+    pkWarn.innerHTML = '<p>⚠ <b>' + escapeHtml(bmNameOf(b.dataset.id)) + '</b> is already placed at ' + escapeHtml(TIMES[cur.c]) + ': ' + where.join('; ') + '. A player can only be in one place per hour.</p><div class="pt-wb"><button type="button" class="btn" data-go="' + escapeHtml(String(b.dataset.id)) + '">Add anyway</button><button type="button" class="btn-secondary" data-no="1">Cancel</button></div>';
+    pkWarn.hidden = false; pkWarn.scrollIntoView({block: 'nearest'});
+  });
+  pkWarn.addEventListener('click', e => {
+    const g = e.target.closest('[data-go]'), n = e.target.closest('[data-no]');
+    if(g && cur){ pkWarn.hidden = true; pkWarn.innerHTML = ''; pkPlace(g.dataset.go); }
+    else if(n){ pkWarn.hidden = true; pkWarn.innerHTML = ''; }
   });
   document.getElementById('pkClose').addEventListener('click', closePick);
   ov.addEventListener('click', e => { if(e.target === ov) closePick(); });
