@@ -1069,6 +1069,14 @@
   #rpShot .rp-th{flex-direction:row;}
   .rp-modal{max-width:460px;}
   .rp-ms{padding:0 22px 12px;display:flex;gap:8px;}
+  .pk-tabs{display:flex;gap:6px;padding:0 22px 10px;} .pk-tabs[hidden],.pk-flt[hidden]{display:none;}
+  .pk-tabs button{flex:1;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font:inherit;font-weight:700;font-size:13px;padding:8px 10px;cursor:pointer;}
+  .pk-tabs button.on{border-color:var(--gold);color:var(--gold);background:var(--bg-2);}
+  .pk-flt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 22px 10px;font-size:12px;color:var(--text-dim);}
+  .pk-flt label{display:flex;align-items:center;gap:4px;} .pk-flt select{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 4px;font:inherit;font-size:12px;max-width:92px;}
+  .rp-row.pl{flex-wrap:wrap;} .rp-row .pk-tr{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--text-dim);padding-left:32px;}
+  .pk-tr b{color:var(--text);font-weight:600;} .pk-tr .top{color:var(--danger);font-weight:800;} .rp-row .busy{color:#ffb15c;font-size:11px;margin-left:6px;} .rp-row .ex{font-size:11px;color:var(--ice);margin-left:6px;}
+  .ev-pool{font-size:12px;color:var(--text-dim);margin-left:8px;}
   .rp-ms input{flex:1;min-width:0;box-sizing:border-box;}
   .rp-ms select{flex:none;width:118px;min-width:0;}
   .rp-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-bottom:18px;}
@@ -1121,7 +1129,7 @@
 </head>
 <body>
 <div class="modal-overlay" id="evModal" role="dialog" aria-modal="true" aria-labelledby="evTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="evTitle"></h2><button type="button" class="modal-close" id="evClose" aria-label="Close">×</button></div><div class="ev-f" id="evBody"></div></div></div>
-<div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><select id="pkAl" aria-label="Alliance"></select><input type="text" id="pkQ" placeholder="Search name …" autocomplete="off"></div><div class="pt-warn" id="pkWarn" hidden></div><div class="rp-list" id="pkList"></div></div></div>
+<div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><select id="pkAl" aria-label="Alliance"></select><input type="text" id="pkQ" placeholder="Search name …" autocomplete="off"></div><div class="pk-tabs" id="pkTabs" hidden><button type="button" data-m="pool">Pool <span id="pkPn"></span></button><button type="button" data-m="all">All players</button></div><div class="pk-flt" id="pkFlt" hidden><span class="pk-fl">Min. troops</span><label>Inf<select data-u="0"></select></label><label>Lan<select data-u="1"></select></label><label>Mar<select data-u="2"></select></label></div><div class="pt-warn" id="pkWarn" hidden></div><div class="rp-list" id="pkList"></div></div></div>
 <div class="modal-overlay" id="ptModal" role="dialog" aria-modal="true" aria-labelledby="ptTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="ptTitle">Pets</h2><button type="button" class="modal-close" id="ptClose" aria-label="Close">×</button></div><p class="modal-sub" id="ptSub"></p><div class="pt-opts" id="ptOpts"></div><div id="mnSec" hidden><h3 class="mn-h">Minister office (30 minutes each, tap to change: none, MoD, MoS)</h3><div class="pt-opts" id="mnOpts"></div></div><div class="pt-warn" id="ptWarn" hidden></div><p class="pt-note">Pets run for 2 hours in a row at most and can only be activated once per day (all blocks together). Pick one hour per tap (times in UTC); tap an active hour again to remove it.</p></div></div>
 <div class="modal-overlay" id="hrModal" role="dialog" aria-modal="true" aria-labelledby="hrTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="hrTitle">Joiner hero</h2><button type="button" class="modal-close" id="hrClose" aria-label="Close">×</button></div><p class="modal-sub" id="hrSub"></p><div class="rp-ms"><input type="text" id="hrQ" placeholder="Hero name …" autocomplete="off"></div><div class="hr-grid" id="hrGrid"></div></div></div>
 <div id="rpShot" aria-hidden="true"></div>
@@ -1158,7 +1166,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp32</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp33</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1588,7 +1596,60 @@ ${escapeHtml(lab)}</textarea></div>`;
     pkAl.value = (want === '*' || list.some(x => x[0] === want)) ? want : (list.length ? list[0][0] : '*');
   }
   pkAl.addEventListener('change', () => { try { localStorage.setItem(AL_KEY, pkAl.value); } catch(e) {} fillList(); });
+  // ---- Rally Pool: players who signed up for the linked pool event ----
+  const PK_KEY = 'svs646_rally_pk', PSTART = {castle: [12, 13, 14, 15, 16], fdt: [11, 12, 13, 14, 15, 16], tal: [2, 7, 12, 14, 19]};
+  let pkMode = 'pool', pkTimer = null; const POOL = {id: null, rows: [], ok: false, err: ''};
+  const pkTabs = document.getElementById('pkTabs'), pkFlt = document.getElementById('pkFlt');
+  const FOPT = [['', 'any'], ['11', 'T11+'], ['12', 'T12'], ['121', 'T12 S1+'], ['122', 'T12 S2+'], ['123', 'T12 S3']];
+  pkFlt.querySelectorAll('select').forEach(sel => { sel.innerHTML = FOPT.map(o => '<option value="' + o[0] + '">' + o[1] + '</option>').join(''); sel.addEventListener('change', fillList); });
+  function poolEv(){ const e = curEv(); return e && e.pool_event_id ? e.pool_event_id : null; }
+  function poolKind(){ const x = (V.pev || {})[poolEv()]; return x && PSTART[x.kind] ? x.kind : 'castle'; }
+  function poolBit(c){ return PSTART[poolKind()].indexOf(Math.floor(slotAt(c) / 60)); }
+  function poolHas(row, c){ const b = poolBit(c); return b >= 0 && ((row.hours >> b) & 1) === 1; }
+  function fltOk(row){
+    for(const sel of pkFlt.querySelectorAll('select')){
+      const v = sel.value; if(!v) continue; const i = +sel.dataset.u, t = row.tier && row.tier[i], sk = row.skill && row.skill[i];
+      if(v === '11'){ if(!(t >= 11)) return false; } else if(v === '12'){ if(t !== 12) return false; } else if(!(t === 12 && sk >= +v.slice(2))) return false;
+    }
+    return true;
+  }
+  async function loadPool(){
+    const id = poolEv(); POOL.id = id; if(!id){ POOL.rows = []; POOL.ok = false; return; }
+    try {
+      if(!(V.pev || {})[id]) await loadPoolEvents();
+      const rows = await rpc('pool_list', {p_code: V.code, p_event: id});
+      POOL.rows = Array.isArray(rows) ? rows : []; POOL.ok = true; POOL.err = '';
+    } catch(e) { POOL.ok = false; POOL.err = String((e && e.message) || e); }
+  }
+  async function loadPoolEvents(){
+    try { const rows = await rpc('pool_event_list', {p_code: V.code}); V.pev = {}; (Array.isArray(rows) ? rows : []).forEach(x => { V.pev[x.id] = x; }); V.pevList = Array.isArray(rows) ? rows : []; } catch(e) { V.pev = V.pev || {}; V.pevList = V.pevList || []; }
+  }
+  function troopHtml(row){
+    return ['Inf', 'Lan', 'Mar'].map((n, i) => { const f = row.fc && row.fc[i], t = row.tier && row.tier[i], sk = row.skill && row.skill[i];
+      return '<span>' + n + ' <b>' + (f != null ? 'FC' + f : '–') + '</b> · ' + (t == null ? '–' : '<span' + (t === 12 && sk === 3 ? ' class="top"' : '') + '>T' + t + (sk != null ? ' S' + sk : '') + '</span>') + '</span>'; }).join('');
+  }
+  function fillPool(){
+    const q = norm(pkQ.value).trim();
+    if(!POOL.ok){ pkList.innerHTML = '<div class="rp-empty">' + (POOL.err ? 'The pool could not be loaded: ' + escapeHtml(POOL.err) : 'Loading the pool …') + '</div>'; return; }
+    const blk0 = S.blocks[cur.b], used = new Set(cur.k == null ? Object.values(blk0.cells).map(String) : Object.values(blk0.buds).flat().map(x => x && x.id).filter(Boolean).map(String));
+    const hour = POOL.rows.filter(x => poolHas(x, cur.c));
+    document.getElementById('pkPn').textContent = '(' + hour.length + ')';
+    let arr = hour.filter(fltOk).map(x => ({x, p: D && D.players && D.players[x.pid]}));
+    if(q) arr = arr.filter(o => (o.p && norm(o.p.n).includes(q)) || String(o.x.pid).includes(q));
+    arr.sort((a, b) => ((b.p && b.p.p) || 0) - ((a.p && a.p.p) || 0));
+    pkList.innerHTML = arr.length ? arr.map(o => { const id = String(o.x.pid), busy = slotWhere(id, cur.c, cur.b, cur.r, cur.k).length > 0;
+      return '<button type="button" class="rp-row pl" data-id="' + escapeHtml(id) + '">' + avatar(id, o.p, 24) + '<span class="nm">' + escapeHtml(o.p ? (o.p.n || id) : 'ID ' + id) + '</span>' + (used.has(id) ? '<span class="used">placed</span>' : '') + (busy ? '<span class="busy">busy this hour</span>' : '') + ((o.x.heal || o.x.boost) ? '<span class="ex">' + (o.x.heal ? 'Heal ' : '') + (o.x.boost ? '+20%' : '') + '</span>' : '') + (cur.k == null && o.p ? '<span class="pw">' + fmtM(o.p.p) + '</span>' : '') + '<span class="pk-tr">' + troopHtml(o.x) + '</span></button>'; }).join('')
+      : '<div class="rp-empty">' + (hour.length ? 'Nobody in the pool matches these filters for ' + escapeHtml(TIMES[cur.c]) + '.' : 'Nobody in the pool is available at ' + escapeHtml(TIMES[cur.c]) + ' yet.') + '</div>';
+  }
+  function setMode(m){
+    pkMode = m; try { localStorage.setItem(PK_KEY, m); } catch(e) {}
+    pkTabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+    pkFlt.hidden = m !== 'pool'; pkAl.hidden = m === 'pool';
+    fillList();
+  }
+  pkTabs.addEventListener('click', e => { const b = e.target.closest('button'); if(b) setMode(b.dataset.m); });
   function fillList(){
+    if(poolEv() && pkMode === 'pool' && cur){ fillPool(); return; }
     const q = norm(pkQ.value).trim();
     if(!D){ pkList.innerHTML = '<div class="rp-empty">No player data yet …</div>'; return; }
     const blk0 = S.blocks[cur.b], used = new Set(cur.k == null ? Object.values(blk0.cells).map(String) : Object.values(blk0.buds).flat().map(x => x.id).filter(Boolean).map(String));
@@ -1604,10 +1665,15 @@ ${escapeHtml(lab)}</textarea></div>`;
     cur = {b, r, c, k: Number.isInteger(k) ? k : null};
     document.getElementById('pkTitle').textContent = cur.k == null ? 'Select player' : 'Battle Buddy ' + (cur.k + 1);
     document.getElementById('pkSub').textContent = (S.blocks[b].title ? S.blocks[b].title + ' · ' : '') + String(S.blocks[b].rows[parseInt(r, 10)]).replace(/\s*\n\s*/g, ' ') + (String(r).includes('.') ? ' (' + (+String(r).split('.')[1] + 1) + ')' : '') + ' · ' + TIMES[c];
-    pkWarn.hidden = true; pkWarn.innerHTML = ''; pkQ.value = ''; fillAlliances(); fillList(); ov.classList.add('open');
+    pkWarn.hidden = true; pkWarn.innerHTML = ''; pkQ.value = ''; fillAlliances();
+    const linked = !!poolEv(); pkTabs.hidden = !linked;
+    let m = 'pool'; try { m = localStorage.getItem(PK_KEY) || 'pool'; } catch(e) {}
+    pkMode = linked ? m : 'all'; pkTabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === pkMode)); pkFlt.hidden = !(linked && pkMode === 'pool'); pkAl.hidden = linked && pkMode === 'pool';
+    POOL.ok = POOL.id === poolEv() && POOL.ok; fillList(); ov.classList.add('open');
+    if(linked){ loadPool().then(() => { if(cur) fillList(); }); clearInterval(pkTimer); pkTimer = setInterval(() => { if(!cur || document.hidden || pkMode !== 'pool') return; const sc = pkList.scrollTop; loadPool().then(() => { if(cur){ fillList(); pkList.scrollTop = sc; } }); }, 8000); }
     if(!matchMedia('(pointer:coarse)').matches) pkQ.focus();
   }
-  function closePick(){ ov.classList.remove('open'); cur = null; pkWarn.hidden = true; pkWarn.innerHTML = ''; }
+  function closePick(){ ov.classList.remove('open'); cur = null; clearInterval(pkTimer); pkTimer = null; pkWarn.hidden = true; pkWarn.innerHTML = ''; }
   pkQ.addEventListener('input', fillList);
   // where is this player already placed in the same hour (as rally lead or Battle Buddy)? The target cell itself does not count.
   function slotWhere(id, c, tb, tr, tk){
@@ -1788,15 +1854,19 @@ ${escapeHtml(lab)}</textarea></div>`;
     const d = mdb(); const cp = o => JSON.parse(JSON.stringify(o));
     let m = path.match(/^rp_events\?id=eq\.([^&]+)/);
     if(m){ const e = d.events.find(x => x.id === m[1]); return e ? [cp(e)] : []; }
-    return d.events.slice().sort((x, y) => (y.starts_on || '') < (x.starts_on || '') ? -1 : 1).map(e => ({id: e.id, title: e.title, starts_on: e.starts_on, version: e.version, locked: e.locked, updated_by: e.updated_by}));
+    return d.events.slice().sort((x, y) => (y.starts_on || '') < (x.starts_on || '') ? -1 : 1).map(e => ({id: e.id, title: e.title, starts_on: e.starts_on, version: e.version, locked: e.locked, updated_by: e.updated_by, pool_event_id: e.pool_event_id || null}));
   }
   function mockRpc(fn, a){
     const u = MUSERS[a.p_code]; const d = mdb();
     if(fn === 'sa_me') return u || null;
     const mRead = !!u && (u.rallyplan || u.rallyplan_view || (u.pages || []).indexOf('rallyplan_view') >= 0);
-    if(!mRead || (fn !== 'rp_event_list' && fn !== 'rp_event_get' && !u.rallyplan)) throw new Error('Not allowed (no Rally Planner permission).');
-    if(fn === 'rp_event_list') return d.events.slice().sort((x, y) => (y.starts_on || '') < (x.starts_on || '') ? -1 : 1).map(e => ({id: e.id, title: e.title, starts_on: e.starts_on, version: e.version, locked: e.locked, updated_by: e.updated_by}));
-    if(fn === 'rp_event_get'){ const e = d.events.find(x => x.id === a.p_id); return e ? JSON.parse(JSON.stringify({id: e.id, title: e.title, state: e.state, version: e.version, locked: e.locked})) : null; }
+    if(!mRead || (fn !== 'rp_event_list' && fn !== 'rp_event_get' && fn !== 'pool_list' && fn !== 'pool_event_list' && !u.rallyplan)) throw new Error('Not allowed (no Rally Planner permission).');
+    if(fn === 'pool_event_list'){ const P = d.pool || {events: [], entries: {}}; return P.events.map(x => Object.assign({entries: (P.entries[x.id] || []).length}, x)); }
+    if(fn === 'pool_list'){ const P = d.pool || {events: [], entries: {}}; return (P.entries[a.p_event] || []).slice(); }
+    if(fn === 'pool_event_save'){ if(u.role !== 'super' && u.role !== 'admin') throw new Error('Not allowed (admin only).'); d.pool = d.pool || {events: [], entries: {}}; const id = 'p' + (Date.now() % 1e9); d.pool.events.push({id, title: a.p_title, starts_on: a.p_date, open: a.p_open !== false, kind: a.p_kind || 'castle'}); d.pool.entries[id] = []; msave(d); return id; }
+    if(fn === 'rp_event_list') return d.events.slice().sort((x, y) => (y.starts_on || '') < (x.starts_on || '') ? -1 : 1).map(e => ({id: e.id, title: e.title, starts_on: e.starts_on, version: e.version, locked: e.locked, updated_by: e.updated_by, pool_event_id: e.pool_event_id || null}));
+    if(fn === 'rp_event_pool'){ const e = d.events.find(x => x.id === a.p_id); if(!e) throw new Error('This event does not exist (any more).'); e.pool_event_id = a.p_pool || null; msave(d); return null; }
+    if(fn === 'rp_event_get'){ const e = d.events.find(x => x.id === a.p_id); return e ? JSON.parse(JSON.stringify({id: e.id, title: e.title, state: e.state, version: e.version, locked: e.locked, pool_event_id: e.pool_event_id || null})) : null; }
     if(fn === 'rp_event_save'){
       if(!a.p_title) throw new Error('A title (up to 80 characters) is needed.');
       if(a.p_id){ const e = d.events.find(x => x.id === a.p_id); if(!e) throw new Error('This event does not exist (any more).'); e.title = a.p_title; e.starts_on = a.p_date; e.version++; msave(d); return e.id; }
@@ -1852,7 +1922,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     el('evLock').textContent = V.locked ? 'Unlock' : 'Lock';
     showEl(el('evDel'), isSuper() && !!V.evId);
     showEl(el('lockB'), !!V.evId && V.locked);
-    el('who').innerHTML = (V.me ? 'Logged in: <b>' + escapeHtml(V.me.name || '') + '</b>' : '') + (V.evId ? '<span class="ev-kind">Type: <b>' + KIND_NAME[KIND] + '</b></span>' : '');
+    el('who').innerHTML = (V.me ? 'Logged in: <b>' + escapeHtml(V.me.name || '') + '</b>' : '') + (V.evId ? '<span class="ev-kind">Type: <b>' + KIND_NAME[KIND] + '</b></span>' : '') + (V.evId && curEv() && curEv().pool_event_id ? '<span class="ev-pool">Pool: <b>' + escapeHtml(((V.pev || {})[curEv().pool_event_id] || {}).title || '…') + '</b></span>' : '');
     el('evLogin').textContent = V.me ? 'Log out' : 'Log in to edit';
     if(!V.dirty && !V.pushing){
       if(!V.evId) setStat(''); else if(V.locked) setStat('This event is locked – nobody can change it. Share pic and Pets schedule still work.', true);
@@ -1907,6 +1977,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     try {
       await loadList();
       if(first || !V.events.some(e => e.id === V.evId)) V.evId = pickDefault();
+      { const ce = curEv(); if(ce && ce.pool_event_id && !(V.pev || {})[ce.pool_event_id]) await loadPoolEvents(); }
       renderBar();
       if(V.evId){ if(first) await loadState(true); else { const ev = curEv(); if(ev && (ev.version !== V.ver || !!ev.locked !== V.locked) && !V.dirty && !V.pushing && !modalOpen() && !(document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && grid.contains(document.activeElement))) await loadState(false); } }
       else { S.blocks = [newBlock()]; render(); }
@@ -1952,11 +2023,26 @@ ${escapeHtml(lab)}</textarea></div>`;
     const kSel = `<div class="field"><label for="evK">Type</label><select id="evK"${canK ? '' : ' disabled'}><option value="cb"${curK === 'cb' ? ' selected' : ''}>Castle Battle (hourly)</option><option value="fdt"${curK === 'fdt' ? ' selected' : ''}>FDT (30 minutes)</option></select>${canK ? '' : '<div class="modal-sub" style="margin-top:6px">The type can only be changed while the plan is still empty.</div>'}</div>`;
     openEv(ev ? 'Edit event' : 'New event', `<div class="field"><label for="evT">Title</label><input type="text" id="evT" maxlength="80" autocomplete="off" value="${ev ? escapeHtml(ev.title) : ''}" placeholder="e.g. FDT – Saturday"></div><div class="field"><label for="evD">Date</label><input type="date" id="evD" value="${ev && ev.starts_on ? ev.starts_on : ''}"></div>${kSel}<div class="acts"><button type="button" class="btn" id="evCancel">Cancel</button><button type="button" class="btn" id="evOk">Save</button></div>`);
     el('evCancel').onclick = closeEv;
+    // pool link (only shown when the pool exists in the database)
+    const curPool = ev && ev.pool_event_id ? ev.pool_event_id : '';
+    loadPoolEvents().then(() => {
+      if(!V.pevList || !el('evK')) return;
+      const box = document.createElement('div'); box.className = 'field';
+      box.innerHTML = '<label for="evP">Rally Pool (sign-ups)</label><select id="evP"><option value="">– none –</option>' + V.pevList.map(x => '<option value="' + escapeHtml(x.id) + '"' + (x.id === curPool ? ' selected' : '') + '>' + escapeHtml((x.starts_on ? x.starts_on + ' · ' : '') + x.title) + '</option>').join('') + '<option value="__new">＋ Create a new pool event from this one</option></select>';
+      el('evK').closest('.field').after(box);
+    });
     el('evOk').onclick = async () => {
-      const t = el('evT').value.trim(), d = el('evD').value || null;
+      const t = el('evT').value.trim(), d = el('evD').value || null, pv = el('evP') ? el('evP').value : null;
       if(!t){ toast('Please enter a title.'); return; }
       try {
         const id = await rpc('rp_event_save', {p_code: V.code, p_id: ev ? ev.id : null, p_title: t, p_date: d});
+        if(pv !== null && pv !== curPool){
+          try {
+            let pid = pv || null;
+            if(pv === '__new') pid = await rpc('pool_event_save', {p_code: V.code, p_id: null, p_title: t, p_date: d, p_open: true, p_kind: (el('evK').value === 'fdt' ? 'fdt' : 'castle')});
+            await rpc('rp_event_pool', {p_code: V.code, p_id: id, p_pool: pid}); V.pev = null; await loadPoolEvents();
+          } catch(pe) { toast('Event saved, but the pool link failed: ' + String((pe && pe.message) || pe)); }
+        }
         closeEv(); if(!ev) V.evId = id;
         await loadList(); if(!ev || V.evId === id) await loadState(true); setHash(); renderBar();
         const k = el('evK').value;
