@@ -1151,7 +1151,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-05 · rp27</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp29</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1197,11 +1197,18 @@
       if(a.length) p[k] = a; else delete p[k];
     });
   }
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}, mins: {}, hsel: TIMES.map(() => false)});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, shratio: false, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}, mins: {}, hsel: TIMES.map(() => false)});
   let S = {blocks: [newBlock()], compact: false};
-  const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object'){ nb.pets = b.pets; normPets(nb.pets); } nb.bb = b.bb === true; if(b.mins && typeof b.mins === 'object') nb.mins = normMins(b.mins); nb.share = b.share !== false; if(Array.isArray(b.hsel) && b.hsel.length === TIMES.length) nb.hsel = b.hsel.map(v => v === true); if(b.sent && typeof b.sent === 'object') nb.sent = b.sent; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
+  const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object'){ nb.pets = b.pets; normPets(nb.pets); } nb.bb = b.bb === true; if(b.mins && typeof b.mins === 'object') nb.mins = normMins(b.mins); nb.share = b.share !== false; nb.shratio = b.shratio === true; if(Array.isArray(b.hsel) && b.hsel.length === TIMES.length) nb.hsel = b.hsel.map(v => v === true); if(b.sent && typeof b.sent === 'object') nb.sent = b.sent; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
+  // A player who is not (any more) in the line-up of a block must not keep his pets or minister slots there:
+  // they would stay invisible but still count in the rules (max 2 hours, one minister per slot).
+  function prunePlayerData(blk){
+    const here = new Set(Object.values(blk.cells || {}).filter(v => v != null).map(String));
+    ['pets', 'mins'].forEach(k => { const m = blk[k]; if(m && typeof m === 'object') Object.keys(m).forEach(id => { if(!here.has(String(id))) delete m[id]; }); });
+    return blk;
+  }
   function normState(o){
-    try { if(o && Array.isArray(o.blocks) && o.blocks.length) return o.blocks.slice(0, 30).map(fix); } catch(e) {}
+    try { if(o && Array.isArray(o.blocks) && o.blocks.length) return o.blocks.slice(0, 30).map(fix).map(prunePlayerData); } catch(e) {}
     return [newBlock()];
   }
   try { S.compact = localStorage.getItem(KEY + '_c') === '1'; } catch(e) {}
@@ -1209,6 +1216,7 @@
   const V = {events: [], evId: null, ver: 0, locked: false, code: '', me: null, canEdit: false, dirty: false, lastJson: '', t: null, pushing: false, again: false, offline: false, stat: ''};
   function save(){
     if(!V.evId || !V.canEdit || V.locked) return;
+    S.blocks.forEach(prunePlayerData);
     V.dirty = true; clearTimeout(V.t); V.t = setTimeout(push, 700); setStat('Saving …');
   }
   const grid = document.getElementById('rpBlocks');
@@ -1254,7 +1262,7 @@
   }
   function ratioHtml(bi){
     const r = S.blocks[bi].ratio;
-    return `<div class="rp-ratrow"><div class="rp-rat"><div class="rt-h">Ratio – Buddies</div><div class="rp-ratio">${RN.map((x, i) => `<div class="rp-ri"><label for="ri-${bi}-${i}"><span class="rp-dot c-${x[0]}"></span>${x[1]}</label><input type="number" inputmode="numeric" min="0" max="100" step="1" id="ri-${bi}-${i}" data-rb="${bi}" data-ri="${i}" value="${r[i]}"></div>`).join('')}</div><div id="rbar-${bi}">${ratioBar(r, true)}</div><div class="rp-sumrow" id="rsum-${bi}">${sumHtml(bi)}</div></div><button type="button" class="btn rp-msgbtn" data-msg="${bi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Message Battle Buddies</button></div>`;
+    return `<div class="rp-ratrow"><div class="rp-rat"><div class="rt-h">Ratio – Buddies</div><div class="rp-ratio">${RN.map((x, i) => `<div class="rp-ri"><label for="ri-${bi}-${i}"><span class="rp-dot c-${x[0]}"></span>${x[1]}</label><input type="number" inputmode="numeric" min="0" max="100" step="1" id="ri-${bi}-${i}" data-rb="${bi}" data-ri="${i}" value="${r[i]}"></div>`).join('')}</div><div id="rbar-${bi}">${ratioBar(r, true)}</div><div class="rp-sumrow" id="rsum-${bi}">${sumHtml(bi)}</div><label class="switch" style="margin-top:8px" title="Show this ratio below the block in the share picture"><input type="checkbox" data-shr="${bi}"${S.blocks[bi].shratio ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show in share pic</span></label></div><button type="button" class="btn rp-msgbtn" data-msg="${bi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Message Battle Buddies</button></div>`;
   }
   function render(){ renderCore(); applyRo(); }
   function renderCore(){
@@ -1369,6 +1377,8 @@ ${escapeHtml(lab)}</textarea></div>`;
     if(hs){ S.blocks[+hs.dataset.hs].hsel[+hs.dataset.c] = hs.checked; save(); return; }
     const sh = e.target.closest('input[data-sh]');
     if(sh){ S.blocks[+sh.dataset.sh].share = sh.checked; save(); return; }
+    const shr = e.target.closest('input[data-shr]');
+    if(shr){ S.blocks[+shr.dataset.shr].shratio = shr.checked; save(); return; }
     const sw = e.target.closest('input[data-sw]'); if(!sw) return;
     S.blocks[+sw.dataset.sw].bb = sw.checked; save(); render();
   });
@@ -1878,7 +1888,7 @@ ${escapeHtml(lab)}</textarea></div>`;
         const k = el('evK').value;
         if(canK && k !== KIND && V.evId === id){
           setKind(k);
-          S.blocks = S.blocks.map(b => { const nb = newBlock(); nb.rows = b.rows; nb.nl = b.nl; nb.ratio = b.ratio; nb.share = b.share; nb.bb = b.bb; return nb; });
+          S.blocks = S.blocks.map(b => { const nb = newBlock(); nb.rows = b.rows; nb.nl = b.nl; nb.ratio = b.ratio; nb.share = b.share; nb.shratio = b.shratio; nb.bb = b.bb; return nb; });
           render(); await push(); renderBar();
         }
         toast(ev ? 'Event saved.' : 'Event created.');
@@ -1963,7 +1973,7 @@ ${escapeHtml(lab)}</textarea></div>`;
      }
     });
     if(!any && !blk.title) return '';
-    return `<div class="sh-block" data-nc="${cols.length}">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid" style="grid-template-columns:150px repeat(${cols.length},minmax(0,1fr))"><div class="rp-th blank"></div>${cols.map(c => `<div class="rp-th">${thLab(c)}</div>`).join('')}${rows}</div></div>`;
+    return `<div class="sh-block" data-nc="${cols.length}">${blk.title ? `<div class="sh-title">${escapeHtml(blk.title)}</div>` : ''}<div class="rp-grid" style="grid-template-columns:150px repeat(${cols.length},minmax(0,1fr))"><div class="rp-th blank"></div>${cols.map(c => `<div class="rp-th">${thLab(c)}</div>`).join('')}${rows}</div>${blk.bb && blk.shratio ? `<div class="sh-ratio"><div class="rt-h">Ratio – Buddies</div>${ratioBar(blk.ratio, true)}${legend()}</div>` : ''}</div>`;
   }
   const LIB = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
   function loadLib(){
