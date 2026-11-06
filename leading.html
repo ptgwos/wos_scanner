@@ -1096,6 +1096,9 @@
 #ldShot table.sp td.sp-n{width:34px}
 #ldShot table.sp td.ld-sc{min-width:150px}
 .ld-ck{display:inline-flex;gap:6px;align-items:center;font-size:13px;cursor:pointer}
+tr.ld-pick td{background-color:rgba(102,227,255,.12) !important;}
+tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
+.ld-me2{background:#18c5d6;color:#04222a}
 </style>
 </head>
 <body>
@@ -1134,7 +1137,7 @@
     <div style="overflow:auto;padding:6px 0 14px"><div id="ldShot"></div></div></div></div>
   <div class="sp-toast" id="spToast" role="status"></div>
 
-  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-06 · l4</footer>
+  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-06 · l5</footer>
 </div>
 
 <script>
@@ -1176,9 +1179,9 @@
     if(!st.sel){ st.sel = arr.slice(0, 5).map(function(r){ return r.k; }); if(st.sel.indexOf(OWN) < 0 && D.states[OWN]) st.sel.push(OWN); }
   }
 
-  function rowHtml(r, mx, full){
+  function rowHtml(r, mx, full, pick){
       var me2 = r.k === OWN;
-      return '<tr class="' + (me2 ? 'ld-own' : '') + '"><td class="sp-n">' + r.rank + '</td><td class="sp-p"><b>' + esc(r.k) + '</b>' + (me2 ? '<span class="ld-me">US</span>' : '') + (r.stale ? '<span class="ld-old" title="The last fetch failed, these are older values.">old</span>' : '') + '</td>'
+      return '<tr class="' + (me2 ? 'ld-own' : pick ? 'ld-pick' : '') + '"><td class="sp-n">' + r.rank + '</td><td class="sp-p"><b>' + esc(r.k) + '</b>' + (me2 ? '<span class="ld-me">US</span>' : pick ? '<span class="ld-me ld-me2">★</span>' : '') + (r.stale ? '<span class="ld-old" title="The last fetch failed, these are older values.">old</span>' : '') + '</td>'
         + '<td class="sp-s ld-sc" title="' + esc(dots(r.s)) + '">' + fmt(r.s) + '<span class="ld-bar"><i style="width:' + Math.max(2, (r.s - mx * 0.9) / (mx * 0.1) * 100).toFixed(1) + '%"></i></span></td>'
         + '<td>' + (r.rank === 1 ? '–' : '<span class="ld-down">' + sgn(r.gap) + '</span>') + '</td>'
         + '<td>' + (r.d == null ? '<span class="sp-no">–</span>' : '<span class="' + (r.d >= 0 ? 'ld-up' : 'ld-down') + '">' + sgn(r.d) + '</span>' + (r.dr ? ' <small class="' + (r.dr > 0 ? 'ld-up' : 'ld-down') + '">' + (r.dr > 0 ? '▲' : '▼') + Math.abs(r.dr) + '</small>' : '')) + '</td>'
@@ -1304,21 +1307,21 @@
   }
   function shareRender(){
     if(!D || !ROWS.length) return;
-    var n = +$('ldShN').value, mx = ROWS[0].s, nb = $('ldShNb').checked, want = {}, miss = [];
+    var picks = {}, n = +$('ldShN').value, mx = ROWS[0].s, nb = $('ldShNb').checked, want = {}, miss = [];
     function add(r){ if(r) want[r.rank] = 1; }
     function addN(r){ if(!r) return; add(r); if(nb){ add(ROWS[r.rank - 2]); add(ROWS[r.rank]); } }
     for(var i = 0; i < n && i < ROWS.length; i++) add(ROWS[i]);
     if($('ldShMe').checked) addN(ROWS.filter(function(r){ return r.k === OWN; })[0]);
-    ($('ldShQ').value.match(/\d+/g) || []).forEach(function(k){ var r = ROWS.filter(function(x){ return x.k === String(+k); })[0]; if(r) addN(r); else miss.push(k); });
+    ($('ldShQ').value.match(/\d+/g) || []).forEach(function(k){ var r = ROWS.filter(function(x){ return x.k === String(+k); })[0]; if(r){ addN(r); picks[r.k] = 1; } else miss.push(k); });
     $('ldShMiss').textContent = miss.length ? 'Not in the data: ' + miss.join(', ') : '';
     var ranks = Object.keys(want).map(Number).sort(function(a, b){ return a - b; }), me = ROWS.filter(function(r){ return r.k === OWN; })[0];
     var t = '<thead><tr><th class="sp-n">#</th><th class="sp-p sp-l">State</th><th>Transfer score</th><th>Gap to #1</th><th>Change</th></tr></thead><tbody>', last = 0;
     ranks.forEach(function(rk){
       if(last && rk > last + 1){
-        if(rk === last + 2) t += rowHtml(ROWS[last], mx, false);        // a single hidden state is shown instead of "…"
+        if(rk === last + 2) t += rowHtml(ROWS[last], mx, false, !!picks[ROWS[last].k]);        // a single hidden state is shown instead of "…"
         else t += '<tr><td colspan="5" class="sp-no" style="text-align:center">… ' + (rk - last - 1) + ' states …</td></tr>';
       }
-      t += rowHtml(ROWS[rk - 1], mx, false); last = rk;
+      t += rowHtml(ROWS[rk - 1], mx, false, !!picks[ROWS[rk - 1].k]); last = rk;
     });
     t += '</tbody>';
     var line = me ? 'State ' + OWN + ' is <b>#' + me.rank + '</b> of ' + ROWS.length + (me.rank > 1 ? ' · gap to #1: ' + fmt(-me.gap) : '') : '';
