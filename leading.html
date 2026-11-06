@@ -1095,6 +1095,7 @@
 #ldShot table.sp th.sp-n,#ldShot table.sp td.sp-n,#ldShot table.sp th.sp-p,#ldShot table.sp td.sp-p{position:static}
 #ldShot table.sp td.sp-n{width:34px}
 #ldShot table.sp td.ld-sc{min-width:150px}
+.ld-ck{display:inline-flex;gap:6px;align-items:center;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -1127,11 +1128,13 @@
     <div class="sp-note" id="ldNote" style="margin-top:14px;font-size:12px;color:var(--text-faint)"></div>
   </div>
   <div class="modal-overlay" id="ldShare" role="dialog" aria-modal="true" aria-labelledby="ldShTitle"><div class="modal-panel" style="max-width:700px"><div class="modal-header"><h2 id="ldShTitle">Share pic</h2><button type="button" class="modal-close" id="ldShClose" aria-label="Close">×</button></div>
-    <div class="ld-shbar"><label for="ldShN" style="font-size:12px;color:var(--text-faint)">Show</label><select id="ldShN"><option value="10">Top 10</option><option value="20" selected>Top 20</option><option value="30">Top 30</option><option value="50">Top 50</option></select><span class="sp"></span><button type="button" class="btn" id="ldShCopy">Copy as picture</button><button type="button" class="btn" id="ldShSave">Save picture</button></div>
+    <div class="ld-shbar"><label for="ldShN" style="font-size:12px;color:var(--text-faint)">Show</label><select id="ldShN"><option value="0">No top list</option><option value="3">Top 3</option><option value="5">Top 5</option><option value="10">Top 10</option><option value="20" selected>Top 20</option><option value="30">Top 30</option><option value="50">Top 50</option></select></div>
+    <div class="ld-shbar"><label for="ldShQ" style="font-size:12px;color:var(--text-faint)">Also show states</label><span class="rq-box"><input type="text" id="ldShQ" inputmode="numeric" placeholder="e.g. 646 625 558" autocomplete="off" style="width:190px"></span><label class="ld-ck"><input type="checkbox" id="ldShMe" checked> Our state</label><label class="ld-ck"><input type="checkbox" id="ldShNb" checked> Neighbours ±1</label><span id="ldShMiss" style="font-size:12px;color:var(--text-faint)"></span></div>
+    <div class="ld-shbar" style="padding-top:8px"><span class="sp"></span><button type="button" class="btn" id="ldShCopy">Copy as picture</button><button type="button" class="btn" id="ldShSave">Save picture</button></div>
     <div style="overflow:auto;padding:6px 0 14px"><div id="ldShot"></div></div></div></div>
   <div class="sp-toast" id="spToast" role="status"></div>
 
-  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-06 · l3</footer>
+  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-06 · l4</footer>
 </div>
 
 <script>
@@ -1301,11 +1304,22 @@
   }
   function shareRender(){
     if(!D || !ROWS.length) return;
-    var n = +$('ldShN').value || 20, mx = ROWS[0].s, me = ROWS.filter(function(r){ return r.k === OWN; })[0];
-    var rows = ROWS.slice(0, n), extra = me && me.rank > n ? ROWS.slice(Math.max(n, me.rank - 2), me.rank + 1) : [];
-    var head = '<thead><tr><th class="sp-n">#</th><th class="sp-p sp-l">State</th><th>Transfer score</th><th>Gap to #1</th><th>Change</th></tr></thead><tbody>';
-    var t = head + rows.map(function(r){ return rowHtml(r, mx, false); }).join('');
-    if(extra.length){ if(extra[0].rank > n + 1) t += '<tr><td colspan="5" class="sp-no" style="text-align:center">…</td></tr>'; t += extra.map(function(r){ return rowHtml(r, mx, false); }).join(''); }
+    var n = +$('ldShN').value, mx = ROWS[0].s, nb = $('ldShNb').checked, want = {}, miss = [];
+    function add(r){ if(r) want[r.rank] = 1; }
+    function addN(r){ if(!r) return; add(r); if(nb){ add(ROWS[r.rank - 2]); add(ROWS[r.rank]); } }
+    for(var i = 0; i < n && i < ROWS.length; i++) add(ROWS[i]);
+    if($('ldShMe').checked) addN(ROWS.filter(function(r){ return r.k === OWN; })[0]);
+    ($('ldShQ').value.match(/\d+/g) || []).forEach(function(k){ var r = ROWS.filter(function(x){ return x.k === String(+k); })[0]; if(r) addN(r); else miss.push(k); });
+    $('ldShMiss').textContent = miss.length ? 'Not in the data: ' + miss.join(', ') : '';
+    var ranks = Object.keys(want).map(Number).sort(function(a, b){ return a - b; }), me = ROWS.filter(function(r){ return r.k === OWN; })[0];
+    var t = '<thead><tr><th class="sp-n">#</th><th class="sp-p sp-l">State</th><th>Transfer score</th><th>Gap to #1</th><th>Change</th></tr></thead><tbody>', last = 0;
+    ranks.forEach(function(rk){
+      if(last && rk > last + 1){
+        if(rk === last + 2) t += rowHtml(ROWS[last], mx, false);        // a single hidden state is shown instead of "…"
+        else t += '<tr><td colspan="5" class="sp-no" style="text-align:center">… ' + (rk - last - 1) + ' states …</td></tr>';
+      }
+      t += rowHtml(ROWS[rk - 1], mx, false); last = rk;
+    });
     t += '</tbody>';
     var line = me ? 'State ' + OWN + ' is <b>#' + me.rank + '</b> of ' + ROWS.length + (me.rank > 1 ? ' · gap to #1: ' + fmt(-me.gap) : '') : '';
     $('ldShot').innerHTML = '<div class="ld-sh-h"><div class="ld-sh-t">LEADING STATE · top 100 transfer score</div><div class="ld-sh-s">States ' + D.first + '–' + D.last + ' · game capture ' + stamp(D.captured) + '</div>' + (line ? '<div class="ld-sh-m">' + line + '</div>' : '') + '</div><table class="sp">' + t + '</table><div class="ld-sh-f">state646.com</div>';
@@ -1316,6 +1330,8 @@
   $('ldShClose').addEventListener('click', shareClose);
   $('ldShare').addEventListener('click', function(e){ if(e.target === $('ldShare')) shareClose(); });
   $('ldShN').addEventListener('change', shareRender);
+  ['ldShNb', 'ldShMe'].forEach(function(i){ $(i).addEventListener('change', shareRender); });
+  $('ldShQ').addEventListener('input', shareRender);
   $('ldShCopy').addEventListener('click', function(){ shareImage(this, 'copy'); });
   $('ldShSave').addEventListener('click', function(){ shareImage(this, 'save'); });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') shareClose(); });
