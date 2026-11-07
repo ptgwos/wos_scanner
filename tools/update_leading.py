@@ -165,7 +165,7 @@ def main():
         print('Nothing changed since the last run, nothing written.'); write_usage(os.path.join(OUT, 'usage.json'), 'leading state job'); return 0
     os.makedirs(os.path.join(OUT, 'leading'), exist_ok=True)
     day = time.strftime('%Y-%m-%d', time.gmtime(cap)) if cap else today
-    snap = {'captured': cap, 's': {k: [v['s'], v['n']] for k, v in out['states'].items() if not v.get('stale')}}
+    snap = {'captured': cap, 's': {k: [v['s'], v['n'], v.get('c')] for k, v in out['states'].items() if not v.get('stale')}}
     for path, data in ((os.path.join(OUT, 'leading.json'), out), (os.path.join(OUT, 'leading', day + '.json'), snap)):
         with open(path + '.tmp', 'w', encoding='utf-8') as f: json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
         os.replace(path + '.tmp', path)
