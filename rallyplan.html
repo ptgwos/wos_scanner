@@ -922,6 +922,7 @@
   .pt-opt.on{border-color:#7CFC9A;color:#7CFC9A;background:rgba(124,252,154,.10);}
   .pt-note{padding:8px 22px 20px;color:var(--text-faint);font-size:12.5px;margin:0;}
   .rp-bh .switch{flex:none;align-self:center;}
+  .rp-al{flex:none;align-self:center;width:auto;min-width:120px;max-width:150px;padding:8px 10px;font-weight:600;}
   @media (max-width:640px){ .rp-title{flex:1 1 100%;} .rp-del{margin-left:auto;} }
   .rp-lab{position:sticky;left:0;z-index:2;background:var(--panel);display:flex;align-items:stretch;gap:4px;}
   .rp-fold{flex:none;width:26px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;color:var(--text-dim);cursor:pointer;font-size:12px;padding:0;}
@@ -995,6 +996,11 @@
   .bm-act{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
   .modal-panel.ps-panel{max-width:800px;}
   .ps-body{overflow:auto;padding:0 18px 18px;-webkit-overflow-scrolling:touch;}
+  .ps-seg2{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-right:8px;}
+  .ps-seg2 button{background:var(--panel-2);color:var(--text-dim);border:0;padding:8px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+  .ps-seg2 button.active{background:var(--gold);color:#2a1b00;}
+  .ps-grp{display:flex;align-items:center;gap:8px;margin:14px 0 2px;font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;}
+  .ps-grp .ps-sw{display:inline-block;width:12px;height:12px;border-radius:3px;}
   .ps-block + .ps-block{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);}
   .ps-bt{font-size:15px;font-weight:800;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
   .ps-row{display:grid;grid-template-columns:130px minmax(var(--psw,300px),1fr);align-items:stretch;min-width:calc(130px + var(--psw,300px));}
@@ -1135,7 +1141,7 @@
 <div id="rpShot" aria-hidden="true"></div>
 <div id="rpToast" role="status" aria-live="polite"></div>
 <div class="modal-overlay" id="bmModal" role="dialog" aria-modal="true" aria-labelledby="bmTitle"><div class="modal-panel rp-modal bm-panel"><div class="modal-header"><h2 id="bmTitle">Message Battle Buddies</h2><button type="button" class="modal-close" id="bmClose" aria-label="Close">×</button></div><p class="modal-sub" id="bmSub"></p><div class="bm-body" id="bmBody"></div></div></div>
-<div class="modal-overlay" id="psModal" role="dialog" aria-modal="true" aria-labelledby="psTitle"><div class="modal-panel rp-modal ps-panel"><div class="modal-header"><h2 id="psTitle">Pets schedule</h2><button type="button" class="modal-close" id="psClose" aria-label="Close">×</button></div><p class="modal-sub">Times in UTC · the event ends at 17:00</p><div class="ps-tools"><button type="button" class="btn" id="psShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Share pic</button></div><div class="ps-body" id="psBody"></div></div></div>
+<div class="modal-overlay" id="psModal" role="dialog" aria-modal="true" aria-labelledby="psTitle"><div class="modal-panel rp-modal ps-panel"><div class="modal-header"><h2 id="psTitle">Pets schedule</h2><button type="button" class="modal-close" id="psClose" aria-label="Close">×</button></div><p class="modal-sub">Times in UTC · the event ends at 17:00</p><div class="ps-tools"><div class="seg ps-seg2" role="group" aria-label="Sort the pets schedule"><button type="button" id="psSTime">By time</button><button type="button" id="psSBlock">By block</button></div><button type="button" class="btn" id="psShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Share pic</button></div><div class="ps-body" id="psBody"></div></div></div>
 <div class="wrap">
 <nav class="sitenav" aria-label="State 646 pages"><a href="index.html"><span class="sn-l">HOME</span><span class="sn-s">HOME</span></a><a href="roster.html">ROSTER</a><a href="svslb.html"><span class="sn-l">SvS LEADERBOARDS</span><span class="sn-s">SvS</span></a><a href="eventplan.html"><span class="sn-l">EVENT PLANNER</span><span class="sn-s">PLANNER</span></a><a href="formations.html">FORMATIONS</a><span class="cur" aria-current="page"><span class="sn-l">RALLY PLANNER</span><span class="sn-s">RALLY</span></span><a href="assignfsh.html"><span class="sn-l">FORTRESS/SH PLAN</span><span class="sn-s">FSH</span></a></nav>
   <header>
@@ -1166,7 +1172,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-06 · rp34</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-07 · rp35</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1212,9 +1218,9 @@
       if(a.length) p[k] = a; else delete p[k];
     });
   }
-  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, shratio: false, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}, mins: {}, hsel: TIMES.map(() => false)});
+  const newBlock = () => ({title: '', rows: DEF_ROWS.slice(), cells: {}, pets: {}, bb: false, shut: {}, buds: {}, share: true, shratio: false, ally: '', ghost: false, nl: [1, 1, 1, 1], ratio: [50, 20, 30], sent: {}, mins: {}, hsel: TIMES.map(() => false)});
   let S = {blocks: [newBlock()], compact: false};
-  const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object'){ nb.pets = b.pets; normPets(nb.pets); } nb.bb = b.bb === true; if(b.mins && typeof b.mins === 'object') nb.mins = normMins(b.mins); nb.share = b.share !== false; nb.shratio = b.shratio === true; if(Array.isArray(b.hsel) && b.hsel.length === TIMES.length) nb.hsel = b.hsel.map(v => v === true); if(b.sent && typeof b.sent === 'object') nb.sent = b.sent; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
+  const fix = b => { const nb = newBlock(); if(b && typeof b === 'object'){ nb.title = String(b.title || ''); if(Array.isArray(b.rows) && b.rows.length === DEF_ROWS.length) nb.rows = b.rows.map(x => String(x) === 'Textfeld' ? 'Text' : String(x)); if(b.cells && typeof b.cells === 'object') nb.cells = b.cells; if(b.pets && typeof b.pets === 'object'){ nb.pets = b.pets; normPets(nb.pets); } nb.bb = b.bb === true; if(b.mins && typeof b.mins === 'object') nb.mins = normMins(b.mins); nb.share = b.share !== false; nb.shratio = b.shratio === true; nb.ally = typeof b.ally === 'string' ? b.ally.slice(0, 20) : ''; nb.ghost = b.ghost === true; if(Array.isArray(b.hsel) && b.hsel.length === TIMES.length) nb.hsel = b.hsel.map(v => v === true); if(b.sent && typeof b.sent === 'object') nb.sent = b.sent; if(Array.isArray(b.ratio) && b.ratio.length === 3) nb.ratio = b.ratio.map((v, i) => { v = parseInt(v, 10); return isNaN(v) ? [50, 20, 30][i] : Math.max(0, Math.min(100, v)); }); if(Array.isArray(b.nl) && b.nl.length === DEF_ROWS.length) nb.nl = b.nl.map(n => Math.max(1, Math.min(9, parseInt(n, 10) || 1))); if(b.shut && typeof b.shut === 'object') nb.shut = b.shut; if(b.buds && typeof b.buds === 'object') Object.keys(b.buds).forEach(k => { const a = b.buds[k]; if(!Array.isArray(a)) return; const sl = [0, 1, 2, 3].map(i => { const v = a[i]; if(typeof v === 'string' || typeof v === 'number') return {id: String(v), hero: null}; if(v && typeof v === 'object') return {id: v.id != null ? String(v.id) : null, hero: typeof v.hero === 'string' && v.hero ? v.hero : null}; return {id: null, hero: null}; }); if(sl.some(x => x.id || x.hero)) nb.buds[k] = sl; }); } return nb; };
   // A player who is not (any more) in the line-up of a block must not keep his pets or minister slots there:
   // they would stay invisible but still count in the rules (max 2 hours, one minister per slot).
   function prunePlayerData(blk){
@@ -1283,7 +1289,7 @@
   function renderCore(){
     grid.classList.toggle('compact', !!S.compact);
     grid.innerHTML = S.blocks.map((blk, bi) => {
-      let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header"><label class="switch" title="Show this block in the share picture"><input type="checkbox" data-sh="${bi}"${blk.share ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Include in Share</span></label><label class="switch" title="Show Battle Buddies for every rally"><input type="checkbox" data-sw="${bi}"${blk.bb ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Battle Buddies</span></label>${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
+      let h = `<div class="rp-bh"><input type="text" class="rp-title" data-b="${bi}" data-t="1" value="${escapeHtml(blk.title)}" placeholder="HEADER" maxlength="80" autocomplete="off" aria-label="Header">${allySel(bi, blk)}<label class="switch" title="Show this block in the share picture"><input type="checkbox" data-sh="${bi}"${blk.share ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Include in Share</span></label><label class="switch" title="Show Battle Buddies for every rally"><input type="checkbox" data-sw="${bi}"${blk.bb ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Battle Buddies</span></label><label class="switch" title="Ghost rally: the Battle Buddy message asks to join at 2:30"><input type="checkbox" data-gh="${bi}"${blk.ghost ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Ghost Rally</span></label>${S.blocks.length > 1 ? `<button type="button" class="rp-del${delArm === bi ? ' arm' : ''}" data-b="${bi}" title="Remove this block">${delArm === bi ? 'Really?' : '×'}</button>` : ''}</div><div class="rp-scroll"><div class="rp-grid">`;
       h += '<div class="rp-th blank rp-hint2">Share only these hours<br>(none ticked = all)</div>' + TIMES.map((t, c) => `<div class="rp-th"><input type="checkbox" class="rp-hck" data-hs="${bi}" data-c="${c}"${blk.hsel[c] ? ' checked' : ''} title="Include only the ticked hours in the share picture (none ticked = all hours)" aria-label="Share only ${t}"><span>${thLab(c)}</span></div>`).join('');
       blk.rows.forEach((lab, r) => {
       if(r > 0) h += '<div class="rp-sep"></div>';
@@ -1388,6 +1394,10 @@ ${escapeHtml(lab)}</textarea></div>`;
     if(b) openPick(+b.dataset.b, b.dataset.r, +b.dataset.c);
   });
   grid.addEventListener('change', e => {
+    const gh = e.target.closest('input[data-gh]');
+    if(gh){ S.blocks[+gh.dataset.gh].ghost = gh.checked; save(); return; }
+    const as = e.target.closest('select[data-al]');
+    if(as){ S.blocks[+as.dataset.al].ally = as.value; save(); return; }
     const hs = e.target.closest('input[data-hs]');
     if(hs){ S.blocks[+hs.dataset.hs].hsel[+hs.dataset.c] = hs.checked; save(); return; }
     const sh = e.target.closest('input[data-sh]');
@@ -1428,6 +1438,10 @@ ${escapeHtml(lab)}</textarea></div>`;
     return out;
   }
   const hh = c => hhmm(slotAt(c));
+  function allySel(bi, blk){
+    const tags = allianceList().map(x => x[0]); if(blk.ally && tags.indexOf(blk.ally) < 0) tags.push(blk.ally);
+    return '<select class="rp-al" data-al="' + bi + '" aria-label="Battle alliance" title="Battle alliance (used in the Battle Buddy message)"><option value="">– Alliance –</option>' + tags.map(t => '<option value="' + escapeHtml(t) + '"' + (t === blk.ally ? ' selected' : '') + '>' + escapeHtml(t) + '</option>').join('') + '</select>';
+  }
   function blockName(j){ const b = S.blocks[j]; return b.title ? b.title : 'Block ' + (j + 1); }
   function petWhere(id, c){
     const out = [];
@@ -1737,7 +1751,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     if(SLOT === 60) ev2 = ents.map(x => ({c: x.c, e: x.c + 1, master: x.master, hero: x.hero}));
     else { ev2 = []; ents.forEach(x => { const l = ev2[ev2.length - 1]; if(l && l.e === x.c && l.master === x.master && (l.hero || '') === (x.hero || '')) l.e = x.c + 1; else ev2.push({c: x.c, e: x.c + 1, master: x.master, hero: x.hero}); }); }
     const lines = ev2.map(x => (SLOT === 60 ? (HOUR0 + x.c) + '-' + (HOUR0 + x.c + 1) : hh(x.c) + '-' + hh(x.e)) + ': ' + (x.master || 'TBD') + ((x.hero || 'TBD') !== first ? ' (first hero: ' + (x.hero || 'TBD') + ')' : ''));
-    return ['Hi ' + bmNameOf(id) + '!', "Congrats, you've been selected as a Battle Buddy!  \\o/", 'Schedule:', 'First hero: ' + first + ' - Ratio: ' + rat].concat(lines, ['Please join the respective rally when the rally timer shows 2:30.', 'Thank you!']).join('\n');
+    return ['Hi ' + bmNameOf(id) + '!', "Congrats, you've been selected as a Battle Buddy!  \\o/"].concat(blk.ally ? ['Your battle alliance: ' + blk.ally] : [], ['Schedule:', 'First hero: ' + first + ' - Ratio: ' + rat], lines, blk.ghost ? ['Please join the respective rally when the rally timer shows 2:30.'] : [], ['Thank you!']).join('\n');
   }
   const MAIL_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
   function bmRender(){
@@ -1794,6 +1808,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     };
     return '<div class="ps-mn"><div class="ps-bt">Minister offices</div>' + head + row('d') + row('s') + '</div>';
   }
+  let psSort = 'time'; try { if(localStorage.getItem('rp_ps_sort') === 'block') psSort = 'block'; } catch(e) {}
   function petsData(){
     const NC = TIMES.length;
     const head = '<div class="ps-row ps-head"><div class="ps-nm"></div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + Array.from({length: NC}, (x, i) => '<div class="ps-h">' + hh(i) + (i === NC - 1 && SLOT === 60 ? '<span class="ps-end">' + hh(NC) + '</span>' : '') + '</div>').join('') + '</div></div>';
@@ -1815,8 +1830,11 @@ ${escapeHtml(lab)}</textarea></div>`;
     ids.forEach(id => { const all = petAll(id); if(all.hrs.length && lead.has(id)) items.push({id, all, cs: lead.get(id)}); });
     const mnHtml = minData(head, NC);
     if(!items.length) return {html: mnHtml, any: !!mnHtml};
-    items.sort((a, b) => a.all.hrs[0] - b.all.hrs[0] || String(bmNameOf(a.id)).localeCompare(String(bmNameOf(b.id))));
+    items.forEach(it => { const c0 = it.all.hrs.find(c => it.cs[c]); it.b = c0 != null ? it.cs[c0].b : Math.max(0, S.blocks.findIndex(b => petHrs(b, it.id).includes(it.all.hrs[0]))); });
+    const byBlock = psSort === 'block';
+    items.sort((a, b) => (byBlock ? a.b - b.b : 0) || a.all.hrs[0] - b.all.hrs[0] || String(bmNameOf(a.id)).localeCompare(String(bmNameOf(b.id))));
     let anyWarn = false;
+    let lastB = -1;
     const rows = items.map(it => {
       const iss = petIssues(it.all.hrs, it.all.dup); if(iss.length) anyWarn = true;
       const hrs = it.all.hrs;
@@ -1828,14 +1846,20 @@ ${escapeHtml(lab)}</textarea></div>`;
       });
       const segs = runs.map(r => '<div class="ps-seg ' + (r.x ? 'on' : 'off') + ' b' + (r.b % 5) + '" style="grid-column:' + (r.start + 1) + ' / span ' + (r.end - r.start + 1) + '" title="' + escapeHtml(r.x ? blockName(r.b) + ' · ' + r.x.lab : 'Pets active, not leading a rally') + '"><span>' + (r.x ? escapeHtml(r.x.lab) : '') + '</span></div>').join('');
       const nm = escapeHtml(bmNameOf(it.id));
-      return '<div class="ps-row"><div class="ps-nm" title="' + nm + '"><span class="ps-nt">' + nm + '</span>' + (iss.length ? '<span class="ps-warn" title="' + escapeHtml(iss.join('; ')) + '">⚠</span>' : '') + '</div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + segs + '</div></div>';
+      const gh = byBlock && it.b !== lastB ? '<div class="ps-grp"><span class="ps-sw b' + (it.b % 5) + '"></span>' + escapeHtml(blockName(it.b)) + (S.blocks[it.b].ally ? ' · ' + escapeHtml(S.blocks[it.b].ally) : '') + '</div>' : ''; lastB = it.b;
+      return gh + '<div class="ps-row"><div class="ps-nm" title="' + nm + '"><span class="ps-nt">' + nm + '</span>' + (iss.length ? '<span class="ps-warn" title="' + escapeHtml(iss.join('; ')) + '">⚠</span>' : '') + '</div><div class="ps-track" style="grid-template-columns:repeat(' + NC + ',1fr)">' + segs + '</div></div>';
     }).join('');
     const leg = '<div class="ps-leg">' + (S.blocks.length > 1 ? S.blocks.map((b, j) => '<i><span class="ps-sw b' + (j % 5) + '"></span>' + escapeHtml(blockName(j)) + '</i>').join('') : '') + '<i><span class="ps-sw off b0" style="--bc:150,160,180;--bt:150,160,180"></span>Pets active, no rally (hatched)</i>' + (anyWarn ? '<i><span class="ps-warn">⚠</span>More than 2 hours, not consecutive or set twice</i>' : '') + '</div>';
     return {html: '<div class="ps-block">' + head + rows + '</div>' + leg + mnHtml, any: true};
   }
   function petsHtml(){ const d = petsData(); return d.any ? d.html : '<div class="rp-empty">No pets scheduled yet. Tap the paw in a name tile to set the hours.</div>'; }
   function petsShareHtml(){ const d = petsData(); return d.any ? '<div class="sh-pets"><div class="sh-title">Pets schedule · UTC</div>' + d.html + '</div>' : ''; }
-  document.getElementById('rpPets').addEventListener('click', () => { psBody.innerHTML = petsHtml(); psOv.classList.add('open'); psOpen = true; });
+  document.getElementById('rpPets').addEventListener('click', () => { psSortUi(); psBody.innerHTML = petsHtml(); psOv.classList.add('open'); psOpen = true; });
+  function psSortUi(){ el0('psSTime').classList.toggle('active', psSort === 'time'); el0('psSBlock').classList.toggle('active', psSort === 'block'); }
+  function el0(id){ return document.getElementById(id); }
+  function psSet(m){ psSort = m; try { localStorage.setItem('rp_ps_sort', m); } catch(e) {} psSortUi(); psBody.innerHTML = petsHtml(); }
+  el0('psSTime').addEventListener('click', () => psSet('time'));
+  el0('psSBlock').addEventListener('click', () => psSet('block'));
   function closePs(){ psOv.classList.remove('open'); psOpen = false; }
   document.getElementById('psClose').addEventListener('click', closePs);
   psOv.addEventListener('click', e => { if(e.target === psOv) closePs(); });
