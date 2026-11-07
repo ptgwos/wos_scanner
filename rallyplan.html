@@ -1090,6 +1090,8 @@
   .pk-pill{display:inline-block;font-size:10.5px;font-weight:700;line-height:1.5;padding:0 8px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);white-space:nowrap;}
   .pk-pill.ok{border-color:var(--good,#2fcf8f);color:var(--good,#2fcf8f);background:rgba(47,207,143,.12);}
   .pk-pill.no{border-color:var(--danger,#ff6b6b);color:var(--danger,#ff6b6b);background:rgba(255,107,107,.12);}
+  .pk-pill.warn{border-color:#ffb15c;color:#ffb15c;background:rgba(255,177,92,.14);}
+  :root[data-theme="light"] .pk-pill.warn{border-color:#c9741a;color:#b25f0a;background:rgba(255,160,60,.16);}
   .pk-pill.ex{border-color:var(--ice-dim,#4aa9c4);color:var(--ice,#66e3ff);}
   .pk-tp{font-weight:600;} .pk-tp b{font-weight:800;margin-right:2px;color:var(--text);} .pk-tp.ok b,.pk-tp.no b{color:inherit;}
   .ev-pool{font-size:12px;color:var(--text-dim);margin-left:8px;}
@@ -1116,7 +1118,8 @@
   .rp-row:hover{background:rgba(120,140,190,.14);}
   .rp-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;}
   .rp-row .pw{color:var(--text-dim);font-variant-numeric:tabular-nums;font-size:12.5px;}
-  .rp-row .used{font-size:10.5px;font-weight:700;color:var(--danger,#ff6b6b);border:1px solid var(--danger,#ff6b6b);background:rgba(255,107,107,.12);border-radius:999px;padding:0 8px;}
+  .rp-row .used{font-size:10.5px;font-weight:700;color:#ffb15c;border:1px solid #ffb15c;background:rgba(255,177,92,.14);border-radius:999px;padding:0 8px;}
+  :root[data-theme="light"] .rp-row .used{color:#b25f0a;border-color:#c9741a;background:rgba(255,160,60,.16);}
   .rp-row .av{margin:0;}
   .rp-empty{color:var(--text-faint);text-align:center;padding:24px 0;font-size:13px;}
   .rp-hint{color:var(--text-faint);font-size:12px;margin-top:12px;}
@@ -1182,7 +1185,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-07 · rp36</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-07 · rp37</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1665,7 +1668,7 @@ ${escapeHtml(lab)}</textarea></div>`;
     pkList.innerHTML = arr.length ? arr.map(o => { const id = String(o.x.pid), where = slotWhere(id, cur.c, cur.b, cur.r, cur.k), placed = used.has(id) || where.length > 0;
       const tip = where.length ? 'Already placed in this hour: ' + where.join('; ') : 'Already placed in this block (another hour)';
       return '<button type="button" class="rp-row pl" data-id="' + escapeHtml(id) + '">' + avatar(id, o.p, 24) + '<span class="nm">' + escapeHtml(o.p ? (o.p.n || id) : 'ID ' + id) + '</span>' + (cur.k == null && o.p ? '<span class="pw">' + fmtM(o.p.p) + '</span>' : '')
-        + '<span class="pk-tags"><span class="pk-pill ok">available</span>' + (placed ? '<span class="pk-pill no" title="' + escapeHtml(tip) + '">placed</span>' : '') + (o.x.bb ? '<span class="pk-pill ex">🤠 Battle Buddy</span>' : '') + (o.x.heal ? '<span class="pk-pill ex">Heal</span>' : '') + (o.x.boost ? '<span class="pk-pill ex">+20%</span>' : '') + '</span>'
+        + (placed || o.x.bb || o.x.heal || o.x.boost ? '<span class="pk-tags">' + (placed ? '<span class="pk-pill warn" title="' + escapeHtml(tip) + '">placed</span>' : '') + (o.x.bb ? '<span class="pk-pill ex">🤠 Battle Buddy</span>' : '') + (o.x.heal ? '<span class="pk-pill ex">Heal</span>' : '') + (o.x.boost ? '<span class="pk-pill ex">+20%</span>' : '') + '</span>' : '')
         + '<span class="pk-tr">' + troopHtml(o.x) + '</span></button>'; }).join('')
       : '<div class="rp-empty">' + (hour.length ? 'Nobody matches these filters for ' + escapeHtml(TIMES[cur.c]) + '.' : (cur.k == null ? 'Nobody in the pool is available at ' : 'Nobody in the pool offered to be a Battle Buddy at ') + escapeHtml(TIMES[cur.c]) + ' yet.') + '</div>';
   }
