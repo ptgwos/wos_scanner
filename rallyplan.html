@@ -1087,6 +1087,7 @@
   .pk-fr select[data-t="12"],.pk-fr select[data-t="121"],.pk-fr select[data-t="122"]{border-color:var(--ice-dim,#4aa9c4);color:var(--ice,#66e3ff);}
   .pk-fr select[data-t="123"]{border-color:var(--danger,#ff6b6b);color:var(--danger,#ff6b6b);background-color:rgba(255,107,107,.12);}
   .rp-row.pl{flex-wrap:wrap;row-gap:5px;} .rp-row .pk-tags,.rp-row .pk-tr{flex-basis:100%;display:flex;flex-wrap:wrap;gap:5px;padding-left:32px;box-sizing:border-box;}
+  .pk-sep{height:0;border-top:2px solid var(--border);margin:2px 12px;opacity:.9;}
   .pk-pill{display:inline-block;font-size:10.5px;font-weight:700;line-height:1.5;padding:0 8px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);white-space:nowrap;}
   .pk-pill.ok{border-color:var(--good,#2fcf8f);color:var(--good,#2fcf8f);background:rgba(47,207,143,.12);}
   .pk-pill.no{border-color:var(--danger,#ff6b6b);color:var(--danger,#ff6b6b);background:rgba(255,107,107,.12);}
@@ -1185,7 +1186,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-07 · rp37</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-07 · rp38</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1664,10 +1665,12 @@ ${escapeHtml(lab)}</textarea></div>`;
     document.getElementById('pkPn').textContent = '(' + hour.length + ')';
     let arr = hour.filter(fltOk).map(x => ({x, p: D && D.players && D.players[x.pid]}));
     if(q) arr = arr.filter(o => (o.p && norm(o.p.n).includes(q)) || String(o.x.pid).includes(q));
-    arr.sort((a, b) => ((b.p && b.p.p) || 0) - ((a.p && a.p.p) || 0));
-    pkList.innerHTML = arr.length ? arr.map(o => { const id = String(o.x.pid), where = slotWhere(id, cur.c, cur.b, cur.r, cur.k), placed = used.has(id) || where.length > 0;
+    arr.forEach(o => { const id = String(o.x.pid); o.where = slotWhere(id, cur.c, cur.b, cur.r, cur.k); o.placed = used.has(id) || o.where.length > 0; });
+    arr.sort((a, b) => (a.placed ? 1 : 0) - (b.placed ? 1 : 0) || ((b.p && b.p.p) || 0) - ((a.p && a.p.p) || 0));   // not yet placed first, then a thin line, then the already placed ones
+    const firstPlaced = arr.findIndex(o => o.placed);
+    pkList.innerHTML = arr.length ? arr.map((o, ix) => { const id = String(o.x.pid), where = o.where, placed = o.placed, sep = ix > 0 && ix === firstPlaced ? '<div class="pk-sep" role="separator"></div>' : '';
       const tip = where.length ? 'Already placed in this hour: ' + where.join('; ') : 'Already placed in this block (another hour)';
-      return '<button type="button" class="rp-row pl" data-id="' + escapeHtml(id) + '">' + avatar(id, o.p, 24) + '<span class="nm">' + escapeHtml(o.p ? (o.p.n || id) : 'ID ' + id) + '</span>' + (cur.k == null && o.p ? '<span class="pw">' + fmtM(o.p.p) + '</span>' : '')
+      return sep + '<button type="button" class="rp-row pl" data-id="' + escapeHtml(id) + '">' + avatar(id, o.p, 24) + '<span class="nm">' + escapeHtml(o.p ? (o.p.n || id) : 'ID ' + id) + '</span>' + (cur.k == null && o.p ? '<span class="pw">' + fmtM(o.p.p) + '</span>' : '')
         + (placed || o.x.bb || o.x.heal || o.x.boost ? '<span class="pk-tags">' + (placed ? '<span class="pk-pill warn" title="' + escapeHtml(tip) + '">placed</span>' : '') + (o.x.bb ? '<span class="pk-pill ex">🤠 Battle Buddy</span>' : '') + (o.x.heal ? '<span class="pk-pill ex">Heal</span>' : '') + (o.x.boost ? '<span class="pk-pill ex">+20%</span>' : '') + '</span>' : '')
         + '<span class="pk-tr">' + troopHtml(o.x) + '</span></button>'; }).join('')
       : '<div class="rp-empty">' + (hour.length ? 'Nobody matches these filters for ' + escapeHtml(TIMES[cur.c]) + '.' : (cur.k == null ? 'Nobody in the pool is available at ' : 'Nobody in the pool offered to be a Battle Buddy at ') + escapeHtml(TIMES[cur.c]) + ' yet.') + '</div>';
