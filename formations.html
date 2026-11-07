@@ -961,6 +961,10 @@
   .rb-sec + .rb-sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-soft);}
   .rb-sec h3{margin:0 0 12px;font-size:17px;letter-spacing:.1em;color:var(--gold);font-weight:800;text-align:center;}
   .rb-row{display:block;text-align:center;margin-bottom:12px;}
+  .rb-note{margin:12px 0 0;}
+  .rb-nt{font-size:13px;line-height:1.4;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere;max-width:520px;margin:0 auto;}
+  .rp-note{width:100%;box-sizing:border-box;resize:vertical;min-height:52px;background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.4;padding:8px 10px;border-radius:6px;}
+  .rp-note:focus{outline:none;border-color:var(--ice-dim);}
   .rb-l{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;}
   .rb-hs{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-start;justify-content:center;min-width:0;}
   .rb-slot{position:relative;display:inline-flex;align-items:flex-start;gap:7px;}
@@ -1072,7 +1076,7 @@
     </div>
   </div>
 
-  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-10-30 · y23</footer>
+  <footer>State 646 · Formations — hero pictures: heroes/&lt;name&gt;.webp · build 2026-11-07 · y24</footer>
 </div>
 
 <div class="modal-overlay" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle"><div class="modal-panel rp-panel"><div class="modal-header"><h2 id="pickTitle">Choose hero</h2><button type="button" class="modal-close" id="pickClose" aria-label="Close">×</button></div><p class="modal-sub" id="pickSub"></p><div class="rp-pbody"><input type="text" class="rp-q" id="pickQ" placeholder="Search or type a new hero …" autocomplete="off"><div class="rp-add" id="pickAdd"></div><div class="rp-grid" id="pickGrid"></div><div id="pickGenWrap" hidden><div class="rp-gsep">Heroes by rank</div><div class="rp-grid" id="pickGen"></div></div></div></div></div>
@@ -1106,8 +1110,9 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+  const NOTEMAX = 200;
   function blank(n){ return Array.from({length: n}, () => []); }
-  function blankBlock(){ return {title: '', showL: true, showJ: true, l: blank(NL), j: blank(NJ0), ratio: DR.slice()}; }
+  function blankBlock(){ return {title: '', showL: true, showJ: true, l: blank(NL), j: blank(NJ0), ratio: DR.slice(), note: ''}; }
   const NBEAR = 7;
   const LAB = ['LAND OF HEROES - 1ST MARCH', 'LAND OF HEROES - 2ND MARCH', 'LAND OF HEROES - 3RD MARCH', 'CAVE OF MONSTERS', 'CHARM MINE', 'RESEARCH CENTER', 'GEAR FORGE', 'GAIA HEART - 1ST MARCH', 'GAIA HEART - 2ND MARCH', 'GAIA HEART - 3RD MARCH'];
   function bearBlocks(){ return Array.from({length: NBEAR}, blankBlock); }
@@ -1130,7 +1135,7 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
     if(!o){ try { const m = document.cookie.match(/(?:^|; )rally646_state=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
     const d = def();
     if(!o || typeof o !== 'object') return d;
-    const nb = x => ({title: String(x.title || '').toUpperCase().slice(0, 28), l: normSlots(x.l, NL), j: normSlots(x.j, Math.max(NJ0, Math.min(NJMAX, Array.isArray(x.j) ? x.j.length : NJ0))), ratio: normRatio(x.ratio, DR), showL: x.showL !== false, showJ: x.showJ !== false});
+    const nb = x => ({title: String(x.title || '').toUpperCase().slice(0, 28), l: normSlots(x.l, NL), j: normSlots(x.j, Math.max(NJ0, Math.min(NJMAX, Array.isArray(x.j) ? x.j.length : NJ0))), ratio: normRatio(x.ratio, DR), note: typeof x.note === 'string' ? x.note.slice(0, NOTEMAX) : '', showL: x.showL !== false, showJ: x.showJ !== false});
     const mk = (arr, mx) => Array.isArray(arr) ? arr.filter(x => x && typeof x === 'object').slice(0, mx).map(nb) : [];
     d.mode = o.mode === 'bear' || o.mode === 'lab' ? o.mode : 'normal';
     const fix = (arr, m) => { let a = mk(arr, FIXN[m] || MAXB); if(FIXN[m]){ const f = freshBlocks(m); while(a.length < FIXN[m]) a.push(f[a.length]); } return a.length ? a : null; };
@@ -1173,7 +1178,7 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
   const slotText = s => s.join(' or ');
   const rowText = a => a.filter(s => s.length).map(slotText).join(' | ') || '–';
   function buildText(){
-    return S.blocks.map(x => (x.title ? x.title + '\n' : '') + `${x.l.some(s => s.length) ? (x.showL ? 'Leads: ' : '') + rowText(x.l) + '\n' : ''}${x.j.some(s => s.length) ? (x.showJ ? 'Joiners: ' : '') + rowText(x.j) + '\n' : ''}Ratio: ${x.ratio.join(' : ')}`).join('\n\n');
+    return S.blocks.map(x => (x.title ? x.title + '\n' : '') + `${x.l.some(s => s.length) ? (x.showL ? 'Leads: ' : '') + rowText(x.l) + '\n' : ''}${x.j.some(s => s.length) ? (x.showJ ? 'Joiners: ' : '') + rowText(x.j) + '\n' : ''}Ratio: ${x.ratio.join(' : ')}` + (x.note && x.note.trim() ? '\nNotes: ' + x.note.trim().replace(/\s*\n\s*/g, ' / ') : '')).join('\n\n');
   }
 
   // ---- ratio helpers ----
@@ -1211,7 +1216,8 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
       <div class="rp-sws"><label class="switch rp-sw"><input type="checkbox" data-act="tgl" data-b="${b}" data-g="l"${blk.showL ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show &quot;Leads&quot;</span></label><label class="switch rp-sw"><input type="checkbox" data-act="tgl" data-b="${b}" data-g="j"${blk.showJ ? ' checked' : ''}><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Show &quot;Joiners&quot;</span></label></div>
       <div class="rp-grp"><div class="rp-lbl">Leads</div><div class="rp-slots l">${blk.l.map((_, i) => slotHtml(b, 'l', i)).join('')}</div></div>
       <div class="rp-grp"><div class="rp-lbl">Joiners</div><div class="rp-slots j">${blk.j.map((_, i) => slotHtml(b, 'j', i)).join('')}${blk.j.length < NJMAX ? `<div class="rp-slot"><button type="button" class="rp-empty rp-plus" data-act="addslot" data-b="${b}" title="Add another joiner slot"><b>+</b><span>More</span></button></div>` : ''}</div></div>
-      <div class="rp-grp" style="margin-bottom:0"><div class="rp-lbl">Ratio (%)</div>${ratioHtml(b)}</div></div></div>`).join('');
+      <div class="rp-grp" style="margin-bottom:0"><div class="rp-lbl">Ratio (%)</div>${ratioHtml(b)}</div>
+      <div class="rp-grp rp-notes" style="margin:14px 0 0"><label class="rp-lbl" for="nt-${b}">Notes</label><textarea id="nt-${b}" class="rp-note" data-note="${b}" rows="2" maxlength="${NOTEMAX}" placeholder="Optional, shown in the picture" spellcheck="false">${esc(blk.note || '')}</textarea></div></div></div>`).join('');
     S.blocks.forEach((_, b) => { $('rsum-' + b).innerHTML = sumHtml(b); });
     const ab = $('btnAddBlk'); if(ab) ab.style.display = (S.mode !== 'normal' || S.blocks.length >= MAXB) ? 'none' : '';
   }
@@ -1237,7 +1243,7 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
     $('shot').classList.toggle('two', S.mode === 'normal' && S.blocks.length > 1); $('shot').classList.toggle('lab', S.mode === 'lab');
     $('shot').classList.toggle('bear', S.mode === 'bear'); $('shot').parentNode.classList.toggle('bearmode', S.mode !== 'normal');   // 2 boxes side by side on wide screens (CSS)
     $('shot').innerHTML = `<div class="rb-top"><span>State 646 · Formations</span></div><div class="rb-grid">` + S.blocks.map(x =>
-      `<div class="rb-sec">${x.title ? `<h3>${esc(x.title)}</h3>` : ''}${rowHtml('Leads', x.l, x.showL)}${rowHtml('Joiners', x.j, x.showJ)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div></div>`).join('') + (S.mode === 'bear' ? '<img class="rb-bear-ic" alt="" src="' + BEAR_IC + '">' : '') + '</div>';
+      `<div class="rb-sec">${x.title ? `<h3>${esc(x.title)}</h3>` : ''}${rowHtml('Leads', x.l, x.showL)}${rowHtml('Joiners', x.j, x.showJ)}<div class="rb-row rb-ratio"><div class="rb-l">Ratio</div><div class="rb-bar"><div class="rb-nums">${x.ratio.join(' : ')}</div>${ratioBar(x.ratio, false)}${legend()}</div></div>${x.note && x.note.trim() ? `<div class="rb-row rb-note"><div class="rb-l">Notes</div><div class="rb-nt">${esc(x.note.trim())}</div></div>` : ''}</div>`).join('') + (S.mode === 'bear' ? '<img class="rb-bear-ic" alt="" src="' + BEAR_IC + '">' : '') + '</div>';
     markRows();
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(markRows);
   }
@@ -1347,6 +1353,7 @@ const TY = {'Ahmose':'i','Alonso':'m','Bahiti':'m','Blanchette':'m','Bradley':'m
   $('btnAddBlk').addEventListener('click', () => { if(S.blocks.length < MAXB){ S.blocks.push(blankBlock()); save(); renderAll(); } });
   $('edit').addEventListener('input', e => {
     const t = e.target; if(!t.dataset) return;
+    if(t.dataset && t.dataset.note !== undefined){ S.blocks[+t.dataset.note].note = t.value.slice(0, NOTEMAX); save(); renderResult(); return; }
     if(t.classList.contains('rp-title')){
       const p = t.selectionStart, v = t.value.toUpperCase();
       if(v !== t.value){ t.value = v; try { t.setSelectionRange(p, p); } catch(x) {} }
