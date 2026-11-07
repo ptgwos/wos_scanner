@@ -1078,10 +1078,20 @@
   .pk-tabs{display:flex;gap:6px;padding:0 22px 10px;} .pk-tabs[hidden],.pk-flt[hidden]{display:none;}
   .pk-tabs button{flex:1;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font:inherit;font-weight:700;font-size:13px;padding:8px 10px;cursor:pointer;}
   .pk-tabs button.on{border-color:var(--gold);color:var(--gold);background:var(--bg-2);}
-  .pk-flt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 22px 10px;font-size:12px;color:var(--text-dim);}
-  .pk-flt label{display:flex;align-items:center;gap:4px;} .pk-flt select{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 4px;font:inherit;font-size:12px;max-width:92px;}
-  .rp-row.pl{flex-wrap:wrap;} .rp-row .pk-tr{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--text-dim);padding-left:32px;}
-  .pk-tr b{color:var(--text);font-weight:600;} .pk-tr .top{color:var(--danger);font-weight:800;} .rp-row .busy{color:#ffb15c;font-size:11px;margin-left:6px;} .rp-row .ex{font-size:11px;color:var(--ice);margin-left:6px;}
+  .pk-flt{padding:0 22px 12px;font-size:12px;color:var(--text-dim);} .pk-flt[hidden]{display:none;}
+  .pk-fl{font-weight:700;margin:0 0 6px;color:var(--text-dim);}
+  .pk-fr{display:flex;gap:8px;}
+  .pk-fr label{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-weight:800;color:var(--text-faint);}
+  .pk-fr select{flex:1;min-width:0;width:100%;appearance:none;-webkit-appearance:none;background:var(--panel-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a97ad' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 9px center;color:var(--text);border:1px solid var(--border);border-radius:999px;padding:6px 24px 6px 11px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .pk-fr select[data-t="11"]{border-color:var(--good,#2fcf8f);color:var(--good,#2fcf8f);background-color:rgba(47,207,143,.12);}
+  .pk-fr select[data-t="12"],.pk-fr select[data-t="121"],.pk-fr select[data-t="122"]{border-color:var(--ice-dim,#4aa9c4);color:var(--ice,#66e3ff);}
+  .pk-fr select[data-t="123"]{border-color:var(--danger,#ff6b6b);color:var(--danger,#ff6b6b);background-color:rgba(255,107,107,.12);}
+  .rp-row.pl{flex-wrap:wrap;row-gap:5px;} .rp-row .pk-tags,.rp-row .pk-tr{flex-basis:100%;display:flex;flex-wrap:wrap;gap:5px;padding-left:32px;box-sizing:border-box;}
+  .pk-pill{display:inline-block;font-size:10.5px;font-weight:700;line-height:1.5;padding:0 8px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);white-space:nowrap;}
+  .pk-pill.ok{border-color:var(--good,#2fcf8f);color:var(--good,#2fcf8f);background:rgba(47,207,143,.12);}
+  .pk-pill.no{border-color:var(--danger,#ff6b6b);color:var(--danger,#ff6b6b);background:rgba(255,107,107,.12);}
+  .pk-pill.ex{border-color:var(--ice-dim,#4aa9c4);color:var(--ice,#66e3ff);}
+  .pk-tp{font-weight:600;} .pk-tp b{font-weight:800;margin-right:2px;color:var(--text);} .pk-tp.ok b,.pk-tp.no b{color:inherit;}
   .ev-pool{font-size:12px;color:var(--text-dim);margin-left:8px;}
   .rp-ms input{flex:1;min-width:0;box-sizing:border-box;}
   .rp-ms select{flex:none;width:118px;min-width:0;}
@@ -1106,7 +1116,7 @@
   .rp-row:hover{background:rgba(120,140,190,.14);}
   .rp-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;}
   .rp-row .pw{color:var(--text-dim);font-variant-numeric:tabular-nums;font-size:12.5px;}
-  .rp-row .used{font-size:10.5px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:1px 7px;}
+  .rp-row .used{font-size:10.5px;font-weight:700;color:var(--danger,#ff6b6b);border:1px solid var(--danger,#ff6b6b);background:rgba(255,107,107,.12);border-radius:999px;padding:0 8px;}
   .rp-row .av{margin:0;}
   .rp-empty{color:var(--text-faint);text-align:center;padding:24px 0;font-size:13px;}
   .rp-hint{color:var(--text-faint);font-size:12px;margin-top:12px;}
@@ -1135,7 +1145,7 @@
 </head>
 <body>
 <div class="modal-overlay" id="evModal" role="dialog" aria-modal="true" aria-labelledby="evTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="evTitle"></h2><button type="button" class="modal-close" id="evClose" aria-label="Close">×</button></div><div class="ev-f" id="evBody"></div></div></div>
-<div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><select id="pkAl" aria-label="Alliance"></select><input type="text" id="pkQ" placeholder="Search name …" autocomplete="off"></div><div class="pk-tabs" id="pkTabs" hidden><button type="button" data-m="pool">Pool <span id="pkPn"></span></button><button type="button" data-m="all">All players</button></div><div class="pk-flt" id="pkFlt" hidden><span class="pk-fl">Min. troops</span><label>Inf<select data-u="0"></select></label><label>Lan<select data-u="1"></select></label><label>Mar<select data-u="2"></select></label></div><div class="pt-warn" id="pkWarn" hidden></div><div class="rp-list" id="pkList"></div></div></div>
+<div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="rp-ms"><select id="pkAl" aria-label="Alliance"></select><input type="text" id="pkQ" placeholder="Search name …" autocomplete="off"></div><div class="pk-tabs" id="pkTabs" hidden><button type="button" data-m="pool">Pool <span id="pkPn"></span></button><button type="button" data-m="all">All players</button></div><div class="pk-flt" id="pkFlt" hidden><div class="pk-fl">Minimum troops:</div><div class="pk-fr"><label title="Infantry"><span>I</span><select data-u="0" aria-label="Minimum infantry"></select></label><label title="Lancers"><span>L</span><select data-u="1" aria-label="Minimum lancers"></select></label><label title="Marksmen"><span>M</span><select data-u="2" aria-label="Minimum marksmen"></select></label></div></div><div class="pt-warn" id="pkWarn" hidden></div><div class="rp-list" id="pkList"></div></div></div>
 <div class="modal-overlay" id="ptModal" role="dialog" aria-modal="true" aria-labelledby="ptTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="ptTitle">Pets</h2><button type="button" class="modal-close" id="ptClose" aria-label="Close">×</button></div><p class="modal-sub" id="ptSub"></p><div class="pt-opts" id="ptOpts"></div><div id="mnSec" hidden><h3 class="mn-h">Minister office (30 minutes each, tap to change: none, MoD, MoS)</h3><div class="pt-opts" id="mnOpts"></div></div><div class="pt-warn" id="ptWarn" hidden></div><p class="pt-note">Pets run for 2 hours in a row at most and can only be activated once per day (all blocks together). Pick one hour per tap (times in UTC); tap an active hour again to remove it.</p></div></div>
 <div class="modal-overlay" id="hrModal" role="dialog" aria-modal="true" aria-labelledby="hrTitle"><div class="modal-panel rp-modal"><div class="modal-header"><h2 id="hrTitle">Joiner hero</h2><button type="button" class="modal-close" id="hrClose" aria-label="Close">×</button></div><p class="modal-sub" id="hrSub"></p><div class="rp-ms"><input type="text" id="hrQ" placeholder="Hero name …" autocomplete="off"></div><div class="hr-grid" id="hrGrid"></div></div></div>
 <div id="rpShot" aria-hidden="true"></div>
@@ -1172,7 +1182,7 @@
     <button type="button" class="btn" id="rpAddBlock">+ Add block</button>
     <div class="rp-hint" id="rpHint">Tap the + to pick a player. Tap a name to change it, × to clear. The plan is stored on the server: everyone with Rally Planner rights edits the same event, changes show up for all within a few seconds.</div>
   </div>
-  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-07 · rp35</footer>
+  <footer id="foot">State 646 · Rally Planner — data: Whiteout Stats API · build 2026-11-07 · rp36</footer>
 </div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1614,8 +1624,8 @@ ${escapeHtml(lab)}</textarea></div>`;
   const PK_KEY = 'svs646_rally_pk', PSTART = {castle: [12, 13, 14, 15, 16], fdt: [11, 12, 13, 14, 15, 16], tal: [2, 7, 12, 14, 19]};
   let pkMode = 'pool', pkTimer = null; const POOL = {id: null, rows: [], ok: false, err: ''};
   const pkTabs = document.getElementById('pkTabs'), pkFlt = document.getElementById('pkFlt');
-  const FOPT = [['', 'any'], ['11', 'T11+'], ['12', 'T12'], ['121', 'T12 S1+'], ['122', 'T12 S2+'], ['123', 'T12 S3']];
-  pkFlt.querySelectorAll('select').forEach(sel => { sel.innerHTML = FOPT.map(o => '<option value="' + o[0] + '">' + o[1] + '</option>').join(''); sel.addEventListener('change', fillList); });
+  const FOPT = [['', 'any'], ['11', 'T11'], ['12', 'T12'], ['121', 'T12 - 1+'], ['122', 'T12 - 2+'], ['123', 'T12 - 3']];
+  pkFlt.querySelectorAll('select').forEach(sel => { sel.innerHTML = FOPT.map(o => '<option value="' + o[0] + '">' + o[1] + '</option>').join(''); sel.dataset.t = ''; sel.addEventListener('change', () => { sel.dataset.t = sel.value; fillList(); }); });
   function poolEv(){ const e = curEv(); return e && e.pool_event_id ? e.pool_event_id : null; }
   function poolKind(){ const x = (V.pev || {})[poolEv()]; return x && PSTART[x.kind] ? x.kind : 'castle'; }
   function poolBit(c){ return PSTART[poolKind()].indexOf(Math.floor(slotAt(c) / 60)); }
@@ -1639,8 +1649,9 @@ ${escapeHtml(lab)}</textarea></div>`;
     try { const rows = await rpc('pool_event_list', {p_code: V.code}); V.pev = {}; (Array.isArray(rows) ? rows : []).forEach(x => { V.pev[x.id] = x; }); V.pevList = Array.isArray(rows) ? rows : []; } catch(e) { V.pev = V.pev || {}; V.pevList = V.pevList || []; }
   }
   function troopHtml(row){
-    return ['Inf', 'Lan', 'Mar'].map((n, i) => { const f = row.fc && row.fc[i], t = row.tier && row.tier[i], sk = row.skill && row.skill[i];
-      return '<span>' + n + ' <b>' + (f != null ? 'FC' + f : '–') + '</b> · ' + (t == null ? '–' : '<span' + (t === 12 && sk === 3 ? ' class="top"' : '') + '>T' + t + (sk != null ? ' S' + sk : '') + '</span>') + '</span>'; }).join('');
+    return ['Inf', 'Lan', 'Mar'].map((n, i) => { const t = row.tier && row.tier[i], sk = row.skill && row.skill[i];
+      const cls = t === 12 && sk === 3 ? ' no' : (t === 11 ? ' ok' : ''), txt = t == null ? '–' : 'T' + t + (t === 12 && sk != null ? ' - ' + sk : '');
+      return '<span class="pk-pill pk-tp' + cls + '"><b>' + n + '</b> ' + txt + '</span>'; }).join('');
   }
   function fillPool(){
     const q = norm(pkQ.value).trim();
@@ -1651,8 +1662,11 @@ ${escapeHtml(lab)}</textarea></div>`;
     let arr = hour.filter(fltOk).map(x => ({x, p: D && D.players && D.players[x.pid]}));
     if(q) arr = arr.filter(o => (o.p && norm(o.p.n).includes(q)) || String(o.x.pid).includes(q));
     arr.sort((a, b) => ((b.p && b.p.p) || 0) - ((a.p && a.p.p) || 0));
-    pkList.innerHTML = arr.length ? arr.map(o => { const id = String(o.x.pid), busy = slotWhere(id, cur.c, cur.b, cur.r, cur.k).length > 0;
-      return '<button type="button" class="rp-row pl" data-id="' + escapeHtml(id) + '">' + avatar(id, o.p, 24) + '<span class="nm">' + escapeHtml(o.p ? (o.p.n || id) : 'ID ' + id) + '</span>' + (used.has(id) ? '<span class="used">placed</span>' : '') + (busy ? '<span class="busy">busy this hour</span>' : '') + ((o.x.heal || o.x.boost || o.x.bb) ? '<span class="ex">' + (o.x.bb ? '🤠 ' : '') + (o.x.heal ? 'Heal ' : '') + (o.x.boost ? '+20%' : '') + '</span>' : '') + (cur.k == null && o.p ? '<span class="pw">' + fmtM(o.p.p) + '</span>' : '') + '<span class="pk-tr">' + troopHtml(o.x) + '</span></button>'; }).join('')
+    pkList.innerHTML = arr.length ? arr.map(o => { const id = String(o.x.pid), where = slotWhere(id, cur.c, cur.b, cur.r, cur.k), placed = used.has(id) || where.length > 0;
+      const tip = where.length ? 'Already placed in this hour: ' + where.join('; ') : 'Already placed in this block (another hour)';
+      return '<button type="button" class="rp-row pl" data-id="' + escapeHtml(id) + '">' + avatar(id, o.p, 24) + '<span class="nm">' + escapeHtml(o.p ? (o.p.n || id) : 'ID ' + id) + '</span>' + (cur.k == null && o.p ? '<span class="pw">' + fmtM(o.p.p) + '</span>' : '')
+        + '<span class="pk-tags"><span class="pk-pill ok">available</span>' + (placed ? '<span class="pk-pill no" title="' + escapeHtml(tip) + '">placed</span>' : '') + (o.x.bb ? '<span class="pk-pill ex">🤠 Battle Buddy</span>' : '') + (o.x.heal ? '<span class="pk-pill ex">Heal</span>' : '') + (o.x.boost ? '<span class="pk-pill ex">+20%</span>' : '') + '</span>'
+        + '<span class="pk-tr">' + troopHtml(o.x) + '</span></button>'; }).join('')
       : '<div class="rp-empty">' + (hour.length ? 'Nobody matches these filters for ' + escapeHtml(TIMES[cur.c]) + '.' : (cur.k == null ? 'Nobody in the pool is available at ' : 'Nobody in the pool offered to be a Battle Buddy at ') + escapeHtml(TIMES[cur.c]) + ' yet.') + '</div>';
   }
   function setMode(m){
