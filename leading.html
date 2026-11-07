@@ -1099,6 +1099,11 @@
 tr.ld-pick td{background-color:rgba(102,227,255,.12) !important;}
 tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
 .ld-me2{background:#18c5d6;color:#04222a}
+.ld-dl{display:block;font-size:11px;font-weight:600;margin-top:2px;color:var(--text-faint)}
+.ld-bt{font-size:12px;color:var(--text-faint);margin:-4px 0 8px}
+.ld-hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:22px}
+.ld-hrow .ld-h{margin:0 0 8px}
+.ld-hrow .seg{margin:0 0 6px}
 </style>
 </head>
 <body>
@@ -1122,10 +1127,12 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
       <div class="field"><label for="ldq">State</label><span class="rq-box"><input type="text" id="ldq" inputmode="numeric" placeholder="Number …" autocomplete="off" style="width:120px"></span></div>
       <button type="button" class="btn" id="ldTop" title="Only the first ten">Top 10</button>
       <button type="button" class="btn" id="ldMe" title="Jump to our state">Our state</button>
+      <div class="field"><label for="ldBase">Compare with</label><select id="ldBase" style="min-width:170px"></select></div>
       <button type="button" class="btn" id="ldShBtn" title="Picture of the ranking for sharing">Share pic</button>
     </div>
+    <div class="ld-bt" id="ldBaseTxt"></div>
     <div class="sp-wrap"><table class="sp" id="ldTbl"></table></div>
-    <div class="ld-h">History</div>
+    <div class="ld-hrow"><div class="ld-h">History</div><div class="seg" id="ldCm" role="group" aria-label="What the chart shows"><button type="button" data-m="pts" class="active">Points</button><button type="button" data-m="gap">Gap to #1</button><button type="button" data-m="rank">Rank</button></div></div>
     <div class="ld-chips" id="ldChips"></div>
     <div id="ldChart"></div>
     <div class="sp-note" id="ldNote" style="margin-top:14px;font-size:12px;color:var(--text-faint)"></div>
@@ -1137,7 +1144,7 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
     <div style="overflow:auto;padding:6px 0 14px"><div id="ldShot"></div></div></div></div>
   <div class="sp-toast" id="spToast" role="status"></div>
 
-  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-06 · l5</footer>
+  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-07 · l6</footer>
 </div>
 
 <script>
@@ -1145,7 +1152,7 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
   'use strict';
   var OWN = '646', HMAX = 40;
   var COLORS = ['#4f7cff', '#2fcf8f', '#ff7a1a', '#b36bff', '#ff5d8f', '#18c5d6', '#d6c21a', '#8a97ad'];
-  var D = null, HIST = [], st = {sort: 's', dir: -1, q: '', top: false, sel: null}, ROWS = [];
+  var D = null, HIST = [], st = {sort: 's', dir: -1, q: '', top: false, sel: null, base: 'prev', cm: 'pts'}, ROWS = [];
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]; }); }
   function $(id){ return document.getElementById(id); }
@@ -1165,46 +1172,63 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
   }
 
   // ---- rows with rank, gap, change ----
+  // snapshot to compare with: previous capture, about 7 / 30 days ago, or a chosen day
+  function olderSnaps(){ var cap = D.captured || 0; return HIST.filter(function(h){ return !h.captured || !cap || h.captured < cap; }); }
+  function baseSnap(){
+    var old = olderSnaps(); if(!old.length) return null;
+    if(st.base === 'prev') return old[old.length - 1];
+    var m = /^d(\d+)$/.exec(st.base);
+    if(m){ var t = (D.captured || 0) - (+m[1]) * 86400, pick = null; old.forEach(function(h){ if(h.captured && h.captured <= t + 6 * 3600) pick = h; }); return pick || old[0]; }
+    return old.filter(function(h){ return h.date === st.base; })[0] || old[old.length - 1];
+  }
   function build(){
     var arr = Object.keys(D.states || {}).map(function(k){ var v = D.states[k]; return {k: k, s: v.s, n: v.n, t1: v.t1, c: v.c, stale: !!v.stale}; });
     arr.sort(function(a, b){ return b.s - a.s; });
     arr.forEach(function(r, i){ r.rank = i + 1; });
-    var prev = null;                                                            // newest snapshot that is older than the current capture
-    for(var i = HIST.length - 1; i >= 0; i--){ if(!D.captured || (HIST[i].captured && HIST[i].captured < D.captured)){ prev = HIST[i]; break; } }
-    var pr = {};
-    if(prev){ var pa = Object.keys(prev.s).map(function(k){ return [k, prev.s[k][0]]; }).sort(function(a, b){ return b[1] - a[1]; }); pa.forEach(function(x, j){ pr[x[0]] = {rank: j + 1, s: x[1]}; }); }
+    var prev = baseSnap(), pr = {}, ptop = 0;
+    if(prev){ var pa = Object.keys(prev.s).map(function(k){ return [k, prev.s[k][0]]; }).sort(function(a, b){ return b[1] - a[1]; }); ptop = pa.length ? pa[0][1] : 0; pa.forEach(function(x, j){ var e = prev.s[x[0]]; pr[x[0]] = {rank: j + 1, s: x[1], n: e[1], c: e[2]}; }); }
     var top = arr.length ? arr[0].s : 0;
-    arr.forEach(function(r){ r.gap = r.s - top; r.avg = r.n ? r.s / r.n : 0; var p = pr[r.k]; r.d = p ? r.s - p.s : null; r.dr = p ? p.rank - r.rank : null; });
+    arr.forEach(function(r){ r.gap = r.s - top; r.avg = r.n ? r.s / r.n : 0; var p = pr[r.k]; r.d = p ? r.s - p.s : null; r.dr = p ? p.rank - r.rank : null; r.gd = p ? r.gap - (p.s - ptop) : null; r.ad = p && p.n ? r.avg - p.s / p.n : null; r.cd = p && p.c != null && r.c != null ? r.c - p.c : null; });
     ROWS = arr; D._prev = prev;
     if(!st.sel){ st.sel = arr.slice(0, 5).map(function(r){ return r.k; }); if(st.sel.indexOf(OWN) < 0 && D.states[OWN]) st.sel.push(OWN); }
   }
 
+  function baseLbl(){ var p = D && D._prev; return p ? (st.base === 'prev' ? 'last capture' : p.date.slice(5)) : ''; }
+  function dl(v){ if(v == null || !isFinite(v)) return ''; if(!Math.round(v)) return '<small class="ld-dl">±0</small>'; return '<small class="ld-dl ' + (v > 0 ? 'ld-up' : 'ld-down') + '">' + sgn(v) + '</small>'; }
   function rowHtml(r, mx, full, pick){
       var me2 = r.k === OWN;
       return '<tr class="' + (me2 ? 'ld-own' : pick ? 'ld-pick' : '') + '"><td class="sp-n">' + r.rank + '</td><td class="sp-p"><b>' + esc(r.k) + '</b>' + (me2 ? '<span class="ld-me">US</span>' : pick ? '<span class="ld-me ld-me2">★</span>' : '') + (r.stale ? '<span class="ld-old" title="The last fetch failed, these are older values.">old</span>' : '') + '</td>'
         + '<td class="sp-s ld-sc" title="' + esc(dots(r.s)) + '">' + fmt(r.s) + '<span class="ld-bar"><i style="width:' + Math.max(2, (r.s - mx * 0.9) / (mx * 0.1) * 100).toFixed(1) + '%"></i></span></td>'
-        + '<td>' + (r.rank === 1 ? '–' : '<span class="ld-down">' + sgn(r.gap) + '</span>') + '</td>'
+        + '<td>' + (r.rank === 1 ? '–' : '<span class="ld-down">' + sgn(r.gap) + '</span>') + (full && r.rank > 1 ? dl(r.gd) : '') + '</td>'
         + '<td>' + (r.d == null ? '<span class="sp-no">–</span>' : '<span class="' + (r.d >= 0 ? 'ld-up' : 'ld-down') + '">' + sgn(r.d) + '</span>' + (r.dr ? ' <small class="' + (r.dr > 0 ? 'ld-up' : 'ld-down') + '">' + (r.dr > 0 ? '▲' : '▼') + Math.abs(r.dr) + '</small>' : '')) + '</td>'
-        + (full ? '<td>' + fmt(r.avg) + '</td><td title="Score of the 100th player (the cutoff)">' + fmt(r.c) + '</td>' : '') + '</tr>';
+        + (full ? '<td>' + fmt(r.avg) + dl(r.ad) + '</td><td title="Transfer score of the 100th player (the cutoff)">' + fmt(r.c) + dl(r.cd) + '</td>' : '') + '</tr>';
   }
 
+  function fillBase(){
+    var sel = $('ldBase'), old = olderSnaps(), o = '<option value="prev">Previous capture</option><option value="d7">≈ 7 days ago</option><option value="d30">≈ 30 days ago</option>';
+    old.slice().reverse().forEach(function(h){ o += '<option value="' + esc(h.date) + '">Since ' + esc(h.date) + '</option>'; });
+    sel.innerHTML = o; if(!Array.prototype.some.call(sel.options, function(op){ return op.value === st.base; })) st.base = 'prev';
+    sel.value = st.base; sel.disabled = !old.length;
+    var p = D._prev; $('ldBaseTxt').textContent = p ? 'Changes since the capture of ' + stamp(p.captured) : 'No earlier capture yet, so there are no changes to show.';
+  }
   function render(){
     if(!D) return;
     var n = ROWS.length;
     $('ldSample').classList.toggle('on', !!D.sample);
+    fillBase();
     $('sub').textContent = 'Transfer score of the top 100 · states ' + D.first + '–' + D.last + ' · ' + n + ' states · game capture ' + stamp(D.captured);
     // hero
-    var me = ROWS.filter(function(r){ return r.k === OWN; })[0], h = '';
+    var BL = baseLbl(), me = ROWS.filter(function(r){ return r.k === OWN; })[0], h = '';
     if(me){
       var a = ROWS[me.rank - 2], b = ROWS[me.rank];
-      h += '<div class="ld-card ld-main"><small>State ' + OWN + ' is</small><b>#' + me.rank + ' of ' + n + '</b><span>' + (me.rank === 1 ? 'Leading the bracket right now.' : 'Gap to #1: ' + fmt(-me.gap) + ' (' + pct(-me.gap / ROWS[0].s * 100).replace('+', '−') + ')') + (me.dr ? ' · <span class="' + (me.dr > 0 ? 'ld-up' : 'ld-down') + '" style="display:inline">' + (me.dr > 0 ? '▲' : '▼') + Math.abs(me.dr) + ' since last capture</span>' : '') + '</span></div>';
-      h += '<div class="ld-card"><small>Transfer score (top 100)</small><b>' + fmt(me.s) + '</b><span>' + (me.d != null ? '<span class="' + (me.d >= 0 ? 'ld-up' : 'ld-down') + '" style="display:inline">' + sgn(me.d) + '</span> since last capture' : 'no earlier capture yet') + '</span></div>';
+      h += '<div class="ld-card ld-main"><small>State ' + OWN + ' is</small><b>#' + me.rank + ' of ' + n + '</b><span>' + (me.rank === 1 ? 'Leading the bracket right now.' : 'Gap to #1: ' + fmt(-me.gap) + ' (' + pct(-me.gap / ROWS[0].s * 100).replace('+', '−') + ')') + (me.dr ? ' · <span class="' + (me.dr > 0 ? 'ld-up' : 'ld-down') + '" style="display:inline">' + (me.dr > 0 ? '▲' : '▼') + Math.abs(me.dr) + ' since ' + BL + '</span>' : '') + '</span></div>';
+      h += '<div class="ld-card"><small>Transfer score (top 100)</small><b>' + fmt(me.s) + '</b><span>' + (me.d != null ? '<span class="' + (me.d >= 0 ? 'ld-up' : 'ld-down') + '" style="display:inline">' + sgn(me.d) + '</span> since ' + BL : 'no earlier capture yet') + '</span></div>';
       h += '<div class="ld-card"><small>' + (a ? 'Ahead: #' + a.rank + ' · State ' + a.k : 'Nobody ahead') + '</small><b>' + (a ? fmt(a.s - me.s) : '–') + '</b><span>' + (a ? 'needed to overtake (' + pct((a.s - me.s) / me.s * 100).replace('+', '') + ')' : 'You are the first.') + '</span></div>';
       h += '<div class="ld-card"><small>' + (b ? 'Behind: #' + b.rank + ' · State ' + b.k : 'Nobody behind') + '</small><b>' + (b ? fmt(me.s - b.s) : '–') + '</b><span>' + (b ? 'lead over them (' + pct((me.s - b.s) / b.s * 100).replace('+', '') + ')' : '') + '</span></div>';
     } else h = '<div class="ld-card ld-main" style="grid-column:1 / -1"><small>State ' + OWN + '</small><b>not in the data</b><span>State ' + OWN + ' has no ranking in this run.</span></div>';
     $('ldHero').innerHTML = h;
     // table
-    var COLS = [['rank', '#', 'sp-n'], ['k', 'State', 'sp-p sp-l'], ['s', 'Transfer score'], ['gap', 'Gap to #1'], ['d', 'Change'], ['avg', 'Ø per player'], ['c', '#100']];
+    var COLS = [['rank', '#', 'sp-n'], ['k', 'State', 'sp-p sp-l'], ['s', 'Transfer score'], ['gap', 'Gap to #1'], ['d', 'Change'], ['avg', 'Avg. per player'], ['c', '100th place']];
     var rows = ROWS.slice(), q = st.q.trim();
     if(q) rows = rows.filter(function(r){ return r.k.indexOf(q) >= 0; });
     if(st.top) rows = rows.filter(function(r){ return r.rank <= 10; });
@@ -1216,13 +1240,16 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
     // note
     var mg = D.merged || {}, gone = Object.keys(D.gone || {}).filter(function (k) { return !mg[k]; });
     var mgk = Object.keys(mg);
-    $('ldNote').innerHTML = 'The ranking is the <b>sum of the transfer scores of the top 100 players</b> of each state. “Change” compares with the previous capture' + (D._prev ? ' (' + esc(stamp(D._prev.captured)) + ')' : '') + '. '
+    $('ldNote').innerHTML = 'The ranking is the <b>sum of the transfer scores of the top 100 players</b> of each state. The change values compare with the period chosen under “Compare with”' + (D._prev ? ' (now: since ' + esc(stamp(D._prev.captured)) + ')' : '') + '. 100th-place changes appear once two captures with that value exist. '
       + (mgk.length ? 'Merged states counted once: ' + mgk.map(function (k) { return esc(k) + ' → ' + esc(mg[k]); }).join(', ') + '. ' : '') + (gone.length ? gone.length + ' state' + (gone.length === 1 ? '' : 's') + ' of the range do not exist (any more): ' + esc(gone.join(', ')) + '. ' : '') + 'The bar starts at 90% of the leader’s score so that small differences are visible. Data: Whiteout Stats API, updated by hand for now.';
     chart();
   }
 
   // ---- history chart ----
   function colorOf(k){ if(k === OWN) return '#f2b705'; var i = st.sel.filter(function(x){ return x !== OWN; }).indexOf(k); return COLORS[(i < 0 ? 0 : i) % COLORS.length]; }
+  function snapInfo(sn){ if(!sn._r){ var a = Object.keys(sn.s).sort(function(x, y){ return sn.s[y][0] - sn.s[x][0]; }); sn._r = {}; a.forEach(function(k, i){ sn._r[k] = i + 1; }); sn._t = a.length ? sn.s[a[0]][0] : 0; } return sn; }
+  function pv(sn, k){ var e = sn.s[k]; if(!e) return null; snapInfo(sn); return st.cm === 'rank' ? sn._r[k] : st.cm === 'gap' ? e[0] - sn._t : e[0]; }
+  function tipV(v, axis){ return st.cm === 'rank' ? '#' + Math.round(v) : st.cm === 'gap' ? (Math.round(v) ? sgn(v) : '0') + (axis ? '' : ' (' + dots(v) + ')') : (axis ? fmt(v) : dots(v)); }
   function chart(){
     // chips
     var chips = st.sel.map(function(k){ return '<button type="button" class="ld-chip on" data-s="' + esc(k) + '" style="--c:' + colorOf(k) + '" title="Remove from the chart"><i></i>State ' + esc(k) + ' ×</button>'; }).join('');
@@ -1231,26 +1258,30 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
     $('ldChips').innerHTML = chips;
     var snaps = HIST.slice();
     // the current capture is the last point (it is also stored as a snapshot normally)
-    if(!snaps.length || (D.captured && snaps[snaps.length - 1].captured !== D.captured)){ var cur = {date: new Date(D.captured * 1000).toISOString().slice(0, 10), captured: D.captured, s: {}}; ROWS.forEach(function(r){ cur.s[r.k] = [r.s, r.n]; }); snaps.push(cur); }
+    if(!snaps.length || (D.captured && snaps[snaps.length - 1].captured !== D.captured)){ var cur = {date: new Date(D.captured * 1000).toISOString().slice(0, 10), captured: D.captured, s: {}}; ROWS.forEach(function(r){ cur.s[r.k] = [r.s, r.n, r.c]; }); snaps.push(cur); }
     if(snaps.length < 2){ $('ldChart').innerHTML = '<div class="ld-empty">The history starts with the first capture. After the next run there will be a line here.</div>'; return; }
-    var W = 900, H = 340, L = 64, R = 70, T = 14, B = 34, series = st.sel.map(function(k){ return {k: k, p: snaps.map(function(sn, i){ return sn.s[k] ? [i, sn.s[k][0]] : null; }).filter(Boolean)}; }).filter(function(s){ return s.p.length; });
+    var W = 900, H = 340, L = 64, R = 70, T = 14, B = 34, series = st.sel.map(function(k){ return {k: k, p: snaps.map(function(sn, i){ var v = pv(sn, k); return v == null ? null : [i, v]; }).filter(Boolean)}; }).filter(function(s){ return s.p.length; });
     if(!series.length){ $('ldChart').innerHTML = '<div class="ld-empty">Pick at least one state.</div>'; return; }
     var lo = Infinity, hi = -Infinity; series.forEach(function(s){ s.p.forEach(function(p){ lo = Math.min(lo, p[1]); hi = Math.max(hi, p[1]); }); });
-    if(hi === lo){ hi += 1; lo -= 1; } var pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
-    var X = function(i){ return L + (W - L - R) * i / (snaps.length - 1); }, Y = function(v){ return T + (H - T - B) * (1 - (v - lo) / (hi - lo)); };
+    var rk = st.cm === 'rank', minr = lo, maxr = hi;
+    if(rk){ lo -= 0.5; hi += 0.5; } else { if(hi === lo){ hi += 1; lo -= 1; } var pad = (hi - lo) * 0.08; lo -= pad; hi += pad; }
+    var X = function(i){ return L + (W - L - R) * i / (snaps.length - 1); }, Y = function(v){ var f = (v - lo) / (hi - lo); return T + (H - T - B) * (rk ? f : 1 - f); };
     var g = '';
-    for(var i = 0; i <= 4; i++){ var v = lo + (hi - lo) * i / 4, y = Y(v); g += '<line class="g" x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '"/><text class="t" x="' + (L - 8) + '" y="' + (y + 4) + '" text-anchor="end">' + fmt(v) + '</text>'; }
+    var ticks = [];
+    if(rk){ var stp = Math.max(1, Math.ceil((maxr - minr) / 4)); [1, 2, 5, 10, 20, 25, 50, 100].some(function(n){ if(n >= stp){ stp = n; return true; } }); for(var q = minr; q <= maxr; q += stp) ticks.push(q); if(ticks[ticks.length - 1] !== maxr && maxr - ticks[ticks.length - 1] >= stp / 2) ticks.push(maxr); }
+    else for(var i = 0; i <= 4; i++) ticks.push(lo + (hi - lo) * i / 4);
+    ticks.forEach(function(v){ var y = Y(v); g += '<line class="g" x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '"/><text class="t" x="' + (L - 8) + '" y="' + (y + 4) + '" text-anchor="end">' + tipV(v, true) + '</text>'; });
     var step = Math.max(1, Math.ceil(snaps.length / 8));
     snaps.forEach(function(sn, i){ if(i % step === 0 || i === snaps.length - 1) g += '<text class="t" x="' + X(i) + '" y="' + (H - 10) + '" text-anchor="middle">' + esc(sn.date.slice(5)) + '</text>'; });
     var lines = '', labels = [];
     series.forEach(function(s){
       var c = colorOf(s.k), me = s.k === OWN, d = s.p.map(function(p, j){ return (j ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(' ');
-      lines += '<path class="l' + (me ? ' me' : '') + '" stroke="' + c + '" d="' + d + '"/>' + s.p.map(function(p){ return '<circle cx="' + X(p[0]).toFixed(1) + '" cy="' + Y(p[1]).toFixed(1) + '" r="' + (me ? 4 : 3) + '" fill="' + c + '"><title>State ' + esc(s.k) + ' · ' + esc(snaps[p[0]].date) + ': ' + esc(dots(p[1])) + '</title></circle>'; }).join('');
+      lines += '<path class="l' + (me ? ' me' : '') + '" stroke="' + c + '" d="' + d + '"/>' + s.p.map(function(p){ return '<circle cx="' + X(p[0]).toFixed(1) + '" cy="' + Y(p[1]).toFixed(1) + '" r="' + (me ? 4 : 3) + '" fill="' + c + '"><title>State ' + esc(s.k) + ' · ' + esc(snaps[p[0]].date) + ': ' + esc(tipV(p[1])) + '</title></circle>'; }).join('');
       var last = s.p[s.p.length - 1]; labels.push({y: Y(last[1]), k: s.k, c: c});
     });
     labels.sort(function(a, b){ return a.y - b.y; }); for(var j = 1; j < labels.length; j++) if(labels[j].y - labels[j - 1].y < 13) labels[j].y = labels[j - 1].y + 13;
     labels.forEach(function(l){ lines += '<text class="lb" x="' + (W - R + 8) + '" y="' + (l.y + 4) + '" fill="' + l.c + '">' + esc(l.k) + '</text>'; });
-    $('ldChart').innerHTML = '<svg class="ld-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Transfer score history">' + g + lines + '</svg>';
+    $('ldChart').innerHTML = '<svg class="ld-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + (rk ? 'Rank' : st.cm === 'gap' ? 'Gap to the leader' : 'Transfer score') + ' history">' + g + lines + '</svg>';
   }
 
   // ---- events ----
@@ -1259,6 +1290,8 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
     var k = th.dataset.k; if(st.sort === k) st.dir = -st.dir; else { st.sort = k; st.dir = (k === 'k' || k === 'rank') ? 1 : -1; if(k === 'rank') st.dir = 1; }
     render();
   });
+  $('ldBase').addEventListener('change', function(){ st.base = this.value; build(); render(); });
+  $('ldCm').addEventListener('click', function(e){ var b = e.target.closest('button[data-m]'); if(!b) return; st.cm = b.dataset.m; Array.prototype.forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('active', x === b); }); chart(); });
   $('ldq').addEventListener('input', function(){ st.q = this.value.replace(/\D/g, ''); render(); });
   $('ldTop').addEventListener('click', function(){ st.top = !st.top; this.classList.toggle('sp-act', st.top); render(); });
   $('ldMe').addEventListener('click', function(){ st.q = ''; $('ldq').value = ''; st.top = false; $('ldTop').classList.remove('sp-act'); render(); var r = document.querySelector('tr.ld-own'); if(r) r.scrollIntoView({block: 'center', behavior: 'smooth'}); });
@@ -1325,7 +1358,7 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
     });
     t += '</tbody>';
     var line = me ? 'State ' + OWN + ' is <b>#' + me.rank + '</b> of ' + ROWS.length + (me.rank > 1 ? ' · gap to #1: ' + fmt(-me.gap) : '') : '';
-    $('ldShot').innerHTML = '<div class="ld-sh-h"><div class="ld-sh-t">LEADING STATE · top 100 transfer score</div><div class="ld-sh-s">States ' + D.first + '–' + D.last + ' · game capture ' + stamp(D.captured) + '</div>' + (line ? '<div class="ld-sh-m">' + line + '</div>' : '') + '</div><table class="sp">' + t + '</table><div class="ld-sh-f">state646.com</div>';
+    $('ldShot').innerHTML = '<div class="ld-sh-h"><div class="ld-sh-t">LEADING STATE · top 100 transfer score</div><div class="ld-sh-s">States ' + D.first + '–' + D.last + ' · game capture ' + stamp(D.captured) + (D._prev ? ' · change since ' + esc(D._prev.date) : '') + '</div>' + (line ? '<div class="ld-sh-m">' + line + '</div>' : '') + '</div><table class="sp">' + t + '</table><div class="ld-sh-f">state646.com</div>';
   }
   function shareOpen(){ $('ldShare').classList.add('open'); shareRender(); loadLib().catch(function(){}); }
   function shareClose(){ $('ldShare').classList.remove('open'); }
