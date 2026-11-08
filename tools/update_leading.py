@@ -80,6 +80,9 @@ def stamp(t):
     return time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(t)) if t else 'unknown'
 
 
+SCORES = {}
+
+
 def fetch_state(kid):
     """-> ('ok', entry) | ('gone', None) | ('err', None)"""
     code, d = get(f'/states/{kid}/ranks?board={BOARD}&limit=100')
@@ -98,6 +101,7 @@ def fetch_state(kid):
             v = (src or {}).get(f)
             if isinstance(v, int) or (isinstance(v, str) and v.isdigit()): own = int(v); break
         if own: break
+    SCORES[str(kid)] = sorted((int(x) for x in scores), reverse=True)      # research file: all scores of this state (no extra API call)
     return 'ok', {'kid': own, 's': int(sum(scores)), 'n': len(scores), 't1': int(max(scores)), 'c': int(min(scores)), 'cap': int(float(cap)) if cap else None}
 
 
@@ -169,6 +173,16 @@ def main():
     for path, data in ((os.path.join(OUT, 'leading.json'), out), (os.path.join(OUT, 'leading', day + '.json'), snap)):
         with open(path + '.tmp', 'w', encoding='utf-8') as f: json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
         os.replace(path + '.tmp', path)
+    # research file data/leading_scores.json: the top-100 scores of every state (for finding out how the game's rating is calculated)
+    try:
+        oldsc = load(os.path.join(OUT, 'leading_scores.json')) or {}
+        sc = dict(oldsc.get('states') or {}); sc.update(SCORES)
+        sc = {k: v for k, v in sc.items() if k in out['states']}
+        with open(os.path.join(OUT, 'leading_scores.json') + '.tmp', 'w', encoding='utf-8') as f:
+            json.dump({'captured': cap, 'updated': int(time.time()), 'states': dict(sorted(sc.items(), key=lambda kv: int(kv[0])))}, f, separators=(',', ':'))
+        os.replace(os.path.join(OUT, 'leading_scores.json') + '.tmp', os.path.join(OUT, 'leading_scores.json'))
+    except Exception as e:
+        print(f'scores file skipped: {e}', flush=True)
     d = os.path.join(OUT, 'leading')
     days = sorted(f[:-5] for f in os.listdir(d) if re.fullmatch(r'\d{4}-\d{2}-\d{2}\.json', f))
     with open(os.path.join(d, 'index.json') + '.tmp', 'w', encoding='utf-8') as f: json.dump({'dates': days}, f, separators=(',', ':'))
