@@ -1150,6 +1150,11 @@
   .pl-x{border:0;background:none;color:var(--text-dim);font-size:18px;line-height:1;cursor:pointer;padding:0 4px;}
   .pl-hth{text-align:center;} .pl-hth .pl-himg,.pl-hth .pl-hph{border-radius:6px;vertical-align:middle;}
   td.pl-hs{text-align:center;} td.pl-hs.top b{color:var(--good);}
+  .pl-exp{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;} .pl-exp .btn{padding:8px 12px;font-size:12px;}
+  .pl-shotbox{position:fixed;left:-12000px;top:0;display:inline-block;padding:22px;background:var(--panel);color:var(--text);font-family:inherit;}
+  .pl-shotbox table.pl-t{min-width:0;width:auto;}
+  .pl-shot-t{font-size:20px;font-weight:800;color:var(--strong);} .pl-shot-s{font-size:12.5px;color:var(--text-dim);margin:3px 0 14px;}
+  .pl-hn{font-size:10px;letter-spacing:0;text-transform:none;margin-top:4px;color:var(--text-dim);font-weight:600;}
 </style>
 </head>
 <body>
@@ -1166,7 +1171,7 @@
     <div class="pl-stack" id="plMain">
     <div class="rl-empty">Loading …</div>
   </div>
-  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl9</footer>
+  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl10</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1538,30 +1543,109 @@
     el.hidden = false;
     rpc('pool_list', {p_code: S.code, p_event: S.evId}).then(function(r){ S.pool = Array.isArray(r) ? r : []; renderPool(); }).catch(function(err){ el.innerHTML = '<h2>Pool</h2><p class="pl-note">' + esc(err.message) + '</p>'; });
   }
-  function renderPool(){
-    var el = $('plPool'), rows = (S.pool || []).slice();
-    var cnt = H().map(function(_, i){ return rows.filter(function(r){ return r.hours & (1 << i); }).length; });
+  function poolShown(){
+    var rows = (S.pool || []).slice();
     var shown = S.poolHour < 0 ? rows : rows.filter(function(r){ return r.hours & (1 << S.poolHour); });
     shown.sort(function(a, b){ var pa = pInfo(a.pid), pb = pInfo(b.pid); return String(pa ? pa.n : a.pid).toLowerCase().localeCompare(String(pb ? pb.n : b.pid).toLowerCase()); });
-    var h = '<h2>Pool for planners · ' + rows.length + ' signed up</h2><p class="pl-note">Only visible for admins. Tap an hour to see who is available then.</p><div class="pl-sum"><button type="button" data-ph="-1" class="' + (S.poolHour < 0 ? 'on' : '') + '">All · ' + rows.length + '</button>' +
+    return shown;
+  }
+  function poolTable(shown, shot){
+    var hs = (curEv() && curEv().heroes) || [], h = '<table class="pl-t"><thead><tr><th>Player</th><th>Hours</th>' + UNITS.map(function(u){ return '<th>' + u + '</th>'; }).join('') + hs.map(function(n){ return '<th class="pl-hth" title="' + esc(n) + '">' + heroImg(n, 26) + (shot ? '<div class="pl-hn">' + esc(n) + '</div>' : '') + '</th>'; }).join('') + '<th>Extras</th>' + (shot ? '' : '<th>Updated</th>') + '</tr></thead><tbody>';
+    shown.forEach(function(r){
+      var p = pInfo(r.pid), nm = p ? p.n : 'ID ' + r.pid;
+      h += '<tr><td><div class="pl-pn">' + (p ? avatar(r.pid, 24, nm) : '') + '<span>' + esc(nm) + (p && p.a ? ' <small>' + esc(p.a) + '</small>' : '') + '</span></div></td><td><span class="pl-hh" title="' + esc(H().filter(function(_, i){ return r.hours & (1 << i); }).join(', ')) + '">' + H().map(function(_, i){ return '<i class="' + ((r.hours & (1 << i)) ? 'on' : '') + '"></i>'; }).join('') + '</span></td>';
+      for(var i = 0; i < 3; i++){
+        var fc = (r.fc || [])[i], t = (r.tier || [])[i], s = (r.skill || [])[i];
+        h += '<td class="pl-tt">' + (fc == null && t == null ? '–' : '<b>' + (fc != null ? 'FC' + fc : '–') + '</b> · ' + (t == null ? '–' : '<span' + (t === 12 && s === 3 ? ' class="top"' : '') + '>T' + t + (s != null ? ' S' + s : '') + '</span>')) + '</td>';
+      }
+      hs.forEach(function(n){ var v = (r.stars || {})[n] || 0; h += '<td class="pl-tt pl-hs' + (v >= 5 ? ' top' : '') + '">' + (v ? '<b>' + v + '</b>★' : '–') + '</td>'; });
+      h += '<td class="pl-tt">' + ((r.heal || r.boost || r.bb) ? [r.heal ? '<b>Heal</b>' : '', r.boost ? '<b>+20%</b>' : '', r.bb ? '<span class="pl-bb" title="Battle Buddy" aria-label="Battle Buddy">🤠</span>' : ''].filter(Boolean).join(' · ') : '–') + '</td>';
+      if(!shot) h += '<td class="pl-tt pl-ts" title="Added: ' + esc(tsTxt(r.created_at)) + ' · Updated: ' + esc(tsTxt(r.updated_at)) + '">' + esc(tsTxt(r.updated_at)) + (r.created_at && r.updated_at && Math.abs(new Date(r.updated_at) - new Date(r.created_at)) > 60000 ? ' <small>(added ' + esc(tsTxt(r.created_at)) + ')</small>' : '') + '</td>';
+      h += '</tr>';
+    });
+    return h + '</tbody></table>';
+  }
+  function renderPool(){
+    var el = $('plPool'), rows = (S.pool || []).slice(), shown = poolShown();
+    var cnt = H().map(function(_, i){ return rows.filter(function(r){ return r.hours & (1 << i); }).length; });
+    var h = '<h2>Pool for planners · ' + rows.length + ' signed up</h2><p class="pl-note">Only visible for admins and planners. Tap an hour to see who is available then. The picture and the CSV contain what is shown here.</p><div class="pl-sum"><button type="button" data-ph="-1" class="' + (S.poolHour < 0 ? 'on' : '') + '">All · ' + rows.length + '</button>' +
       H().map(function(t, i){ return '<button type="button" data-ph="' + i + '" class="' + (S.poolHour === i ? 'on' : '') + '">' + t + ' · ' + cnt[i] + '</button>'; }).join('') + '</div>';
     if(!shown.length) h += '<p class="pl-note">Nobody yet.</p>';
-    else {
-      h += '<div class="pl-tw"><table class="pl-t"><thead><tr><th>Player</th><th>Hours</th>' + UNITS.map(function(u){ return '<th>' + u + '</th>'; }).join('') + (curEv() && (curEv().heroes || []).length ? curEv().heroes.map(function(n){ return '<th class="pl-hth" title="' + esc(n) + '">' + heroImg(n, 26) + '</th>'; }).join('') : '') + '<th>Extras</th><th>Updated</th></tr></thead><tbody>';
-      shown.forEach(function(r){
-        var p = pInfo(r.pid), nm = p ? p.n : 'ID ' + r.pid;
-        h += '<tr><td><div class="pl-pn">' + (p ? avatar(r.pid, 24, nm) : '') + '<span>' + esc(nm) + (p && p.a ? ' <small>' + esc(p.a) + '</small>' : '') + '</span></div></td><td><span class="pl-hh" title="' + esc(H().filter(function(_, i){ return r.hours & (1 << i); }).join(', ')) + '">' + H().map(function(_, i){ return '<i class="' + ((r.hours & (1 << i)) ? 'on' : '') + '"></i>'; }).join('') + '</span></td>';
-        for(var i = 0; i < 3; i++){
-          var fc = (r.fc || [])[i], t = (r.tier || [])[i], s = (r.skill || [])[i];
-          h += '<td class="pl-tt">' + (fc == null && t == null ? '–' : '<b>' + (fc != null ? 'FC' + fc : '–') + '</b> · ' + (t == null ? '–' : '<span' + (t === 12 && s === 3 ? ' class="top"' : '') + '>T' + t + (s != null ? ' S' + s : '') + '</span>')) + '</td>';
-        }
-        (curEv().heroes || []).forEach(function(n){ var v = (r.stars || {})[n] || 0; h += '<td class="pl-tt pl-hs' + (v >= 5 ? ' top' : '') + '">' + (v ? '<b>' + v + '</b>★' : '–') + '</td>'; });
-        h += '<td class="pl-tt">' + ((r.heal || r.boost || r.bb) ? [r.heal ? '<b>Heal</b>' : '', r.boost ? '<b>+20%</b>' : '', r.bb ? '<span class="pl-bb" title="Battle Buddy" aria-label="Battle Buddy">🤠</span>' : ''].filter(Boolean).join(' · ') : '–') + '</td><td class="pl-tt pl-ts" title="Added: ' + esc(tsTxt(r.created_at)) + ' · Updated: ' + esc(tsTxt(r.updated_at)) + '">' + esc(tsTxt(r.updated_at)) + (r.created_at && r.updated_at && Math.abs(new Date(r.updated_at) - new Date(r.created_at)) > 60000 ? ' <small>(added ' + esc(tsTxt(r.created_at)) + ')</small>' : '') + '</td></tr>';
-      });
-      h += '</tbody></table></div>';
-    }
+    else h += '<div class="pl-exp"><button type="button" class="btn btn-secondary" id="plShare">Share pic</button><button type="button" class="btn btn-secondary" id="plSavePic">Save pic</button><button type="button" class="btn btn-secondary" id="plCsv">Export CSV</button></div><div class="pl-tw">' + poolTable(shown, false) + '</div>';
     el.innerHTML = h;
   }
+
+  /* ---------- export: picture and CSV ---------- */
+  function fileBase(){ var e = curEv() || {}; return 'state646-pool-' + (slug(e.title || 'event') || 'event') + (S.poolHour >= 0 ? '-' + slug(H()[S.poolHour]) : ''); }
+  function loadLib(){
+    if(window.htmlToImage) return Promise.resolve();
+    return new Promise(function(res, rej){ var sc = document.createElement('script'); sc.src = window.__rpLib || 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js'; sc.onload = res; sc.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(sc); });
+  }
+  function inlineImgs(root){
+    var undo = [];
+    [].forEach.call(root.querySelectorAll('img'), function(im){
+      try {
+        if(!im.complete || !im.naturalWidth) return;
+        var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; c.getContext('2d').drawImage(im, 0, 0);
+        var old = im.getAttribute('src'); im.src = c.toDataURL('image/png'); undo.push([im, old]);
+      } catch(e) {}
+    });
+    return Promise.all(undo.map(function(u){ return u[0].decode ? u[0].decode().catch(function(){}) : 0; })).then(function(){ return function(){ undo.forEach(function(u){ u[0].setAttribute('src', u[1]); }); }; });
+  }
+  function shotBlob(){
+    var e = curEv() || {}, shown = poolShown(); if(!shown.length) return Promise.resolve(null);
+    var box = document.createElement('div'); box.id = 'plShot'; box.className = 'pl-shotbox';
+    box.innerHTML = ('<div class="pl-shot-t">Rally Pool · ' + esc(e.title || '') + '</div><div class="pl-shot-s">' + (e.starts_on ? esc(dateTxt(e.starts_on)) + ' · ' : '') + KINDS[kindOf(e)].name + ' · times are UTC · ' + (S.poolHour < 0 ? 'everybody signed up' : 'available ' + esc(H()[S.poolHour])) + ' · ' + shown.length + ' players</div>' + poolTable(shown, true)).replace(/loading="lazy"/g, 'loading="eager"');
+    document.body.appendChild(box);
+    var imgs = [].slice.call(box.querySelectorAll('img'));
+    return loadLib().then(function(){
+      return Promise.all(imgs.map(function(im){ return im.complete ? 0 : new Promise(function(r){ im.addEventListener('load', r); im.addEventListener('error', function(){ setTimeout(r, 50); }); setTimeout(r, 4000); }); }));
+    }).then(function(){ return inlineImgs(box); }).then(function(restore){
+      var bg = getComputedStyle(document.documentElement).getPropertyValue('--panel').trim() || '#0f1626';
+      var opt = Object.assign({pixelRatio: 2, backgroundColor: bg, cacheBust: false, style: {position: 'static', left: '0', top: '0'}}, window.__rpOpt || {});
+      var safari = /iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent);
+      return (safari ? window.htmlToImage.toBlob(box, opt).catch(function(){}) : Promise.resolve()).then(function(){ return window.htmlToImage.toBlob(box, opt); }).then(function(bl){ restore(); box.remove(); return bl; }, function(er){ restore(); box.remove(); throw er; });
+    }, function(er){ box.remove(); throw er; });
+  }
+  function download(blob, name){
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function sharePic(btn, save){
+    btn.disabled = true; var done = function(){ btn.disabled = false; };
+    if(!save && navigator.clipboard && window.ClipboardItem){
+      var pr = shotBlob().then(function(bl){ if(!bl) throw new Error('empty'); return bl; });
+      navigator.clipboard.write([new ClipboardItem({'image/png': pr})]).then(function(){ toast('Picture copied', true); done(); }, function(){
+        shotBlob().then(function(bl){ if(!bl) throw new Error('empty'); download(bl, fileBase() + '.png'); toast('Clipboard not available – picture downloaded', true); }).catch(function(){ toast('Could not create the picture'); }).then(done);
+      });
+      return;
+    }
+    shotBlob().then(function(bl){ if(!bl) throw new Error('empty'); download(bl, fileBase() + '.png'); toast(save ? 'Picture saved' : 'Clipboard not available – picture downloaded', true); }).catch(function(){ toast('Could not create the picture'); }).then(done);
+  }
+  function csvCell(v){
+    v = v == null ? '' : String(v); if(/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+    return '"' + v.replace(/"/g, '""') + '"';
+  }
+  function utc(t){ if(!t) return ''; var d = new Date(t); return isNaN(d) ? '' : d.toISOString().slice(0, 16).replace('T', ' '); }
+  function exportCsv(){
+    var shown = poolShown(), e = curEv() || {}, hs = e.heroes || []; if(!shown.length){ toast('Nobody to export.'); return; }
+    var head = ['Name', 'Player ID', 'Alliance', 'Hours (UTC)'];
+    UNITS.forEach(function(u){ head.push(u + ' FC', u + ' tier', u + ' T12 skill'); });
+    hs.forEach(function(n){ head.push(n + ' (stars)'); });
+    head.push('Auto-Heal', '20% Deployment Boost', 'Battle Buddy', 'Signed up (UTC)', 'Updated (UTC)');
+    var lines = [head.map(csvCell).join(';')];
+    shown.forEach(function(r){
+      var p = pInfo(r.pid), row = [p ? p.n : '', r.pid, p ? p.a || '' : '', H().filter(function(_, i){ return r.hours & (1 << i); }).join(', ')];
+      for(var i = 0; i < 3; i++){ row.push((r.fc || [])[i] == null ? '' : (r.fc || [])[i], (r.tier || [])[i] == null ? '' : 'T' + (r.tier || [])[i], (r.skill || [])[i] == null ? '' : (r.skill || [])[i]); }
+      hs.forEach(function(n){ row.push((r.stars || {})[n] || ''); });
+      row.push(r.heal ? 'yes' : '', r.boost ? 'yes' : '', r.bb ? 'yes' : '', utc(r.created_at), utc(r.updated_at));
+      lines.push(row.map(csvCell).join(';'));
+    });
+    download(new Blob(['﻿' + lines.join('\r\n')], {type: 'text/csv;charset=utf-8'}), fileBase() + '.csv'); toast('CSV exported', true);
+  }
+  document.addEventListener('click', function(ev){
+    var x = ev.target.closest && ev.target.closest('#plShare, #plSavePic, #plCsv'); if(!x) return;
+    if(x.id === 'plCsv') exportCsv(); else sharePic(x, x.id === 'plSavePic');
+  });
   document.addEventListener('click', function(ev){
     var b = ev.target.closest && ev.target.closest('button[data-ph]'); if(!b) return;
     S.poolHour = +b.getAttribute('data-ph'); renderPool();
