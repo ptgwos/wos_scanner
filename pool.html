@@ -1148,7 +1148,7 @@
     <div class="pl-stack" id="plMain">
     <div class="rl-empty">Loading …</div>
   </div>
-  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl7</footer>
+  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl8</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1200,7 +1200,7 @@
   function mdb(){ var d = null; try { d = JSON.parse(localStorage.getItem(MK) || 'null'); } catch(e) {} if(!d || !Array.isArray(d.events)) d = {events: [{id: 'e1', title: 'FDT test event', starts_on: '2026-11-08', open: true}, {id: 'e2', title: 'Closed event', starts_on: '2026-11-01', open: false}], entries: {}, profiles: {}}; if(!d.profiles) d.profiles = {}; return d; }
   function msave(d){ try { localStorage.setItem(MK, JSON.stringify(d)); } catch(e) {} }
   var MU = {admin: {role: 'admin', name: 'Admin', rallyplan: true, rallyplan_view: true}, 'super': {role: 'super', name: 'Peter', rallyplan: true, rallyplan_view: true},
-            reader: {role: 'editor', name: 'Reader', rallyplan: false, rallyplan_view: true, pages: ['rallyplan_view']}, nobody: {role: 'editor', name: 'Nobody', rallyplan: false, rallyplan_view: false, pages: []}};
+            reader: {role: 'editor', name: 'Reader', rallyplan: false, rallyplan_view: true, pages: ['rallyplan_view']}, writer: {role: 'editor', name: 'Writer', rallyplan: true, rallyplan_view: true, pages: ['rallyplan']}, nobody: {role: 'editor', name: 'Nobody', rallyplan: false, rallyplan_view: false, pages: []}};
   function mockRpc(fn, a){
     var d = mdb(), u = MU[a.p_code || ''] || null, isAdm = !!u && (u.role === 'admin' || u.role === 'super');
     function ent(ev){ return d.entries[ev] || (d.entries[ev] = {}); }
@@ -1225,7 +1225,7 @@
     }
     if(fn === 'pool_remove'){ var ev2 = chk(); if(!ev2.open) throw new Error('Sign-up for this event is closed.'); delete ent(a.p_event)[a.p_pid]; msave(d); return null; }
     if(fn === 'pool_list'){
-      if(!u || !(u.rallyplan || u.rallyplan_view || isAdm)) throw new Error('Not allowed (no Rally Planner permission).');
+      if(!u || !(u.rallyplan || isAdm)) throw new Error('Not allowed (no Rally Planner permission).');
       var m = ent(a.p_event); return Object.keys(m).map(function(k){ var x = m[k]; return {pid: k, hours: x.hours, fc: x.fc, tier: x.tier, skill: x.skill, heal: x.heal, boost: x.boost, bb: !!x.bb, created_at: x.created_at || x.updated_at, updated_at: x.updated_at}; });
     }
     throw new Error('unknown rpc');
@@ -1241,7 +1241,16 @@
 
   /* ---------- helpers ---------- */
   function isAdmin(){ return !!(S.me && (S.me.role === 'super' || S.me.role === 'admin')); }
-  function canSee(){ return isAdmin(); }
+  function canSee(){ return isAdmin() || !!(S.me && S.me.rallyplan === true); }
+  function evUrl(id){ return location.origin + location.pathname + '?event=' + encodeURIComponent(id); }
+  function syncUrl(){
+    try{ var q = new URLSearchParams(location.search); if(S.evId) q.set('event', S.evId); else q.delete('event'); var qs = q.toString(); history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash); }catch(x){}
+  }
+  function copyLink(){
+    var u = evUrl(S.evId), ok = function(){ toast('Link copied – share it with the players', true); };
+    var fb = function(){ try{ var t = document.createElement('textarea'); t.value = u; t.style.cssText = 'position:fixed;opacity:0;top:0;left:0'; document.body.appendChild(t); t.focus(); t.select(); var r = document.execCommand('copy'); document.body.removeChild(t); if(r) ok(); else window.prompt('Copy this link:', u); }catch(x){ window.prompt('Copy this link:', u); } };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(ok, fb); else fb();
+  }
   function curEv(){ return S.events.filter(function(e){ return e.id === S.evId; })[0] || null; }
   function pInfo(id){ return S.players[String(id)] || null; }
   function avatar(id, sz, name){
@@ -1265,12 +1274,14 @@
       h = '<div class="pl-evt">No event yet<small>An admin has to create an event first. Please come back later.</small></div>';
     } else {
       if(S.events.length > 1) h += '<div class="field" style="margin-bottom:12px"><label for="plEvSel">Event</label><select id="plEvSel" class="pl-sel">' + S.events.map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.evId ? ' selected' : '') + '>' + esc((x.starts_on ? dateTxt(x.starts_on) + ' – ' : '') + x.title + (x.open ? '' : ' (closed)')) + '</option>'; }).join('') + '</select></div>';
-      h += '<div class="pl-evrow"><div class="pl-evt">' + esc(e.title) + '<span class="pl-pill' + (e.open ? '' : ' off') + '">' + (e.open ? 'sign-up open' : 'closed') + '</span><small>' + (e.starts_on ? 'Date: ' + esc(dateTxt(e.starts_on)) + ' · ' : '') + KINDS[kindOf(e)].name + ' · times are UTC · ' + (e.entries != null ? e.entries + ' signed up' : '') + '</small></div></div>';
+      h += '<div class="pl-evrow"><div class="pl-evt">' + esc(e.title) + '<span class="pl-pill' + (e.open ? '' : ' off') + '">' + (e.open ? 'sign-up open' : 'closed') + '</span><small>' + (e.starts_on ? 'Date: ' + esc(dateTxt(e.starts_on)) + ' · ' : '') + KINDS[kindOf(e)].name + ' · times are UTC · ' + (e.entries != null ? e.entries + ' signed up' : '') + '</small></div><button type="button" class="btn btn-secondary pl-lk" id="plLink" title="Copy the link to this event">Copy link</button></div>';
     }
     if(isAdmin()){
       h += '<div class="pl-admin"><button type="button" class="btn" id="plNew">New event</button>' + (e ? '<button type="button" class="btn btn-secondary" id="plEdit">Edit</button><button type="button" class="btn btn-secondary" id="plTog">' + (e.open ? 'Close sign-up' : 'Reopen sign-up') + '</button>' + (S.me.role === 'super' ? '<button type="button" class="btn btn-secondary" id="plDel">Delete</button>' : '') : '') + '</div>';
     }
     el.innerHTML = h;
+    syncUrl();
+    var lk = $('plLink'); if(lk) lk.addEventListener('click', copyLink);
     var sel = $('plEvSel'); if(sel) sel.addEventListener('change', function(){ S.evId = sel.value; lsSet('pool646_ev', S.evId); renderEvent(); renderForm(); loadEntry(); loadPool(); });
   }
 
@@ -1412,6 +1423,7 @@
 
   /* ---------- events (admin) ---------- */
   function pickEvent(){
+    if(S.want){ var w = S.want; S.want = null; if(S.events.some(function(e){ return e.id === w; })) return w; setTimeout(function(){ toast('That event link is not valid (any more) – showing the current event.'); }, 400); }
     var saved = lsGet('pool646_ev'); if(saved && S.events.some(function(e){ return e.id === saved; })) return saved;
     var today = new Date().toISOString().slice(0, 10), open = S.events.filter(function(e){ return e.open; });
     var up = open.filter(function(e){ return e.starts_on && e.starts_on >= today; }).sort(function(a, b){ return a.starts_on < b.starts_on ? -1 : 1; });
@@ -1495,6 +1507,7 @@
   /* ---------- start ---------- */
   function init(){
     skeleton();
+    try{ S.want = new URLSearchParams(location.search).get('event') || null; }catch(x){ S.want = null; }
     S.code = lsGet('ep_code') || '';
     var pPlayers = fetch('data/players.json', {cache: 'no-cache'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(function(d){
       S.players = d.players || {}; S.alliances = d.alliances || {};
