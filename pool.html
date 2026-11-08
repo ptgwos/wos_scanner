@@ -1155,6 +1155,8 @@
   .pl-shotbox table.pl-t{min-width:0;width:auto;}
   .pl-shot-t{font-size:20px;font-weight:800;color:var(--strong);} .pl-shot-s{font-size:12.5px;color:var(--text-dim);margin:3px 0 14px;}
   .pl-hn{font-size:10px;letter-spacing:0;text-transform:none;margin-top:4px;color:var(--text-dim);font-weight:600;}
+  table.pl-t th.pl-hth{text-align:center;} .pl-hth .pl-himg,.pl-hth .pl-hph{display:block;margin:0 auto;} .pl-hn{text-align:center;}
+  .pl-ic{display:inline-block;vertical-align:-4px;line-height:1;} .pl-ic svg{display:block;} .pl-em{font-size:17px;vertical-align:-2px;}
 </style>
 </head>
 <body>
@@ -1171,7 +1173,7 @@
     <div class="pl-stack" id="plMain">
     <div class="rl-empty">Loading …</div>
   </div>
-  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl10</footer>
+  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl11</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1559,7 +1561,7 @@
         h += '<td class="pl-tt">' + (fc == null && t == null ? '–' : '<b>' + (fc != null ? 'FC' + fc : '–') + '</b> · ' + (t == null ? '–' : '<span' + (t === 12 && s === 3 ? ' class="top"' : '') + '>T' + t + (s != null ? ' S' + s : '') + '</span>')) + '</td>';
       }
       hs.forEach(function(n){ var v = (r.stars || {})[n] || 0; h += '<td class="pl-tt pl-hs' + (v >= 5 ? ' top' : '') + '">' + (v ? '<b>' + v + '</b>★' : '–') + '</td>'; });
-      h += '<td class="pl-tt">' + ((r.heal || r.boost || r.bb) ? [r.heal ? '<b>Heal</b>' : '', r.boost ? '<b>+20%</b>' : '', r.bb ? '<span class="pl-bb" title="Battle Buddy" aria-label="Battle Buddy">🤠</span>' : ''].filter(Boolean).join(' · ') : '–') + '</td>';
+      h += '<td class="pl-tt">' + ((r.heal || r.boost || r.bb) ? [r.heal ? '<span class="pl-ic" title="Auto-Heal (VIP)" aria-label="Auto-Heal (VIP)"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path fill="#e5384f" d="M9 2.5h6V9h6.5v6H15v6.5H9V15H2.5V9H9z"/></svg></span>' : '', r.boost ? '<span class="pl-ic pl-em" title="20% Deployment Boost" aria-label="20% Deployment Boost">💪</span>' : '', r.bb ? '<span class="pl-bb" title="Battle Buddy" aria-label="Battle Buddy">🤠</span>' : ''].filter(Boolean).join(' ') : '–') + '</td>';
       if(!shot) h += '<td class="pl-tt pl-ts" title="Added: ' + esc(tsTxt(r.created_at)) + ' · Updated: ' + esc(tsTxt(r.updated_at)) + '">' + esc(tsTxt(r.updated_at)) + (r.created_at && r.updated_at && Math.abs(new Date(r.updated_at) - new Date(r.created_at)) > 60000 ? ' <small>(added ' + esc(tsTxt(r.created_at)) + ')</small>' : '') + '</td>';
       h += '</tr>';
     });
