@@ -1173,7 +1173,7 @@
     <div class="pl-stack" id="plMain">
     <div class="rl-empty">Loading …</div>
   </div>
-  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl11</footer>
+  <footer id="foot">State 646 · Rally Pool — data: Supabase · build 2026-11-05 · pl12</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1251,7 +1251,7 @@
     }
     if(fn === 'pool_event_heroes'){ if(!u || !(u.rallyplan || isAdm)) throw new Error('Not allowed (no Rally Planner permission).'); var hv = (a.p_heroes || []).filter(function(x, i, ar){ return x && ar.indexOf(x) === i; }); if(hv.length > 8) throw new Error('Please choose up to 8 heroes.'); var he = d.events.filter(function(x){ return x.id === a.p_id; })[0]; if(!he) throw new Error('This event does not exist (any more).'); he.heroes = hv; msave(d); return null; }
     if(fn === 'pool_event_delete'){ if(!u || u.role !== 'super') throw new Error('Not allowed (super admin only).'); d.events = d.events.filter(function(x){ return x.id !== a.p_id; }); delete d.entries[a.p_id]; msave(d); return null; }
-    if(fn === 'pool_get'){ chk(); var en = ent(a.p_event)[a.p_pid]; var pr = d.profiles[a.p_pid]; if(en) return Object.assign({profile: false}, en, pr ? {stars: pr.stars || en.stars || {}} : {});  return pr ? Object.assign({hours: 0, profile: true}, pr) : null; }
+    if(fn === 'pool_get'){ chk(); var en = ent(a.p_event)[a.p_pid]; var pr = d.profiles[a.p_pid]; if(en) return Object.assign({profile: false}, en, pr ? {stars: pr.stars || en.stars || {}, fc: pr.fc, tier: pr.tier, skill: pr.skill} : {});  return pr ? Object.assign({hours: 0, profile: true}, pr, {heal: false, boost: false, bb: false}) : null; }
     if(fn === 'pool_save'){
       var ev = chk(); if(!ev.open) throw new Error('Sign-up for this event is closed.');
       if(!/^[0-9]{3,12}$/.test(a.p_pid || '')) throw new Error('Please choose a player.');
@@ -1264,7 +1264,7 @@
     if(fn === 'pool_remove'){ var ev2 = chk(); if(!ev2.open) throw new Error('Sign-up for this event is closed.'); delete ent(a.p_event)[a.p_pid]; msave(d); return null; }
     if(fn === 'pool_list'){
       if(!u || !(u.rallyplan || isAdm)) throw new Error('Not allowed (no Rally Planner permission).');
-      var m = ent(a.p_event); return Object.keys(m).map(function(k){ var x = m[k]; return {pid: k, hours: x.hours, fc: x.fc, tier: x.tier, skill: x.skill, heal: x.heal, boost: x.boost, bb: !!x.bb, stars: x.stars || {}, created_at: x.created_at || x.updated_at, updated_at: x.updated_at}; });
+      var m = ent(a.p_event); return Object.keys(m).map(function(k){ var x = m[k]; var pf = d.profiles[k] || {}; return {pid: k, hours: x.hours, fc: pf.fc || x.fc, tier: pf.tier || x.tier, skill: pf.skill || x.skill, heal: x.heal, boost: x.boost, bb: !!x.bb, stars: pf.stars || x.stars || {}, created_at: x.created_at || x.updated_at, updated_at: x.updated_at}; });
     }
     throw new Error('unknown rpc');
   }
@@ -1449,7 +1449,7 @@
       if(tok !== S.loadTok) return;
       resetFields(); S.have = !!r && !r.profile;
       if(r){ S.hours = r.profile ? 0 : r.hours | 0; S.fc = (r.fc || []).concat([null, null, null]).slice(0, 3); S.tier = (r.tier || []).concat([null, null, null]).slice(0, 3); S.skill = (r.skill || []).concat([null, null, null]).slice(0, 3); S.stars = r.stars && typeof r.stars === 'object' ? JSON.parse(JSON.stringify(r.stars)) : {}; S.heal = !!r.heal; S.boost = !!r.boost; S.bb = !!r.bb; }
-      syncFields(); syncPlayerUi(); stat(!r ? '' : r.profile ? 'Welcome back! Your troop data and hero levels from your last sign-up were loaded. Please check them, update what changed and tick your hours for this event.' : 'Your saved entry was loaded. Change what you like and save again.');
+      syncFields(); syncPlayerUi(); stat(!r ? '' : r.profile ? 'Welcome back! Your current troop data and hero levels were loaded. Please check them and update what changed. Then tick your hours for this event and Auto-Heal / 20% Boost / Battle Buddy if they apply – these are not carried over.' : 'Your saved entry was loaded. Change what you like and save again.');
     }).catch(function(err){ if(tok === S.loadTok) stat('Could not load your entry: ' + err.message, 'err'); });
   }
   function save(){
