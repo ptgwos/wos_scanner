@@ -164,16 +164,8 @@ def main():
     print(f'{n_req} requests: {n_ok} ok, {n_gone} without ranking (gone), {n_err} failed, {n_skip} known-gone skipped. Game capture {stamp(cap)}.', flush=True)
     if n_ok == 0:
         print('Nothing usable was fetched, files left as they were.'); return 1
-    same = old.get('states') == out['states'] and old.get('gone') == out['gone'] and old.get('merged') == out['merged'] and old.get('captured') == cap
-    if same:
-        print('Nothing changed since the last run, nothing written.'); write_usage(os.path.join(OUT, 'usage.json'), 'leading state job'); return 0
-    os.makedirs(os.path.join(OUT, 'leading'), exist_ok=True)
-    day = time.strftime('%Y-%m-%d', time.gmtime(cap)) if cap else today
-    snap = {'captured': cap, 's': {k: [v['s'], v['n'], v.get('c')] for k, v in out['states'].items() if not v.get('stale')}}
-    for path, data in ((os.path.join(OUT, 'leading.json'), out), (os.path.join(OUT, 'leading', day + '.json'), snap)):
-        with open(path + '.tmp', 'w', encoding='utf-8') as f: json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
-        os.replace(path + '.tmp', path)
-    # research file data/leading_scores.json: the top-100 scores of every state (for finding out how the game's rating is calculated)
+    # research file data/leading_scores.json: the top-100 scores of every state (written on every run, also when nothing else changed)
+    os.makedirs(OUT, exist_ok=True)
     try:
         oldsc = load(os.path.join(OUT, 'leading_scores.json')) or {}
         sc = dict(oldsc.get('states') or {}); sc.update(SCORES)
@@ -183,6 +175,15 @@ def main():
         os.replace(os.path.join(OUT, 'leading_scores.json') + '.tmp', os.path.join(OUT, 'leading_scores.json'))
     except Exception as e:
         print(f'scores file skipped: {e}', flush=True)
+    same = old.get('states') == out['states'] and old.get('gone') == out['gone'] and old.get('merged') == out['merged'] and old.get('captured') == cap
+    if same:
+        print('Nothing changed since the last run, nothing written.'); write_usage(os.path.join(OUT, 'usage.json'), 'leading state job'); return 0
+    os.makedirs(os.path.join(OUT, 'leading'), exist_ok=True)
+    day = time.strftime('%Y-%m-%d', time.gmtime(cap)) if cap else today
+    snap = {'captured': cap, 's': {k: [v['s'], v['n'], v.get('c')] for k, v in out['states'].items() if not v.get('stale')}}
+    for path, data in ((os.path.join(OUT, 'leading.json'), out), (os.path.join(OUT, 'leading', day + '.json'), snap)):
+        with open(path + '.tmp', 'w', encoding='utf-8') as f: json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+        os.replace(path + '.tmp', path)
     d = os.path.join(OUT, 'leading')
     days = sorted(f[:-5] for f in os.listdir(d) if re.fullmatch(r'\d{4}-\d{2}-\d{2}\.json', f))
     with open(os.path.join(d, 'index.json') + '.tmp', 'w', encoding='utf-8') as f: json.dump({'dates': days}, f, separators=(',', ':'))
