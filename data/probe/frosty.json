@@ -8,12 +8,12 @@
     "limit": 60,
     "used": 0,
     "remaining": 60,
-    "resets_at": "2026-11-09T11:29:00Z"
+    "resets_at": "2026-11-09T11:45:00Z"
    },
    "daily": {
     "limit": 5000,
-    "used": 372,
-    "remaining": 4628,
+    "used": 384,
+    "remaining": 4616,
     "resets_at": "2026-11-10T00:00:00Z"
    }
   }
@@ -27,7 +27,7 @@
    "state": {
     "kid": 646,
     "name": null,
-    "banner_url": null,
+    "banner_url": "/assets/icons/capital_flag_icon_011.png",
     "player_count": 1452,
     "located": 1066,
     "active_players": 1066,
@@ -64,7 +64,7 @@
     "power": 454080013799,
     "avg_power": 312727282,
     "power_rank": 282,
-    "activity_rank": 56,
+    "activity_rank": 57,
     "health": "C",
     "stats_pending": false,
     "board_totals": [
@@ -263,7 +263,7 @@
    ],
    "fresh": true,
    "cached_at": 1794223736.2761505,
-   "age_seconds": 0,
+   "age_seconds": 924,
    "player": {
     "uid": 24624305,
     "chief_id": 100015858,
