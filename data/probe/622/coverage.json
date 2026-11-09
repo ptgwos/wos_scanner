@@ -1,0 +1,2657 @@
+{
+ "kid": "622",
+ "alliance_count": 216,
+ "found": 126,
+ "per_board": {
+  "alliance_power": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 100
+  },
+  "alliance_kills": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 15
+  },
+  "personal_power": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "kills": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "single_hero": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "hero_total": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "troop_power": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "building_power": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "research_power": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "hero_no_equip": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 10
+  },
+  "hero_equip": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 1
+  },
+  "chief_gear": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "chief_charm": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "pet_power": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "island_prosperity": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "state_transfer": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "labyrinth": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  },
+  "master_power": {
+   "status": 200,
+   "rows": 100,
+   "new_alliances": 0
+  }
+ },
+ "roster_checks": [
+  {
+   "abbr": "PRL",
+   "status": 200,
+   "count_in_info": 83,
+   "members_returned": 83,
+   "member_count": 83
+  },
+  {
+   "abbr": "SvS",
+   "status": 404,
+   "count_in_info": null,
+   "members_returned": 0,
+   "member_count": null
+  }
+ ],
+ "alliances": [
+  {
+   "aid": 622000004,
+   "abbr": "PRL",
+   "name": "Mordownia",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 622000675,
+   "abbr": "MPH",
+   "name": "MinisPlayhouse",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "hero_equip",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 622001406,
+   "abbr": "DMs",
+   "name": "DoomSlayers",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "hero_no_equip",
+    "hero_equip",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 620000023,
+   "abbr": "SMB",
+   "name": "StrongholdMyBeer",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "kills",
+    "kills",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 622000133,
+   "abbr": "BAA",
+   "name": "BurnAstroAllianc",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "hero_no_equip",
+    "hero_no_equip",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 620000940,
+   "abbr": "GTR",
+   "name": "GRANTUNDRA",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "personal_power",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "kills",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "hero_total",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "building_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "research_power",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_gear",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "chief_charm",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "state_transfer",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "labyrinth",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 620000676,
+   "abbr": "NHZ",
+   "name": "ALFA",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "building_power",
+    "building_power",
+    "building_power",
+    "pet_power",
+    "pet_power",
+    "pet_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 620000037,
+   "abbr": "STX",
+   "name": "StriX",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "building_power",
+    "building_power",
+    "building_power",
+    "island_prosperity",
+    "master_power",
+    "master_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 622001458,
+   "abbr": "AAA",
+   "name": "AAA",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "personal_power",
+    "personal_power",
+    "kills",
+    "kills",
+    "kills",
+    "single_hero",
+    "single_hero",
+    "single_hero",
+    "hero_total",
+    "hero_total",
+    "troop_power",
+    "troop_power",
+    "troop_power",
+    "building_power",
+    "research_power",
+    "research_power",
+    "chief_gear",
+    "chief_gear",
+    "chief_charm",
+    "chief_charm",
+    "pet_power",
+    "island_prosperity",
+    "island_prosperity",
+    "island_prosperity",
+    "state_transfer",
+    "state_transfer",
+    "labyrinth",
+    "labyrinth",
+    "master_power",
+    "master_power",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 622000355,
+   "abbr": "FRM",
+   "name": "622FARMS",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "kills",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 620000124,
+   "abbr": "FAB",
+   "name": "FireAndBlood",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "personal_power",
+    "kills",
+    "single_hero",
+    "hero_total",
+    "troop_power",
+    "building_power",
+    "research_power",
+    "hero_no_equip",
+    "hero_equip",
+    "chief_gear",
+    "chief_charm",
+    "pet_power",
+    "island_prosperity",
+    "labyrinth",
+    "master_power"
+   ]
+  },
+  {
+   "aid": 622000584,
+   "abbr": "kyy",
+   "name": "Friends",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000149,
+   "abbr": "Win",
+   "name": "internasional",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001438,
+   "abbr": "SWP",
+   "name": "TheSwamp",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "single_hero",
+    "hero_total",
+    "chief_gear",
+    "chief_charm",
+    "pet_power",
+    "island_prosperity",
+    "labyrinth"
+   ]
+  },
+  {
+   "aid": 622000031,
+   "abbr": "NCR",
+   "name": "NewCaliforniaRep",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000046,
+   "abbr": "AOW",
+   "name": "ArtOfWar",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000790,
+   "abbr": "CLD",
+   "name": "SaayaPark",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000210,
+   "abbr": "FkE",
+   "name": "Puduk",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000105,
+   "abbr": "NTW",
+   "name": "DZ1",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000267,
+   "abbr": "RjG",
+   "name": "WGG",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000188,
+   "abbr": "WG1",
+   "name": "TheStrawHats",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620001351,
+   "abbr": "fzW",
+   "name": "Noorman",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620001069,
+   "abbr": "SBS",
+   "name": "StrongBySupport",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000245,
+   "abbr": "NON",
+   "name": "numberonenigga",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001513,
+   "abbr": "MBS",
+   "name": "MBS",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000011,
+   "abbr": "BRQ",
+   "name": "BrotherhoodII",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000527,
+   "abbr": "odf",
+   "name": "academy·ODF",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000098,
+   "abbr": "LNL",
+   "name": "Lonely",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000445,
+   "abbr": "WoW",
+   "name": "ㄅㄆㄇㄈㄉ",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000902,
+   "abbr": "QGN",
+   "name": "MoriWorld",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000338,
+   "abbr": "ELD",
+   "name": "TheElders",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000219,
+   "abbr": "VPA",
+   "name": "VacationParadise",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000112,
+   "abbr": "SEA",
+   "name": "CoralReef",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000361,
+   "abbr": "622",
+   "name": "622Battles",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000121,
+   "abbr": "cCc",
+   "name": "ツмαχαιя࿐",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000093,
+   "abbr": "DZ3",
+   "name": "ShadowFang",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001504,
+   "abbr": "tXX",
+   "name": "WWJD",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000629,
+   "abbr": "aaa",
+   "name": "a",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000089,
+   "abbr": "3Q3",
+   "name": "유기농",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000345,
+   "abbr": "POL",
+   "name": "Polska",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000435,
+   "abbr": "Sky",
+   "name": "NewHorizon",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000302,
+   "abbr": "TMT",
+   "name": "TMTTH",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000429,
+   "abbr": "QNM",
+   "name": "Aullido",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000233,
+   "abbr": "FWX",
+   "name": "DKZ",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000025,
+   "abbr": "vvJ",
+   "name": "aliançadegelo",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000366,
+   "abbr": "HQV",
+   "name": "DSDGHTJ",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000002,
+   "abbr": "FFF",
+   "name": "雪域国度",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000770,
+   "abbr": "805",
+   "name": "805",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000700,
+   "abbr": "SML",
+   "name": "笑笑天下",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000136,
+   "abbr": "EMP",
+   "name": "TheEmpire",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001093,
+   "abbr": "zYN",
+   "name": "NTXfarmLAKIRTI",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001453,
+   "abbr": "ZHx",
+   "name": "Harif3399",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000541,
+   "abbr": "EVD",
+   "name": "TheUnion",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000234,
+   "abbr": "sRk",
+   "name": "Legion",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000005,
+   "abbr": "SKT",
+   "name": "ARB",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000340,
+   "abbr": "KEq",
+   "name": "ChilledPickles",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001382,
+   "abbr": "pHB",
+   "name": "xyz",
+   "via": [
+    "alliance_power",
+    "alliance_kills",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 620000237,
+   "abbr": "BRO",
+   "name": "TheBrotherhood",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000872,
+   "abbr": "HEL",
+   "name": "LO",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000915,
+   "abbr": "FJA",
+   "name": "FarmJAP",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000804,
+   "abbr": "Wow",
+   "name": "好好笑",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000224,
+   "abbr": "rHR",
+   "name": "dubs4kt",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000029,
+   "abbr": "WWO",
+   "name": "DzikiLand",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000278,
+   "abbr": "BUM",
+   "name": "BUMS",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000103,
+   "abbr": "NXC",
+   "name": "NexinusCloud",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000322,
+   "abbr": "EBM",
+   "name": "EvilBornMobsters",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000184,
+   "abbr": "SSL",
+   "name": "SONHAVABÜKÜCÜ",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000802,
+   "abbr": "PxB",
+   "name": "PhoenixoftheBZD",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000113,
+   "abbr": "WiN",
+   "name": "BabyJohn77",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000504,
+   "abbr": "uwu",
+   "name": "Ookami",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000033,
+   "abbr": "fQX",
+   "name": "JBM",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000097,
+   "abbr": "123",
+   "name": "FoX",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000536,
+   "abbr": "KJM",
+   "name": "TheRealDeal",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001512,
+   "abbr": "nbB",
+   "name": "OldPeople",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000553,
+   "abbr": "ENY",
+   "name": "Dumplings",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000585,
+   "abbr": "BRM",
+   "name": "BRMania",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000471,
+   "abbr": "PAN",
+   "name": "PAN",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000008,
+   "abbr": "eMP",
+   "name": "EmpireFOREVER",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 620000720,
+   "abbr": "FSM",
+   "name": "Ottomans",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000857,
+   "abbr": "Tws",
+   "name": "TwistedSisters",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000353,
+   "abbr": "EIS",
+   "name": "EisWölfe",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 620000108,
+   "abbr": "FdS",
+   "name": "Ethan22",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001430,
+   "abbr": "SHc",
+   "name": "Krümmelfall",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000068,
+   "abbr": "ATH",
+   "name": "Athenians",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 620000584,
+   "abbr": "Ggg",
+   "name": "Winnersallisnz45",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620001261,
+   "abbr": "AVL",
+   "name": "ArmsOfValor",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 620000511,
+   "abbr": "TRS",
+   "name": "TürkSancağı",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000624,
+   "abbr": "777",
+   "name": "WELCOMEtoBRAZIL",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000215,
+   "abbr": "RCB",
+   "name": "WhiteWalkers",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000520,
+   "abbr": "sTx",
+   "name": "StrawHatPirates",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000125,
+   "abbr": "KsV",
+   "name": "KskstaVillage",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000185,
+   "abbr": "CZK",
+   "name": "FaceToWin",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000238,
+   "abbr": "LCL",
+   "name": "LostControL",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000430,
+   "abbr": "Mhm",
+   "name": "Mhmm",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622001420,
+   "abbr": "KRM",
+   "name": "Righteousness",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000495,
+   "abbr": "NAW",
+   "name": "NotAloneWolves",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000993,
+   "abbr": "Ksn",
+   "name": "iranian",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000502,
+   "abbr": "CEO",
+   "name": "THEkat",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 620000638,
+   "abbr": "IAM",
+   "name": "NotJonnysPapa",
+   "via": [
+    "alliance_power"
+   ]
+  },
+  {
+   "aid": 622000027,
+   "abbr": "WOF",
+   "name": "wolfpack",
+   "via": [
+    "alliance_power",
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001394,
+   "abbr": "EoS",
+   "name": "EmpireOfShrimps",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000052,
+   "abbr": "IMP",
+   "name": "ImperiaTundra",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001314,
+   "abbr": "yeF",
+   "name": "ا",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000973,
+   "abbr": "AEY",
+   "name": "Revanth",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620001340,
+   "abbr": "ALX",
+   "name": "GTA",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000244,
+   "abbr": "NKS",
+   "name": "615Killers",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000498,
+   "abbr": "GYS",
+   "name": "얼음왕국No1",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001511,
+   "abbr": "Cat",
+   "name": "มะเหมียว",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001092,
+   "abbr": "GDF",
+   "name": "GODSFARMS",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000174,
+   "abbr": "dnt",
+   "name": "sobrevivir",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622001499,
+   "abbr": "FOG",
+   "name": "FOG",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000595,
+   "abbr": "BFb",
+   "name": "Theboiz",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 622000256,
+   "abbr": "Gpm",
+   "name": "EstadoIslâmicoBR",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000782,
+   "abbr": "999",
+   "name": "وينترفيل",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 620000611,
+   "abbr": "ZgE",
+   "name": "TheRedemption",
+   "via": [
+    "alliance_kills"
+   ]
+  },
+  {
+   "aid": 638000008,
+   "abbr": "SwP",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 638001330,
+   "abbr": "FOG",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_no_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 705000035,
+   "abbr": "REL",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 752000357,
+   "abbr": "752",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 631000069,
+   "abbr": "AIR",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 663000007,
+   "abbr": "CBC",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 631000173,
+   "abbr": "TBR",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 701000136,
+   "abbr": "FAB",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 713000262,
+   "abbr": "TCK",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 713000280,
+   "abbr": "NFG",
+   "name": null,
+   "via": [
+    "hero_no_equip",
+    "hero_equip"
+   ]
+  },
+  {
+   "aid": 686000504,
+   "abbr": "SvS",
+   "name": null,
+   "via": [
+    "hero_equip"
+   ]
+  }
+ ]
+}
