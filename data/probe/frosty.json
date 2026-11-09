@@ -1,0 +1,403 @@
+{
+ "/usage": {
+  "status": 200,
+  "data": {
+   "ok": true,
+   "frosty": false,
+   "minute": {
+    "limit": 60,
+    "used": 0,
+    "remaining": 60,
+    "resets_at": "2026-11-09T11:29:00Z"
+   },
+   "daily": {
+    "limit": 5000,
+    "used": 372,
+    "remaining": 4628,
+    "resets_at": "2026-11-10T00:00:00Z"
+   }
+  }
+ },
+ "/states/646": {
+  "status": 200,
+  "data": {
+   "ok": true,
+   "kid": 646,
+   "fresh": true,
+   "state": {
+    "kid": 646,
+    "name": null,
+    "banner_url": null,
+    "player_count": 1452,
+    "located": 1066,
+    "active_players": 1066,
+    "active_7d": 888,
+    "active_30d": 1115,
+    "alliance_count": 163,
+    "gov_power": 135492184769,
+    "alliance_power": 453849817970,
+    "alliance_kills": 33103506193,
+    "kills": 25972390023,
+    "hero_power": 2362218915,
+    "single_hero_power": 2362218915,
+    "hero_total": 20806328969,
+    "troop_power": 96538408356,
+    "building_power": 1200636500,
+    "science_power": 10482712749,
+    "research_power": 10482712749,
+    "hero_no_equip": 1930672672,
+    "hero_without_equip": 1930672672,
+    "hero_equip": 363553219,
+    "lord_equip": 2198320000,
+    "chief_gear_power": 2198320000,
+    "lord_gem": 2529422000,
+    "chief_charm_power": 2529422000,
+    "pet_power": 3645423360,
+    "island_prosperity": 22992850,
+    "state_transfer_score": 439042137,
+    "labyrinth": 196632,
+    "master_power": 3919532740,
+    "power_gain_7d": 18228808860,
+    "tc_pushers_7d": 157,
+    "age_days": 1068,
+    "opened_on": "2023-12-07",
+    "power": 454080013799,
+    "avg_power": 312727282,
+    "power_rank": 282,
+    "activity_rank": 56,
+    "health": "C",
+    "stats_pending": false,
+    "board_totals": [
+     {
+      "type": 1,
+      "key": "alliance_power",
+      "label": "Alliance power",
+      "total": 453849817970
+     },
+     {
+      "type": 2,
+      "key": "alliance_kills",
+      "label": "Alliance kills",
+      "total": 33103506193
+     },
+     {
+      "type": 3,
+      "key": "personal_power",
+      "label": "Chief power",
+      "total": 135492184769
+     },
+     {
+      "type": 4,
+      "key": "kills",
+      "label": "Kills",
+      "total": 25972390023
+     },
+     {
+      "type": 7,
+      "key": "single_hero",
+      "label": "Hero power",
+      "total": 2362218915
+     },
+     {
+      "type": 8,
+      "key": "hero_total",
+      "label": "Hero total",
+      "total": 20806328969
+     },
+     {
+      "type": 9,
+      "key": "troop_power",
+      "label": "Troop power",
+      "total": 96538408356
+     },
+     {
+      "type": 10,
+      "key": "building_power",
+      "label": "Building power",
+      "total": 1200636500
+     },
+     {
+      "type": 11,
+      "key": "research_power",
+      "label": "Research power",
+      "total": 10482712749
+     },
+     {
+      "type": 12,
+      "key": "hero_no_equip",
+      "label": "Hero without equip",
+      "total": 1930672672
+     },
+     {
+      "type": 13,
+      "key": "hero_equip",
+      "label": "Hero equip",
+      "total": 363553219
+     },
+     {
+      "type": 14,
+      "key": "chief_gear",
+      "label": "Chief gear power",
+      "total": 2198320000
+     },
+     {
+      "type": 15,
+      "key": "chief_charm",
+      "label": "Chief charm power",
+      "total": 2529422000
+     },
+     {
+      "type": 16,
+      "key": "pet_power",
+      "label": "Pet power",
+      "total": 3645423360
+     },
+     {
+      "type": 18,
+      "key": "island_prosperity",
+      "label": "Island prosperity",
+      "total": 22992850
+     },
+     {
+      "type": 19,
+      "key": "state_transfer",
+      "label": "State transfer score",
+      "total": 439042137
+     },
+     {
+      "type": 20,
+      "key": "labyrinth",
+      "label": "The Labyrinth",
+      "total": 196632
+     },
+     {
+      "type": 29,
+      "key": "master_power",
+      "label": "Expert power",
+      "total": 3919532740
+     }
+    ]
+   }
+  }
+ },
+ "/states/646/svs": {
+  "status": 403,
+  "data": {
+   "ok": false,
+   "error": "frosty_required"
+  }
+ },
+ "/states/646/svs/scores": {
+  "status": 403,
+  "data": {
+   "ok": false,
+   "error": "frosty_required"
+  }
+ },
+ "/svs/matchups": {
+  "status": 403,
+  "data": {
+   "ok": false,
+   "error": "frosty_required"
+  }
+ },
+ "/states/646/events": {
+  "status": 403,
+  "data": {
+   "ok": false,
+   "error": "frosty_required"
+  }
+ },
+ "/states/646/ranks?board=svs&limit=3": {
+  "status": 404,
+  "data": {
+   "ok": false,
+   "error": "board_not_found"
+  }
+ },
+ "/states/646/ranks?board=svs_points&limit=3": {
+  "status": 404,
+  "data": {
+   "ok": false,
+   "error": "board_not_found"
+  }
+ },
+ "/states/646/ranks?board=svs_score&limit=3": {
+  "status": 404,
+  "data": {
+   "ok": false,
+   "error": "board_not_found"
+  }
+ },
+ "/states/646/ranks?board=svs_prep&limit=3": {
+  "status": 404,
+  "data": {
+   "ok": false,
+   "error": "board_not_found"
+  }
+ },
+ "/states/646/ranks?board=state_of_power&limit=3": {
+  "status": 404,
+  "data": {
+   "ok": false,
+   "error": "board_not_found"
+  }
+ },
+ "/states/646/ranks?board=nonexistent_board_test&limit=3": {
+  "status": 404,
+  "data": {
+   "ok": false,
+   "error": "board_not_found"
+  }
+ },
+ "/players/100015858?include=base,ranks,events,svs": {
+  "status": 200,
+  "data": {
+   "ok": true,
+   "uid": 24624305,
+   "chief_id": 100015858,
+   "id_type": "chief_id",
+   "include": [
+    "base",
+    "ranks"
+   ],
+   "fresh": true,
+   "cached_at": 1794223736.2761505,
+   "age_seconds": 0,
+   "player": {
+    "uid": 24624305,
+    "chief_id": 100015858,
+    "fid": 100015858,
+    "nick_name": "JerkBoss",
+    "kid": 646,
+    "power": 1083243866,
+    "furnace_level": 80,
+    "vip": null,
+    "x": 440,
+    "y": 437,
+    "kills": 2430157,
+    "office": null,
+    "online": false,
+    "last_active_at": 1794198472.0,
+    "last_login": "Last active 7h ago",
+    "avatar_url": "https://gof-formal-avatar.akamaized.net/avatar/2026/09/12/ngWrO7_1789253195.png",
+    "alliance": {
+     "aid": 631000007,
+     "abbr": "BLP",
+     "name": "BlackPearl",
+     "rank": 3,
+     "rank_label": "R3",
+     "power": 87025314861,
+     "count": 88,
+     "flag_url": null,
+     "leader_name": "Yaminikkimini"
+    },
+    "shield_endtime": 1794094482,
+    "burn_endtime": null,
+    "language": "en"
+   },
+   "ranks": {
+    "power": 1083243866,
+    "power_rank": 151,
+    "kills": 2430157,
+    "kills_rank": 897,
+    "furnace_level": 80,
+    "furnace_rank": 76,
+    "state_transfer_score": 3395318,
+    "state_transfer_rank": 96,
+    "labyrinth": 1828,
+    "labyrinth_rank": 106,
+    "leaderboards": [
+     {
+      "name": "Personal Power",
+      "value": 1083243866,
+      "value_label": null,
+      "state_rank": 151,
+      "state_rank_label": "#151",
+      "rank_type": 3
+     },
+     {
+      "name": "Kill Count",
+      "value": 2430157,
+      "value_label": null,
+      "state_rank": 897,
+      "state_rank_label": "#897",
+      "rank_type": 4
+     },
+     {
+      "name": "Furnace Level",
+      "value": 80,
+      "value_label": null,
+      "state_rank": 76,
+      "state_rank_label": "#76",
+      "rank_type": 5
+     },
+     {
+      "name": "State Transfer Score",
+      "value": 3395318,
+      "value_label": null,
+      "state_rank": 96,
+      "state_rank_label": "#96",
+      "rank_type": 19
+     },
+     {
+      "name": "The Labyrinth",
+      "value": 1828,
+      "value_label": null,
+      "state_rank": 106,
+      "state_rank_label": "#106",
+      "rank_type": 20
+     },
+     {
+      "name": "Land of Heroes",
+      "value": 10517,
+      "value_label": "52-7",
+      "state_rank": null,
+      "state_rank_label": "100+",
+      "rank_type": 21
+     },
+     {
+      "name": "Cave of Monsters",
+      "value": 20163,
+      "value_label": "17-3",
+      "state_rank": null,
+      "state_rank_label": "100+",
+      "rank_type": 22
+     },
+     {
+      "name": "Charm Mine",
+      "value": 30171,
+      "value_label": "18-1",
+      "state_rank": null,
+      "state_rank_label": "100+",
+      "rank_type": 23
+     },
+     {
+      "name": "Research Center",
+      "value": 40234,
+      "value_label": "24-4",
+      "state_rank": 80,
+      "state_rank_label": "#80",
+      "rank_type": 24
+     },
+     {
+      "name": "Gear Forge",
+      "value": 50242,
+      "value_label": "25-2",
+      "state_rank": null,
+      "state_rank_label": "100+",
+      "rank_type": 25
+     },
+     {
+      "name": "Gaia Heart",
+      "value": 60501,
+      "value_label": "51-1",
+      "state_rank": null,
+      "state_rank_label": "100+",
+      "rank_type": 26
+     }
+    ]
+   }
+  }
+ }
+}
