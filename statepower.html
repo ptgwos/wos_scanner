@@ -966,6 +966,9 @@
   /* history: change, player popup, charts */
   .sp-d{display:block;font-size:11px;font-weight:600;line-height:1.25;margin-top:2px;}
   .sp-d.up{color:var(--good);} .sp-d.down{color:var(--danger);} .sp-d.z,.sp-d.nw{color:var(--text-faint);font-weight:500;}
+  .sp-r{display:block;font-size:11px;font-weight:700;line-height:1.25;margin-top:1px;white-space:nowrap;}
+  .sp-r small{font-size:10px;font-weight:500;color:var(--text-faint);margin-left:2px;}
+  .sp-r.up,.sp-rk.up{color:var(--good);} .sp-r.down,.sp-rk.down{color:var(--danger);} .sp-r.z,.sp-r.nw{color:var(--text-faint);font-weight:500;}
   .sp-dinfo{margin:-4px 0 12px;font-size:12px;color:var(--text-faint);}
   .sp-pn.sp-lk{cursor:pointer;} .sp-pn.sp-lk:hover .nm{text-decoration:underline;}
   .sp-trc{padding:0 0 6px;}
@@ -1091,7 +1094,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort. Tap a player name to see the history of that player.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-05 · sp15</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-10 · sp16</footer>
 </div>
 
 <script>
@@ -1174,7 +1177,7 @@
   }
 
   // ---- history: change over a period, report, player history, state trend ----
-  var IDX = null, HIST = {}, BASE = null, BASED = '', ENDM = null, ENDD = '', LATEST = '', RG = 30, dtok = 0, plId = '', plK = 'state_transfer', plDs = [], plIdx = [], plRg = 30, plFrom = '', plTo = '', rpMode = 'abs', gid = 0, tt = 0;
+  var IDX = null, HIST = {}, BASE = null, BASED = '', ENDM = null, ENDD = '', BASER = null, ENDR = null, BASEX = null, ENDX = null, LATEST = '', RG = 30, dtok = 0, plId = '', plK = 'state_transfer', plDs = [], plIdx = [], plRg = 30, plFrom = '', plTo = '', rpMode = 'abs', gid = 0, tt = 0;
   var TRK = TOT.concat([['kills', 'Kills'], ['player_count', 'Players']]);
   function p2(n){ return (n < 10 ? '0' : '') + n; }
   function ymd(t){ return t.getUTCFullYear() + '-' + p2(t.getUTCMonth() + 1) + '-' + p2(t.getUTCDate()); }
@@ -1212,11 +1215,13 @@
   }
   function bmap(X){
     if(X._m) return X._m;
-    var m = {};
-    Object.keys(X.boards || {}).forEach(function(k){ var o = {}; X.boards[k].forEach(function(e){ o[e[0]] = e[1]; }); m[k] = o; });
+    var m = {}, q = {};
+    Object.keys(X.boards || {}).forEach(function(k){ var o = {}, p = {}; X.boards[k].forEach(function(e){ o[e[0]] = e[1]; p[e[0]] = e[2]; }); m[k] = o; q[k] = p; });
     Object.defineProperty(X, '_m', {value: m, enumerable: false});
+    Object.defineProperty(X, '_rk', {value: q, enumerable: false});
     return m;
   }
+  function rmap(X){ bmap(X); return X._rk; }
   function fmtD(d, c){ var s = d > 0 ? '+' : d < 0 ? '−' : '±', a = Math.abs(d); return s + (c && c.g ? dots(a) : fmt(a)); }
   function pct1(p){ return (p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1).replace('.', ',') + ' %'; }
   // value at the end of the period and at its start; b == null: the player was not in the top 100 back then
@@ -1237,6 +1242,22 @@
     if(d === undefined) return '';
     if(d === null) return '<span class="sp-d nw" title="Not in the top 100 of this column on ' + esc(BASED) + '">new</span>';
     return '<span class="sp-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'z') + '">' + fmtD(d, c) + '</span>';
+  }
+  // change of the RANK in a column: undefined = nothing to show, null = not in the top 100 back then; > 0 = moved up
+  function rdel(r, c){
+    if(view !== 'own' || !BASE || !BASER) return undefined;
+    var now = ENDR ? (ENDR[c.k] ? ENDR[c.k][r.id] : null) : r.rk[c.k];
+    if(now == null) return undefined;
+    var b = BASER[c.k] ? BASER[c.k][r.id] : null;
+    return b == null ? null : b - now;
+  }
+  function rlt(r, c){
+    var d = rdel(r, c);
+    if(d === undefined) return '';
+    var now = ENDR ? ENDR[c.k][r.id] : r.rk[c.k];
+    if(d === null) return '<span class="sp-r nw" title="Not in the top 100 of this column on ' + esc(BASED) + '">new in the ranking</span>';
+    if(d === 0) return '<span class="sp-r z" title="Rank #' + now + ' – unchanged since ' + esc(BASED) + '">= #' + now + '</span>';
+    return '<span class="sp-r ' + (d > 0 ? 'up' : 'down') + '" title="Rank #' + (now + d) + ' on ' + esc(BASED) + ' → #' + now + ' now">' + (d > 0 ? '▲' : '▼') + Math.abs(d) + ' <small>#' + now + '</small></span>';
   }
   function pickBase(ds){
     if(st.dm === 'off') return '';
@@ -1278,10 +1299,10 @@
     var n = dayDiff(BASED, ENDD), t;
     if(ENDD !== LATEST) t = 'Change from ' + BASED + ' to ' + ENDD + ' (' + plural(n, 'day') + ')';
     else { t = 'Change since ' + BASED + ' (' + plural(n, 'day') + ' before the current status)'; if(/^\d+$/.test(st.dm) && n < +st.dm) t += ', the history is not that long yet'; }
-    el.textContent = t + '. “new” = the player was not in the top 100 of that column at the start.' + (st.ds ? ' Sorted by change.' : '');
+    el.textContent = t + '. “new” = the player was not in the top 100 of that column at the start. Real power also shows the change of the rank (▲ = moved up, ▼ = moved down).' + (st.ds ? ' Sorted by change.' : '');
   }
   function applyDelta(){
-    var tok = ++dtok; BASE = null; BASED = ''; ENDM = null; ENDD = '';
+    var tok = ++dtok; BASE = null; BASED = ''; ENDM = null; ENDD = ''; BASER = null; ENDR = null; BASEX = null; ENDX = null;
     if(st.dm === 'off' || !D){ dmUi(); render(); return Promise.resolve(); }
     dinfo();
     return loadIndex().then(function(ds){
@@ -1291,7 +1312,7 @@
       if(!b){ dmUi(); render(); return; }
       return Promise.all([fetchDay(b), e === LATEST ? Promise.resolve(D) : fetchDay(e)]).then(function(x){
         if(tok !== dtok) return;
-        if(x[0] && x[1]){ BASE = bmap(x[0]); BASED = b; ENDD = e; ENDM = e === LATEST ? null : bmap(x[1]); }
+        if(x[0] && x[1]){ BASE = bmap(x[0]); BASER = rmap(x[0]); BASEX = x[0]; ENDX = x[1]; BASED = b; ENDD = e; ENDM = e === LATEST ? null : bmap(x[1]); ENDR = e === LATEST ? null : rmap(x[1]); }
         dmUi(); render();
       });
     });
@@ -1444,9 +1465,42 @@
     var a = '+' + (c.g ? dots(e.d) : fmt(e.d)), p = e.pct == null ? '' : pct1(e.pct);
     return rpMode === 'pct' ? [p, a] : [a, p];
   }
+  // rank changes in the Real power board between the start and the end of the period
+  function rankData(){
+    var K = 'state_transfer', b = BASER && BASER[K] || {}, n = ENDR ? (ENDR[K] || {}) : null;
+    if(!n){ n = {}; ROWS.forEach(function(r){ if(r.rk[K] != null) n[r.id] = r.rk[K]; }); }
+    var nm = function(id){ var p = (ENDX && ENDX.players && ENDX.players[id]) || (BASEX && BASEX.players && BASEX.players[id]) || {}; var q = PL[id] || {}; return {id: id, n: p.n || q.n || '?', a: p.a || q.a || ''}; };
+    var up = [], down = [], inn = [], out = [];
+    Object.keys(n).forEach(function(id){
+      if(b[id] == null) inn.push({r: nm(id), now: n[id]});
+      else { var d = b[id] - n[id]; if(d > 0) up.push({r: nm(id), d: d, was: b[id], now: n[id]}); else if(d < 0) down.push({r: nm(id), d: d, was: b[id], now: n[id]}); }
+    });
+    Object.keys(b).forEach(function(id){ if(n[id] == null) out.push({r: nm(id), was: b[id]}); });
+    up.sort(function(x, y){ return y.d - x.d || x.now - y.now; });
+    down.sort(function(x, y){ return x.d - y.d || x.now - y.now; });
+    inn.sort(function(x, y){ return x.now - y.now; }); out.sort(function(x, y){ return x.was - y.was; });
+    return {up: up, down: down, inn: inn, out: out};
+  }
+  function rankCards(){
+    var R = rankData(), T = 'Real power', cards = [];
+    var mv = function(e){ return {main: (e.d > 0 ? '▲' : '▼') + Math.abs(e.d), sub: '#' + e.was + ' → #' + e.now}; };
+    cards.push({t: T + ' · climbers', z: 'Nobody moved up', rows: R.up.slice(0, 5).map(function(e){ var v = mv(e); return {r: e.r, a: v.main, b: v.sub, cls: 'up'}; })});
+    cards.push({t: T + ' · fallers', z: 'Nobody moved down', rows: R.down.slice(0, 5).map(function(e){ var v = mv(e); return {r: e.r, a: v.main, b: v.sub, cls: 'down'}; })});
+    var io = R.inn.slice(0, 5).map(function(e){ return {r: e.r, a: 'in', b: '#' + e.now, cls: 'up'}; }).concat(R.out.slice(0, 5).map(function(e){ return {r: e.r, a: 'out', b: 'was #' + e.was, cls: 'down'}; }));
+    cards.push({t: T + ' · in / out of the top 100 (' + R.inn.length + ' in, ' + R.out.length + ' out)', z: 'No changes at the edge of the top 100', rows: io});
+    return cards;
+  }
   function repTitle(){ return 'Biggest gains · ' + BASED + ' → ' + ENDD + ' (' + plural(dayDiff(BASED, ENDD), 'day') + ')'; }
   function repRender(){
     var h = '<div class="sp-rph"><b>State ' + esc(ownLabel()) + ' · ' + esc(repTitle()) + '</b><span>Top 5 per category, ranked by ' + (rpMode === 'pct' ? 'percentage' : 'absolute') + ' gain</span></div><div class="sp-rg">';
+    rankCards().forEach(function(c){
+      h += '<div class="sp-rc"><div class="sp-rt">' + esc(c.t) + '</div>';
+      if(!c.rows.length) h += '<div class="sp-rz">' + esc(c.z) + '</div>';
+      c.rows.forEach(function(e, i){
+        h += '<div class="sp-rr"><span class="sp-rn">' + (i + 1) + '</span><span class="sp-rnm" title="' + esc(e.r.n) + '">' + esc(e.r.n) + '</span>' + tagChip(e.r.a) + '<span class="sp-rv sp-rk ' + e.cls + '">' + e.a + '<small>' + esc(e.b) + '</small></span></div>';
+      });
+      h += '</div>';
+    });
     repData().forEach(function(s){
       h += '<div class="sp-rc' + (s.c.g ? ' kid' : '') + '"><div class="sp-rt">' + esc(lab(s.c)) + '</div>';
       if(!s.rows.length) h += '<div class="sp-rz">No gains in this period</div>';
@@ -1461,6 +1515,11 @@
   }
   function repText(){
     var t = 'State ' + ownLabel() + ' – ' + repTitle() + '\nTop 5 per category, ranked by ' + (rpMode === 'pct' ? 'percentage' : 'absolute') + ' gain\n';
+    rankCards().forEach(function(c){
+      t += '\n' + c.t + '\n';
+      if(!c.rows.length) t += '–\n';
+      c.rows.forEach(function(e, i){ t += (i + 1) + '. ' + e.r.n + (e.r.a ? ' [' + e.r.a + ']' : '') + '  ' + e.a + ' (' + e.b + ')\n'; });
+    });
     repData().forEach(function(s){
       t += '\n' + lab(s.c) + '\n';
       if(!s.rows.length) t += '–\n';
@@ -1624,7 +1683,7 @@
       cols.forEach(function(c){
         var v = r.val[c.k], k1 = gcls(cols, c), kd = c.g ? ' sp-kid' : '';
         if(v == null) h += '<td class="sp-no' + kd + k1 + '" title="Not in the top 100">–</td>';
-        else { var rk = r.rk[c.k], pl = view === 'cmp' ? r.mp[c.k] : rk; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + (view === 'cmp' ? ' in state ' + esc(r.s) : '') + (c.g ? ' · ' + (v % 10000) + ' stages' : '') + '">' + (pl >= 1 && pl <= 3 ? medal(pl, c.t + ' · place ' + pl + (view === 'cmp' ? ' of both states' : '')) : '') + (c.g ? stg(v) : fmt(v)) + dlt(r, c) + '</td>'; }
+        else { var rk = r.rk[c.k], pl = view === 'cmp' ? r.mp[c.k] : rk; h += '<td class="' + (c.k === s ? 'sp-s' : '') + kd + k1 + '" title="Rank #' + rk + (view === 'cmp' ? ' in state ' + esc(r.s) : '') + (c.g ? ' · ' + (v % 10000) + ' stages' : '') + '">' + (pl >= 1 && pl <= 3 ? medal(pl, c.t + ' · place ' + pl + (view === 'cmp' ? ' of both states' : '')) : '') + (c.g ? stg(v) : fmt(v)) + dlt(r, c) + (c.k === 'state_transfer' ? rlt(r, c) : '') + '</td>'; }
       });
       h += '</tr>';
     });
