@@ -1150,8 +1150,14 @@
   .fp-b{position:absolute;width:max-content;max-width:300px;box-sizing:border-box;padding:10px 14px 11px;border-radius:14px;background:rgba(14,20,36,.86);border:2px solid rgba(76,141,255,.9);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.45);}
   .fp-bt{font-size:19px;font-weight:800;letter-spacing:.02em;color:#8fb7ff;margin:0 0 6px;padding-bottom:5px;border-bottom:1px solid rgba(143,183,255,.35);white-space:nowrap;}
   .fp-ln{display:flex;align-items:center;gap:7px;font-size:21px;font-weight:600;line-height:1.22;white-space:nowrap;}
-  .fp-ln span:last-child{overflow:hidden;text-overflow:ellipsis;max-width:240px;}
+  .fp-ln span:last-child:not(.fp-st),.fp-sb .nmx{overflow:hidden;text-overflow:ellipsis;max-width:200px;}
   .fp-ic{width:22px;height:22px;flex:none;display:inline-block;}
+  .fp-ic.sub{width:22px;height:22px;display:inline-grid;place-items:center;font-size:12px;font-weight:700;font-style:italic;color:#9fb0cf;border:1px solid #6d7fa3;border-radius:50%;box-sizing:border-box;line-height:1;}
+  .fp-row .fp-ic.sub{width:20px;height:20px;font-size:11px;}
+  .fp-sb .nmx{font-style:italic;font-weight:500;color:#dfe8fb;}
+  .fp-st{font-style:italic;font-weight:500;font-size:19px;letter-spacing:.3em;color:#c7d4ee;}
+  .fp-subl{flex:1;font-style:italic;font-size:13px;letter-spacing:.25em;color:var(--text-dim);padding:6px 0;}
+  .fp-pick .nm.it{font-style:italic;font-weight:500;}
   .fp-ic.dot{position:relative;}
   .fp-ic.dot::after{content:'';position:absolute;left:8px;top:8px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);}
   #fpShot{position:fixed;left:-12000px;top:0;width:1800px;background:#1b1620;}
@@ -1228,8 +1234,8 @@
   <div class="fp-prevc"><div id="fpPrev"><div id="fpPrevIn"></div></div></div>
   <div class="fp-cards" id="fpCards"></div>
   </div>
-  <div class="fp-hint">Tap + to pick a player, tap a name to change it, × removes it. The map above is exactly what “Share pic” copies; boxes only appear for objects with players, and they get smaller when fewer players are placed. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-10 · fp1</footer>
+  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. “Substitute” is a placeholder without a name (whoever is online steps in) and is shown in italics. The map above is exactly what “Share pic” copies; boxes only appear for objects with players, and they get smaller when fewer players are placed. The plan is stored in this browser only.</div>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-10 · fp3</footer>
 </div>
 </div>
 <script>
@@ -1259,14 +1265,14 @@
   function toast(msg){ var t = $('fpToast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(function(){ t.classList.remove('show'); }, 2400); }
 
   // ---- state ----
-  function blank(){ return {lead: null, co: null, p: []}; }
+  function blank(){ return {lead: null, co: null, p: [], sub: false}; }
   function load(){
     var o = null; try { o = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) {}
     if(!o){ try { var m = document.cookie.match(/(?:^|; )svs646_foundry=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
     S = {o: {}};
     OBJ.forEach(function(ob){
       var s = o && o.o && o.o[ob.k] || {}, r = blank();
-      r.lead = s.lead != null ? String(s.lead) : null; r.co = s.co != null ? String(s.co) : null;
+      r.lead = s.lead != null ? String(s.lead) : null; r.co = s.co != null ? String(s.co) : null; r.sub = s.sub === true;
       r.p = (Array.isArray(s.p) ? s.p : []).filter(function(x){ return x != null; }).map(String).slice(0, MAXP);
       S.o[ob.k] = r;
     });
@@ -1278,12 +1284,14 @@
   }
   function pl(id){ return D && D.players && D.players[id]; }
   function nameOf(id){ var p = pl(id); return p ? (p.n || String(id)) : 'ID ' + id; }
-  function count(k){ var s = S.o[k]; return (s.lead ? 1 : 0) + (s.co ? 1 : 0) + s.p.length; }
-  function where(id){
-    for(var i = 0; i < OBJ.length; i++){ var s = S.o[OBJ[i].k]; if(s.lead === id) return {o: OBJ[i], r: 'lead'}; if(s.co === id) return {o: OBJ[i], r: 'co'}; var j = s.p.indexOf(id); if(j >= 0) return {o: OBJ[i], r: 'p', i: j}; }
-    return null;
+  function count(k){ var s = S.o[k]; return (s.lead ? 1 : 0) + (s.co ? 1 : 0) + s.p.length + (s.sub ? 1 : 0); }
+  // objects a player is already placed in
+  function whereAll(id){
+    var out = [];
+    OBJ.forEach(function(ob){ var s = S.o[ob.k]; if(s.lead === id || s.co === id || s.p.indexOf(id) >= 0) out.push(ob); });
+    return out;
   }
-  function removeAt(w){ var s = S.o[w.o.k]; if(w.r === 'lead') s.lead = null; else if(w.r === 'co') s.co = null; else s.p.splice(w.i, 1); }
+  function inObj(k, id){ var s = S.o[k]; return s.lead === id || s.co === id || s.p.indexOf(id) >= 0; }
 
   // ---- icons ----
   function beret(c){ return '<svg class="fp-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="' + c + '" d="M2.6 14.2c0-4.7 4.3-8.2 9.6-8.2 4.6 0 8.3 2.5 9 6.3.3 1.7-.9 2.9-3.1 3.6-3.1.9-8.3.9-11.4 0-2.5-.7-4.1-1.8-4.1-1.7z"/><path fill="rgba(0,0,0,.25)" d="M3.4 14.6c1.6 1.6 5.2 2.4 8.8 2.4 3.4 0 6.6-.7 8.2-2-.9 2.6-4.9 4-8.6 4-3.8 0-7.6-1.2-8.4-4.4z"/><rect fill="' + c + '" x="10.9" y="2.6" width="2.4" height="4" rx="1.2"/></svg>'; }
@@ -1298,17 +1306,20 @@
 
   // ---- editor ----
   function slotRow(k, role, idx, id){
-    var ic = role === 'lead' ? IC_LEAD : role === 'co' ? IC_CO : '<span class="fp-ic dot"></span>';
+    var ic = role === 'lead' ? IC_LEAD : role === 'co' ? IC_CO : role === 'sub' ? '<span class="fp-ic sub">S</span>' : '<span class="fp-ic dot"></span>';
     var lab = role === 'p' ? 'Player ' + (idx + 1) : ROLE[role];
     var da = 'data-o="' + k + '" data-r="' + role + '" data-i="' + idx + '"';
     if(!id) return '<div class="fp-row fp-e">' + ic + '<button type="button" class="fp-add" ' + da + '>+ ' + esc(lab) + '</button></div>';
-    return '<div class="fp-row">' + ic + '<button type="button" class="fp-pick" ' + da + ' title="Change player">' + (prefs().av === false ? '' : avatar(id, 22)) + '<span class="nm">' + esc(nameOf(id)) + '</span></button><button type="button" class="fp-x" ' + da + ' aria-label="Remove" title="Remove">×</button></div>';
+    return '<div class="fp-row">' + ic + '<button type="button" class="fp-pick" ' + da + ' title="Change player">' + (prefs().av === false ? '' : avatar(id, 22)) + '<span class="nm' + (role === 'sub' ? ' it' : '') + '">' + esc(nameOf(id)) + '</span></button><button type="button" class="fp-x" ' + da + ' aria-label="Remove" title="Remove">×</button></div>';
   }
   function cardHtml(ob){
-    var s = S.o[ob.k], n = count(ob.k), h = '<div class="fp-card' + (n ? ' has' : '') + '"><div class="fp-ch"><b>' + esc(ob.n) + '</b><span class="fp-cn">' + n + '/' + (MAXP + 2) + '</span>' + (n ? '<button type="button" class="fp-clr" data-o="' + ob.k + '" title="Clear this object">Clear</button>' : '') + '</div>';
+    var s = S.o[ob.k], n = count(ob.k), h = '<div class="fp-card' + (n ? ' has' : '') + '"><div class="fp-ch"><b>' + esc(ob.n) + '</b><span class="fp-cn">' + n + '/' + (MAXP + 3) + '</span>' + (n ? '<button type="button" class="fp-clr" data-o="' + ob.k + '" title="Clear this object">Clear</button>' : '') + '</div>';
     h += slotRow(ob.k, 'lead', 0, s.lead) + slotRow(ob.k, 'co', 0, s.co);
     s.p.forEach(function(id, i){ h += slotRow(ob.k, 'p', i, id); });
     if(s.p.length < MAXP) h += slotRow(ob.k, 'p', s.p.length, null);
+    h += s.sub
+      ? '<div class="fp-row"><span class="fp-ic sub">S</span><span class="fp-subl">Substitute</span><button type="button" class="fp-x" data-o="' + ob.k + '" data-r="sub" aria-label="Remove" title="Remove">×</button></div>'
+      : '<div class="fp-row fp-e"><span class="fp-ic sub">S</span><button type="button" class="fp-add" data-o="' + ob.k + '" data-r="sub" title="Placeholder: whoever is online can step in">+ Substitute (placeholder)</button></div>';
     return h + '</div>';
   }
   function render(){
@@ -1327,6 +1338,7 @@
       if(s.lead) rows += '<div class="fp-ln">' + IC_LEAD + '<span>' + esc(nameOf(s.lead)) + '</span></div>';
       if(s.co) rows += '<div class="fp-ln">' + IC_CO + '<span>' + esc(nameOf(s.co)) + '</span></div>';
       s.p.forEach(function(id){ rows += '<div class="fp-ln"><span class="fp-ic dot"></span><span>' + esc(nameOf(id)) + '</span></div>'; });
+      if(s.sub) rows += '<div class="fp-ln fp-sb"><span class="fp-ic sub">S</span><span class="fp-st">Substitute</span></div>';
       h += '<div class="fp-b" style="left:' + ob.x + 'px;top:' + ob.y + 'px;transform:translateX(' + tx + ')"><div class="fp-bt">' + esc(ob.n) + '</div>' + rows + '</div>';
     });
     return h + '</div>';
@@ -1409,8 +1421,8 @@
     arr.sort(function(a, b){ return (b.p.p || 0) - (a.p.p || 0); });
     arr = arr.slice(0, 300);
     pkList.innerHTML = arr.length ? arr.map(function(o){
-      var w = where(o.id);
-      return '<button type="button" class="fp-prow" data-id="' + esc(o.id) + '">' + (prefs().av === false ? '' : avatar(o.id, 24)) + '<span class="nm">' + esc(o.p.n || o.id) + '</span>' + (w ? '<span class="used">' + esc(w.o.n) + '</span>' : '') + '<span class="pw">' + fmtM(o.p.p) + '</span></button>';
+      var w = whereAll(o.id);
+      return '<button type="button" class="fp-prow" data-id="' + esc(o.id) + '">' + (prefs().av === false ? '' : avatar(o.id, 24)) + '<span class="nm">' + esc(o.p.n || o.id) + '</span>' + (w.length ? '<span class="used" title="' + esc(w.map(function(x){ return x.n; }).join(', ')) + '">' + esc(w[0].n) + (w.length > 1 ? ' +' + (w.length - 1) : '') + '</span>' : '') + '<span class="pw">' + fmtM(o.p.p) + '</span></button>';
     }).join('') : '<div class="fp-empty">Nobody found</div>';
   }
   function openPick(k, role, idx){
@@ -1425,19 +1437,11 @@
   pkQ.addEventListener('input', fillList);
   pkList.addEventListener('click', function(e){
     var b = e.target.closest('.fp-prow'); if(!b || !cur) return;
-    var id = b.dataset.id, s = S.o[cur.k], was = where(id), msg = '';
-    // target slot content before the move (it is replaced)
-    var tgt = {o: {k: cur.k}, r: cur.role, i: cur.i};
-    if(was && !(was.o.k === cur.k && was.r === cur.role && (cur.role !== 'p' || was.i === cur.i))){
-      msg = 'Moved from ' + was.o.n;
-      // remove from old place; when it lived in the same player list before the target index, the index shifts
-      if(was.o.k === cur.k && was.r === 'p' && cur.role === 'p' && was.i < cur.i) cur.i--;
-      removeAt(was);
-    }
-    s = S.o[cur.k];
+    var id = b.dataset.id, s = S.o[cur.k], old = cur.role === 'lead' ? s.lead : cur.role === 'co' ? s.co : s.p[cur.i];
+    if(inObj(cur.k, id) && old !== id){ var nm = OBJ.filter(function(x){ return x.k === cur.k; })[0].n; toast('Already in ' + nm); return; }
     if(cur.role === 'lead') s.lead = id; else if(cur.role === 'co') s.co = id;
     else if(cur.i < s.p.length) s.p[cur.i] = id; else if(s.p.length < MAXP) s.p.push(id);
-    save(); closePick(); render(); if(msg) toast(msg);
+    save(); closePick(); render();
   });
   $('pkClose').addEventListener('click', closePick);
   ov.addEventListener('click', function(e){ if(e.target === ov) closePick(); });
@@ -1448,6 +1452,7 @@
     var k = t.dataset.o; if(!k) return;
     if(t.classList.contains('fp-clr')){ S.o[k] = blank(); save(); render(); return; }
     var role = t.dataset.r, i = +t.dataset.i || 0;
+    if(role === 'sub'){ S.o[k].sub = t.classList.contains('fp-add'); save(); render(); return; }
     if(t.classList.contains('fp-x')){ var s = S.o[k]; if(role === 'lead') s.lead = null; else if(role === 'co') s.co = null; else s.p.splice(i, 1); save(); render(); return; }
     openPick(k, role, i);
   });
