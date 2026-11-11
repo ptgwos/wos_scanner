@@ -1206,6 +1206,12 @@
   .fp-cnt button:disabled{opacity:.35;cursor:default;}
   .fp-in{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);border-top:1px solid var(--border-soft);padding:8px 0 0;margin-top:2px;cursor:pointer;}
   html body textarea.fp-note{display:block;width:100%;box-sizing:border-box;margin:8px 0 0;padding:6px 8px;font:inherit;font-size:12.5px;line-height:1.35;resize:vertical;min-height:0;height:auto;border-radius:8px;background:var(--bg-input,transparent);color:var(--text);border:1px solid var(--border-soft);}
+  html body input.fp-title{flex:1 1 220px;min-width:160px;max-width:360px;box-sizing:border-box;padding:7px 10px;font:inherit;font-size:13px;border-radius:8px;border:1px solid var(--border-soft);background:transparent;color:var(--text);}
+  .fp-vt{display:flex;gap:6px;margin:0 0 8px;}
+  html body .fp-vt button{background:transparent;border:1px solid var(--border-soft);color:var(--text-dim);border-radius:999px;padding:4px 14px;font:inherit;font-size:12px;cursor:pointer;min-height:0;height:auto;text-transform:none;letter-spacing:0;box-shadow:none;}
+  html body .fp-vt button.on{border-color:var(--sp-acc);color:var(--sp-acc);}
+  .fp-tt{text-align:center;font-weight:800;font-size:42px;letter-spacing:.02em;color:#fff;margin:0 0 22px;overflow-wrap:anywhere;line-height:1.15;}
+  .fp-tt.big{font-size:104px;margin:0;}
   .fp-nopic{cursor:default;font-style:italic;}
   .fp-modal{max-width:460px;}
   .fp-ms{padding:0 22px 12px;display:flex;gap:8px;}
@@ -1249,17 +1255,20 @@
   </header>
   <div class="fp-top">
     <button type="button" class="btn" id="fpShare"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:8px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Share pic</button>
+    <button type="button" class="btn" id="fpShareMap" title="Large picture with the teams at their buildings">Share map pic</button>
     <button type="button" class="btn" id="fpClear">Clear all</button>
     <label class="fp-chk"><input type="checkbox" id="fpAv"> Avatars in picture</label>
+    <label class="fp-chk"><input type="checkbox" id="fpMap"> Mini map in standard picture</label>
+    <input type="text" id="fpTitle" class="fp-title" maxlength="60" placeholder="Title (shown on top of the picture)" autocomplete="off">
     <span class="grow"></span>
     <span class="fp-tot" id="fpTotal"></span>
   </div>
   <div class="fp-lay">
-  <div class="fp-prevc"><div id="fpEmpty" hidden>Place players and keep “Show in picture” ticked – the picture appears here.</div><div id="fpPrev"><div id="fpPrevIn"></div></div></div>
+  <div class="fp-prevc"><div class="fp-vt"><button type="button" id="fpVStd" class="on">Standard</button><button type="button" id="fpVMap">Map</button></div><div id="fpEmpty" hidden>Place players and keep “Show in picture” ticked – the picture appears here.</div><div id="fpPrev"><div id="fpPrevIn"></div></div></div>
   <div class="fp-cards" id="fpCards"></div>
   </div>
-  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-11 · fp5</footer>
+  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The small map (top right of the picture) marks the objects that have a block. “Share map pic” makes a large picture with every team placed at its building (Imperial Foundry only appears there). The title field puts a centred headline on top of both pictures. The plan is stored in this browser only.</div>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-11 · fp7</footer>
 </div>
 </div>
 <script>
@@ -1267,21 +1276,21 @@
   'use strict';
   var KEY = 'svs646_foundry', PKEY = 'svs646_prefs', MAXP = 6, MAXS = 6, COLS = 4, MAXN = 160, BW = 310, GAP = 22, PAD = 28;
   var OBJ = [
-    {k:'ps1',     n:'Prototype Site I'},
-    {k:'ps2',     n:'Prototype Site II'},
-    {k:'rf1',     n:'Repair Facility I'},
-    {k:'rf2',     n:'Repair Facility II'},
-    {k:'rf3',     n:'Repair Facility III'},
-    {k:'rf4',     n:'Repair Facility IV'},
-    {k:'boiler',  n:'Boiler Room'},
-    {k:'transit', n:'Transit Station'},
-    {k:'merc',    n:'Mercenary Camp'},
-    {k:'mw',      n:'Munition Warehouse'},
-    {k:'foundry', n:'Imperial Foundry'}
+    {k:'ps1',     n:'Prototype Site I', x:86, y:197, c:'PS1'},
+    {k:'ps2',     n:'Prototype Site II', x:153, y:42, c:'PS2'},
+    {k:'rf1',     n:'Repair Facility I', x:40, y:179, c:'RF1'},
+    {k:'rf2',     n:'Repair Facility II', x:199, y:60, c:'RF2'},
+    {k:'rf3',     n:'Repair Facility III', x:9, y:64, c:'RF3'},
+    {k:'rf4',     n:'Repair Facility IV', x:230, y:175, c:'RF4'},
+    {k:'boiler',  n:'Boiler Room', x:175, y:230, c:'BR'},
+    {k:'transit', n:'Transit Station', x:64, y:9, c:'TS'},
+    {k:'merc',    n:'Mercenary Camp', x:169, y:169, c:'MC'},
+    {k:'mw',      n:'Munition Warehouse', x:69, y:69, c:'MW'},
+    {k:'foundry', n:'Imperial Foundry', x:117, y:117, c:'IF'}
   ];
   // picture layout: one array per row, centred; Imperial Foundry is not part of the picture (yet)
   var ROWS = [['ps1','ps2'], ['rf1','rf2','rf3','rf4'], ['boiler','transit','merc','mw']];
-  var D = null, S = {o: {}, links: [], av: false}, cur = null, lastLoad = 0, tt = 0, lkFor = null;
+  var D = null, S = {o: {}, links: [], av: false, map: true, title: ''}, view = 'std', cur = null, lastLoad = 0, tt = 0, lkFor = null;
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function norm(s){ var t = String(s || ''); try { t = t.normalize('NFKD').replace(/[̀-ͯ]/g, ''); } catch(e) {} return t.toLowerCase(); }
@@ -1295,7 +1304,7 @@
   function load(){
     var o = null; try { o = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) {}
     if(!o){ try { var m = document.cookie.match(/(?:^|; )svs646_foundry=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
-    S = {o: {}, links: [], av: !!(o && o.av)};
+    S = {o: {}, links: [], av: !!(o && o.av), map: !(o && o.map === false), title: o && typeof o.title === 'string' ? o.title.slice(0, 60) : ''};
     OBJ.forEach(function(ob){
       var s = o && o.o && o.o[ob.k] || {}, r = blank();
       r.lead = s.lead != null ? String(s.lead) : null; r.co = s.co != null ? String(s.co) : null;
@@ -1320,6 +1329,7 @@
   function nameOf(id){ var p = pl(id); return p ? (p.n || String(id)) : 'ID ' + id; }
   function named(k){ var s = S.o[k]; return (s.lead ? 1 : 0) + (s.co ? 1 : 0) + s.p.length; }
   function visible(k){ return named(k) > 0 || S.o[k].sub > 0 || !!S.o[k].note.trim(); }
+  function inMap(k){ return !!S.o[k].sh && visible(k); }
   function inPic(k){ return !!S.o[k].sh && visible(k) && ROWS.some(function(r){ return r.indexOf(k) >= 0; }); }
   function whereAll(id){ return OBJ.filter(function(ob){ return inObj(ob.k, id); }); }
   function inObj(k, id){ var s = S.o[k]; return s.lead === id || s.co === id || s.p.indexOf(id) >= 0; }
@@ -1372,12 +1382,12 @@
     h += subRow(ob.k);
     h += '<textarea class="fp-note" data-o="' + ob.k + '" rows="2" maxlength="' + MAXN + '" placeholder="Note (shown in the picture if filled)">' + esc(s.note) + '</textarea>';
     if(ROWS.some(function(r){ return r.indexOf(ob.k) >= 0; })) h += '<label class="fp-in"><input type="checkbox" class="fp-sh" data-o="' + ob.k + '"' + (s.sh ? ' checked' : '') + '> Show in picture</label>';
-    else h += '<div class="fp-in fp-nopic">Not part of the picture layout</div>';
+    else h += '<div class="fp-in fp-nopic">Appears in the map picture only</div>';
     return h + '</div>';
   }
   function render(){
     $('fpCards').innerHTML = OBJ.map(cardHtml).join('');
-    $('fpAv').checked = !!S.av;
+    $('fpAv').checked = !!S.av; $('fpMap').checked = !!S.map; if(document.activeElement !== $('fpTitle')) $('fpTitle').value = S.title;
     var shown = OBJ.filter(function(ob){ return inPic(ob.k); }).length;
     $('fpTotal').textContent = shown + ' object' + (shown === 1 ? '' : 's') + ' in the picture';
     preview();
@@ -1387,6 +1397,19 @@
   function lineHtml(id, role){
     var ic = role === 'lead' ? IC_LEAD : role === 'co' ? IC_CO : '<span class="fp-ic dot"></span>';
     return '<div class="fp-ln' + (role === 'lead' ? ' ld' : '') + '">' + ic + (S.av ? avatar(id, 28) : '') + '<span class="nmx">' + esc(nameOf(id)) + '</span></div>';
+  }
+  var MS = 260, MR = 13;
+  function mapHtml(){
+    var half = MS / 2, pts = '', dots = '';
+    pts = half + ',1 ' + (MS - 1) + ',' + half + ' ' + half + ',' + (MS - 1) + ' 1,' + half;
+    OBJ.forEach(function(ob){
+      var X = half + (ob.x - ob.y) / 239 * (half - MR), Y = MS * (1 - (ob.x + ob.y) / 478), on = inPic(ob.k);
+      Y = MR + (MS - 2 * MR) * (1 - (ob.x + ob.y) / 478);
+      dots += '<circle cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="' + MR + '" fill="' + (on ? '#4c8dff' : 'rgba(255,255,255,.06)') + '" stroke="' + (on ? '#8fb7ff' : 'rgba(143,183,255,.45)') + '" stroke-width="1.5"/>' +
+        '<text x="' + X.toFixed(1) + '" y="' + (Y + 4).toFixed(1) + '" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="800" fill="' + (on ? '#fff' : '#8fa3c7') + '">' + ob.c + '</text>';
+    });
+    return '<svg class="fp-map" width="' + MS + '" height="' + MS + '" viewBox="0 0 ' + MS + ' ' + MS + '" xmlns="http://www.w3.org/2000/svg"><polygon points="' + pts + '" fill="rgba(76,141,255,.08)" stroke="rgba(143,183,255,.55)" stroke-width="2"/>' +
+      '<line x1="' + half + '" y1="1" x2="' + half + '" y2="' + (MS - 1) + '" stroke="rgba(143,183,255,.15)"/><line x1="1" y1="' + half + '" x2="' + (MS - 1) + '" y2="' + half + '" stroke="rgba(143,183,255,.15)"/>' + dots + '</svg>';
   }
   function blockHtml(ob){
     var s = S.o[ob.k], rows = '';
@@ -1398,18 +1421,52 @@
     if(nt) rows += '<div class="fp-nt">' + esc(nt) + '</div>';
     return '<div class="fp-b"><div class="fp-bt">' + esc(ob.n) + '</div>' + rows + '</div>';
   }
+  function titleHtml(big){ var t = S.title.trim(); return t ? '<div class="fp-tt' + (big ? ' big' : '') + '">' + esc(t) + '</div>' : ''; }
+  // ---- big map picture: teams at their buildings ----
+  var BM = 3000, BP = 70, U = BM / 2 / 239;
+  function bigHtml(){
+    var list = OBJ.filter(function(ob){ return inMap(ob.k); });
+    if(!list.length) return '';
+    var th = S.title.trim() ? 190 : 0, W = BM + BP * 2, H = BM + BP * 2 + th, half = BM / 2;
+    function px(ob){ return [BP + half + (ob.x - ob.y) * U, BP + th + (478 - (ob.x + ob.y)) * U]; }
+    var svg = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" style="position:absolute;left:0;top:0" xmlns="http://www.w3.org/2000/svg">' +
+      '<polygon points="' + (BP + half) + ',' + (BP + th) + ' ' + (BP + BM) + ',' + (BP + th + half) + ' ' + (BP + half) + ',' + (BP + th + BM) + ' ' + BP + ',' + (BP + th + half) + '" fill="rgba(76,141,255,.07)" stroke="rgba(143,183,255,.5)" stroke-width="5"/>' +
+      '<line x1="' + (BP + half) + '" y1="' + (BP + th) + '" x2="' + (BP + half) + '" y2="' + (BP + th + BM) + '" stroke="rgba(143,183,255,.12)" stroke-width="3"/>' +
+      '<line x1="' + BP + '" y1="' + (BP + th + half) + '" x2="' + (BP + BM) + '" y2="' + (BP + th + half) + '" stroke="rgba(143,183,255,.12)" stroke-width="3"/>';
+    OBJ.forEach(function(ob){
+      if(inMap(ob.k)) return;
+      var p = px(ob);
+      svg += '<circle cx="' + p[0].toFixed(0) + '" cy="' + p[1].toFixed(0) + '" r="34" fill="rgba(255,255,255,.05)" stroke="rgba(143,183,255,.4)" stroke-width="3"/>' +
+        '<text x="' + p[0].toFixed(0) + '" y="' + (p[1] + 8).toFixed(0) + '" text-anchor="middle" font-family="Inter,sans-serif" font-size="22" font-weight="800" fill="#7f93b8">' + ob.c + '</text>' +
+        '<text x="' + p[0].toFixed(0) + '" y="' + (p[1] + 70).toFixed(0) + '" text-anchor="middle" font-family="Inter,sans-serif" font-size="26" font-weight="600" fill="#6f84aa">' + esc(ob.n) + '</text>';
+    });
+    svg += '</svg>';
+    var h = '<div class="fp-pic fp-bigpic" style="width:' + W + 'px;height:' + H + 'px;padding:0;position:relative">' + svg;
+    if(th) h += '<div style="position:absolute;left:0;right:0;top:' + BP + 'px;height:' + (th - 20) + 'px;display:flex;align-items:center;justify-content:center">' + titleHtml(true) + '</div>';
+    list.forEach(function(ob){
+      var p = px(ob);
+      h += '<div style="position:absolute;left:' + p[0].toFixed(0) + 'px;top:' + p[1].toFixed(0) + 'px;transform:translate(-50%,-50%) scale(1.3);transform-origin:50% 50%;width:' + BW + 'px">' + blockHtml(ob) + '</div>';
+    });
+    return h + '</div>';
+  }
+  function curHtml(mode){ return (mode || view) === 'map' ? bigHtml() : picHtml(); }
   function picHtml(){
-    var rows = ROWS.map(function(r){ return r.filter(inPic); }).filter(function(r){ return r.length; });
-    if(!rows.length) return '';
-    var cols = Math.max.apply(null, rows.map(function(r){ return r.length; })), W = PAD * 2 + cols * BW + (cols - 1) * GAP;
-    var h = '<div class="fp-pic" style="width:' + W + 'px;padding:' + PAD + 'px"><div class="fp-grid" style="gap:' + GAP + 'px">';
-    rows.forEach(function(r){
-      h += '<div class="fp-pr" style="gap:' + GAP + 'px">' + r.map(function(k){ return blockHtml(OBJ.filter(function(x){ return x.k === k; })[0]); }).join('') + '</div>';
+    var rows = ROWS.map(function(r){ return r.filter(inPic); });
+    if(!rows.some(function(r){ return r.length; })) return '';
+    var cols = S.map ? COLS : Math.max.apply(null, rows.map(function(r){ return r.length; })), W = PAD * 2 + cols * BW + (cols - 1) * GAP;
+    var h = '<div class="fp-pic" style="width:' + W + 'px;padding:' + PAD + 'px">' + titleHtml(false) + '<div class="fp-grid" style="gap:' + GAP + 'px">';
+    rows.forEach(function(r, ri){
+      var first = ri === 0 && S.map;
+      if(!r.length && !first) return;
+      h += '<div class="fp-pr" style="gap:' + GAP + 'px' + (first ? ';position:relative;min-height:' + MS + 'px' : '') + '">' +
+        r.map(function(k){ return blockHtml(OBJ.filter(function(x){ return x.k === k; })[0]); }).join('') +
+        (first ? '<div class="fp-mapw" style="position:absolute;right:' + Math.round((BW - MS) / 2) + 'px;top:0">' + mapHtml() + '</div>' : '') + '</div>';
     });
     return h + '</div></div>';
   }
   function preview(){
-    var box = $('fpPrev'), inner = $('fpPrevIn'), h = picHtml();
+    var box = $('fpPrev'), inner = $('fpPrevIn'), h = curHtml();
+    $('fpVStd').classList.toggle('on', view === 'std'); $('fpVMap').classList.toggle('on', view === 'map');
     $('fpEmpty').hidden = !!h;
     if(!h){ inner.innerHTML = ''; box.style.height = '0'; box.style.display = 'none'; return; }
     box.style.display = '';
@@ -1436,12 +1493,12 @@
     });
     return Promise.all(undo.map(function(u){ return u[0].decode ? u[0].decode().catch(function(){}) : 0; })).then(function(){ return function(){ undo.forEach(function(u){ u[0].setAttribute('src', u[1]); }); }; });
   }
-  async function shotBlob(){
-    var el = $('fpShot'); el.innerHTML = picHtml();
+  async function shotBlob(mode){
+    var el = $('fpShot'); el.innerHTML = curHtml(mode);
     var pic = el.firstChild; el.style.width = pic.offsetWidth + 'px';
     await loadLib();
     await Promise.all(Array.from(el.querySelectorAll('img')).map(function(im){ return im.complete ? 0 : new Promise(function(r){ im.addEventListener('load', r); im.addEventListener('error', function(){ setTimeout(r, 50); }); setTimeout(r, 4000); }); }));
-    var opt = Object.assign({pixelRatio: 2, backgroundColor: '#0d1426', cacheBust: false, style: {position: 'static', left: '0', top: '0'}}, window.__fpOpt || {});
+    var opt = Object.assign({pixelRatio: mode === 'map' ? 1 : 2, backgroundColor: '#0d1426', cacheBust: false, style: {position: 'static', left: '0', top: '0'}}, window.__fpOpt || {});
     var restore = await inlineImgs(el);
     try {
       pic = el.firstChild;
@@ -1449,21 +1506,26 @@
       return await window.htmlToImage.toBlob(pic, opt);
     } finally { restore(); el.innerHTML = ''; }
   }
-  async function doShare(btn){
-    if(!picHtml()){ toast('Nothing to show – place players and tick “Show in picture”'); return; }
+  async function doShare(btn, mode){
+    if(!curHtml(mode)){ toast('Nothing to show – place players and tick “Show in picture”'); return; }
     btn.disabled = true;
     try {
       if(navigator.clipboard && window.ClipboardItem){
-        try { await navigator.clipboard.write([new ClipboardItem({'image/png': shotBlob().then(function(b){ if(!b) throw new Error('empty'); return b; })})]); toast('Picture copied'); return; } catch(e2) {}
+        try { await navigator.clipboard.write([new ClipboardItem({'image/png': shotBlob(mode).then(function(b){ if(!b) throw new Error('empty'); return b; })})]); toast('Picture copied'); return; } catch(e2) {}
       }
-      var b = await shotBlob(); if(!b) throw new Error('empty');
-      var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'state646-foundry-plan.png';
+      var b = await shotBlob(mode); if(!b) throw new Error('empty');
+      var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = mode === 'map' ? 'state646-foundry-map.png' : 'state646-foundry-plan.png';
       document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
       toast('Clipboard not available – picture downloaded');
     } catch(e3) { toast('Could not create the picture'); }
     finally { btn.disabled = false; }
   }
-  $('fpShare').addEventListener('click', function(e){ doShare(e.currentTarget); });
+  $('fpShare').addEventListener('click', function(e){ doShare(e.currentTarget, 'std'); });
+  $('fpShareMap').addEventListener('click', function(e){ doShare(e.currentTarget, 'map'); });
+  $('fpVStd').addEventListener('click', function(){ view = 'std'; preview(); });
+  $('fpVMap').addEventListener('click', function(){ view = 'map'; preview(); });
+  $('fpTitle').addEventListener('input', function(e){ S.title = e.target.value.slice(0, 60); save(); preview(); });
+  $('fpMap').addEventListener('change', function(e){ S.map = e.target.checked; save(); render(); });
   $('fpAv').addEventListener('change', function(e){ S.av = e.target.checked; save(); render(); });
 
   // ---- picker ----
