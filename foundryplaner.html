@@ -1149,7 +1149,10 @@
   #fpPrevIn{position:absolute;left:0;top:0;transform-origin:0 0;width:max-content;}
   #fpEmpty{color:var(--text-faint);font-size:13px;text-align:center;padding:30px 10px;}
   .fp-pic{box-sizing:border-box;background:linear-gradient(160deg,#0d1426,#16203b);font-family:'Inter',sans-serif;color:#fff;}
-  .fp-grid{display:grid;align-items:start;}
+  .fp-grid{display:flex;flex-direction:column;}
+  .fp-pr{display:flex;justify-content:center;align-items:flex-start;}
+  .fp-pr .fp-b{width:310px;flex:none;}
+  .fp-nt{margin-top:8px;padding-top:7px;border-top:1px solid rgba(143,183,255,.35);font-size:17px;line-height:1.3;font-style:italic;color:#c7d4ee;white-space:pre-wrap;overflow-wrap:anywhere;}
   .fp-b{box-sizing:border-box;padding:12px 16px 13px;border-radius:14px;background:rgba(20,30,54,.95);border:2px solid rgba(76,141,255,.85);}
   .fp-bt{font-size:20px;font-weight:800;letter-spacing:.02em;color:#8fb7ff;margin:0 0 7px;padding-bottom:6px;border-bottom:1px solid rgba(143,183,255,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .fp-ln{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:500;line-height:1.28;white-space:nowrap;min-height:30px;}
@@ -1202,6 +1205,8 @@
   .fp-cnt button:hover:not(:disabled){color:var(--sp-acc);border-color:var(--sp-acc);}
   .fp-cnt button:disabled{opacity:.35;cursor:default;}
   .fp-in{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);border-top:1px solid var(--border-soft);padding:8px 0 0;margin-top:2px;cursor:pointer;}
+  html body textarea.fp-note{display:block;width:100%;box-sizing:border-box;margin:8px 0 0;padding:6px 8px;font:inherit;font-size:12.5px;line-height:1.35;resize:vertical;min-height:0;height:auto;border-radius:8px;background:var(--bg-input,transparent);color:var(--text);border:1px solid var(--border-soft);}
+  .fp-nopic{cursor:default;font-style:italic;}
   .fp-modal{max-width:460px;}
   .fp-ms{padding:0 22px 12px;display:flex;gap:8px;}
   .fp-ms input{flex:1;min-width:0;box-sizing:border-box;}
@@ -1253,27 +1258,29 @@
   <div class="fp-prevc"><div id="fpEmpty" hidden>Place players and keep “Show in picture” ticked – the picture appears here.</div><div id="fpPrev"><div id="fpPrevIn"></div></div></div>
   <div class="fp-cards" id="fpCards"></div>
   </div>
-  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture shows up to 12 objects, 4 per row; untick “Show in picture” to leave an object out. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-11 · fp4</footer>
+  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The plan is stored in this browser only.</div>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-11 · fp5</footer>
 </div>
 </div>
 <script>
 (function(){
   'use strict';
-  var KEY = 'svs646_foundry', PKEY = 'svs646_prefs', MAXP = 6, MAXS = 6, COLS = 4, MAXB = 12, BW = 310, GAP = 22, PAD = 28;
+  var KEY = 'svs646_foundry', PKEY = 'svs646_prefs', MAXP = 6, MAXS = 6, COLS = 4, MAXN = 160, BW = 310, GAP = 22, PAD = 28;
   var OBJ = [
-    {k:'boiler',  n:'Boiler Room'},
-    {k:'rf3',     n:'Repair Facility III'},
-    {k:'merc',    n:'Mercenary Camp'},
     {k:'ps1',     n:'Prototype Site I'},
-    {k:'foundry', n:'Imperial Foundry'},
-    {k:'rf4',     n:'Repair Facility IV'},
-    {k:'rf1',     n:'Repair Facility I'},
     {k:'ps2',     n:'Prototype Site II'},
-    {k:'mw',      n:'Munition Warehouse'},
+    {k:'rf1',     n:'Repair Facility I'},
     {k:'rf2',     n:'Repair Facility II'},
-    {k:'transit', n:'Transit Station'}
+    {k:'rf3',     n:'Repair Facility III'},
+    {k:'rf4',     n:'Repair Facility IV'},
+    {k:'boiler',  n:'Boiler Room'},
+    {k:'transit', n:'Transit Station'},
+    {k:'merc',    n:'Mercenary Camp'},
+    {k:'mw',      n:'Munition Warehouse'},
+    {k:'foundry', n:'Imperial Foundry'}
   ];
+  // picture layout: one array per row, centred; Imperial Foundry is not part of the picture (yet)
+  var ROWS = [['ps1','ps2'], ['rf1','rf2','rf3','rf4'], ['boiler','transit','merc','mw']];
   var D = null, S = {o: {}, links: [], av: false}, cur = null, lastLoad = 0, tt = 0, lkFor = null;
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -1284,7 +1291,7 @@
   function oname(k){ return OBJ.filter(function(x){ return x.k === k; })[0].n; }
 
   // ---- state ----
-  function blank(){ return {lead: null, co: null, p: [], sub: 0, sh: true}; }
+  function blank(){ return {lead: null, co: null, p: [], sub: 0, sh: true, note: ''}; }
   function load(){
     var o = null; try { o = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) {}
     if(!o){ try { var m = document.cookie.match(/(?:^|; )svs646_foundry=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
@@ -1295,6 +1302,7 @@
       r.p = (Array.isArray(s.p) ? s.p : []).filter(function(x){ return x != null; }).map(String).slice(0, MAXP);
       r.sub = typeof s.sub === 'number' ? Math.max(0, Math.min(MAXS, Math.floor(s.sub))) : (s.sub === true ? 1 : 0);
       r.sh = s.sh !== false;
+      r.note = typeof s.note === 'string' ? s.note.slice(0, MAXN) : '';
       S.o[ob.k] = r;
     });
     var seen = {};
@@ -1311,7 +1319,8 @@
   function pl(id){ return D && D.players && D.players[id]; }
   function nameOf(id){ var p = pl(id); return p ? (p.n || String(id)) : 'ID ' + id; }
   function named(k){ var s = S.o[k]; return (s.lead ? 1 : 0) + (s.co ? 1 : 0) + s.p.length; }
-  function visible(k){ return named(k) > 0 || S.o[k].sub > 0; }
+  function visible(k){ return named(k) > 0 || S.o[k].sub > 0 || !!S.o[k].note.trim(); }
+  function inPic(k){ return !!S.o[k].sh && visible(k) && ROWS.some(function(r){ return r.indexOf(k) >= 0; }); }
   function whereAll(id){ return OBJ.filter(function(ob){ return inObj(ob.k, id); }); }
   function inObj(k, id){ var s = S.o[k]; return s.lead === id || s.co === id || s.p.indexOf(id) >= 0; }
 
@@ -1355,20 +1364,22 @@
   }
   function cardHtml(ob){
     var s = S.o[ob.k], n = named(ob.k), g = grp(ob.k);
-    var h = '<div class="fp-card' + (n || s.sub ? ' has' : '') + '"><div class="fp-ch"><b>' + esc(ob.n) + '</b><span class="fp-cn">' + n + '/' + (MAXP + 2) + '</span><button type="button" class="fp-lk' + (g ? ' on' : '') + '" data-o="' + ob.k + '" title="Link with other objects">' + IC_LINK + '</button>' + (n || s.sub ? '<button type="button" class="fp-clr" data-o="' + ob.k + '" title="Clear this object">Clear</button>' : '') + '</div>';
+    var h = '<div class="fp-card' + (n || s.sub || s.note ? ' has' : '') + '"><div class="fp-ch"><b>' + esc(ob.n) + '</b><span class="fp-cn">' + n + '/' + (MAXP + 2) + '</span><button type="button" class="fp-lk' + (g ? ' on' : '') + '" data-o="' + ob.k + '" title="Link with other objects">' + IC_LINK + '</button>' + (n || s.sub || s.note ? '<button type="button" class="fp-clr" data-o="' + ob.k + '" title="Clear this object">Clear</button>' : '') + '</div>';
     if(g) h += '<div class="fp-linked">' + IC_LINK + '<span>Same team as ' + esc(g.filter(function(x){ return x !== ob.k; }).map(oname).join(', ')) + '</span><button type="button" class="fp-unl" data-o="' + ob.k + '">Unlink</button></div>';
     h += slotRow(ob.k, 'lead', 0, s.lead) + slotRow(ob.k, 'co', 0, s.co);
     s.p.forEach(function(id, i){ h += slotRow(ob.k, 'p', i, id); });
     if(s.p.length < MAXP) h += slotRow(ob.k, 'p', s.p.length, null);
     h += subRow(ob.k);
-    h += '<label class="fp-in"><input type="checkbox" class="fp-sh" data-o="' + ob.k + '"' + (s.sh ? ' checked' : '') + '> Show in picture</label>';
+    h += '<textarea class="fp-note" data-o="' + ob.k + '" rows="2" maxlength="' + MAXN + '" placeholder="Note (shown in the picture if filled)">' + esc(s.note) + '</textarea>';
+    if(ROWS.some(function(r){ return r.indexOf(ob.k) >= 0; })) h += '<label class="fp-in"><input type="checkbox" class="fp-sh" data-o="' + ob.k + '"' + (s.sh ? ' checked' : '') + '> Show in picture</label>';
+    else h += '<div class="fp-in fp-nopic">Not part of the picture layout</div>';
     return h + '</div>';
   }
   function render(){
     $('fpCards').innerHTML = OBJ.map(cardHtml).join('');
     $('fpAv').checked = !!S.av;
-    var shown = OBJ.filter(function(ob){ return S.o[ob.k].sh && visible(ob.k); }).length;
-    $('fpTotal').textContent = shown + ' object' + (shown === 1 ? '' : 's') + ' in the picture' + (shown > MAXB ? ' (only the first ' + MAXB + ' fit)' : '');
+    var shown = OBJ.filter(function(ob){ return inPic(ob.k); }).length;
+    $('fpTotal').textContent = shown + ' object' + (shown === 1 ? '' : 's') + ' in the picture';
     preview();
   }
 
@@ -1377,18 +1388,23 @@
     var ic = role === 'lead' ? IC_LEAD : role === 'co' ? IC_CO : '<span class="fp-ic dot"></span>';
     return '<div class="fp-ln' + (role === 'lead' ? ' ld' : '') + '">' + ic + (S.av ? avatar(id, 28) : '') + '<span class="nmx">' + esc(nameOf(id)) + '</span></div>';
   }
+  function blockHtml(ob){
+    var s = S.o[ob.k], rows = '';
+    if(s.lead) rows += lineHtml(s.lead, 'lead');
+    if(s.co) rows += lineHtml(s.co, 'co');
+    s.p.forEach(function(id){ rows += lineHtml(id, 'p'); });
+    for(var i = 0; i < s.sub; i++) rows += '<div class="fp-ln fp-sb"><span class="fp-ic sub">S</span><span class="fp-st">Substitute</span></div>';
+    var nt = s.note.trim();
+    if(nt) rows += '<div class="fp-nt">' + esc(nt) + '</div>';
+    return '<div class="fp-b"><div class="fp-bt">' + esc(ob.n) + '</div>' + rows + '</div>';
+  }
   function picHtml(){
-    var list = OBJ.filter(function(ob){ return S.o[ob.k].sh && visible(ob.k); }).slice(0, MAXB);
-    if(!list.length) return '';
-    var cols = Math.min(COLS, list.length), W = PAD * 2 + cols * BW + (cols - 1) * GAP;
-    var h = '<div class="fp-pic" style="width:' + W + 'px;padding:' + PAD + 'px"><div class="fp-grid" style="grid-template-columns:repeat(' + cols + ',' + BW + 'px);gap:' + GAP + 'px">';
-    list.forEach(function(ob){
-      var s = S.o[ob.k], rows = '';
-      if(s.lead) rows += lineHtml(s.lead, 'lead');
-      if(s.co) rows += lineHtml(s.co, 'co');
-      s.p.forEach(function(id){ rows += lineHtml(id, 'p'); });
-      for(var i = 0; i < s.sub; i++) rows += '<div class="fp-ln fp-sb"><span class="fp-ic sub">S</span><span class="fp-st">Substitute</span></div>';
-      h += '<div class="fp-b"><div class="fp-bt">' + esc(ob.n) + '</div>' + rows + '</div>';
+    var rows = ROWS.map(function(r){ return r.filter(inPic); }).filter(function(r){ return r.length; });
+    if(!rows.length) return '';
+    var cols = Math.max.apply(null, rows.map(function(r){ return r.length; })), W = PAD * 2 + cols * BW + (cols - 1) * GAP;
+    var h = '<div class="fp-pic" style="width:' + W + 'px;padding:' + PAD + 'px"><div class="fp-grid" style="gap:' + GAP + 'px">';
+    rows.forEach(function(r){
+      h += '<div class="fp-pr" style="gap:' + GAP + 'px">' + r.map(function(k){ return blockHtml(OBJ.filter(function(x){ return x.k === k; })[0]); }).join('') + '</div>';
     });
     return h + '</div></div>';
   }
@@ -1521,6 +1537,9 @@
     closeLink(); changed(k);
   });
 
+  $('fpCards').addEventListener('input', function(e){
+    var t = e.target; if(t.classList.contains('fp-note')){ S.o[t.dataset.o].note = t.value.slice(0, MAXN); save(); preview(); var n = $('fpTotal'); var c = OBJ.filter(function(ob){ return inPic(ob.k); }).length; n.textContent = c + ' object' + (c === 1 ? '' : 's') + ' in the picture'; }
+  });
   $('fpCards').addEventListener('change', function(e){
     var t = e.target; if(t.classList.contains('fp-sh')){ S.o[t.dataset.o].sh = t.checked; save(); render(); }
   });
