@@ -1142,25 +1142,35 @@
   .fp-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
   .fp-top .grow{flex:1;}
   .fp-tot{font-size:12px;color:var(--text-dim);}
-  .fp-prevc{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--sp-shadow);padding:12px;margin-bottom:14px;}
-  #fpPrev{position:relative;width:100%;overflow:hidden;border-radius:10px;background:#1b1620;}
-  #fpPrevIn{position:absolute;left:0;top:0;transform-origin:0 0;width:1800px;}
-  .fp-map{position:relative;overflow:hidden;font-family:'Inter',sans-serif;}
-  .fp-bg{display:block;width:1800px;height:1452px;}
-  .fp-b{position:absolute;width:max-content;max-width:300px;box-sizing:border-box;padding:10px 14px 11px;border-radius:14px;background:rgba(14,20,36,.86);border:2px solid rgba(76,141,255,.9);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.45);}
-  .fp-bt{font-size:19px;font-weight:800;letter-spacing:.02em;color:#8fb7ff;margin:0 0 6px;padding-bottom:5px;border-bottom:1px solid rgba(143,183,255,.35);white-space:nowrap;}
-  .fp-ln{display:flex;align-items:center;gap:7px;font-size:21px;font-weight:600;line-height:1.22;white-space:nowrap;}
-  .fp-ln span:last-child:not(.fp-st),.fp-sb .nmx{overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+  .fp-chk{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--text);cursor:pointer;user-select:none;}
+  .fp-chk input,.fp-in input,.fp-lkrow input{accent-color:var(--sp-acc);width:16px;height:16px;margin:0;}
+  .fp-prevc{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--sp-shadow);padding:12px;}
+  #fpPrev{position:relative;width:100%;overflow:hidden;border-radius:10px;}
+  #fpPrevIn{position:absolute;left:0;top:0;transform-origin:0 0;width:max-content;}
+  #fpEmpty{color:var(--text-faint);font-size:13px;text-align:center;padding:30px 10px;}
+  .fp-pic{box-sizing:border-box;background:linear-gradient(160deg,#0d1426,#16203b);font-family:'Inter',sans-serif;color:#fff;}
+  .fp-grid{display:grid;align-items:start;}
+  .fp-b{box-sizing:border-box;padding:12px 16px 13px;border-radius:14px;background:rgba(20,30,54,.95);border:2px solid rgba(76,141,255,.85);}
+  .fp-bt{font-size:20px;font-weight:800;letter-spacing:.02em;color:#8fb7ff;margin:0 0 7px;padding-bottom:6px;border-bottom:1px solid rgba(143,183,255,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fp-ln{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:500;line-height:1.28;white-space:nowrap;min-height:30px;}
+  .fp-ln.ld .nmx{font-weight:800;}
+  .fp-ln .nmx{overflow:hidden;text-overflow:ellipsis;min-width:0;}
+  .fp-ln .av{margin:0;flex:none;border-radius:50%;object-fit:cover;}
   .fp-ic{width:22px;height:22px;flex:none;display:inline-block;}
-  .fp-ic.sub{width:22px;height:22px;display:inline-grid;place-items:center;font-size:12px;font-weight:700;font-style:italic;color:#9fb0cf;border:1px solid #6d7fa3;border-radius:50%;box-sizing:border-box;line-height:1;}
+  .fp-ic.sub{display:inline-grid;place-items:center;font-size:12px;font-weight:700;font-style:italic;color:#9fb0cf;border:1px solid #6d7fa3;border-radius:50%;box-sizing:border-box;line-height:1;}
   .fp-row .fp-ic.sub{width:20px;height:20px;font-size:11px;}
-  .fp-sb .nmx{font-style:italic;font-weight:500;color:#dfe8fb;}
   .fp-st{font-style:italic;font-weight:500;font-size:19px;letter-spacing:.3em;color:#c7d4ee;}
   .fp-subl{flex:1;font-style:italic;font-size:13px;letter-spacing:.25em;color:var(--text-dim);padding:6px 0;}
-  .fp-pick .nm.it{font-style:italic;font-weight:500;}
   .fp-ic.dot{position:relative;}
   .fp-ic.dot::after{content:'';position:absolute;left:8px;top:8px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);}
-  #fpShot{position:fixed;left:-12000px;top:0;width:1800px;background:#1b1620;}
+  #fpShot{position:fixed;left:-12000px;top:0;}
+  .fp-lay{display:flex;flex-direction:column;gap:14px;}
+  .fp-lay .fp-prevc{order:-1;}
+  @media (min-width:1200px){
+    .fp-lay{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start;}
+    .fp-lay .fp-prevc{order:0;grid-column:2;grid-row:1;position:sticky;top:14px;}
+    .fp-lay .fp-cards{grid-column:1;grid-row:1;grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
   .fp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-items:start;}
   .fp-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--sp-shadow);padding:12px 12px 10px;}
   .fp-card.has{border-color:var(--sp-acc);}
@@ -1169,16 +1179,29 @@
   .fp-cn{font-size:11px;color:var(--text-faint);font-variant-numeric:tabular-nums;}
   .fp-clr{border:0;background:none;color:var(--text-faint);font-size:11px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;}
   .fp-clr:hover{color:var(--danger);}
-  .fp-row{display:flex;align-items:center;gap:8px;min-height:32px;border-top:1px solid var(--border-soft);}
+  html body .fp-lk{border:1px solid var(--border);background:none;color:var(--text-faint);width:26px;height:26px;padding:0;border-radius:7px;cursor:pointer;display:inline-grid;place-items:center;min-height:0;}
+  html body .fp-lk:hover{color:var(--sp-acc);border-color:var(--sp-acc);}
+  html body .fp-lk.on{color:#fff;background:var(--sp-acc);border-color:var(--sp-acc);}
+  .fp-linked{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--sp-acc);background:var(--sp-acc2);border-radius:8px;padding:5px 8px;margin-bottom:4px;}
+  .fp-linked span{flex:1;min-width:0;}
+  html body .fp-unl{border:0;background:none;color:var(--text-dim);font-size:11px;text-decoration:underline;cursor:pointer;padding:0;font-family:inherit;min-height:0;letter-spacing:0;text-transform:none;font-weight:400;}
+  .fp-row{display:flex;align-items:center;gap:8px;min-height:34px;border-top:1px solid var(--border-soft);}
   .fp-row .fp-ic{width:20px;height:20px;}
   .fp-row .fp-ic.dot::after{left:7px;top:7px;}
-  .fp-pick,.fp-add{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:none;border:0;color:var(--text);cursor:pointer;text-align:left;font:inherit;font-size:13.5px;padding:5px 0;}
-  .fp-pick .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  html body .fp-pick,html body .fp-add{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:none;border:0;color:var(--text);cursor:pointer;text-align:left;font:inherit;font-size:13.5px;padding:6px 0;min-height:0;height:auto;line-height:1.3;text-transform:none;letter-spacing:0;font-weight:400;border-radius:0;box-shadow:none;}
+  .fp-pick .nm{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .fp-pick .nm.ld{font-weight:800;}
   .fp-pick .av{margin:0;}
-  .fp-add{color:var(--text-faint);}
+  html body .fp-add{color:var(--text-faint);}
   .fp-add:hover,.fp-pick:hover .nm{color:var(--sp-acc);}
-  .fp-x{border:0;background:none;color:var(--text-faint);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px;}
+  html body .fp-x{border:0;background:none;color:var(--text-faint);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px;min-height:0;}
   .fp-x:hover{color:var(--danger);background:var(--sp-acc2);}
+  .fp-cnt{display:inline-flex;align-items:center;gap:6px;}
+  .fp-cnt b{min-width:16px;text-align:center;font-size:13px;}
+  html body .fp-cnt button{width:26px;height:26px;padding:0;border:1px solid var(--border);background:none;color:var(--text);border-radius:7px;cursor:pointer;font-size:15px;line-height:1;min-height:0;}
+  .fp-cnt button:hover:not(:disabled){color:var(--sp-acc);border-color:var(--sp-acc);}
+  .fp-cnt button:disabled{opacity:.35;cursor:default;}
+  .fp-in{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);border-top:1px solid var(--border-soft);padding:8px 0 0;margin-top:2px;cursor:pointer;}
   .fp-modal{max-width:460px;}
   .fp-ms{padding:0 22px 12px;display:flex;gap:8px;}
   .fp-ms input{flex:1;min-width:0;box-sizing:border-box;}
@@ -1191,23 +1214,18 @@
   .fp-prow .used{font-size:10.5px;color:var(--sp-acc);border:1px solid var(--sp-acc);border-radius:999px;padding:1px 7px;white-space:nowrap;}
   .fp-prow .av{margin:0;}
   .fp-empty{color:var(--text-faint);text-align:center;padding:24px 0;font-size:13px;}
+  .fp-lkl{padding:0 22px 6px;max-height:52vh;overflow-y:auto;}
+  .fp-lkrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-soft);font-size:14px;cursor:pointer;}
+  .fp-lkrow span{flex:1;} .fp-lkrow small{color:var(--text-faint);font-size:11px;}
+  .fp-lka{display:flex;gap:8px;justify-content:flex-end;padding:12px 22px 18px;}
   #fpToast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);background:var(--panel-2);color:var(--text);border:1px solid var(--sp-acc);border-radius:8px;padding:10px 16px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:400;max-width:90vw;}
   #fpToast.show{opacity:1;transform:translate(-50%,0);}
-  .fp-lay{display:flex;flex-direction:column;gap:14px;}
-  .fp-lay .fp-prevc{order:-1;margin:0;}
-  @media (min-width:1200px){
-    .fp-lay{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start;}
-    .fp-lay .fp-prevc{order:0;grid-column:2;grid-row:1;position:sticky;top:14px;}
-    .fp-lay .fp-cards{grid-column:1;grid-row:1;grid-template-columns:repeat(2,minmax(0,1fr));}
-  }
-  html body .fp-row{min-height:34px;padding:0;}
-  html body .fp-pick,html body .fp-add{min-height:0;height:auto;padding:6px 0;line-height:1.3;text-transform:none;letter-spacing:0;font-weight:400;border-radius:0;box-shadow:none;}
-  html body .fp-pick .nm{font-weight:600;}
   .fp-hint{margin-top:14px;font-size:12px;color:var(--text-faint);}
 </style>
 </head>
 <body class="sp-app">
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel fp-modal"><div class="modal-header"><h2 id="pkTitle">Select player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p><div class="fp-ms"><select id="pkAl" aria-label="Alliance"></select><input type="text" id="pkQ" placeholder="Search name …" autocomplete="off"></div><div class="fp-list" id="pkList"></div></div></div>
+<div class="modal-overlay" id="lkModal" role="dialog" aria-modal="true" aria-labelledby="lkTitle"><div class="modal-panel fp-modal"><div class="modal-header"><h2 id="lkTitle">Link objects</h2></div><p class="modal-sub" id="lkSub"></p><div class="fp-lkl" id="lkList"></div><div class="fp-lka"><button type="button" class="btn" id="lkCancel">Cancel</button><button type="button" class="btn" id="lkApply">Apply</button></div></div></div>
 <div id="fpShot" aria-hidden="true"></div>
 <div id="fpToast" role="status" aria-live="polite"></div>
 <div class="sp-shell">
@@ -1227,54 +1245,62 @@
   <div class="fp-top">
     <button type="button" class="btn" id="fpShare"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:8px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Share pic</button>
     <button type="button" class="btn" id="fpClear">Clear all</button>
+    <label class="fp-chk"><input type="checkbox" id="fpAv"> Avatars in picture</label>
     <span class="grow"></span>
     <span class="fp-tot" id="fpTotal"></span>
   </div>
   <div class="fp-lay">
-  <div class="fp-prevc"><div id="fpPrev"><div id="fpPrevIn"></div></div></div>
+  <div class="fp-prevc"><div id="fpEmpty" hidden>Place players and keep “Show in picture” ticked – the picture appears here.</div><div id="fpPrev"><div id="fpPrevIn"></div></div></div>
   <div class="fp-cards" id="fpCards"></div>
   </div>
-  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. “Substitute” is a placeholder without a name (whoever is online steps in) and is shown in italics. The map above is exactly what “Share pic” copies; boxes only appear for objects with players, and they get smaller when fewer players are placed. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-10 · fp3</footer>
+  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture shows up to 12 objects, 4 per row; untick “Show in picture” to leave an object out. The plan is stored in this browser only.</div>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-11 · fp4</footer>
 </div>
 </div>
 <script>
 (function(){
   'use strict';
-  var KEY = 'svs646_foundry', PKEY = 'svs646_prefs', MAXP = 6;
+  var KEY = 'svs646_foundry', PKEY = 'svs646_prefs', MAXP = 6, MAXS = 6, COLS = 4, MAXB = 12, BW = 310, GAP = 22, PAD = 28;
   var OBJ = [
-    {k:'boiler',  n:'Boiler Room',        x:455,  y:70,   ax:'r'},
-    {k:'rf3',     n:'Repair Facility III',x:1240, y:70,   ax:'l'},
-    {k:'merc',    n:'Mercenary Camp',     x:1010, y:330,  ax:'l'},
-    {k:'ps1',     n:'Prototype Site I',   x:370,  y:400,  ax:'r'},
-    {k:'foundry', n:'Imperial Foundry',   x:640,  y:730,  ax:'r'},
-    {k:'rf4',     n:'Repair Facility IV', x:1540, y:450,  ax:'l'},
-    {k:'rf1',     n:'Repair Facility I',  x:385,  y:915,  ax:'r'},
-    {k:'ps2',     n:'Prototype Site II',  x:1390, y:830,  ax:'l'},
-    {k:'mw',      n:'Munition Warehouse', x:1000, y:940,  ax:'l'},
-    {k:'rf2',     n:'Repair Facility II', x:455,  y:1178, ax:'r'},
-    {k:'transit', n:'Transit Station',    x:1240, y:1130, ax:'l'}
+    {k:'boiler',  n:'Boiler Room'},
+    {k:'rf3',     n:'Repair Facility III'},
+    {k:'merc',    n:'Mercenary Camp'},
+    {k:'ps1',     n:'Prototype Site I'},
+    {k:'foundry', n:'Imperial Foundry'},
+    {k:'rf4',     n:'Repair Facility IV'},
+    {k:'rf1',     n:'Repair Facility I'},
+    {k:'ps2',     n:'Prototype Site II'},
+    {k:'mw',      n:'Munition Warehouse'},
+    {k:'rf2',     n:'Repair Facility II'},
+    {k:'transit', n:'Transit Station'}
   ];
-  var MAP_W = 1800, MAP_H = 1452;
-  var D = null, S = {o: {}}, cur = null, lastLoad = 0, tt = 0;
+  var D = null, S = {o: {}, links: [], av: false}, cur = null, lastLoad = 0, tt = 0, lkFor = null;
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function norm(s){ var t = String(s || ''); try { t = t.normalize('NFKD').replace(/[̀-ͯ]/g, ''); } catch(e) {} return t.toLowerCase(); }
   function prefs(){ var o = null; try { o = JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch(e) {} if(!o){ try { var m = document.cookie.match(/(?:^|; )svs646_prefs=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} } return o && typeof o === 'object' ? o : {}; }
   function fmtM(n){ n = +n || 0; return n >= 1e9 ? (n / 1e9).toFixed(2).replace('.', ',') + ' B' : (n / 1e6).toFixed(1).replace('.', ',') + ' M'; }
   function toast(msg){ var t = $('fpToast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(function(){ t.classList.remove('show'); }, 2400); }
+  function oname(k){ return OBJ.filter(function(x){ return x.k === k; })[0].n; }
 
   // ---- state ----
-  function blank(){ return {lead: null, co: null, p: [], sub: false}; }
+  function blank(){ return {lead: null, co: null, p: [], sub: 0, sh: true}; }
   function load(){
     var o = null; try { o = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) {}
     if(!o){ try { var m = document.cookie.match(/(?:^|; )svs646_foundry=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
-    S = {o: {}};
+    S = {o: {}, links: [], av: !!(o && o.av)};
     OBJ.forEach(function(ob){
       var s = o && o.o && o.o[ob.k] || {}, r = blank();
-      r.lead = s.lead != null ? String(s.lead) : null; r.co = s.co != null ? String(s.co) : null; r.sub = s.sub === true;
+      r.lead = s.lead != null ? String(s.lead) : null; r.co = s.co != null ? String(s.co) : null;
       r.p = (Array.isArray(s.p) ? s.p : []).filter(function(x){ return x != null; }).map(String).slice(0, MAXP);
+      r.sub = typeof s.sub === 'number' ? Math.max(0, Math.min(MAXS, Math.floor(s.sub))) : (s.sub === true ? 1 : 0);
+      r.sh = s.sh !== false;
       S.o[ob.k] = r;
+    });
+    var seen = {};
+    ((o && Array.isArray(o.links)) ? o.links : []).forEach(function(g){
+      var ks = (Array.isArray(g) ? g : []).filter(function(k){ return S.o[k] && !seen[k]; });
+      if(ks.length > 1){ ks.forEach(function(k){ seen[k] = 1; }); S.links.push(ks); }
     });
   }
   function save(){
@@ -1284,69 +1310,96 @@
   }
   function pl(id){ return D && D.players && D.players[id]; }
   function nameOf(id){ var p = pl(id); return p ? (p.n || String(id)) : 'ID ' + id; }
-  function count(k){ var s = S.o[k]; return (s.lead ? 1 : 0) + (s.co ? 1 : 0) + s.p.length + (s.sub ? 1 : 0); }
-  // objects a player is already placed in
-  function whereAll(id){
-    var out = [];
-    OBJ.forEach(function(ob){ var s = S.o[ob.k]; if(s.lead === id || s.co === id || s.p.indexOf(id) >= 0) out.push(ob); });
-    return out;
-  }
+  function named(k){ var s = S.o[k]; return (s.lead ? 1 : 0) + (s.co ? 1 : 0) + s.p.length; }
+  function visible(k){ return named(k) > 0 || S.o[k].sub > 0; }
+  function whereAll(id){ return OBJ.filter(function(ob){ return inObj(ob.k, id); }); }
   function inObj(k, id){ var s = S.o[k]; return s.lead === id || s.co === id || s.p.indexOf(id) >= 0; }
+
+  // ---- links: linked objects always carry the same players ----
+  function grp(k){ for(var i = 0; i < S.links.length; i++) if(S.links[i].indexOf(k) >= 0) return S.links[i]; return null; }
+  function sync(k){
+    var g = grp(k); if(!g) return;
+    var src = S.o[k];
+    g.forEach(function(x){ if(x !== k){ var d = S.o[x]; d.lead = src.lead; d.co = src.co; d.p = src.p.slice(); d.sub = src.sub; } });
+  }
+  function unlink(k){
+    S.links.forEach(function(g){ var i = g.indexOf(k); if(i >= 0) g.splice(i, 1); });
+    S.links = S.links.filter(function(g){ return g.length > 1; });
+  }
+  function changed(k){ sync(k); save(); render(); }
 
   // ---- icons ----
   function beret(c){ return '<svg class="fp-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="' + c + '" d="M2.6 14.2c0-4.7 4.3-8.2 9.6-8.2 4.6 0 8.3 2.5 9 6.3.3 1.7-.9 2.9-3.1 3.6-3.1.9-8.3.9-11.4 0-2.5-.7-4.1-1.8-4.1-1.7z"/><path fill="rgba(0,0,0,.25)" d="M3.4 14.6c1.6 1.6 5.2 2.4 8.8 2.4 3.4 0 6.6-.7 8.2-2-.9 2.6-4.9 4-8.6 4-3.8 0-7.6-1.2-8.4-4.4z"/><rect fill="' + c + '" x="10.9" y="2.6" width="2.4" height="4" rx="1.2"/></svg>'; }
   var IC_LEAD = beret('#f2b705'), IC_CO = beret('#b7c3da');
   var ROLE = {lead: 'Rally lead', co: 'Co-lead'};
+  var IC_LINK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
 
   function avatar(id, size){
     var p = pl(id) || {}, ph = '<span class="av ph" style="width:' + size + 'px;height:' + size + 'px" aria-hidden="true">' + esc((Array.from(p.n || '?')[0] || '?').toUpperCase()) + '</span>';
-    if(p.au) return '<img class="av" style="width:' + size + 'px;height:' + size + 'px" src="avatars/' + esc(id) + '.webp" alt="" loading="lazy" onerror="this.outerHTML=this.getAttribute(\'data-ph\')" data-ph="' + esc(ph) + '">';
+    if(p.au) return '<img class="av" style="width:' + size + 'px;height:' + size + 'px" src="avatars/' + esc(id) + '.webp" alt="" onerror="this.outerHTML=this.getAttribute(\'data-ph\')" data-ph="' + esc(ph) + '">';
     return ph;
   }
 
   // ---- editor ----
   function slotRow(k, role, idx, id){
-    var ic = role === 'lead' ? IC_LEAD : role === 'co' ? IC_CO : role === 'sub' ? '<span class="fp-ic sub">S</span>' : '<span class="fp-ic dot"></span>';
+    var ic = role === 'lead' ? IC_LEAD : role === 'co' ? IC_CO : '<span class="fp-ic dot"></span>';
     var lab = role === 'p' ? 'Player ' + (idx + 1) : ROLE[role];
     var da = 'data-o="' + k + '" data-r="' + role + '" data-i="' + idx + '"';
     if(!id) return '<div class="fp-row fp-e">' + ic + '<button type="button" class="fp-add" ' + da + '>+ ' + esc(lab) + '</button></div>';
-    return '<div class="fp-row">' + ic + '<button type="button" class="fp-pick" ' + da + ' title="Change player">' + (prefs().av === false ? '' : avatar(id, 22)) + '<span class="nm' + (role === 'sub' ? ' it' : '') + '">' + esc(nameOf(id)) + '</span></button><button type="button" class="fp-x" ' + da + ' aria-label="Remove" title="Remove">×</button></div>';
+    return '<div class="fp-row">' + ic + '<button type="button" class="fp-pick" ' + da + ' title="Change player">' + (prefs().av === false ? '' : avatar(id, 22)) + '<span class="nm' + (role === 'lead' ? ' ld' : '') + '">' + esc(nameOf(id)) + '</span></button><button type="button" class="fp-x" ' + da + ' aria-label="Remove" title="Remove">×</button></div>';
+  }
+  function subRow(k){
+    var n = S.o[k].sub;
+    if(!n) return '<div class="fp-row fp-e"><span class="fp-ic sub">S</span><button type="button" class="fp-add" data-o="' + k + '" data-r="sub" data-d="1" title="Placeholder: whoever is online can step in">+ Substitute (placeholder)</button></div>';
+    return '<div class="fp-row"><span class="fp-ic sub">S</span><span class="fp-subl">Substitute</span><span class="fp-cnt"><button type="button" data-o="' + k + '" data-r="sub" data-d="-1" aria-label="One less" title="One less">−</button><b>' + n + '</b><button type="button" data-o="' + k + '" data-r="sub" data-d="1" aria-label="One more" title="One more"' + (n >= MAXS ? ' disabled' : '') + '>+</button></span></div>';
   }
   function cardHtml(ob){
-    var s = S.o[ob.k], n = count(ob.k), h = '<div class="fp-card' + (n ? ' has' : '') + '"><div class="fp-ch"><b>' + esc(ob.n) + '</b><span class="fp-cn">' + n + '/' + (MAXP + 3) + '</span>' + (n ? '<button type="button" class="fp-clr" data-o="' + ob.k + '" title="Clear this object">Clear</button>' : '') + '</div>';
+    var s = S.o[ob.k], n = named(ob.k), g = grp(ob.k);
+    var h = '<div class="fp-card' + (n || s.sub ? ' has' : '') + '"><div class="fp-ch"><b>' + esc(ob.n) + '</b><span class="fp-cn">' + n + '/' + (MAXP + 2) + '</span><button type="button" class="fp-lk' + (g ? ' on' : '') + '" data-o="' + ob.k + '" title="Link with other objects">' + IC_LINK + '</button>' + (n || s.sub ? '<button type="button" class="fp-clr" data-o="' + ob.k + '" title="Clear this object">Clear</button>' : '') + '</div>';
+    if(g) h += '<div class="fp-linked">' + IC_LINK + '<span>Same team as ' + esc(g.filter(function(x){ return x !== ob.k; }).map(oname).join(', ')) + '</span><button type="button" class="fp-unl" data-o="' + ob.k + '">Unlink</button></div>';
     h += slotRow(ob.k, 'lead', 0, s.lead) + slotRow(ob.k, 'co', 0, s.co);
     s.p.forEach(function(id, i){ h += slotRow(ob.k, 'p', i, id); });
     if(s.p.length < MAXP) h += slotRow(ob.k, 'p', s.p.length, null);
-    h += s.sub
-      ? '<div class="fp-row"><span class="fp-ic sub">S</span><span class="fp-subl">Substitute</span><button type="button" class="fp-x" data-o="' + ob.k + '" data-r="sub" aria-label="Remove" title="Remove">×</button></div>'
-      : '<div class="fp-row fp-e"><span class="fp-ic sub">S</span><button type="button" class="fp-add" data-o="' + ob.k + '" data-r="sub" title="Placeholder: whoever is online can step in">+ Substitute (placeholder)</button></div>';
+    h += subRow(ob.k);
+    h += '<label class="fp-in"><input type="checkbox" class="fp-sh" data-o="' + ob.k + '"' + (s.sh ? ' checked' : '') + '> Show in picture</label>';
     return h + '</div>';
   }
   function render(){
     $('fpCards').innerHTML = OBJ.map(cardHtml).join('');
-    var tot = 0; OBJ.forEach(function(ob){ tot += count(ob.k); });
-    $('fpTotal').textContent = tot + ' player' + (tot === 1 ? '' : 's') + ' placed';
+    $('fpAv').checked = !!S.av;
+    var shown = OBJ.filter(function(ob){ return S.o[ob.k].sh && visible(ob.k); }).length;
+    $('fpTotal').textContent = shown + ' object' + (shown === 1 ? '' : 's') + ' in the picture' + (shown > MAXB ? ' (only the first ' + MAXB + ' fit)' : '');
     preview();
   }
 
-  // ---- map (preview + share picture) ----
-  function mapHtml(){
-    var h = '<div class="fp-map" style="width:' + MAP_W + 'px;height:' + MAP_H + 'px"><img class="fp-bg" src="foundry-map.jpg" alt="" width="' + MAP_W + '" height="' + MAP_H + '">';
-    OBJ.forEach(function(ob){
-      var s = S.o[ob.k]; if(!count(ob.k)) return;
-      var tx = ob.ax === 'r' ? '-100%' : ob.ax === 'c' ? '-50%' : '0', rows = '';
-      if(s.lead) rows += '<div class="fp-ln">' + IC_LEAD + '<span>' + esc(nameOf(s.lead)) + '</span></div>';
-      if(s.co) rows += '<div class="fp-ln">' + IC_CO + '<span>' + esc(nameOf(s.co)) + '</span></div>';
-      s.p.forEach(function(id){ rows += '<div class="fp-ln"><span class="fp-ic dot"></span><span>' + esc(nameOf(id)) + '</span></div>'; });
-      if(s.sub) rows += '<div class="fp-ln fp-sb"><span class="fp-ic sub">S</span><span class="fp-st">Substitute</span></div>';
-      h += '<div class="fp-b" style="left:' + ob.x + 'px;top:' + ob.y + 'px;transform:translateX(' + tx + ')"><div class="fp-bt">' + esc(ob.n) + '</div>' + rows + '</div>';
+  // ---- picture (preview + share) ----
+  function lineHtml(id, role){
+    var ic = role === 'lead' ? IC_LEAD : role === 'co' ? IC_CO : '<span class="fp-ic dot"></span>';
+    return '<div class="fp-ln' + (role === 'lead' ? ' ld' : '') + '">' + ic + (S.av ? avatar(id, 28) : '') + '<span class="nmx">' + esc(nameOf(id)) + '</span></div>';
+  }
+  function picHtml(){
+    var list = OBJ.filter(function(ob){ return S.o[ob.k].sh && visible(ob.k); }).slice(0, MAXB);
+    if(!list.length) return '';
+    var cols = Math.min(COLS, list.length), W = PAD * 2 + cols * BW + (cols - 1) * GAP;
+    var h = '<div class="fp-pic" style="width:' + W + 'px;padding:' + PAD + 'px"><div class="fp-grid" style="grid-template-columns:repeat(' + cols + ',' + BW + 'px);gap:' + GAP + 'px">';
+    list.forEach(function(ob){
+      var s = S.o[ob.k], rows = '';
+      if(s.lead) rows += lineHtml(s.lead, 'lead');
+      if(s.co) rows += lineHtml(s.co, 'co');
+      s.p.forEach(function(id){ rows += lineHtml(id, 'p'); });
+      for(var i = 0; i < s.sub; i++) rows += '<div class="fp-ln fp-sb"><span class="fp-ic sub">S</span><span class="fp-st">Substitute</span></div>';
+      h += '<div class="fp-b"><div class="fp-bt">' + esc(ob.n) + '</div>' + rows + '</div>';
     });
-    return h + '</div>';
+    return h + '</div></div>';
   }
   function preview(){
-    var box = $('fpPrev'), w = box.clientWidth || 800, sc = Math.min(1, w / MAP_W);
-    box.style.height = Math.round(MAP_H * sc) + 'px';
-    var inner = $('fpPrevIn'); inner.innerHTML = mapHtml(); inner.style.transform = 'scale(' + sc + ')';
+    var box = $('fpPrev'), inner = $('fpPrevIn'), h = picHtml();
+    $('fpEmpty').hidden = !!h;
+    if(!h){ inner.innerHTML = ''; box.style.height = '0'; box.style.display = 'none'; return; }
+    box.style.display = '';
+    inner.style.transform = 'none'; inner.innerHTML = h;
+    var pic = inner.firstChild, W = pic.offsetWidth, H = pic.offsetHeight, sc = Math.min(1, (box.clientWidth || 800) / W);
+    inner.style.transform = 'scale(' + sc + ')'; box.style.height = Math.round(H * sc) + 'px';
   }
   window.addEventListener('resize', function(){ preview(); });
 
@@ -1362,26 +1415,26 @@
         if(!im.complete || !im.naturalWidth) return;
         var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
         c.getContext('2d').drawImage(im, 0, 0);
-        var old = im.getAttribute('src'); im.removeAttribute('loading'); im.src = c.toDataURL('image/jpeg', .92); undo.push([im, old]);
+        var old = im.getAttribute('src'); im.src = c.toDataURL('image/png'); undo.push([im, old]);
       } catch(e) {}
     });
     return Promise.all(undo.map(function(u){ return u[0].decode ? u[0].decode().catch(function(){}) : 0; })).then(function(){ return function(){ undo.forEach(function(u){ u[0].setAttribute('src', u[1]); }); }; });
   }
   async function shotBlob(){
-    var el = $('fpShot'); el.innerHTML = mapHtml();
+    var el = $('fpShot'); el.innerHTML = picHtml();
+    var pic = el.firstChild; el.style.width = pic.offsetWidth + 'px';
     await loadLib();
-    el.querySelectorAll('img').forEach(function(im){ im.removeAttribute('loading'); im.loading = 'eager'; });
     await Promise.all(Array.from(el.querySelectorAll('img')).map(function(im){ return im.complete ? 0 : new Promise(function(r){ im.addEventListener('load', r); im.addEventListener('error', function(){ setTimeout(r, 50); }); setTimeout(r, 4000); }); }));
-    var opt = Object.assign({pixelRatio: 1, backgroundColor: '#1b1620', cacheBust: false, style: {position: 'static', left: '0', top: '0'}}, window.__fpOpt || {});
+    var opt = Object.assign({pixelRatio: 2, backgroundColor: '#0d1426', cacheBust: false, style: {position: 'static', left: '0', top: '0'}}, window.__fpOpt || {});
     var restore = await inlineImgs(el);
     try {
-      if(/iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent)){ try { await window.htmlToImage.toBlob(el, opt); } catch(e) {} }
-      return await window.htmlToImage.toBlob(el, opt);
+      pic = el.firstChild;
+      if(/iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent)){ try { await window.htmlToImage.toBlob(pic, opt); } catch(e) {} }
+      return await window.htmlToImage.toBlob(pic, opt);
     } finally { restore(); el.innerHTML = ''; }
   }
   async function doShare(btn){
-    var any = OBJ.some(function(ob){ return count(ob.k); });
-    if(!any){ toast('Nobody is placed yet'); return; }
+    if(!picHtml()){ toast('Nothing to show – place players and tick “Show in picture”'); return; }
     btn.disabled = true;
     try {
       if(navigator.clipboard && window.ClipboardItem){
@@ -1395,6 +1448,7 @@
     finally { btn.disabled = false; }
   }
   $('fpShare').addEventListener('click', function(e){ doShare(e.currentTarget); });
+  $('fpAv').addEventListener('change', function(e){ S.av = e.target.checked; save(); render(); });
 
   // ---- picker ----
   var ov = $('pkModal'), pkQ = $('pkQ'), pkList = $('pkList'), pkAl = $('pkAl'), AL_KEY = 'svs646_foundry_al';
@@ -1426,10 +1480,9 @@
     }).join('') : '<div class="fp-empty">Nobody found</div>';
   }
   function openPick(k, role, idx){
-    var ob = OBJ.filter(function(x){ return x.k === k; })[0];
     cur = {k: k, role: role, i: idx};
     $('pkTitle').textContent = 'Select player';
-    $('pkSub').textContent = ob.n + ' · ' + (role === 'p' ? 'Player ' + (idx + 1) : ROLE[role]);
+    $('pkSub').textContent = oname(k) + ' · ' + (role === 'p' ? 'Player ' + (idx + 1) : ROLE[role]);
     pkQ.value = ''; fillAlliances(); fillList(); ov.classList.add('open');
     if(!matchMedia('(pointer:coarse)').matches) pkQ.focus();
   }
@@ -1437,28 +1490,54 @@
   pkQ.addEventListener('input', fillList);
   pkList.addEventListener('click', function(e){
     var b = e.target.closest('.fp-prow'); if(!b || !cur) return;
-    var id = b.dataset.id, s = S.o[cur.k], old = cur.role === 'lead' ? s.lead : cur.role === 'co' ? s.co : s.p[cur.i];
-    if(inObj(cur.k, id) && old !== id){ var nm = OBJ.filter(function(x){ return x.k === cur.k; })[0].n; toast('Already in ' + nm); return; }
+    var id = b.dataset.id, k = cur.k, s = S.o[k], old = cur.role === 'lead' ? s.lead : cur.role === 'co' ? s.co : s.p[cur.i];
+    if(inObj(k, id) && old !== id){ toast('Already in ' + oname(k)); return; }
     if(cur.role === 'lead') s.lead = id; else if(cur.role === 'co') s.co = id;
     else if(cur.i < s.p.length) s.p[cur.i] = id; else if(s.p.length < MAXP) s.p.push(id);
-    save(); closePick(); render();
+    closePick(); changed(k);
   });
   $('pkClose').addEventListener('click', closePick);
   ov.addEventListener('click', function(e){ if(e.target === ov) closePick(); });
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && cur) closePick(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ if(cur) closePick(); if(lkFor) closeLink(); } });
 
+  // ---- link dialog ----
+  var lk = $('lkModal');
+  function openLink(k){
+    lkFor = k; var g = grp(k) || [];
+    $('lkSub').textContent = oname(k) + ' – the players of this object are copied to the ticked objects, from then on all of them stay identical.';
+    $('lkList').innerHTML = OBJ.filter(function(ob){ return ob.k !== k; }).map(function(ob){
+      return '<label class="fp-lkrow"><input type="checkbox" value="' + ob.k + '"' + (g.indexOf(ob.k) >= 0 ? ' checked' : '') + '><span>' + esc(ob.n) + '</span>' + (named(ob.k) ? '<small>' + named(ob.k) + ' players</small>' : '') + '</label>';
+    }).join('');
+    lk.classList.add('open');
+  }
+  function closeLink(){ lk.classList.remove('open'); lkFor = null; }
+  $('lkCancel').addEventListener('click', closeLink);
+  lk.addEventListener('click', function(e){ if(e.target === lk) closeLink(); });
+  $('lkApply').addEventListener('click', function(){
+    var k = lkFor; if(!k) return;
+    var ch = Array.prototype.map.call($('lkList').querySelectorAll('input:checked'), function(i){ return i.value; });
+    unlink(k); ch.forEach(unlink);
+    if(ch.length) S.links.push([k].concat(ch));
+    closeLink(); changed(k);
+  });
+
+  $('fpCards').addEventListener('change', function(e){
+    var t = e.target; if(t.classList.contains('fp-sh')){ S.o[t.dataset.o].sh = t.checked; save(); render(); }
+  });
   $('fpCards').addEventListener('click', function(e){
-    var t = e.target.closest('button'); if(!t) return;
+    var t = e.target.closest('button'); if(!t || t.disabled) return;
     var k = t.dataset.o; if(!k) return;
-    if(t.classList.contains('fp-clr')){ S.o[k] = blank(); save(); render(); return; }
-    var role = t.dataset.r, i = +t.dataset.i || 0;
-    if(role === 'sub'){ S.o[k].sub = t.classList.contains('fp-add'); save(); render(); return; }
-    if(t.classList.contains('fp-x')){ var s = S.o[k]; if(role === 'lead') s.lead = null; else if(role === 'co') s.co = null; else s.p.splice(i, 1); save(); render(); return; }
+    if(t.classList.contains('fp-lk')){ openLink(k); return; }
+    if(t.classList.contains('fp-unl')){ unlink(k); save(); render(); return; }
+    if(t.classList.contains('fp-clr')){ var sh = S.o[k].sh; S.o[k] = blank(); S.o[k].sh = sh; changed(k); return; }
+    var role = t.dataset.r, i = +t.dataset.i || 0, s = S.o[k];
+    if(role === 'sub'){ s.sub = Math.max(0, Math.min(MAXS, s.sub + (+t.dataset.d || 0))); changed(k); return; }
+    if(t.classList.contains('fp-x')){ if(role === 'lead') s.lead = null; else if(role === 'co') s.co = null; else s.p.splice(i, 1); changed(k); return; }
     openPick(k, role, i);
   });
   var clr = $('fpClear'), clrT = 0;
   clr.addEventListener('click', function(){
-    if(clr.dataset.arm === '1'){ OBJ.forEach(function(ob){ S.o[ob.k] = blank(); }); save(); render(); clr.dataset.arm = ''; clr.textContent = 'Clear all'; clearTimeout(clrT); return; }
+    if(clr.dataset.arm === '1'){ OBJ.forEach(function(ob){ var sh = S.o[ob.k].sh; S.o[ob.k] = blank(); S.o[ob.k].sh = sh; }); save(); render(); clr.dataset.arm = ''; clr.textContent = 'Clear all'; clearTimeout(clrT); return; }
     clr.dataset.arm = '1'; clr.textContent = 'Really clear all?'; clrT = setTimeout(function(){ clr.dataset.arm = ''; clr.textContent = 'Clear all'; }, 3000);
   });
 
@@ -1495,21 +1574,20 @@
   // ---- sidebar collapse ----
   (function(){
     var root = document.documentElement, b = $('spCol');
-    function sync(){ b.textContent = root.getAttribute('data-col') === 'on' ? '»' : '«'; }
+    function sync2(){ b.textContent = root.getAttribute('data-col') === 'on' ? '»' : '«'; }
     b.addEventListener('click', function(){
       var on = root.getAttribute('data-col') !== 'on';
       if(on) root.setAttribute('data-col', 'on'); else root.removeAttribute('data-col');
       try { localStorage.setItem('sp-col', on ? '1' : '0'); } catch(e) {}
-      sync(); setTimeout(preview, 260);
+      sync2(); setTimeout(preview, 260);
     });
-    sync();
+    sync2();
     var nav = document.querySelector('.sitenav');
     function tips(){ var a = nav.querySelectorAll('[data-na]'); for(var i = 0; i < a.length; i++){ if(a[i].getAttribute('data-tip')) continue; var l = a[i].querySelector('.na-t, .sn-l'); if(l){ a[i].setAttribute('data-tip', '1'); if(!a[i].title) a[i].title = l.textContent.trim().replace(/\s+/g, ' ').toLowerCase().replace(/(^|[ /])(\w)/g, function(m, p, c){ return p + c.toUpperCase(); }); } } }
     if(nav && window.MutationObserver){ new MutationObserver(tips).observe(nav, {childList: true, subtree: true}); tips(); }
   })();
 
   load(); render(); loadData();
-  setTimeout(preview, 300);
 })();
 
 </script>
