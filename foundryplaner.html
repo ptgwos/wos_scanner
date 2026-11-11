@@ -1212,6 +1212,9 @@
   html body .fp-vt button.on{border-color:var(--sp-acc);color:var(--sp-acc);}
   .fp-tt{text-align:center;font-weight:800;font-size:42px;letter-spacing:.02em;color:#fff;margin:0 0 22px;overflow-wrap:anywhere;line-height:1.15;}
   .fp-tt.big{font-size:104px;margin:0;}
+  .fp-swr{display:flex;gap:8px;margin:9px 0 0;align-items:center;flex-wrap:wrap;}
+  html body button.fp-sw{width:18px;height:18px;min-width:0;min-height:0;padding:0;border-radius:50%;border:2px solid transparent;cursor:pointer;box-shadow:none;}
+  html body button.fp-sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--panel);}
   .fp-nopic{cursor:default;font-style:italic;}
   .fp-modal{max-width:460px;}
   .fp-ms{padding:0 22px 12px;display:flex;gap:8px;}
@@ -1267,8 +1270,8 @@
   <div class="fp-prevc"><div class="fp-vt"><button type="button" id="fpVStd" class="on">Standard</button><button type="button" id="fpVMap">Map</button></div><div id="fpEmpty" hidden>Place players and keep “Show in picture” ticked – the picture appears here.</div><div id="fpPrev"><div id="fpPrevIn"></div></div></div>
   <div class="fp-cards" id="fpCards"></div>
   </div>
-  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The small map (top right of the picture) marks the objects that have a block. “Share map pic” makes a large picture with every team placed at its building (Imperial Foundry only appears there). The title field puts a centred headline on top of both pictures. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-11 · fp7</footer>
+  <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The small map (top right of the picture) marks the objects that have a block. “Share map pic” makes a large picture with every team placed at its building (Imperial Foundry only appears there). Each object has a frame colour (linked objects share it); the same colour marks it on the maps. The title field puts a centred headline on top of both pictures. The plan is stored in this browser only.</div>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-11 · fp8</footer>
 </div>
 </div>
 <script>
@@ -1300,7 +1303,9 @@
   function oname(k){ return OBJ.filter(function(x){ return x.k === k; })[0].n; }
 
   // ---- state ----
-  function blank(){ return {lead: null, co: null, p: [], sub: 0, sh: true, note: ''}; }
+  var PAL = [['Blue', '#4c8dff'], ['Green', '#34d399'], ['Orange', '#fb923c'], ['Red', '#f87171'], ['Purple', '#a78bfa'], ['Pink', '#f472b6'], ['Teal', '#22d3ee'], ['Yellow', '#facc15']];
+  function colOf(k){ return PAL[S.o[k].col] ? PAL[S.o[k].col][1] : PAL[0][1]; }
+  function blank(){ return {lead: null, co: null, p: [], sub: 0, sh: true, note: '', col: 0}; }
   function load(){
     var o = null; try { o = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) {}
     if(!o){ try { var m = document.cookie.match(/(?:^|; )svs646_foundry=([^;]*)/); if(m) o = JSON.parse(decodeURIComponent(m[1])); } catch(e) {} }
@@ -1312,6 +1317,7 @@
       r.sub = typeof s.sub === 'number' ? Math.max(0, Math.min(MAXS, Math.floor(s.sub))) : (s.sub === true ? 1 : 0);
       r.sh = s.sh !== false;
       r.note = typeof s.note === 'string' ? s.note.slice(0, MAXN) : '';
+      r.col = typeof s.col === 'number' && PAL[s.col] ? s.col : 0;
       S.o[ob.k] = r;
     });
     var seen = {};
@@ -1339,7 +1345,7 @@
   function sync(k){
     var g = grp(k); if(!g) return;
     var src = S.o[k];
-    g.forEach(function(x){ if(x !== k){ var d = S.o[x]; d.lead = src.lead; d.co = src.co; d.p = src.p.slice(); d.sub = src.sub; } });
+    g.forEach(function(x){ if(x !== k){ var d = S.o[x]; d.lead = src.lead; d.co = src.co; d.p = src.p.slice(); d.sub = src.sub; d.col = src.col; } });
   }
   function unlink(k){
     S.links.forEach(function(g){ var i = g.indexOf(k); if(i >= 0) g.splice(i, 1); });
@@ -1374,12 +1380,13 @@
   }
   function cardHtml(ob){
     var s = S.o[ob.k], n = named(ob.k), g = grp(ob.k);
-    var h = '<div class="fp-card' + (n || s.sub || s.note ? ' has' : '') + '"><div class="fp-ch"><b>' + esc(ob.n) + '</b><span class="fp-cn">' + n + '/' + (MAXP + 2) + '</span><button type="button" class="fp-lk' + (g ? ' on' : '') + '" data-o="' + ob.k + '" title="Link with other objects">' + IC_LINK + '</button>' + (n || s.sub || s.note ? '<button type="button" class="fp-clr" data-o="' + ob.k + '" title="Clear this object">Clear</button>' : '') + '</div>';
+    var h = '<div class="fp-card' + (n || s.sub || s.note ? ' has' : '') + '" style="border-left:4px solid ' + colOf(ob.k) + '"><div class="fp-ch"><b>' + esc(ob.n) + '</b><span class="fp-cn">' + n + '/' + (MAXP + 2) + '</span><button type="button" class="fp-lk' + (g ? ' on' : '') + '" data-o="' + ob.k + '" title="Link with other objects">' + IC_LINK + '</button>' + (n || s.sub || s.note ? '<button type="button" class="fp-clr" data-o="' + ob.k + '" title="Clear this object">Clear</button>' : '') + '</div>';
     if(g) h += '<div class="fp-linked">' + IC_LINK + '<span>Same team as ' + esc(g.filter(function(x){ return x !== ob.k; }).map(oname).join(', ')) + '</span><button type="button" class="fp-unl" data-o="' + ob.k + '">Unlink</button></div>';
     h += slotRow(ob.k, 'lead', 0, s.lead) + slotRow(ob.k, 'co', 0, s.co);
     s.p.forEach(function(id, i){ h += slotRow(ob.k, 'p', i, id); });
     if(s.p.length < MAXP) h += slotRow(ob.k, 'p', s.p.length, null);
     h += subRow(ob.k);
+    h += '<div class="fp-swr" title="Frame colour (linked objects share it)">' + PAL.map(function(c, ci){ return '<button type="button" class="fp-sw' + (s.col === ci ? ' on' : '') + '" data-o="' + ob.k + '" data-c="' + ci + '" title="' + c[0] + '" style="background:' + c[1] + '"></button>'; }).join('') + '</div>';
     h += '<textarea class="fp-note" data-o="' + ob.k + '" rows="2" maxlength="' + MAXN + '" placeholder="Note (shown in the picture if filled)">' + esc(s.note) + '</textarea>';
     if(ROWS.some(function(r){ return r.indexOf(ob.k) >= 0; })) h += '<label class="fp-in"><input type="checkbox" class="fp-sh" data-o="' + ob.k + '"' + (s.sh ? ' checked' : '') + '> Show in picture</label>';
     else h += '<div class="fp-in fp-nopic">Appears in the map picture only</div>';
@@ -1405,8 +1412,8 @@
     OBJ.forEach(function(ob){
       var X = half + (ob.x - ob.y) / 239 * (half - MR), Y = MS * (1 - (ob.x + ob.y) / 478), on = inPic(ob.k);
       Y = MR + (MS - 2 * MR) * (1 - (ob.x + ob.y) / 478);
-      dots += '<circle cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="' + MR + '" fill="' + (on ? '#4c8dff' : 'rgba(255,255,255,.06)') + '" stroke="' + (on ? '#8fb7ff' : 'rgba(143,183,255,.45)') + '" stroke-width="1.5"/>' +
-        '<text x="' + X.toFixed(1) + '" y="' + (Y + 4).toFixed(1) + '" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="800" fill="' + (on ? '#fff' : '#8fa3c7') + '">' + ob.c + '</text>';
+      dots += '<circle cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="' + MR + '" fill="' + (on ? colOf(ob.k) : 'rgba(255,255,255,.06)') + '" stroke="' + (on ? 'rgba(255,255,255,.75)' : 'rgba(143,183,255,.45)') + '" stroke-width="1.5"/>' +
+        '<text x="' + X.toFixed(1) + '" y="' + (Y + 4).toFixed(1) + '" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="800" fill="' + (on ? '#0d1426' : '#8fa3c7') + '">' + ob.c + '</text>';
     });
     return '<svg class="fp-map" width="' + MS + '" height="' + MS + '" viewBox="0 0 ' + MS + ' ' + MS + '" xmlns="http://www.w3.org/2000/svg"><polygon points="' + pts + '" fill="rgba(76,141,255,.08)" stroke="rgba(143,183,255,.55)" stroke-width="2"/>' +
       '<line x1="' + half + '" y1="1" x2="' + half + '" y2="' + (MS - 1) + '" stroke="rgba(143,183,255,.15)"/><line x1="1" y1="' + half + '" x2="' + (MS - 1) + '" y2="' + half + '" stroke="rgba(143,183,255,.15)"/>' + dots + '</svg>';
@@ -1419,7 +1426,8 @@
     for(var i = 0; i < s.sub; i++) rows += '<div class="fp-ln fp-sb"><span class="fp-ic sub">S</span><span class="fp-st">Substitute</span></div>';
     var nt = s.note.trim();
     if(nt) rows += '<div class="fp-nt">' + esc(nt) + '</div>';
-    return '<div class="fp-b"><div class="fp-bt">' + esc(ob.n) + '</div>' + rows + '</div>';
+    var c = colOf(ob.k);
+    return '<div class="fp-b" style="border-color:' + c + '"><div class="fp-bt" style="color:' + c + '">' + esc(ob.n) + '</div>' + rows + '</div>';
   }
   function titleHtml(big){ var t = S.title.trim(); return t ? '<div class="fp-tt' + (big ? ' big' : '') + '">' + esc(t) + '</div>' : ''; }
   // ---- big map picture: teams at their buildings ----
@@ -1608,9 +1616,10 @@
   $('fpCards').addEventListener('click', function(e){
     var t = e.target.closest('button'); if(!t || t.disabled) return;
     var k = t.dataset.o; if(!k) return;
+    if(t.classList.contains('fp-sw')){ S.o[k].col = +t.dataset.c; changed(k); return; }
     if(t.classList.contains('fp-lk')){ openLink(k); return; }
     if(t.classList.contains('fp-unl')){ unlink(k); save(); render(); return; }
-    if(t.classList.contains('fp-clr')){ var sh = S.o[k].sh; S.o[k] = blank(); S.o[k].sh = sh; changed(k); return; }
+    if(t.classList.contains('fp-clr')){ var sh = S.o[k].sh, cl = S.o[k].col; S.o[k] = blank(); S.o[k].sh = sh; S.o[k].col = cl; changed(k); return; }
     var role = t.dataset.r, i = +t.dataset.i || 0, s = S.o[k];
     if(role === 'sub'){ s.sub = Math.max(0, Math.min(MAXS, s.sub + (+t.dataset.d || 0))); changed(k); return; }
     if(t.classList.contains('fp-x')){ if(role === 'lead') s.lead = null; else if(role === 'co') s.co = null; else s.p.splice(i, 1); changed(k); return; }
@@ -1618,7 +1627,7 @@
   });
   var clr = $('fpClear'), clrT = 0;
   clr.addEventListener('click', function(){
-    if(clr.dataset.arm === '1'){ OBJ.forEach(function(ob){ var sh = S.o[ob.k].sh; S.o[ob.k] = blank(); S.o[ob.k].sh = sh; }); save(); render(); clr.dataset.arm = ''; clr.textContent = 'Clear all'; clearTimeout(clrT); return; }
+    if(clr.dataset.arm === '1'){ OBJ.forEach(function(ob){ var sh = S.o[ob.k].sh, cl = S.o[ob.k].col; S.o[ob.k] = blank(); S.o[ob.k].sh = sh; S.o[ob.k].col = cl; }); save(); render(); clr.dataset.arm = ''; clr.textContent = 'Clear all'; clearTimeout(clrT); return; }
     clr.dataset.arm = '1'; clr.textContent = 'Really clear all?'; clrT = setTimeout(function(){ clr.dataset.arm = ''; clr.textContent = 'Clear all'; }, 3000);
   });
 
