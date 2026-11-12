@@ -1092,6 +1092,7 @@
   .ec-b.endt{border-color:#ff5d5d;box-shadow:inset 0 0 0 1px #ff5d5d;}
   .ec-b.endt.sel{box-shadow:inset 0 0 0 1px #ff5d5d,0 0 0 2px var(--text);}
   .ec-b em{font-style:normal;float:right;margin-left:8px;color:#ff8a8a;font-size:10.5px;}
+  .ec-b.hit{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--cc) 55%,transparent) 0 6px,rgba(255,93,93,.75) 6px 12px);border-color:#ff5d5d;}
   .ec-b.past{opacity:.45;}
   .ec-b.sel{box-shadow:0 0 0 2px var(--text);}
   .ec-ov{position:absolute;left:var(--lw);right:0;top:0;bottom:0;pointer-events:none;z-index:1;overflow:hidden;}
@@ -1132,8 +1133,8 @@
   <div class="ec-end" id="ecEnd"></div>
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
-  <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day.</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec4</footer>
+  <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day. Bear Trap times are fixed (30 minutes, every 2nd day, 12 Nov was a Bear Trap day); red stripes mean that two alliances overlap.</div>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec5</footer>
 </div>
 <script>
 (function(){
@@ -1143,9 +1144,26 @@
   var qs = new URLSearchParams(location.search);
   var NOW0 = qs.get('now') ? Date.parse(qs.get('now')) : null;
   function now(){ return NOW0 != null ? NOW0 + (Date.now() - T0) : Date.now(); }
-  var ORDER = ['Events', 'Deals', 'Tundra Arms League', 'Snowbusters', 'Wander Theater'];
-  var COL = {'Events': '#4f7cff', 'Deals': '#2fd28f', 'Tundra Arms League': '#ffb400', 'Snowbusters': '#3cc9ee', 'Wander Theater': '#b57cf5'};
+  var ORDER = ['Events', 'Deals', 'Tundra Arms League', 'Snowbusters', 'Wander Theater', 'Bear Trap'];
+  var COL = {'Events': '#4f7cff', 'Deals': '#2fd28f', 'Tundra Arms League': '#ffb400', 'Snowbusters': '#3cc9ee', 'Wander Theater': '#b57cf5', 'Bear Trap': '#e8873a'};
   var EXTRA = ['#ff7a8a', '#9aa7c2', '#e879b9', '#a3e635'];
+  // Bear Trap: fixed times (UTC) per alliance, 30 minutes each, on every 2nd day; 12 Nov 2026 was a Bear Trap day for all alliances
+  var BEAR = [['AIR', '00:30'], ['BLP', '01:00'], ['TBR', '01:30'], ['TbR', '14:20'], ['OMG', '14:30'], ['osm', '18:00'], ['TBR', '18:30'], ['AIR', '19:00'], ['BLP', '19:05'], ['OMG', '20:00'], ['osm', '20:00']];
+  var BEAR_LEN = 30 * 60000, BEAR_ANCHOR = Date.UTC(2026, 10, 12), BEAR_EVERY = 2;
+  function bearEvents(from, to){
+    var tpl = BEAR.map(function(b){ var p = b[1].split(':'); return {a: b[0], t: +p[0] * 60 + +p[1], s: b[1]}; });
+    tpl.forEach(function(x){ x.hit = tpl.filter(function(y){ return y !== x && y.a !== x.a && x.t < y.t + 30 && y.t < x.t + 30; }); });
+    var out = [], d0 = Math.floor(from / DAY), d1 = Math.floor(to / DAY), da = Math.floor(BEAR_ANCHOR / DAY);
+    for(var d = d0; d <= d1; d++){
+      if((((d - da) % BEAR_EVERY) + BEAR_EVERY) % BEAR_EVERY !== 0) continue;
+      tpl.forEach(function(x){
+        var b = d * DAY + x.t * 60000;
+        out.push({name: x.a, category: 'Bear Trap', begin_ts: b / 1000, end_ts: (b + BEAR_LEN) / 1000, lab: x.s, fixed: true, hit: x.hit.length > 0,
+                  note: x.hit.length ? 'Overlaps with ' + x.hit.map(function(y){ return y.a + ' (' + y.s + ')'; }).join(', ') : ''});
+      });
+    }
+    return out;
+  }
   var D = null, rows = [], view = {a: 0, b: 0}, sel = null, hide = {}, fetched = '', lastLoad = 0;
   try { hide = JSON.parse(localStorage.getItem('ec_hide') || '{}') || {}; } catch(e) { hide = {}; }
 
@@ -1236,9 +1254,9 @@
       r.items.forEach(function(e){
         var s = e.begin_ts * 1000, en = e.end_ts * 1000;
         if(en < a || s > b) return;
-        var x0 = Math.max(0, X(s)), x1 = Math.min(W, X(en)), w = Math.max(3, x1 - x0), cls = 'ec-b' + (en < n ? ' past' : (s <= n ? ' run' : '')) + (en >= n && en <= dEnd ? ' endt' : '') + (sel === e._i ? ' sel' : '');
+        var x0 = Math.max(0, X(s)), x1 = Math.min(W, X(en)), w = Math.max(e.fixed ? 7 : 3, x1 - x0), cls = 'ec-b' + (en < n ? ' past' : (s <= n ? ' run' : '')) + (en >= n && en <= dEnd && !e.fixed ? ' endt' : '') + (e.hit ? ' hit' : '') + (sel === e._i ? ' sel' : '');
         var off = Math.max(0, -X(s)) , lab = off > 0 && x1 - x0 > 40 ? ' style="padding-left:' + 0 + 'px"' : '';
-        bars += '<div class="' + cls + '" data-i="' + e._i + '" style="left:' + x0.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;--cc:' + colOf(r.cat) + '"><span>' + esc(e.name) + '</span>' + (en >= n && en <= dEnd && w > 170 ? '<em>ends in ' + dur(en - n) + '</em>' : '') + '</div>';
+        bars += '<div class="' + cls + '" data-i="' + e._i + '" style="left:' + x0.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;--cc:' + colOf(r.cat) + '"><span>' + (w < 34 ? '' : esc(e.lab || e.name)) + '</span>' + (en >= n && en <= dEnd && !e.fixed && w > 170 ? '<em>ends in ' + dur(en - n) + '</em>' : '') + '</div>';
       });
       out += '<div class="ec-r"><div class="ec-rl" title="' + esc(r.name) + '">' + esc(r.name) + '</div><div class="ec-rp">' + bars + '</div></div>';
     });
@@ -1260,7 +1278,7 @@
   }
   function endPanel(){
     var el = $('ecEnd'), n = now(), dEnd = (Math.floor(n / DAY) + 1) * DAY, L = [];
-    D.events.forEach(function(e){ var en = e.end_ts * 1000; if(en >= n && en <= dEnd && e.begin_ts * 1000 <= n) L.push(e); });
+    D.events.forEach(function(e){ var en = e.end_ts * 1000; if(!e.fixed && en >= n && en <= dEnd && e.begin_ts * 1000 <= n) L.push(e); });
     L.sort(function(a, b){ return a.end_ts - b.end_ts; });
     if(!L.length){ el.innerHTML = '<b>Ending today (UTC)</b><span class="ec-endn">No event ends today.</span>'; return; }
     el.innerHTML = '<b>Ending today (UTC)</b>' + L.map(function(e){ var en = e.end_ts * 1000;
@@ -1272,7 +1290,7 @@
     var e = D.events[sel], s = e.begin_ts * 1000, en = e.end_ts * 1000, n = now(), st;
     if(en < n) st = 'ended ' + rel(n - en) + ' ago'; else if(s > n) st = 'starts in ' + rel(s - n); else st = 'running, ends in ' + rel(en - n);
     el.innerHTML = '<div class="ec-ih"><span class="ec-dot" style="background:' + colOf(e.category) + '"></span><b>' + esc(e.name) + '</b> <small>' + esc(e.category) + '</small></div>' +
-      '<div class="ec-ig"><span>Start</span><span>' + utcFull(s) + '</span><span>End</span><span>' + utcFull(en) + '</span><span>Length</span><span>' + dur(en - s) + '</span><span>Status</span><span>' + st + '</span><span>Your time</span><span>' + localFull(s) + ' – ' + localFull(en) + '</span></div>';
+      '<div class="ec-ig"><span>Start</span><span>' + utcFull(s) + '</span><span>End</span><span>' + utcFull(en) + '</span><span>Length</span><span>' + dur(en - s) + '</span><span>Status</span><span>' + st + '</span><span>Your time</span><span>' + localFull(s) + ' – ' + localFull(en) + '</span>' + (e.note ? '<span>Note</span><span style="color:#ff8a8a">' + esc(e.note) + '</span>' : '') + '</div>';
   }
 
   function load(btn){
@@ -1291,8 +1309,10 @@
       D = j; lastLoad = Date.now();
       var bs = j.events.map(function(e){ return e.begin_ts * 1000; }), es = j.events.map(function(e){ return e.end_ts * 1000; });
       D.min = Math.min.apply(null, bs); D.max = Math.max.apply(null, es);
+      var realN = j.events.length;
+      j.events = j.events.concat(bearEvents(Math.min(D.min, now() - 30 * DAY), Math.max(D.max, now() + 60 * DAY)));
       build();
-      $('sub').textContent = j.events.length + ' events · calendar of state ' + j.kid + ' · data from ' + (j.api_date || '') + ' (Whiteout Stats API, updated daily)';
+      $('sub').textContent = realN + ' events · calendar of state ' + j.kid + ' · data from ' + (j.api_date || '') + ' (Whiteout Stats API, updated daily)';
       if(!view.b) preset('week'); else render();
       info();
     }).catch(function(e){ $('sub').textContent = 'Could not load the event data (' + e.message + ').'; }).then(function(){ if(btn) btn.classList.remove('spin'); });
