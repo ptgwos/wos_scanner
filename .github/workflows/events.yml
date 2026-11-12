@@ -1,6 +1,8 @@
 name: Fetch events
 
 on:
+  schedule:
+    - cron: "20 0 * * *"   # daily 00:20 UTC (the API list changes at 00:00 UTC)
   workflow_dispatch:
 
 permissions:
@@ -27,7 +29,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/events.json data/events_raw.json
+          git add data/events.json data/events_raw.json data/events_history.json
           if git diff --cached --quiet; then
             echo "No change."
           else
