@@ -1,0 +1,323 @@
+{
+ "kid": "646",
+ "results": [
+  {
+   "path": "/states/646",
+   "status": 200,
+   "shape": {
+    "ok": true,
+    "kid": 646,
+    "fresh": true,
+    "state": {
+     "kid": 646,
+     "name": null,
+     "banner_url": null,
+     "player_count": 1452,
+     "located": 1066,
+     "active_players": 1066,
+     "active_7d": 888,
+     "active_30d": 1115,
+     "alliance_count": 163,
+     "gov_power": 136055210821,
+     "alliance_power": 485386035871,
+     "alliance_kills": 35147231637,
+     "kills": 26542411892,
+     "hero_power": 2373431333,
+     "single_hero_power": 2373431333,
+     "hero_total": 20932203015,
+     "troop_power": 97041031342,
+     "building_power": 1200636500,
+     "science_power": 10605956121,
+     "research_power": 10605956121,
+     "hero_no_equip": 1930672672,
+     "hero_without_equip": 1930672672,
+     "hero_equip": 363553219,
+     "lord_equip": 2206998000,
+     "chief_gear_power": 2206998000
+    }
+   }
+  },
+  {
+   "path": "/states/646/alliances",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "Not Found"
+   }
+  },
+  {
+   "path": "/states/646/alliances?limit=500",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "Not Found"
+   }
+  },
+  {
+   "path": "/alliances/646",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "alliance_not_found"
+   }
+  },
+  {
+   "path": "/alliances/646?limit=500",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "alliance_not_found"
+   }
+  },
+  {
+   "path": "/alliances?kid=646",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "Not Found"
+   }
+  },
+  {
+   "path": "/states/646?include=alliances",
+   "status": 200,
+   "shape": {
+    "ok": true,
+    "kid": 646,
+    "fresh": true,
+    "state": {
+     "kid": 646,
+     "name": null,
+     "banner_url": null,
+     "player_count": 1452,
+     "located": 1066,
+     "active_players": 1066,
+     "active_7d": 888,
+     "active_30d": 1115,
+     "alliance_count": 163,
+     "gov_power": 136055210821,
+     "alliance_power": 485386035871,
+     "alliance_kills": 35147231637,
+     "kills": 26542411892,
+     "hero_power": 2373431333,
+     "single_hero_power": 2373431333,
+     "hero_total": 20932203015,
+     "troop_power": 97041031342,
+     "building_power": 1200636500,
+     "science_power": 10605956121,
+     "research_power": 10605956121,
+     "hero_no_equip": 1930672672,
+     "hero_without_equip": 1930672672,
+     "hero_equip": 363553219,
+     "lord_equip": 2206998000,
+     "chief_gear_power": 2206998000
+    }
+   }
+  },
+  {
+   "path": "/states/646/ranks?board=alliance_power&limit=100",
+   "status": 200,
+   "rows": 100,
+   "row_keys": [
+    "abbr",
+    "aid",
+    "flag_url",
+    "kid",
+    "leader_name",
+    "member_count",
+    "name",
+    "rank",
+    "score"
+   ]
+  },
+  {
+   "path": "/states/646/ranks?board=alliance_power&limit=300",
+   "status": 422,
+   "rows": 0,
+   "row_keys": null
+  },
+  {
+   "path": "/states/646/ranks?board=alliance_kills&limit=100",
+   "status": 200,
+   "rows": 100,
+   "row_keys": [
+    "abbr",
+    "aid",
+    "flag_url",
+    "kid",
+    "leader_name",
+    "member_count",
+    "name",
+    "rank",
+    "score"
+   ]
+  },
+  {
+   "path": "/states/646/ranks?board=alliance_kills&limit=300",
+   "status": 422,
+   "rows": 0,
+   "row_keys": null
+  },
+  {
+   "path": "/alliances/646/646000001?include=info",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "alliance_not_found"
+   }
+  },
+  {
+   "path": "/alliances/646000001?include=info",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "alliance_not_found"
+   }
+  },
+  {
+   "path": "/alliances/646/646000002?include=info",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "alliance_not_found"
+   }
+  },
+  {
+   "path": "/alliances/646000002?include=info",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "alliance_not_found"
+   }
+  },
+  {
+   "path": "/alliances/646/646000003?include=info",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "alliance_not_found"
+   }
+  },
+  {
+   "path": "/alliances/646000003?include=info",
+   "status": 404,
+   "shape": {
+    "ok": false,
+    "error": "alliance_not_found"
+   }
+  }
+ ],
+ "alliances_seen_in_boards": {
+  "AIR": "AngelsInRevolt",
+  "BLP": "BlackPearl",
+  "TBR": "TacticalBakedRCP",
+  "OMG": "WhereAreWe",
+  "osm": "ChaoticMisfits",
+  "TbR": "TacticalRecipes2",
+  "EVL": "FukkingRebels",
+  "HYg": "Twilight",
+  "NTF": "NineTailsFox",
+  "LCY": "LipkaCITY",
+  "SBN": "SmolBeanNation",
+  "VEL": "Velaris",
+  "PKB": "Peekaboo",
+  "KOJ": "KnightsofJesus",
+  "GYN": "GotYourNose",
+  "die": "Horde",
+  "DFT": "DaFngTurtles",
+  "NEW": "HardlyUsed",
+  "dft": "TURTLEFARM",
+  "RI1": "INDO",
+  "ChZ": "Chillzone",
+  "tbr": "Bakers2",
+  "HOS": "GreysHospital",
+  "CRF": "CoralReef",
+  "GOD": "Seeking",
+  "906": "Paddy’sPub",
+  "air": "LoveIsInThe",
+  "Kfo": "Kfo2THEAcademy",
+  "LOL": "LaughingOutLoud",
+  "AST": "Thepest",
+  "jbb": "ClitLovers",
+  "PBs": "ThePolarBears",
+  "TST": "Gametesting",
+  "The": "Chaos",
+  "CLS": "Closed",
+  "HSW": "Winterfell",
+  "cXd": "GEORGIATBILISI",
+  "THA": "DASHTI87",
+  "spi": "blv",
+  "BEG": "OnYourKnees",
+  "fuq": "Minifuqersfarm",
+  "YXp": "savaşçılar",
+  "Fkk": "Fireball",
+  "MPF": "PizzaFactory",
+  "63I": "631Minis",
+  "hRH": "CMCWarriors",
+  "cRz": "DieAktiveBande",
+  "fux": "LittleFux",
+  "ATM": "Atomówki",
+  "VHL": "ValhallaFR",
+  "WHY": "WhyNot",
+  "cav": "Underdogs",
+  "sQa": "Anrovla",
+  "Rjn": "g",
+  "TBW": "THEBLACKWOLF",
+  "uKN": "십이야",
+  "Mda": "Moldova",
+  "KFo": "KFOAcademy",
+  "TXY": "polski",
+  "HvN": "snowmen",
+  "EtY": "270TheDamned",
+  "BAT": "TheRedBattalio",
+  "Svs": "SVSPUSH3",
+  "DTK": "DeathToKFO",
+  "MAF": "BlackMafia",
+  "hRj": "Shades",
+  "KFO": "TheBest",
+  "TRY": "Ottoman",
+  "BKQ": "Bookingsquad",
+  "GTR": "ravenous",
+  "agH": "swag",
+  "Mka": "ATATÜRK2",
+  "MAS": "MeetAgainSoon",
+  "EcZ": "DICE",
+  "TRT": "THEREALTEAM",
+  "CSK": "CzechSlovakia",
+  "fCM": "#631Romania",
+  "PXU": "VIPS",
+  "NGU": "NeverGiveUp",
+  "MCS": "Cartago",
+  "rko": "AimForHighest",
+  "Fak": "Falcon",
+  "Gst": "GhostSquad",
+  "TwV": "DoubleIKlan",
+  "WAG": "OdmrozenPL",
+  "eXo": "Exooooooooo",
+  "Ots": "OtsutsukiClan",
+  "ICE": "IceDynasty",
+  "Evl": "Farm",
+  "HER": "Vag",
+  "BRB": "ErsenIsGay",
+  "WAS": "WARseekers",
+  "GTr": "Peaceful",
+  "dez": "DuduFriends",
+  "pFR": "Acker",
+  "Ssr": "lordlar",
+  "FTW": "420Wizards",
+  "MKP": "godsclan",
+  "HIS": "冰雪大世界",
+  "jZp": "#631Killers",
+  "qWh": "乂天道盟乂",
+  "xMr": "141MLDS",
+  "IKS": "XxxxX",
+  "Exo": "Exoooooo",
+  "MVP": "#646Warriors",
+  "NGu": "Heisenberg",
+  "Two": "Sypher",
+  "rRT": "Marshefoxorvete",
+  "Red": "Redeemers",
+  "twJ": "keyobi",
+  "XeJ": "Armagedon",
+  "PLx": "Razdwatrzy"
+ }
+}
