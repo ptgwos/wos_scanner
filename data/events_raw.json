@@ -1,0 +1,208 @@
+{
+ "ok": true,
+ "kid": 646,
+ "date": "2026-11-12",
+ "count": 25,
+ "categories": [
+  {
+   "name": "Events",
+   "events": [
+    {
+     "name": "Vision of Dawn",
+     "category": "Events",
+     "when": "10 Nov 00:00 – 12 Nov 24:00",
+     "begin_ts": 1794268800,
+     "end_ts": 1794528000
+    },
+    {
+     "name": "Officer Project",
+     "category": "Events",
+     "when": "11 Nov 00:00 – 12 Nov 24:00",
+     "begin_ts": 1794355200,
+     "end_ts": 1794528000
+    },
+    {
+     "name": "State Transfer",
+     "category": "Events",
+     "when": "8 Nov 00:00 – 14 Nov 24:00",
+     "begin_ts": 1794096000,
+     "end_ts": 1794700800
+    },
+    {
+     "name": "Alliance Championship",
+     "category": "Events",
+     "when": "9 Nov 00:00 – 15 Nov 24:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1794787200
+    },
+    {
+     "name": "Alliance Showdown",
+     "category": "Events",
+     "when": "9 Nov 00:00 – 15 Nov 12:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1794744000
+    },
+    {
+     "name": "Foundry Battle",
+     "category": "Events",
+     "when": "9 Nov 00:00 – 15 Nov 24:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1794787200
+    },
+    {
+     "name": "Tundra Trade Route",
+     "category": "Events",
+     "when": "9 Nov 00:00 – 15 Nov 04:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1794715200
+    },
+    {
+     "name": "Winter Siege",
+     "category": "Events",
+     "when": "9 Nov 00:00 – 15 Nov 24:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1794787200
+    },
+    {
+     "name": "Fortress Battles",
+     "category": "Events",
+     "when": "10 Nov 00:00 – 13 Nov 24:00",
+     "begin_ts": 1794268800,
+     "end_ts": 1794614400
+    },
+    {
+     "name": "Hero's Mission",
+     "category": "Events",
+     "when": "11 Nov 00:00 – 13 Nov 24:00",
+     "begin_ts": 1794355200,
+     "end_ts": 1794614400
+    },
+    {
+     "name": "Armament Competition",
+     "category": "Events",
+     "when": "13 Nov 00:00 – 14 Nov 24:00",
+     "begin_ts": 1794528000,
+     "end_ts": 1794700800
+    },
+    {
+     "name": "Officer Project",
+     "category": "Events",
+     "when": "15 Nov 00:00 – 16 Nov 24:00",
+     "begin_ts": 1794700800,
+     "end_ts": 1794873600
+    },
+    {
+     "name": "Alliance Championship",
+     "category": "Events",
+     "when": "16 Nov 00:00 – 22 Nov 24:00",
+     "begin_ts": 1794787200,
+     "end_ts": 1795392000
+    },
+    {
+     "name": "Flame and Fangs",
+     "category": "Events",
+     "when": "16 Nov 00:00 – 17 Nov 24:00",
+     "begin_ts": 1794787200,
+     "end_ts": 1794960000
+    },
+    {
+     "name": "King of Icefield",
+     "category": "Events",
+     "when": "16 Nov 00:00 – 22 Nov 24:00",
+     "begin_ts": 1794787200,
+     "end_ts": 1795392000
+    }
+   ]
+  },
+  {
+   "name": "Deals",
+   "events": [
+    {
+     "name": "Hero Rally",
+     "category": "Deals",
+     "when": "9 Nov 00:00 – 22 Nov 24:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1795392000
+    },
+    {
+     "name": "Journey Treasures",
+     "category": "Deals",
+     "when": "9 Nov 00:00 – 6 Dec 24:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1796601600
+    },
+    {
+     "name": "Mia's Fortune Hut",
+     "category": "Deals",
+     "when": "13 Nov 00:00 – 14 Nov 24:00",
+     "begin_ts": 1794528000,
+     "end_ts": 1794700800
+    },
+    {
+     "name": "Hall of Heroes",
+     "category": "Deals",
+     "when": "15 Nov 00:00 – 17 Nov 24:00",
+     "begin_ts": 1794700800,
+     "end_ts": 1794960000
+    }
+   ]
+  },
+  {
+   "name": "Tundra Arms League",
+   "events": [
+    {
+     "name": "Tundra Hellfire",
+     "category": "Tundra Arms League",
+     "when": "31 Oct 00:00 – 22 Nov 24:00",
+     "begin_ts": 1793404800,
+     "end_ts": 1795392000
+    },
+    {
+     "name": "Match Missions",
+     "category": "Tundra Arms League",
+     "when": "2 Nov 00:00 – 22 Nov 24:00",
+     "begin_ts": 1793577600,
+     "end_ts": 1795392000
+    },
+    {
+     "name": "Outcome Prediction",
+     "category": "Tundra Arms League",
+     "when": "8 Nov 00:00 – 22 Nov 24:00",
+     "begin_ts": 1794096000,
+     "end_ts": 1795392000
+    }
+   ]
+  },
+  {
+   "name": "Snowbusters",
+   "events": [
+    {
+     "name": "Snowbusters",
+     "category": "Snowbusters",
+     "when": "10 Nov 00:00 – 12 Nov 24:00",
+     "begin_ts": 1794268800,
+     "end_ts": 1794528000
+    }
+   ]
+  },
+  {
+   "name": "Wander Theater",
+   "events": [
+    {
+     "name": "Bizarre Bazaar",
+     "category": "Wander Theater",
+     "when": "10 Nov 00:00 – 16 Nov 24:00",
+     "begin_ts": 1794268800,
+     "end_ts": 1794873600
+    },
+    {
+     "name": "Wander Theater",
+     "category": "Wander Theater",
+     "when": "10 Nov 00:00 – 15 Nov 24:00",
+     "begin_ts": 1794268800,
+     "end_ts": 1794787200
+    }
+   ]
+  }
+ ]
+}
