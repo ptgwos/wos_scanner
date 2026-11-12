@@ -46,6 +46,26 @@ with open(os.path.join(OUT, "events_raw.json"), "w", encoding="utf-8") as f:
 with open(os.path.join(OUT, "events.json"), "w", encoding="utf-8") as f:
     json.dump({"kid": KID, "api_date": raw.get("date"), "fetched_at": now, "count": len(flat), "events": flat}, f, ensure_ascii=False, indent=1)
 
+# Permanent history: every event ever seen stays (key = name + begin). Newer values overwrite older ones; nothing is deleted.
+hp = os.path.join(OUT, "events_history.json")
+hist = {}
+if os.path.exists(hp):
+    try:
+        for e in json.load(open(hp, encoding="utf-8")).get("events", []):
+            hist[(e.get("name"), e.get("begin_ts"))] = e
+    except Exception:
+        sys.exit("events_history.json exists but cannot be read; not overwriting it.")
+new_n = 0
+for e in flat:
+    k = (e["name"], e["begin_ts"])
+    if k not in hist:
+        new_n += 1
+    hist[k] = e
+allev = sorted(hist.values(), key=lambda e: (e["begin_ts"] or 0, e["name"] or ""))
+with open(hp, "w", encoding="utf-8") as f:
+    json.dump({"kid": KID, "updated_at": now, "count": len(allev), "events": allev}, f, ensure_ascii=False, separators=(",", ":"))
+print(f"History: {len(allev)} events stored, {new_n} new today.")
+
 print(f"State {KID}: api date {raw.get('date')}, {len(flat)} events, categories: {[c.get('name') for c in raw.get('categories', [])]}")
 if flat:
     print(f"Earliest begin: {min(e['begin'] for e in flat if e['begin'])}   Latest end: {max(e['end'] for e in flat if e['end'])}")
