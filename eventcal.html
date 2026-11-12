@@ -1134,7 +1134,7 @@
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
   <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day. Bear Trap times are fixed (30 minutes, every 2nd day, 12 Nov was a Bear Trap day).</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec5</footer>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec6</footer>
 </div>
 <script>
 (function(){
@@ -1245,9 +1245,12 @@
     days.forEach(function(d){ var x = X(d); if(x < 0 || x > W) return; if(step < DAY && d % DAY === 0) gr += '<i class="ec-gl d" style="left:' + x.toFixed(1) + 'px"></i>'; });
     // rows
     var n = now(), out = '', dEnd = (Math.floor(n / DAY) + 1) * DAY;
+    // rows and groups without any event in the visible time span are left out; they come back when the span moves over an event
+    var catHas = {};
+    rows.forEach(function(r){ if(r.head) return; r.inView = r.items.some(function(e){ return e.end_ts * 1000 >= a && e.begin_ts * 1000 <= b; }); if(r.inView) catHas[r.cat] = true; });
     rows.forEach(function(r){
-      if(r.head){ out += '<div class="ec-r ec-h" style="--cc:' + colOf(r.cat) + '"><div class="ec-rl"><i></i>' + esc(r.cat) + '</div><div class="ec-rp"></div></div>'; return; }
-      if(hide[r.cat]) return;
+      if(r.head){ if(catHas[r.cat] || hide[r.cat]) out += '<div class="ec-r ec-h" style="--cc:' + colOf(r.cat) + '"><div class="ec-rl"><i></i>' + esc(r.cat) + '</div><div class="ec-rp"></div></div>'; return; }
+      if(hide[r.cat] || !r.inView) return;
       var bars = '';
       r.items.forEach(function(e){
         var s = e.begin_ts * 1000, en = e.end_ts * 1000;
@@ -1261,7 +1264,8 @@
     $('ecBody').innerHTML = ax + '<div class="ec-rows">' + out + '</div><div class="ec-ov" id="ecOv">' + gr + '<div class="ec-now" id="ecNow"><b id="ecNowL"></b></div></div>';
     $('ecBody').style.setProperty('--lw', LW + 'px'); endPanel();
     nowLine();
-    var vis = rows.filter(function(r){ return !r.head && !hide[r.cat]; }).length;
+    var vis = rows.filter(function(r){ return !r.head && !hide[r.cat] && r.inView; }).length;
+    $('ecEmpty').textContent = rows.some(function(r){ return !r.head && !hide[r.cat]; }) ? 'No events in this time span. Move the timeline or zoom out.' : 'No categories selected.';
     $('ecEmpty').hidden = vis > 0;
   }
   function nowLine(){
