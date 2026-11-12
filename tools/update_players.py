@@ -9,6 +9,10 @@ and write data/players.json + avatars/<id>.webp (small copies of the profile pic
 - if an alliance cannot be fetched, its players keep their last known entry
 - data/history.json: log of alliance changes (who moved from which alliance to which, when)
 - data/usage.json: remaining API allowance of the day (shown in access.html); changes with every run
+- which alliances are fetched is chosen in access.html (Supabase table roster_alliances, read with the public key from
+  SUPABASE_URL / SUPABASE_KEY); fallback = the last data/alliances.json, then DEFAULT_TAGS
+- data/alliances_known.json: all alliances seen in the two alliance rankings (refreshed about once a day, 2 requests)
+- data/alliances.json: the alliances that are fed right now (read by roster.html and the planners)
 - nothing else is written when nothing changed, so there is no commit noise
 """
 import io, json, os, sys, time, urllib.parse, urllib.request, urllib.error, datetime, pathlib
@@ -18,11 +22,15 @@ import wos_history
 API = os.environ.get('WOS_API_BASE', 'https://api.whiteoutstats.com/v1')
 KID = 646
 # case sensitive on purpose: TBR, TbR and tbr are three different alliances
-TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN', 'EVL', 'HYg', 'KOJ', 'NEW', 'DFT', 'HOS', 'tbr']
+DEFAULT_TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN', 'EVL', 'HYg', 'KOJ', 'NEW', 'DFT', 'HOS', 'tbr']
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / 'data' / 'players.json'
 HIST = ROOT / 'data' / 'history.json'
 AV = ROOT / 'avatars'
+FEED = ROOT / 'data' / 'alliances.json'
+KNOWN = ROOT / 'data' / 'alliances_known.json'
+SB_URL = os.environ.get('SUPABASE_URL', '').strip().rstrip('/')
+SB_KEY = os.environ.get('SUPABASE_KEY', '').strip()
 SIZE = 64          # px, square
 MISS_LIMIT = 3     # days in a row without a picture before the stored one is removed
 PAUSE = 1.2        # seconds between API requests (limit is 60 per minute)
@@ -72,11 +80,78 @@ def write_usage(base, key, ua, path, by):
         print(f'usage skipped: {e}', flush=True)
 
 
+def read_json(path):
+    try: return json.loads(pathlib.Path(path).read_text(encoding='utf-8'))
+    except Exception: return None
+
+def write_json_if_changed(path, obj, ignore=('updated',)):
+    old_j = read_json(path)
+    strip = lambda o: json.dumps({k: v for k, v in (o or {}).items() if k not in ignore}, sort_keys=True, ensure_ascii=False)
+    if old_j is not None and strip(old_j) == strip(obj): return False
+    pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
+    pathlib.Path(path).write_text(json.dumps(obj, ensure_ascii=False, separators=(',', ':'), sort_keys=True), encoding='utf-8')
+    return True
+
+def load_selection():
+    """Tags to fetch: the ticked alliances from Supabase; if that is not possible the last feed file, then the default list."""
+    if SB_URL and SB_KEY:
+        try:
+            h = {'apikey': SB_KEY, 'Accept': 'application/json', 'User-Agent': UA}
+            if SB_KEY.startswith('eyJ'): h['Authorization'] = 'Bearer ' + SB_KEY
+            rows = json.loads(get(SB_URL + '/rest/v1/roster_alliances?select=tag,selected&selected=eq.true&order=tag', h).decode('utf-8'))
+            tags = [r['tag'] for r in rows if r.get('tag')]
+            if tags: return tags, 'supabase'
+            print('selection: Supabase list is empty - using the fallback', flush=True)
+        except Exception as e:
+            print(f'selection: Supabase not reachable ({type(e).__name__}) - using the fallback', flush=True)
+    f = read_json(FEED)
+    if f and f.get('tags'): return list(f['tags']), 'last feed file'
+    return list(DEFAULT_TAGS), 'default list'
+
+def discover(known_old):
+    """All alliances visible in the two alliance rankings (top 100 each). Nothing is ever removed, only last_seen is updated."""
+    day = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
+    kn = dict((known_old or {}).get('alliances', {}))
+    ok_boards = 0
+    for board in ('alliance_power', 'alliance_kills'):
+        try:
+            d = json.loads(get(f'{API}/states/{KID}/ranks?board={board}&limit=100', {'Authorization': 'Bearer ' + key, 'Accept': 'application/json'}))
+        except Exception as e:
+            print(f'discover {board}: failed ({type(e).__name__})', flush=True); continue
+        for b in d.get('boards') or []:
+            if b.get('key') != board: continue
+            ok_boards += 1
+            for r in b.get('rows') or []:
+                t = r.get('abbr')
+                if not t: continue
+                e = kn.get(t, {'first': day})
+                e.update({'name': r.get('name') or e.get('name', ''), 'aid': r.get('aid'), 'leader': r.get('leader_name') or e.get('leader', ''),
+                          'count': r.get('member_count', e.get('count')), 'last': day})
+                if board == 'alliance_power': e['power'] = r.get('score'); e['rank'] = r.get('rank')
+                kn[t] = e
+        time.sleep(PAUSE)
+    return kn, ok_boards
+
+TAGS, SEL_SRC = load_selection()
+prev_feed = read_json(FEED) or {}
+prev_tags = set(prev_feed.get('tags') or DEFAULT_TAGS)
+print(f'alliances to fetch: {len(TAGS)} (source: {SEL_SRC})', flush=True)
+known_old = read_json(KNOWN)
+if not known_old or time.time() - (known_old.get('ts') or 0) > 20 * 3600:
+    kn, nb = discover(known_old)
+    if nb:
+        KNOWN.parent.mkdir(parents=True, exist_ok=True)
+        KNOWN.write_text(json.dumps({'kid': KID, 'ts': int(time.time()), 'updated': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC'),
+                                     'alliances': kn}, ensure_ascii=False, separators=(',', ':'), sort_keys=True), encoding='utf-8')
+    print(f'discovery: {len(kn)} alliances known', flush=True); known_old = read_json(KNOWN) or known_old
+    time.sleep(PAUSE)
+known = (known_old or {}).get('alliances', {})
+
 old = json.loads(DATA.read_text(encoding='utf-8')) if DATA.exists() else {'alliances': {}, 'players': {}}
 players = {k: dict(v) for k, v in old.get('players', {}).items()}
 alliances = dict(old.get('alliances', {}))
 now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
-ok, failed = [], []
+ok, failed, missing = [], [], []
 seen_now = {}
 
 for n, tag in enumerate(TAGS):
@@ -84,6 +159,10 @@ for n, tag in enumerate(TAGS):
     url = f"{API}/alliances/{KID}/{urllib.parse.quote(tag, safe='')}?include=info,roster"
     try:
         d = json.loads(get(url, {'Authorization': 'Bearer ' + key, 'Accept': 'application/json'}))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            print(f'{tag}: NOT FOUND in state {KID} - check the tag (upper/lower case counts)', flush=True); missing.append(tag); continue
+        print(f'{tag}: FAILED ({e}) - keeping the old entries', flush=True); failed.append(tag); continue
     except Exception as e:
         print(f'{tag}: FAILED ({e}) - keeping the old entries', flush=True); failed.append(tag); continue
     a = d.get('alliance') or {}
@@ -142,7 +221,7 @@ new = {'alliances': alliances, 'players': players}
 # alliance-change log (alliances that failed keep their old member list, so they produce no entries)
 try:
     now_dt = datetime.datetime.now(datetime.timezone.utc)
-    first_time = [t for t in ok if t not in old.get('alliances', {})]
+    first_time = [t for t in ok if t not in old.get('alliances', {}) or t not in prev_tags]   # newly ticked: no 'moves' against old data
     ents = wos_history.diff(old.get('alliances', {}), alliances, {k: v.get('n', '') for k, v in players.items()},
                             now_dt.strftime('%Y-%m-%dT%H:%MZ'), TAGS, first_time) if old.get('alliances') else []
     oldlog = json.loads(HIST.read_text(encoding='utf-8')).get('log', []) if HIST.exists() else []
@@ -159,6 +238,11 @@ if stable(new) != stable(old):
     print(f'written: {len(players)} players, {dl} new pictures')
 else:
     print('no changes')
+# feed file for roster.html and the planners: which alliances are active right now
+feed = {'kid': KID, 'source': SEL_SRC, 'tags': [t for t in TAGS if t not in missing], 'missing': missing, 'failed': failed,
+        'alliances': {t: {'name': (alliances.get(t) or {}).get('name') or (known.get(t) or {}).get('name', ''),
+                          'count': (alliances.get(t) or {}).get('count'), 'power': (alliances.get(t) or {}).get('power')} for t in TAGS if t in alliances}}
+if write_json_if_changed(FEED, dict(feed, updated=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC'))): print('data/alliances.json written', flush=True)
 write_usage(API, key, UA, ROOT / 'data' / 'usage.json', 'player update')
 if failed:
     print('FAILED alliances: ' + ', '.join(failed)); sys.exit(1)
