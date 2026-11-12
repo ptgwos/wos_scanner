@@ -24,6 +24,8 @@ jobs:
       - name: Fetch alliances and pictures
         env:
           WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python tools/update_players.py
       - name: Commit changes
         if: always()
