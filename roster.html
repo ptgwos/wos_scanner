@@ -910,11 +910,12 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-04 · r23</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-12 · r24</footer>
 </div>
 <script>
 (function(){
-  const TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN', 'EVL', 'HYg', 'KOJ', 'NEW', 'DFT', 'HOS', 'tbr'];
+  // fallback list; the active alliances come from data/alliances.json (chosen in access.html), see loadData()
+  let TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN', 'EVL', 'HYg', 'KOJ', 'NEW', 'DFT', 'HOS', 'tbr'];
   const BATTLE = ['PKB', 'GYN'];
   const fmt = n => (n == null ? '–' : Number(n).toLocaleString('de-DE'));
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -1275,7 +1276,8 @@
   function loadData(){
     if(loading) return; loading = true; loadHist();
     const b = document.getElementById('refreshBtn'); if(b) b.classList.add('spin');
-    fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()).then(j => { D = j; D.alliances = D.alliances || {}; D.players = D.players || {}; lastLoad = Date.now(); render(); if(b){ b.classList.add('ok'); setTimeout(() => b.classList.remove('ok'), 1500); } })
+    const feed = fetch('data/alliances.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).then(f => { if(f && Array.isArray(f.tags) && f.tags.length) TAGS = f.tags.slice(); }).catch(() => {});
+    Promise.all([fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()), feed]).then(a => a[0]).then(j => { D = j; D.alliances = D.alliances || {}; D.players = D.players || {}; lastLoad = Date.now(); render(); if(b){ b.classList.add('ok'); setTimeout(() => b.classList.remove('ok'), 1500); } })
       .catch(() => { if(!D) document.getElementById('sub').textContent = 'No data available (data/players.json not found).'; })
       .then(() => { loading = false; if(b) b.classList.remove('spin'); });
   }
