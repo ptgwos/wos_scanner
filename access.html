@@ -1037,6 +1037,15 @@
   .us-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:13px;margin-bottom:7px;} .us-h b{font-size:13.5px;}
   .us-bar{height:9px;border-radius:99px;background:rgba(120,140,190,.2);overflow:hidden;} .us-bar i{display:block;height:100%;border-radius:99px;background:#35c27a;}
   .us.warn .us-bar i{background:#e0a030;} .us.low .us-bar i{background:#e5484d;} .us.low .us-h b{color:#e5484d;} .us.warn .us-h b{color:#e0a030;}
+  .al{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:0 0 16px;background:rgba(120,140,190,.06);}
+  .al summary{cursor:pointer;font-size:14px;letter-spacing:.04em;font-weight:700;} .al summary span{font-weight:400;color:var(--text-faint);font-size:12.5px;letter-spacing:0;margin-left:8px;}
+  .al-bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:12px 0 8px;}
+  .al-bar input[type=text]{background:var(--panel-2,#161d33);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font:inherit;font-size:13px;width:150px;}
+  .al-bar label{font-size:13px;display:inline-flex;gap:5px;align-items:center;} .al-bar .btn{width:auto;font-size:12.5px;padding:6px 12px;}
+  .al-sc{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:8px;} .al-sc table.ad th{position:sticky;top:0;background:var(--panel,#10162a);z-index:1;}
+  .al-sc table.ad td,.al-sc table.ad th{padding:6px 10px;} .al-sc td.tg{font-weight:700;font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .al-st-ok{color:#35c27a}.al-st-wait{color:#e0a030}.al-st-no{color:#e5484d}.al-chg td{background:rgba(255,180,0,.08);}
+  .al small.hint{display:block;color:var(--text-faint);font-size:11.5px;margin-top:6px;}
   .us small{display:block;color:var(--text-faint);font-size:11.5px;margin-top:6px;}
   .ad-nm{background:transparent;color:inherit;border:1px solid transparent;border-radius:6px;padding:4px 6px;font:inherit;width:100%;min-width:110px;}
   .ad-nm:hover,.ad-nm:focus{border-color:var(--border);background:var(--panel-2,#161d33);}
@@ -1071,7 +1080,7 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-05 · a14</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-12 · a15</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1108,18 +1117,21 @@
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function toast(msg, ok){ var t = $('toast'); t.textContent = msg; t.className = ok ? 'ok' : ''; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(function(){ t.style.display = 'none'; }, 4200); }
-  var st = {role: null, name: '', code: '', users: null, reqs: []};
+  var st = {role: null, name: '', code: '', users: null, reqs: [], al: null, alSel: {}, alQ: '', alOnly: false};
 
   var api = (function(){
     if(MOCK){
       var users = [{id: 'u1', name: 'Peter', role: 'super', alliances: [], active: true, pages: []}, {id: 'u2', name: 'Ed (admin)', role: 'admin', alliances: [], active: true, pages: ['rallyleads']},
         {id: 'u3', name: 'Anna', role: 'editor', alliances: ['PKB', 'GYN'], active: true, pages: []}, {id: 'u4', name: 'Old user', role: 'editor', alliances: ['PKB'], active: false, pages: []}];
+      var alDb = [{tag: 'PKB', selected: true, manual: false}, {tag: 'AIR', selected: true, manual: false}, {tag: 'GYN', selected: true, manual: false}];
       var rq = [{discord_id: '123456789012345678', name: 'xX_frostwolf_Xx', nick: 'Frosty (PKB)', avatar: '', created_at: '2026-10-26T18:00:00Z', member: true}, {discord_id: '223456789012345678', name: 'Stranger', avatar: '', created_at: '2026-10-26T19:10:00Z', member: false}];
       return {
         me: function(c){ return Promise.resolve(c === 'admin' ? {role: 'super', name: 'Test admin', rallyleads: true} : c === 'viewer' ? {role: 'admin', name: 'Test viewer', rallyleads: false} : null); },
         list: function(){ return Promise.resolve(JSON.parse(JSON.stringify(users))); },
         save: function(a){ var u = users.filter(function(x){ return x.id === a.p_id; })[0]; if(u.role === 'super' && (a.p_role !== 'super' || !a.p_active)) return Promise.reject(new Error('There must be at least one active super admin')); u.name = a.p_name; u.role = a.p_role; u.active = a.p_active; return Promise.resolve({id: a.p_id}); },
         set: function(a){ users.filter(function(u){ return u.id === a.p_uid; })[0].pages = a.p_pages.slice(); return Promise.resolve(); },
+        alsel: function(){ return Promise.resolve(JSON.parse(JSON.stringify(alDb))); },
+        alset: function(a){ a.p_items.forEach(function(it){ var r = alDb.filter(function(x){ return x.tag === it.tag; })[0]; if(r){ r.selected = it.selected; r.manual = r.manual || !!it.manual; } else alDb.push({tag: it.tag, selected: it.selected, manual: !!it.manual}); }); return Promise.resolve(a.p_items.length); },
         reqs: function(){ return Promise.resolve(JSON.parse(JSON.stringify(rq))); },
         link: function(a){ var u = users.filter(function(x){ return x.id === a.p_uid; })[0]; u.discord_id = a.p_did; rq = rq.filter(function(r){ return r.discord_id !== a.p_did; }); return Promise.resolve(); },
         mknew: function(a){ users.push({id: 'u' + (users.length + 5), name: a.p_name, role: a.p_role, alliances: [], active: true, pages: [], discord_id: a.p_did}); rq = rq.filter(function(r){ return r.discord_id !== a.p_did; }); return Promise.resolve(); },
@@ -1136,7 +1148,10 @@
         return r.text().then(function(t){ var j = null; try { j = t ? JSON.parse(t) : null; } catch(e) {} if(!r.ok) throw new Error((j && (j.message || j.hint)) || ('HTTP ' + r.status)); return j; });
       });
     }
-    return {me: function(c){ return rpc('sa_me', {p_code: c}); }, list: function(c){ return rpc('sa_list', {p_code: c}); }, set: function(a){ return rpc('sa_set', a); }, save: function(a){ return rpc('ev_user_save', a); },
+    function alsel(){
+      return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/roster_alliances?select=tag,selected,manual&order=tag', {headers: H, cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+    }
+    return {alsel: alsel, alset: function(a){ return rpc('sa_alli_set', a); }, me: function(c){ return rpc('sa_me', {p_code: c}); }, list: function(c){ return rpc('sa_list', {p_code: c}); }, set: function(a){ return rpc('sa_set', a); }, save: function(a){ return rpc('ev_user_save', a); },
       reqs: function(c){ return rpc('sa_requests', {p_code: c}); }, link: function(a){ return rpc('sa_dc_link', a); }, mknew: function(a){ return rpc('sa_dc_new', a); }, reject: function(a){ return rpc('sa_dc_reject', a); }, unlink: function(a){ return rpc('sa_dc_unlink', a); },
       usernew: function(a){ return rpc('sa_user_new', a); }, userdc: function(a){ return rpc('sa_user_discord', a); }};
   })();
@@ -1156,11 +1171,11 @@
   }
   function load(){
     $('adm').innerHTML = '<div class="rl-empty">Loading users …</div>';
-    Promise.all([api.list(st.code), api.reqs(st.code).catch(function(){ return null; }), getUsage()]).then(function(a){ st.usage = a[2]; var u = a[0]; if(!Array.isArray(u)) throw new Error('Unexpected answer from sa_list: ' + JSON.stringify(u).slice(0, 200)); st.users = u; st.reqs = Array.isArray(a[1]) ? a[1] : []; st.noDc = !Array.isArray(a[1]); draw(); }).catch(function(e){ gate(esc(e.message), false); });
+    Promise.all([api.list(st.code), api.reqs(st.code).catch(function(){ return null; }), getUsage(), loadAl()]).then(function(a){ st.usage = a[2]; st.al = a[3]; var u = a[0]; if(!Array.isArray(u)) throw new Error('Unexpected answer from sa_list: ' + JSON.stringify(u).slice(0, 200)); st.users = u; st.reqs = Array.isArray(a[1]) ? a[1] : []; st.noDc = !Array.isArray(a[1]); draw(); }).catch(function(e){ gate(esc(e.message), false); });
   }
   var RN = {super: 'Super admin', admin: 'Admin', editor: 'Editor'};
   function draw(){
-    var h = usageHtml() + reqHtml() + newUserHtml() + '<p class="ad-note"><b>Rally Leads:</b> tick who may open it (read and edit). The super admin always may; an admin of the Event Planner does <b>not</b> automatically see Rally Leads. <b>Rally Planner:</b> “Read” = may open the plans but not change them, “Read + write” = may also edit. Without a right the page says “No access”. Admins always have read + write. <b>Appointments:</b> everybody may sign up; tick who may see, sort and filter the overview of all sign-ups (admins may create the weeks). Changes are saved immediately. <b>Event Planner:</b> change a role or block a user (the change is also written to the Event Planner log). New users, alliances and personal links are still managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p>' +
+    var h = usageHtml() + alHtml() + reqHtml() + newUserHtml() + '<p class="ad-note"><b>Rally Leads:</b> tick who may open it (read and edit). The super admin always may; an admin of the Event Planner does <b>not</b> automatically see Rally Leads. <b>Rally Planner:</b> “Read” = may open the plans but not change them, “Read + write” = may also edit. Without a right the page says “No access”. Admins always have read + write. <b>Appointments:</b> everybody may sign up; tick who may see, sort and filter the overview of all sign-ups (admins may create the weeks). Changes are saved immediately. <b>Event Planner:</b> change a role or block a user (the change is also written to the Event Planner log). New users, alliances and personal links are still managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p>' +
       '<div class="ad-box"><table class="ad"><thead><tr><th>Name</th><th>Event Planner<br><span class="ad-sh">role (edit)</span></th><th>Alliances<br><span class="ad-sh">editors only</span></th><th class="c">Rally Planner<br><span class="ad-sh">none / read / read + write</span></th><th class="c">Rally Leads<br><span class="ad-sh">see + edit</span></th><th class="c">Fortress/SH Plan<br><span class="ad-sh">edit</span></th><th class="c">Appointments<br><span class="ad-sh">overview</span></th><th class="c">Active<br><span class="ad-sh">untick = blocked</span></th><th>Discord</th><th>Last login</th></tr></thead><tbody>';
     st.users.forEach(function(u){
       var sup = u.role === 'super', adm = u.role === 'admin', on = sup || (u.pages || []).indexOf('rallyleads') >= 0, rpw = sup || adm || (u.pages || []).indexOf('rallyplan') >= 0, rpr = (u.pages || []).indexOf('rallyplan_view') >= 0, rpv = rpw ? 'w' : rpr ? 'r' : 'n';
@@ -1184,7 +1199,53 @@
       '<tr><td>Appointments</td><td>everybody can sign up and change entries; the overview (sort, filter) only for the users ticked above (and the super admin)</td><td>admins create the weeks</td></tr>' +
       '<tr><td>Fortress/SH Plan</td><td>everybody</td><td>only the users ticked above (the Discord bot reads this data)</td></tr>' +
       '<tr><td>Rally Leads</td><td colspan="2">only the users ticked above (and the super admin) – everybody else sees “No access”</td></tr></tbody></table></div></div>';
+    var keepOpen = document.getElementById('alBox') && document.getElementById('alBox').open;
     $('adm').innerHTML = h;
+    if(keepOpen) document.getElementById('alBox').open = true;
+    alRows();
+  }
+  function getJson(u){ return fetch(u + '?t=' + Date.now(), {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
+  function loadAl(){
+    return Promise.all([getJson('data/alliances_known.json'), getJson('data/alliances.json'), api.alsel().then(function(r){ return Array.isArray(r) ? r : null; }).catch(function(){ return null; })]).then(function(a){
+      var o = {known: (a[0] && a[0].alliances) || {}, knownAt: a[0] && a[0].updated, feed: a[1] || {}, db: a[2]};
+      st.alSel = {}; if(o.db) o.db.forEach(function(r){ st.alSel[r.tag] = {selected: !!r.selected, manual: !!r.manual, was: !!r.selected, inDb: true}; });
+      return o;
+    });
+  }
+  function alList(){
+    var al = st.al || {known: {}, feed: {}, db: null}, tags = {};
+    Object.keys(al.known).forEach(function(t){ tags[t] = 1; }); Object.keys(st.alSel).forEach(function(t){ tags[t] = 1; });
+    return Object.keys(tags).map(function(t){ var k = al.known[t] || {}, f = (al.feed.alliances || {})[t] || {}, s = st.alSel[t] || {selected: false, was: false};
+      return {tag: t, name: k.name || f.name || '', count: f.count != null ? f.count : k.count, power: f.power != null ? f.power : k.power, sel: !!s.selected, was: !!s.was, manual: !!s.manual, known: !!al.known[t]}; })
+      .sort(function(a, b){ return (b.power || 0) - (a.power || 0) || a.tag.localeCompare(b.tag); });
+  }
+  function fmtP(n){ if(n == null) return '–'; return n >= 1e9 ? (n / 1e9).toFixed(2) + ' B' : n >= 1e6 ? Math.round(n / 1e6) + ' M' : String(n); }
+  function alState(r){
+    var f = (st.al && st.al.feed) || {}, inFeed = (f.tags || []).indexOf(r.tag) >= 0, miss = (f.missing || []).indexOf(r.tag) >= 0;
+    if(r.sel !== r.was) return '<span class="al-st-wait">' + (r.sel ? 'will be added – press Save' : 'will be removed – press Save') + '</span>';
+    if(r.sel && miss) return '<span class="al-st-no">not found in the game – check the tag</span>';
+    if(r.sel && inFeed) return '<span class="al-st-ok">in the feed</span>';
+    if(r.sel) return '<span class="al-st-wait">saved – fetched at the next run</span>';
+    return inFeed ? '<span class="al-st-wait">removed at the next run</span>' : '';
+  }
+  function alRows(){
+    var tb = document.getElementById('alTb'); if(!tb) return;
+    var q = (st.alQ || '').toLowerCase(), rows = alList().filter(function(r){ return (!st.alOnly || r.sel) && (!q || r.tag.toLowerCase().indexOf(q) >= 0 || r.name.toLowerCase().indexOf(q) >= 0); });
+    tb.innerHTML = rows.map(function(r){ return '<tr class="' + (r.sel !== r.was ? 'al-chg' : '') + '"><td class="c"><input type="checkbox" data-al="' + esc(r.tag) + '"' + (r.sel ? ' checked' : '') + ' aria-label="Fetch ' + esc(r.tag) + '"></td><td class="tg">' + esc(r.tag) + (r.manual ? ' <span class="ad-sh" title="added by hand">manual</span>' : '') + '</td><td>' + esc(r.name || (r.known ? '' : '–')) + '</td><td class="c">' + (r.count == null ? '–' : esc(r.count)) + '</td><td class="c">' + fmtP(r.power) + '</td><td>' + alState(r) + '</td></tr>'; }).join('') || '<tr><td colspan="6" class="ad-note">Nothing found.</td></tr>';
+    var all = alList(), n = all.filter(function(r){ return r.sel; }).length, ch = all.filter(function(r){ return r.sel !== r.was; }).length;
+    var sm = document.getElementById('alSum'); if(sm) sm.textContent = n + ' selected of ' + all.length;
+    var sv = document.getElementById('alSave'); if(sv){ sv.disabled = !ch; sv.textContent = ch ? 'Save (' + ch + ' change' + (ch > 1 ? 's' : '') + ')' : 'Save'; }
+    var est = document.getElementById('alEst'); if(est){ var lim = st.usage && st.usage.daily && st.usage.daily.limit; est.textContent = 'About ' + (n * 24) + ' requests per day for the member lists if the update job runs every hour' + (lim ? ' (limit ' + lim.toLocaleString('en-US') + ' per day)' : '') + '.'; }
+  }
+  function alHtml(){
+    if(!st.al || !st.al.db) return '<div class="dq"><h3>Alliances of State 646</h3><p class="ad-note" style="margin:0">Not set up yet: please run alliances.sql in Supabase (see the instructions).</p></div>';
+    var al = st.al, n = Object.keys(st.alSel).filter(function(t){ return st.alSel[t].selected; }).length;
+    return '<details class="al" id="alBox"><summary>Alliances of State 646 – roster and planners<span id="alSum">' + n + ' selected</span></summary>' +
+      '<p class="ad-note" style="margin:8px 0 0">Tick the alliances whose members are fetched every hour. The ticked ones appear in the Roster and in the planners. The list comes from the alliance rankings of the game (top 100 by power and by kills' + (al.knownAt ? ', as of ' + esc(al.knownAt) : '') + '), so small alliances can be missing: add them by tag.</p>' +
+      '<div class="al-bar"><input type="text" id="alQ" placeholder="Search tag or name" value="' + esc(st.alQ) + '"><label><input type="checkbox" id="alOnly"' + (st.alOnly ? ' checked' : '') + '> selected only</label>' +
+      '<input type="text" id="alAddT" maxlength="16" placeholder="Tag (exact case)"><button type="button" class="btn" id="alAdd">Add by tag</button><button type="button" class="btn" id="alSave" disabled>Save</button></div>' +
+      '<div class="al-sc"><table class="ad"><thead><tr><th class="c">Fetch</th><th>Tag</th><th>Name</th><th class="c">Members</th><th class="c">Power</th><th>Status</th></tr></thead><tbody id="alTb"></tbody></table></div>' +
+      '<small class="hint" id="alEst"></small><small class="hint">Upper and lower case matter (TBR, TbR and tbr are three alliances). Changes take effect with the next update job; a new alliance has no “moves” in the history log. Players of removed alliances disappear from the Roster, their data is kept.</small></details>';
   }
   function getUsage(){
     return fetch('data/usage.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
@@ -1223,8 +1284,22 @@
   function dcDo(fn, args, msg){
     api[fn](args).then(function(){ toast(msg, true); load(); }).catch(function(err){ toast(err.message); });
   }
+  $('adm').addEventListener('input', function(e){ if(e.target.id === 'alQ'){ st.alQ = e.target.value; alRows(); } });
   $('adm').addEventListener('click', function(e){
     var b = e.target.closest('button'); if(!b) return;
+    if(b.id === 'alAdd'){
+      var inp = document.getElementById('alAddT'), t = inp.value.trim();
+      if(!/^[^\s]{1,16}$/.test(t)){ toast('Please enter the tag without spaces (1 to 16 characters).'); return; }
+      var ex = st.alSel[t]; if(ex) ex.selected = true; else st.alSel[t] = {selected: true, manual: true, was: false, inDb: false};
+      inp.value = ''; st.alQ = t; var qi = document.getElementById('alQ'); if(qi) qi.value = t; alRows(); toast('Tag ' + t + ' added – press Save. If it does not exist in the game it is marked after the next run.', true); return;
+    }
+    if(b.id === 'alSave'){
+      var items = alList().filter(function(r){ return r.sel !== r.was; }).map(function(r){ return {tag: r.tag, selected: r.sel, manual: r.manual}; });
+      if(!items.length) return; b.disabled = true;
+      api.alset({p_code: st.code, p_items: items}).then(function(){ toast('Saved: ' + items.length + ' change' + (items.length > 1 ? 's' : '') + ' – active with the next update job', true); return loadAl().then(function(o){ st.al = o; draw(); document.getElementById('alBox').open = true; }); })
+        .catch(function(err){ toast(err.message); b.disabled = false; });
+      return;
+    }
     var did;
     if((did = b.getAttribute('data-link'))){
       var sel = document.querySelector('select[data-lk="' + did + '"]');
@@ -1264,6 +1339,9 @@
     }).catch(function(err){ toast(err.message); draw(); });
   }
   $('adm').addEventListener('change', function(e){
+    if(e.target.id === 'alOnly'){ st.alOnly = e.target.checked; alRows(); return; }
+    var ac = e.target.getAttribute && e.target.getAttribute('data-al');
+    if(ac){ if(!st.alSel[ac]) st.alSel[ac] = {selected: false, was: false, manual: false}; st.alSel[ac].selected = e.target.checked; alRows(); return; }
     var kc = e.target.closest('[data-k]');
     if(kc){ saveUser(kc); return; }
     var rs = e.target.closest('select[data-rp]');
