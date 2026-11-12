@@ -1084,6 +1084,14 @@
   .ec-h .ec-rl i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cc);margin-right:7px;}
   .ec-b{position:absolute;top:4px;height:22px;box-sizing:border-box;border-radius:5px;border:1px solid var(--cc);background:color-mix(in srgb,var(--cc) 24%,transparent);overflow:hidden;white-space:nowrap;font-size:11.5px;line-height:20px;padding:0 6px;color:var(--text);cursor:pointer;}
   .ec-b.run{background:color-mix(in srgb,var(--cc) 52%,transparent);}
+  .ec-end{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:0 0 10px;font-size:12.5px;}
+  .ec-end>b{color:#ff6b6b;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-right:4px;}
+  .ec-endn{color:var(--text-faint);}
+  html body .ec-end button.ec-endc{display:inline-flex;gap:6px;align-items:baseline;background:color-mix(in srgb,#ff4d4d 12%,transparent);border:1px solid #ff6b6b;color:var(--text);border-radius:999px;padding:3px 10px;font:inherit;font-size:12.5px;cursor:pointer;min-height:0;height:auto;text-transform:none;letter-spacing:0;box-shadow:none;}
+  .ec-endc small{color:var(--text-faint);font-size:11.5px;}
+  .ec-b.endt{border-color:#ff5d5d;box-shadow:inset 0 0 0 1px #ff5d5d;}
+  .ec-b.endt.sel{box-shadow:inset 0 0 0 1px #ff5d5d,0 0 0 2px var(--text);}
+  .ec-b em{font-style:normal;float:right;margin-left:8px;color:#ff8a8a;font-size:10.5px;}
   .ec-b.past{opacity:.45;}
   .ec-b.sel{box-shadow:0 0 0 2px var(--text);}
   .ec-ov{position:absolute;left:var(--lw);right:0;top:0;bottom:0;pointer-events:none;z-index:1;overflow:hidden;}
@@ -1121,10 +1129,11 @@
     <span class="ec-out" id="ecOut" hidden></span>
     <span class="ec-grp" id="ecChips"></span>
   </div>
+  <div class="ec-end" id="ecEnd"></div>
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
   <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day.</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec3</footer>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec4</footer>
 </div>
 <script>
 (function(){
@@ -1219,7 +1228,7 @@
     ticks.forEach(function(tk){ var x = X(tk); if(x < 0 || x > W) return; gr += '<i class="ec-gl' + (tk % DAY === 0 ? ' d' : '') + '" style="left:' + x.toFixed(1) + 'px"></i>'; });
     days.forEach(function(d){ var x = X(d); if(x < 0 || x > W) return; if(step < DAY && d % DAY === 0) gr += '<i class="ec-gl d" style="left:' + x.toFixed(1) + 'px"></i>'; });
     // rows
-    var n = now(), out = '';
+    var n = now(), out = '', dEnd = (Math.floor(n / DAY) + 1) * DAY;
     rows.forEach(function(r){
       if(r.head){ out += '<div class="ec-r ec-h" style="--cc:' + colOf(r.cat) + '"><div class="ec-rl"><i></i>' + esc(r.cat) + '</div><div class="ec-rp"></div></div>'; return; }
       if(hide[r.cat]) return;
@@ -1227,14 +1236,14 @@
       r.items.forEach(function(e){
         var s = e.begin_ts * 1000, en = e.end_ts * 1000;
         if(en < a || s > b) return;
-        var x0 = Math.max(0, X(s)), x1 = Math.min(W, X(en)), w = Math.max(3, x1 - x0), cls = 'ec-b' + (en < n ? ' past' : (s <= n ? ' run' : '')) + (sel === e._i ? ' sel' : '');
+        var x0 = Math.max(0, X(s)), x1 = Math.min(W, X(en)), w = Math.max(3, x1 - x0), cls = 'ec-b' + (en < n ? ' past' : (s <= n ? ' run' : '')) + (en >= n && en <= dEnd ? ' endt' : '') + (sel === e._i ? ' sel' : '');
         var off = Math.max(0, -X(s)) , lab = off > 0 && x1 - x0 > 40 ? ' style="padding-left:' + 0 + 'px"' : '';
-        bars += '<div class="' + cls + '" data-i="' + e._i + '" style="left:' + x0.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;--cc:' + colOf(r.cat) + '"><span>' + esc(e.name) + '</span></div>';
+        bars += '<div class="' + cls + '" data-i="' + e._i + '" style="left:' + x0.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;--cc:' + colOf(r.cat) + '"><span>' + esc(e.name) + '</span>' + (en >= n && en <= dEnd && w > 170 ? '<em>ends in ' + dur(en - n) + '</em>' : '') + '</div>';
       });
       out += '<div class="ec-r"><div class="ec-rl" title="' + esc(r.name) + '">' + esc(r.name) + '</div><div class="ec-rp">' + bars + '</div></div>';
     });
     $('ecBody').innerHTML = ax + '<div class="ec-rows">' + out + '</div><div class="ec-ov" id="ecOv">' + gr + '<div class="ec-now" id="ecNow"><b id="ecNowL"></b></div></div>';
-    $('ecBody').style.setProperty('--lw', LW + 'px');
+    $('ecBody').style.setProperty('--lw', LW + 'px'); endPanel();
     nowLine();
     var vis = rows.filter(function(r){ return !r.head && !hide[r.cat]; }).length;
     $('ecEmpty').hidden = vis > 0;
@@ -1248,6 +1257,14 @@
     el.style.left = x.toFixed(1) + 'px';
     var l = $('ecNowL'); if(l){ l.textContent = lab; l.className = x > W - 150 ? 'r' : ''; }
     var o = $('ecOut'); if(o){ o.hidden = inside; o.textContent = x < 0 ? '◀ now: ' + lab : 'now: ' + lab + ' ▶'; }
+  }
+  function endPanel(){
+    var el = $('ecEnd'), n = now(), dEnd = (Math.floor(n / DAY) + 1) * DAY, L = [];
+    D.events.forEach(function(e){ var en = e.end_ts * 1000; if(en >= n && en <= dEnd && e.begin_ts * 1000 <= n) L.push(e); });
+    L.sort(function(a, b){ return a.end_ts - b.end_ts; });
+    if(!L.length){ el.innerHTML = '<b>Ending today (UTC)</b><span class="ec-endn">No event ends today.</span>'; return; }
+    el.innerHTML = '<b>Ending today (UTC)</b>' + L.map(function(e){ var en = e.end_ts * 1000;
+      return '<button type="button" class="ec-endc" data-i="' + e._i + '" style="--cc:' + colOf(e.category) + '">' + esc(e.name) + ' <small>' + (en === dEnd ? '24:00' : hm(en)) + ' · ' + dur(en - n) + ' left</small></button>'; }).join('');
   }
   function info(){
     var el = $('ecInfo');
@@ -1316,6 +1333,12 @@
     }
     if(Object.keys(ptr).length === 0){ drag = null; body.classList.remove('drag'); }
   }
+  $('ecEnd').addEventListener('click', function(e){
+    var c = e.target.closest && e.target.closest('.ec-endc'); if(!c) return;
+    sel = +c.dataset.i; var ev = D.events[sel] || D.events.filter(function(x){ return x._i === sel; })[0], en = ev.end_ts * 1000;
+    if(en > view.b - span() * .1 || en < view.a){ var sp = span(); view.a = en - sp * .75; view.b = view.a + sp; clampView(); markPre(null); }
+    render(); info();
+  });
   body.addEventListener('pointerup', up); body.addEventListener('pointercancel', up);
   body.addEventListener('wheel', function(e){
     if(e.ctrlKey || e.metaKey){ e.preventDefault(); var W = Math.max(200, body.clientWidth - LW), tc = view.a + Math.max(0, Math.min(1, plotX(e.clientX) / W)) * span(); zoom(e.deltaY > 0 ? 1.25 : .8, tc); }
@@ -1335,7 +1358,7 @@
   window.addEventListener('resize', function(){ LW = window.innerWidth < 640 ? 112 : 190; render(); });
   $('refreshBtn').addEventListener('click', function(e){ load(e.currentTarget); });
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && Date.now() - lastLoad > 600000) load(); });
-  setInterval(function(){ nowLine(); if(sel != null && Math.floor(now() / 60000) !== (window.__ecm || 0)){ window.__ecm = Math.floor(now() / 60000); info(); } }, 1000);
+  setInterval(function(){ nowLine(); var dk = Math.floor(now() / DAY), mk = Math.floor(now() / 60000); if(window.__ecd !== dk){ window.__ecd = dk; if(D) render(); } else if(window.__ecm2 !== mk && D){ window.__ecm2 = mk; render(); } if(sel != null && Math.floor(now() / 60000) !== (window.__ecm || 0)){ window.__ecm = Math.floor(now() / 60000); info(); } }, 1000);
   window.epSettingsApply = function(){};
   window.__ec = {view: function(){ return view; }, set: function(a, b){ view.a = a; view.b = b; render(); }};
 
