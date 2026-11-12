@@ -1,0 +1,37 @@
+name: Fetch events
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-events
+  cancel-in-progress: false
+
+jobs:
+  events:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch event calendar
+        env:
+          WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+          KID: "646"
+        run: python tools/fetch_events.py
+      - name: Commit result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/events.json data/events_raw.json
+          if git diff --cached --quiet; then
+            echo "No change."
+          else
+            git commit -m "Update events"
+            git pull --rebase
+            git push
+          fi
