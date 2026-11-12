@@ -1124,7 +1124,7 @@
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
   <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day.</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec2</footer>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec3</footer>
 </div>
 <script>
 (function(){
@@ -1190,7 +1190,7 @@
     [].forEach.call(document.querySelectorAll('.ec-pre'), function(b){ b.classList.toggle('on', b.dataset.p === k); });
   }
   function zoom(f, tc){
-    var s = span(), ns = Math.max(2 * HOUR, Math.min(s * f, 120 * DAY)), r = (tc - view.a) / s;
+    var s = span(), ns = Math.max(2 * HOUR, Math.min(s * f, 400 * DAY)), r = (tc - view.a) / s;
     view.a = tc - r * ns; view.b = view.a + ns; clampView(); render(); markPre(null);
   }
   function markPre(k){ [].forEach.call(document.querySelectorAll('.ec-pre'), function(b){ b.classList.toggle('on', b.dataset.p === k); }); }
@@ -1260,7 +1260,17 @@
 
   function load(btn){
     if(btn) btn.classList.add('spin');
+    var hp = fetch('data/events_history.json?' + Date.now(), {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
     return fetch('data/events.json?' + Date.now(), {cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(function(j){
+      return hp.then(function(h){
+        if(h && h.events){
+          var seen = {}; j.events.forEach(function(e){ seen[e.name + '|' + e.begin_ts] = 1; });
+          h.events.forEach(function(e){ if(!seen[e.name + '|' + e.begin_ts]) j.events.push(e); });
+          j.events.sort(function(a, b){ return a.begin_ts - b.begin_ts; });
+        }
+        return j;
+      });
+    }).then(function(j){
       D = j; lastLoad = Date.now();
       var bs = j.events.map(function(e){ return e.begin_ts * 1000; }), es = j.events.map(function(e){ return e.end_ts * 1000; });
       D.min = Math.min.apply(null, bs); D.max = Math.max.apply(null, es);
