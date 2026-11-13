@@ -1095,7 +1095,7 @@
   .ec-b.fx{background:var(--cc);color:#2a1200;font-weight:600;}
   .ec-b.past{opacity:.45;}
   .ec-b.sel{box-shadow:0 0 0 2px var(--text);}
-  .ec-ov{position:absolute;left:var(--lw);right:0;top:0;bottom:0;pointer-events:none;z-index:1;overflow:hidden;}
+  .ec-ov{position:absolute;left:var(--lw);right:0;top:0;bottom:0;pointer-events:none;z-index:3;overflow:hidden;}
   .ec-gl{position:absolute;top:44px;bottom:0;width:1px;background:var(--ec-ln);}
   .ec-gl.d{background:var(--ec-ln2);}
   .ec-now{position:absolute;top:0;bottom:0;width:0;border-left:2px solid #ff3b3b;z-index:3;}
@@ -1128,6 +1128,13 @@
   .ec-fp{margin-top:12px;font-size:12.5px;color:var(--text-dim);min-height:18px;}
   .ec-fe{margin-top:8px;font-size:12.5px;color:#ff6b6b;font-weight:600;}
   .ec-fb{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+  .ec-lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-right:4px;}
+  .ec-sp{box-sizing:border-box;color:var(--text);font-family:'Inter',sans-serif;}
+  .ec-sh{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin:2px 2px 12px;}
+  .ec-st{font-size:22px;font-weight:800;letter-spacing:.01em;}
+  .ec-st span{color:#4ecbf2;}
+  .ec-ss{font-size:14px;color:var(--text-dim);font-weight:600;}
+  .ec-sf{margin:10px 2px 0;font-size:11.5px;color:var(--text-faint);}
   .ec-note{margin-top:14px;font-size:12px;color:var(--text-faint);}
   @media (max-width:640px){.ec-b{font-size:11px;}.ec-rl{font-size:11.5px;padding:0 6px;}.ec-tb button.ec-btn{padding:6px 9px;}}
 </style>
@@ -1147,6 +1154,7 @@
     <span class="ec-grp"><button type="button" class="ec-btn ec-pre" data-p="day">Day</button><button type="button" class="ec-btn ec-pre" data-p="3d">3 days</button><button type="button" class="ec-btn ec-pre on" data-p="week">Week</button><button type="button" class="ec-btn ec-pre" data-p="all">All</button></span>
     <span class="ec-grp"><button type="button" class="ec-btn ec-sq" id="ecOutB" aria-label="Zoom out" title="Zoom out">−</button><button type="button" class="ec-btn ec-sq" id="ecIn" aria-label="Zoom in" title="Zoom in">+</button><button type="button" class="ec-btn" id="ecToNow" title="Move the timeline to the current time">Now</button></span>
     <span class="ec-grp"><button type="button" class="ec-btn" id="ecAdd" title="Add an own entry, e.g. a battle" hidden>+ Add entry</button></span>
+    <span class="ec-grp"><span class="ec-lbl">Share pic</span><button type="button" class="ec-btn" id="ecShT" title="Picture of today (00:00-24:00 UTC) to the clipboard">Today</button><button type="button" class="ec-btn" id="ecSh3" title="Picture of today and the next two days to the clipboard">3 days</button></span>
     <span class="ec-out" id="ecOut" hidden></span>
     <span class="ec-grp" id="ecChips"></span>
   </div>
@@ -1154,7 +1162,7 @@
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
   <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day. Bear Trap times are fixed (30 minutes, every 2nd day, 12 Nov was a Bear Trap day). Own entries (solid bars) are added by admins with “Add entry”.</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-13 · ec7</footer>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-13 · ec8</footer>
 </div>
 <script>
 (function(){
@@ -1299,9 +1307,9 @@
   function markPre(k){ [].forEach.call(document.querySelectorAll('.ec-pre'), function(b){ b.classList.toggle('on', b.dataset.p === k); }); }
 
   var STEPS = [HOUR, 2 * HOUR, 3 * HOUR, 6 * HOUR, 12 * HOUR, DAY, 2 * DAY, 7 * DAY, 14 * DAY];
-  function render(){
+  function render(o){
     if(!D) return;
-    var plot = $('ecBody'), W = Math.max(200, plot.clientWidth - LW), a = view.a, b = view.b, sp = b - a;
+    var plot = o ? o.el : $('ecBody'), W = o ? o.W : Math.max(200, plot.clientWidth - LW), a = o ? o.a : view.a, b = o ? o.b : view.b, sp = b - a;
     function X(t){ return (t - a) / sp * W; }
     var step = STEPS[STEPS.length - 1];
     for(var i = 0; i < STEPS.length; i++){ var need = STEPS[i] < DAY ? 44 : 64; if(W / (sp / STEPS[i]) >= need){ step = STEPS[i]; break; } }
@@ -1333,12 +1341,18 @@
       r.items.forEach(function(e){
         var s = e.begin_ts * 1000, en = e.end_ts * 1000;
         if(en < a || s > b) return;
-        var x0 = Math.max(0, X(s)), x1 = Math.min(W, X(en)), w = Math.max(e.fixed || e.cu ? 7 : 3, x1 - x0), cls = 'ec-b' + (en < n ? ' past' : (s <= n ? ' run' : '')) + (en >= n && en <= dEnd && s <= n && !e.fixed ? ' endt' : '') + (e.fixed ? ' fx' : '') + (e.cu ? ' cu' + (x1 - x0 < 60 ? (x0 > W * .62 ? ' sl' : ' sr') : '') : '') + (sel === e._i ? ' sel' : '');
+        var x0 = Math.max(0, X(s)), x1 = Math.min(W, X(en)), w = Math.max(e.fixed || e.cu ? 7 : 3, x1 - x0), cls = 'ec-b' + (en < n ? ' past' : (s <= n ? ' run' : '')) + (en >= n && en <= dEnd && s <= n && !e.fixed ? ' endt' : '') + (e.fixed ? ' fx' : '') + (e.cu ? ' cu' + (x1 - x0 < 60 ? (x0 > W * .62 ? ' sl' : ' sr') : '') : '') + (sel === e._i && !o ? ' sel' : '');
         var off = Math.max(0, -X(s)) , lab = off > 0 && x1 - x0 > 40 ? ' style="padding-left:' + 0 + 'px"' : '';
         bars += '<div class="' + cls + '" data-i="' + e._i + '" style="left:' + x0.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;--cc:' + colOf(r.cat) + '"><span>' + (w < 34 && !e.cu ? '' : esc(e.lab || e.name)) + '</span>' + (en >= n && en <= dEnd && s <= n && !e.fixed && w > 170 ? '<em>ends in ' + dur(en - n) + '</em>' : '') + '</div>';
       });
       out += '<div class="ec-r"><div class="ec-rl" title="' + esc(r.name) + '">' + esc(r.name) + '</div><div class="ec-rp">' + bars + '</div></div>';
     });
+    if(o){
+      var nx = (n - a) / sp * W, nl = nx >= 0 && nx <= W ? '<div class="ec-now" style="left:' + nx.toFixed(1) + 'px"><b' + (nx > W - 150 ? ' class="r"' : '') + '>' + nowLab(n) + '</b></div>' : '';
+      plot.innerHTML = ax + '<div class="ec-rows">' + out + '</div><div class="ec-ov">' + gr + nl + '</div>';
+      plot.style.setProperty('--lw', o.LW + 'px');
+      return;
+    }
     $('ecBody').innerHTML = ax + '<div class="ec-rows">' + out + '</div><div class="ec-ov" id="ecOv">' + gr + '<div class="ec-now" id="ecNow"><b id="ecNowL"></b></div></div>';
     $('ecBody').style.setProperty('--lw', LW + 'px'); endPanel();
     nowLine();
@@ -1346,10 +1360,11 @@
     $('ecEmpty').textContent = rows.some(function(r){ return !r.head && !hide[r.cat]; }) ? 'No events in this time span. Move the timeline or zoom out.' : 'No categories selected.';
     $('ecEmpty').hidden = vis > 0;
   }
+  function nowLab(n){ return dayLab(n, true) + ' · ' + p2(new Date(n).getUTCHours()) + ':' + p2(new Date(n).getUTCMinutes()) + ':' + p2(new Date(n).getUTCSeconds()) + ' UTC'; }
   function nowLine(){
     var el = $('ecNow'); if(!el) return;
     var W = Math.max(200, $('ecBody').clientWidth - LW), x = (now() - view.a) / span() * W, n = now();
-    var lab = dayLab(n, true) + ' · ' + p2(new Date(n).getUTCHours()) + ':' + p2(new Date(n).getUTCMinutes()) + ':' + p2(new Date(n).getUTCSeconds()) + ' UTC';
+    var lab = nowLab(n);
     var inside = x >= 0 && x <= W;
     el.style.display = inside ? '' : 'none';
     el.style.left = x.toFixed(1) + 'px';
@@ -1543,6 +1558,53 @@
       rpc('ec_delete', {p_code: CU.code, p_id: ev.cu}).then(function(){ toast('Entry deleted.'); sel = null; return loadCu(); }).then(function(){ compose(); render(); info(); }).catch(function(x){ toast(x.message || 'Could not delete.'); info(); });
     }
   });
+
+  // ---- share picture (Today / 3 days) ----
+  var LIB = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+  function loadLib(){
+    if(window.htmlToImage) return Promise.resolve();
+    return new Promise(function(res, rej){ var sc = document.createElement('script'); sc.src = window.__ecLib || LIB; sc.onload = res; sc.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(sc); });
+  }
+  function isLight(){ return document.documentElement.getAttribute('data-theme') === 'light'; }
+  // builds the picture off-screen (always starting at 00:00 UTC of today); returns false when there is nothing to show
+  function shotBuild(days){
+    var n = now(), a = Math.floor(n / DAY) * DAY, b = a + days * DAY, PW = 1100, LWs = 190, pad = 18, host = $('ecShot');
+    if(!host){ host = document.createElement('div'); host.id = 'ecShot'; host.style.cssText = 'position:fixed;left:-12000px;top:0;'; document.body.appendChild(host); }
+    var rng = days === 1 ? dayLab(a, true) + ' ' + new Date(a).getUTCFullYear() : dayLab(a, true) + ' – ' + dayLab(b - DAY, true) + ' ' + new Date(b - DAY).getUTCFullYear();
+    host.innerHTML = '<div class="ec-sp" id="ecSp" style="width:' + PW + 'px;padding:' + pad + 'px;background:' + (isLight() ? '#f3f6fb' : '#0a1020') + '"><div class="ec-sh"><div class="ec-st">Event <span>Calendar</span> · State 646</div><div class="ec-ss">' + rng + ' · UTC (game time)</div></div>' +
+      '<div class="ec"><div class="ec-body" id="ecBody2"></div></div><div class="ec-sf">Red line = time of this picture · state646.com</div></div>';
+    render({el: $('ecBody2'), W: PW - 2 * pad - 2 - LWs, a: a, b: b, LW: LWs});
+    var ok = host.querySelectorAll('.ec-r:not(.ec-h)').length > 0;
+    render();   // the rows carry the "in view" flag of the last render: restore the real view
+    return ok;
+  }
+  async function shotBlob(){
+    var host = $('ecShot'); await loadLib();
+    var opt = Object.assign({pixelRatio: 2, backgroundColor: isLight() ? '#f3f6fb' : '#0a1020', cacheBust: false, style: {position: 'static', left: '0', top: '0'}}, window.__ecOpt || {});
+    try {
+      var pic = $('ecSp');
+      if(/iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent)){ try { await window.htmlToImage.toBlob(pic, opt); } catch(e) {} }
+      return await window.htmlToImage.toBlob(pic, opt);
+    } finally { host.innerHTML = ''; }
+  }
+  async function doShare(btn, days){
+    if(!D) return;
+    if(!shotBuild(days)){ var h = $('ecShot'); if(h) h.innerHTML = ''; toast('Nothing to show in this time span'); return; }
+    btn.disabled = true;
+    try {
+      if(navigator.clipboard && window.ClipboardItem){
+        try { await navigator.clipboard.write([new ClipboardItem({'image/png': shotBlob().then(function(b){ if(!b) throw new Error('empty'); return b; })})]); toast('Picture copied'); return; } catch(e2) {}
+        if(!$('ecSp')) shotBuild(days);
+      }
+      var bl = await shotBlob(); if(!bl) throw new Error('empty');
+      var a = document.createElement('a'); a.href = URL.createObjectURL(bl); a.download = 'state646-calendar-' + (days === 1 ? 'today' : '3days') + '.png';
+      document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      toast('Clipboard not available – picture downloaded');
+    } catch(e3) { toast('Could not create the picture'); var hh = $('ecShot'); if(hh) hh.innerHTML = ''; }
+    finally { btn.disabled = false; }
+  }
+  $('ecShT').addEventListener('click', function(e){ doShare(e.currentTarget, 1); });
+  $('ecSh3').addEventListener('click', function(e){ doShare(e.currentTarget, 3); });
 
   // ---- theme ----
   (function(){
