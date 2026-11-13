@@ -822,7 +822,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-13 · b95</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-13 · b96</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1599,7 +1599,7 @@
     PKB: TAG_GOLD, GYN: TAG_GOLD   // battle alliances
   };
   // banner symbols won by the battle alliances (moons = gold crescents, stars = blue stars); update after won events
-  const WIN_SYMBOLS = {PKB: {moon: 4, star: 2}, GYN: {star: 1}};
+  let WIN_SYMBOLS = {PKB: {moon: 4, star: 2}, GYN: {star: 1}};   // fallback; the symbols come from data/alliances.json (entered in access.html)
   const MOON_SVG = '<svg class="ws" viewBox="0 0 20 20" aria-hidden="true"><path d="M13.6 2.2a8 8 0 1 0 4.2 12.6 6.6 6.6 0 0 1-4.2-12.6z" fill="#f7c948" stroke="#a97400" stroke-width="1"/></svg>';
   const STAR_SVG = '<svg class="ws" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.8l2.4 5.1 5.6.7-4.1 3.9 1 5.5L10 14.3 5.1 17l1-5.5L2 7.6l5.6-.7z" fill="#5aa9ff" stroke="#2a5fa8" stroke-width="1" stroke-linejoin="round"/></svg>';
   function winsHtml(r){
@@ -1612,7 +1612,7 @@
   }
   const TAG_HOME_PLAIN = {bg:'#3a4357', fg:'#dfe6f2', bd:'#4d5873'};   // 646 alliances without own color: grey
   function tagStyle(hex){ const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || ''); if(!m) return null; const l = (0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16)) / 255; return {bg: hex, fg: l > 0.58 ? '#1b1b1b' : '#ffffff', bd: hex}; }
-  function applyFeedColors(f){ if(!f || !f.colors) return; Object.keys(f.colors).forEach(t => { const c = tagStyle(f.colors[t]); if(c) TAG_COLORS[t] = c; }); }   // colours chosen in access.html (data/alliances.json); the palette above is the fallback
+  function applyFeedColors(f){ if(f && f.colors && f.wins && typeof f.wins === 'object') WIN_SYMBOLS = f.wins; if(!f || !f.colors) return; Object.keys(f.colors).forEach(t => { const c = tagStyle(f.colors[t]); if(c) TAG_COLORS[t] = c; }); }   // colours chosen in access.html (data/alliances.json); the palette above is the fallback
   function tagChip(tag, st){
     const label = escapeHtml(tag || '—');
     const s = st || (tag ? allianceStateMap[tag] : '') || '';
