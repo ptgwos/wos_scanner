@@ -1185,7 +1185,7 @@
   <div class="fp-cards" id="fpCards"></div>
   </div>
   <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The small map (top right of the picture) marks the objects that have a block. “Share map pic” makes a large picture with every team placed at its building (Imperial Foundry only appears there). Each object has a frame colour (linked objects share it); the same colour marks it on the maps. The title field puts a centred headline on top of both pictures. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-13 · fp11</footer>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-13 · fp12</footer>
 </div>
 <script>
 (function(){
@@ -1249,7 +1249,7 @@
 
   // ---- account sync: a logged-in user also keeps the plan in Supabase (one plan per user), so the phone sees the PC plan ----
   // Not logged in = as before (this browser only). The newer plan wins (S.ts = time of the last change).
-  var SY = {on: false, state: 'local', timer: 0, retry: 0, lastPull: 0, busy: false}, MOCK = /[?&]mock=1/.test(location.search);
+  var SY = {on: false, state: 'local', timer: 0, retry: 0, lastPull: 0, busy: false, name: '', err: ''}, MOCK = /[?&]mock=1/.test(location.search);
   function cfg(){ return window.EP_CONFIG || {}; }
   function sCode(){ try { return localStorage.getItem('ep_code') || ''; } catch(e) { return ''; } }
   function sRpc(fn, args){
@@ -1268,7 +1268,7 @@
     });
   }
   function subTxt(){
-    var t = SY.state === 'ok' ? 'saved in your account and in this browser' : SY.state === 'err' ? 'saved in this browser – account sync failed, trying again' : 'saved in this browser (log in to keep it in your account too)';
+    var t = SY.state === 'ok' ? 'saved in your account' + (SY.name ? ' (' + SY.name + ')' : '') + ' and in this browser' : SY.state === 'err' ? 'saved in this browser – account sync failed' + (SY.err ? ' (' + SY.err + ')' : '') + ', trying again' : 'saved in this browser (log in to keep it in your account too)';
     var e = $('sub'); if(e && D) e.textContent = 'Assign teams to the 11 objects · ' + t;
   }
   function push(){
@@ -1280,7 +1280,7 @@
     if(!SY.on) return;
     var ts = S.ts;
     return sRpc('fp_put', {p_code: sCode(), p_data: S}).then(function(){ SY.state = S.ts === ts ? 'ok' : SY.state; subTxt(); })
-      .catch(function(){ SY.state = 'err'; subTxt(); SY.retry = setTimeout(doPush, 20000); });
+      .catch(function(e){ SY.state = 'err'; SY.err = String(e && e.message || e).slice(0, 80); subTxt(); SY.retry = setTimeout(doPush, 20000); });
   }
   function hasPlan(){ return OBJ.some(function(ob){ return visible(ob.k); }); }
   function pull(){
@@ -1288,19 +1288,19 @@
     SY.busy = true; SY.lastPull = Date.now();
     return sRpc('fp_get', {p_code: sCode()}).then(function(r){
       var st = r && r.data && typeof r.data === 'object' ? r.data : null, st_ts = st && typeof st.ts === 'number' ? st.ts : 0;
-      if(st && st_ts > (S.ts || 0)){
+      if(st && (st_ts > (S.ts || 0) || (!hasPlan() && st_ts >= (S.ts || 0) && st.o))){
         var s = JSON.stringify(st);
         try { localStorage.setItem(KEY, s); } catch(e) {}
         try { if(s.length < 3000) document.cookie = 'svs646_foundry=' + encodeURIComponent(s) + '; max-age=31536000; path=/; SameSite=Lax'; } catch(e) {}
         load(); $('fpTitle').value = S.title; $('fpMap').checked = S.map; $('fpAv').checked = S.av; render(); toast('Newer plan loaded from your account');
         SY.state = 'ok';
-      } else if((S.ts || 0) > st_ts && hasPlan()){ return doPush(); }
+      } else if(hasPlan() && (!st || (S.ts || 0) > st_ts)){ if(!S.ts){ save(); return; } return doPush(); }   // a plan from before the sync existed has no time stamp yet: stamp and send it
       else SY.state = 'ok';
-    }).catch(function(){ SY.state = 'err'; }).then(function(){ SY.busy = false; subTxt(); });
+    }).catch(function(e){ SY.state = 'err'; SY.err = String(e && e.message || e).slice(0, 80); }).then(function(){ SY.busy = false; subTxt(); });
   }
   function syncInit(){
     var c = sCode(); if(!c || !(MOCK || cfg().url)) return;
-    sRpc('sa_me', {p_code: c}).then(function(r){ if(r){ SY.on = true; return pull(); } }).catch(function(){});
+    sRpc('sa_me', {p_code: c}).then(function(r){ if(r){ SY.on = true; SY.name = r.name || ''; return pull(); } }).catch(function(){});
   }
   document.addEventListener('visibilitychange', function(){
     if(!SY.on) return;
@@ -1615,7 +1615,7 @@
       if(b){ b.classList.add('ok'); setTimeout(function(){ b.classList.remove('ok'); }, 1500); }
     }).catch(function(){ $('sub').textContent = 'No player data available (data/players.json not found).'; });
   }
-  $('refreshBtn').addEventListener('click', function(e){ loadData(e.currentTarget); });
+  $('refreshBtn').addEventListener('click', function(e){ loadData(e.currentTarget); pull(); });
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && Date.now() - lastLoad > 600000) loadData(); });
   window.addEventListener('pageshow', function(ev){ if(ev.persisted && Date.now() - lastLoad > 600000) loadData(); });
   window.epSettingsApply = function(k, v){ if(k === 'av') render(); };
