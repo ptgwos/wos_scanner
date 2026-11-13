@@ -1185,7 +1185,7 @@
   <div class="fp-cards" id="fpCards"></div>
   </div>
   <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The small map (top right of the picture) marks the objects that have a block. “Share map pic” makes a large picture with every team placed at its building (Imperial Foundry only appears there). Each object has a frame colour (linked objects share it); the same colour marks it on the maps. The title field puts a centred headline on top of both pictures. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-13 · fp12</footer>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-13 · fp13</footer>
 </div>
 <script>
 (function(){
@@ -1654,7 +1654,9 @@
     if(nav && window.MutationObserver){ new MutationObserver(tips).observe(nav, {childList: true, subtree: true}); tips(); }
   })();
 
-  load(); render(); loadData(); syncInit();
+  load(); render(); loadData();
+  // eventplan-config.js (window.EP_CONFIG) is loaded by a script tag AFTER this block, so the sync starts when the page is parsed
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncInit); else syncInit();
 })();
 
 </script>
