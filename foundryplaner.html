@@ -1079,6 +1079,7 @@
   .fp-ic{width:22px;height:22px;flex:none;display:inline-block;}
   .fp-ic.sub{display:inline-grid;place-items:center;font-size:12px;font-weight:700;font-style:italic;color:#9fb0cf;border:1px solid #6d7fa3;border-radius:50%;box-sizing:border-box;line-height:1;}
   .fp-row .fp-ic.sub{width:20px;height:20px;font-size:11px;}
+  .fp-sbv{width:28px;height:28px;flex:none;display:inline-grid;place-items:center;font-size:15px;font-weight:700;font-style:italic;color:#9fb0cf;border:1.5px solid #6d7fa3;border-radius:50%;box-sizing:border-box;line-height:1;}
   .fp-st{font-style:italic;font-weight:500;font-size:19px;letter-spacing:.3em;color:#c7d4ee;}
   .fp-subl{flex:1;font-style:italic;font-size:13px;letter-spacing:.25em;color:var(--text-dim);padding:6px 0;}
   .fp-ic.dot{position:relative;}
@@ -1184,12 +1185,12 @@
   <div class="fp-cards" id="fpCards"></div>
   </div>
   <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The small map (top right of the picture) marks the objects that have a block. “Share map pic” makes a large picture with every team placed at its building (Imperial Foundry only appears there). Each object has a frame colour (linked objects share it); the same colour marks it on the maps. The title field puts a centred headline on top of both pictures. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-11 · fp9</footer>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-13 · fp10</footer>
 </div>
 <script>
 (function(){
   'use strict';
-  var KEY = 'svs646_foundry', PKEY = 'svs646_prefs', MAXP = 6, MAXS = 6, COLS = 4, MAXN = 160, BW = 310, GAP = 22, PAD = 28;
+  var KEY = 'svs646_foundry', PKEY = 'svs646_prefs', MAXP = 12, MAXS = 6, COLS = 4, MAXN = 160, BW = 310, GAP = 22, PAD = 28;
   var OBJ = [
     {k:'ps1',     n:'Prototype Site I', x:86, y:197, c:'PS1'},
     {k:'ps2',     n:'Prototype Site II', x:153, y:42, c:'PS2'},
@@ -1266,8 +1267,8 @@
   function changed(k){ sync(k); save(); render(); }
 
   // ---- icons ----
-  function beret(c){ return '<svg class="fp-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="' + c + '" d="M2.6 14.2c0-4.7 4.3-8.2 9.6-8.2 4.6 0 8.3 2.5 9 6.3.3 1.7-.9 2.9-3.1 3.6-3.1.9-8.3.9-11.4 0-2.5-.7-4.1-1.8-4.1-1.7z"/><path fill="rgba(0,0,0,.25)" d="M3.4 14.6c1.6 1.6 5.2 2.4 8.8 2.4 3.4 0 6.6-.7 8.2-2-.9 2.6-4.9 4-8.6 4-3.8 0-7.6-1.2-8.4-4.4z"/><rect fill="' + c + '" x="10.9" y="2.6" width="2.4" height="4" rx="1.2"/></svg>'; }
-  var IC_LEAD = beret('#f2b705'), IC_CO = beret('#b7c3da');
+  function star(f, d){ return '<svg class="fp-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="' + f + '" stroke="' + d + '" stroke-width="1.2" stroke-linejoin="round" d="M12 2.4l2.9 6.1 6.7.8-4.9 4.6 1.3 6.6L12 17.2l-6 3.3 1.3-6.6-4.9-4.6 6.7-.8z"/></svg>'; }
+  var IC_LEAD = star('#f2b705', '#b07d00'), IC_CO = star('#d5dcea', '#7d8aa5');
   var ROLE = {lead: 'Rally lead', co: 'Co-lead'};
   var IC_LINK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
 
@@ -1287,8 +1288,8 @@
   }
   function subRow(k){
     var n = S.o[k].sub;
-    if(!n) return '<div class="fp-row fp-e"><span class="fp-ic sub">S</span><button type="button" class="fp-add" data-o="' + k + '" data-r="sub" data-d="1" title="Placeholder: whoever is online can step in">+ Substitute (placeholder)</button></div>';
-    return '<div class="fp-row"><span class="fp-ic sub">S</span><span class="fp-subl">Substitute</span><span class="fp-cnt"><button type="button" data-o="' + k + '" data-r="sub" data-d="-1" aria-label="One less" title="One less">−</button><b>' + n + '</b><button type="button" data-o="' + k + '" data-r="sub" data-d="1" aria-label="One more" title="One more"' + (n >= MAXS ? ' disabled' : '') + '>+</button></span></div>';
+    if(!n) return '<div class="fp-row fp-e"><span class="fp-ic dot"></span><span class="fp-ic sub">S</span><button type="button" class="fp-add" data-o="' + k + '" data-r="sub" data-d="1" title="Placeholder: whoever is online can step in">+ Substitute (placeholder)</button></div>';
+    return '<div class="fp-row"><span class="fp-ic dot"></span><span class="fp-ic sub">S</span><span class="fp-subl">Substitute</span><span class="fp-cnt"><button type="button" data-o="' + k + '" data-r="sub" data-d="-1" aria-label="One less" title="One less">−</button><b>' + n + '</b><button type="button" data-o="' + k + '" data-r="sub" data-d="1" aria-label="One more" title="One more"' + (n >= MAXS ? ' disabled' : '') + '>+</button></span></div>';
   }
   function cardHtml(ob){
     var s = S.o[ob.k], n = named(ob.k), g = grp(ob.k);
@@ -1335,7 +1336,7 @@
     if(s.lead) rows += lineHtml(s.lead, 'lead');
     if(s.co) rows += lineHtml(s.co, 'co');
     s.p.forEach(function(id){ rows += lineHtml(id, 'p'); });
-    for(var i = 0; i < s.sub; i++) rows += '<div class="fp-ln fp-sb"><span class="fp-ic sub">S</span><span class="fp-st">Substitute</span></div>';
+    for(var i = 0; i < s.sub; i++) rows += '<div class="fp-ln fp-sb"><span class="fp-ic dot"></span>' + (S.av ? '<span class="fp-sbv">S</span>' : '') + '<span class="fp-st">Substitute</span></div>';
     var nt = s.note.trim();
     if(nt) rows += '<div class="fp-nt">' + esc(nt) + '</div>';
     var c = colOf(ob.k);
