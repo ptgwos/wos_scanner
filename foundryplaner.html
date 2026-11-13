@@ -1185,7 +1185,7 @@
   <div class="fp-cards" id="fpCards"></div>
   </div>
   <div class="fp-hint">Tap + to pick a player (the same player may be placed at several objects, but only once per object), tap a name to change it, × removes it. The chain button links objects: they then always carry the same team. “Substitute” is a placeholder without a name (whoever is online steps in), you can add several. The picture uses a fixed layout (Prototype Sites, Repair Facilities, then Boiler Room, Transit Station, Mercenary Camp, Munition Warehouse; Imperial Foundry is not included); untick “Show in picture” to leave an object out. A note under a block appears in the picture when it is filled. The small map (top right of the picture) marks the objects that have a block. “Share map pic” makes a large picture with every team placed at its building (Imperial Foundry only appears there). Each object has a frame colour (linked objects share it); the same colour marks it on the maps. The title field puts a centred headline on top of both pictures. The plan is stored in this browser only.</div>
-  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-13 · fp13</footer>
+  <footer id="foot">State 646 · Foundry Planner — data: Whiteout Stats API · build 2026-11-13 · fp14</footer>
 </div>
 <script>
 (function(){
@@ -1256,8 +1256,8 @@
     if(MOCK){
       var m = function(){ try { return JSON.parse(localStorage.getItem('fp_mock_srv') || 'null'); } catch(e) { return null; } };
       if(fn === 'sa_me') return Promise.resolve(args.p_code ? {role: 'super', name: 'Mock'} : null);
-      if(fn === 'fp_get') return Promise.resolve(m());
-      if(fn === 'fp_put'){ if(/[?&]fail=1/.test(location.search)) return Promise.reject(new Error('offline')); localStorage.setItem('fp_mock_srv', JSON.stringify({data: args.p_data, updated_at: new Date().toISOString()})); return Promise.resolve(null); }
+      if(fn === 'fpu_get') return Promise.resolve(m());
+      if(fn === 'fpu_put'){ if(/[?&]fail=1/.test(location.search)) return Promise.reject(new Error('offline')); localStorage.setItem('fp_mock_srv', JSON.stringify({data: args.p_data, updated_at: new Date().toISOString()})); return Promise.resolve(null); }
     }
     var c = cfg(); if(!c.url) return Promise.reject(new Error('no config'));
     var H = {apikey: c.key, 'Content-Type': 'application/json'}; if(/^eyJ/.test(c.key || '')) H.Authorization = 'Bearer ' + c.key;
@@ -1279,14 +1279,14 @@
     clearTimeout(SY.timer); SY.timer = 0; clearTimeout(SY.retry);
     if(!SY.on) return;
     var ts = S.ts;
-    return sRpc('fp_put', {p_code: sCode(), p_data: S}).then(function(){ SY.state = S.ts === ts ? 'ok' : SY.state; subTxt(); })
+    return sRpc('fpu_put', {p_code: sCode(), p_data: S}).then(function(){ SY.state = S.ts === ts ? 'ok' : SY.state; subTxt(); })
       .catch(function(e){ SY.state = 'err'; SY.err = String(e && e.message || e).slice(0, 80); subTxt(); SY.retry = setTimeout(doPush, 20000); });
   }
   function hasPlan(){ return OBJ.some(function(ob){ return visible(ob.k); }); }
   function pull(){
     if(!SY.on || SY.timer || SY.busy) return Promise.resolve();
     SY.busy = true; SY.lastPull = Date.now();
-    return sRpc('fp_get', {p_code: sCode()}).then(function(r){
+    return sRpc('fpu_get', {p_code: sCode()}).then(function(r){
       var st = r && r.data && typeof r.data === 'object' ? r.data : null, st_ts = st && typeof st.ts === 'number' ? st.ts : 0;
       if(st && (st_ts > (S.ts || 0) || (!hasPlan() && st_ts >= (S.ts || 0) && st.o))){
         var s = JSON.stringify(st);
