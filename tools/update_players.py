@@ -101,7 +101,7 @@ def write_json_if_changed(path, obj, ignore=('updated',)):
     pathlib.Path(path).write_text(json.dumps(obj, ensure_ascii=False, separators=(',', ':'), sort_keys=True), encoding='utf-8')
     return True
 
-STYLE = {'colors': {}, 'battle': [], 'ok': False}
+STYLE = {'colors': {}, 'battle': [], 'wins': {}, 'ok': False}
 
 def load_selection():
     """Tags to fetch: the ticked alliances from Supabase; if that is not possible the last feed file, then the default list."""
@@ -109,12 +109,13 @@ def load_selection():
         try:
             h = {'apikey': SB_KEY, 'Accept': 'application/json', 'User-Agent': UA}
             if SB_KEY.startswith('eyJ'): h['Authorization'] = 'Bearer ' + SB_KEY
-            rows = json.loads(get(SB_URL + '/rest/v1/roster_alliances?select=tag,selected,color,battle&order=tag', h).decode('utf-8'))
+            rows = json.loads(get(SB_URL + '/rest/v1/roster_alliances?select=tag,selected,color,battle,moons,stars&order=tag', h).decode('utf-8'))
             tags = [r['tag'] for r in rows if r.get('tag') and r.get('selected')]
             if tags:
                 # tag colours and "battle alliance" flags set in access.html (used by the pages with a fallback of their own)
                 STYLE['colors'] = {r['tag']: r['color'] for r in rows if r.get('tag') and re.fullmatch(r'#[0-9a-fA-F]{6}', r.get('color') or '')}
                 STYLE['battle'] = sorted(r['tag'] for r in rows if r.get('tag') and r.get('battle'))
+                STYLE['wins'] = {r['tag']: {'moon': int(r.get('moons') or 0), 'star': int(r.get('stars') or 0)} for r in rows if r.get('tag') and (r.get('moons') or r.get('stars'))}
                 STYLE['ok'] = True
                 return tags, 'supabase'
             print('selection: Supabase list is empty - using the fallback', flush=True)
@@ -256,8 +257,8 @@ else:
     print('no changes')
 # feed file for roster.html and the planners: which alliances are active right now
 if not STYLE['ok']:   # Supabase not reachable: keep the colours of the last feed file
-    STYLE['colors'] = prev_feed.get('colors') or {}; STYLE['battle'] = prev_feed.get('battle') or []
-feed = {'kid': KID, 'source': SEL_SRC, 'colors': STYLE['colors'], 'battle': STYLE['battle'], 'tags': [t for t in TAGS if t not in missing], 'missing': missing, 'failed': failed,
+    STYLE['colors'] = prev_feed.get('colors') or {}; STYLE['battle'] = prev_feed.get('battle') or []; STYLE['wins'] = prev_feed.get('wins') or {}
+feed = {'kid': KID, 'source': SEL_SRC, 'colors': STYLE['colors'], 'battle': STYLE['battle'], 'wins': STYLE['wins'], 'tags': [t for t in TAGS if t not in missing], 'missing': missing, 'failed': failed,
         'alliances': {t: {'name': (alliances.get(t) or {}).get('name') or (known.get(t) or {}).get('name', ''),
                           'count': (alliances.get(t) or {}).get('count'), 'power': (alliances.get(t) or {}).get('power')} for t in TAGS if t in alliances}}
 if write_json_if_changed(FEED, dict(feed, updated=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC'))): print('data/alliances.json written', flush=True)
