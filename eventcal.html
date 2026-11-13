@@ -1109,6 +1109,25 @@
   .ec-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
   .ec-ig{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;}
   .ec-ig span:nth-child(odd){color:var(--text-faint);}
+  html body .ec-tb button[hidden]{display:none;}
+  .ec-b.cu{background:color-mix(in srgb,var(--cc) 62%,transparent);color:var(--text);font-weight:600;}
+  .ec-b.cu.sr,.ec-b.cu.sl{overflow:visible;}
+  .ec-b.cu.sr>span,.ec-b.cu.sl>span{position:absolute;top:0;line-height:20px;white-space:nowrap;color:var(--text);font-weight:600;text-shadow:0 0 4px var(--panel),0 0 4px var(--panel);}
+  .ec-b.cu.sr>span{left:100%;margin-left:6px;}
+  .ec-b.cu.sl>span{right:100%;margin-right:6px;}
+  .ec-ia{display:flex;gap:8px;margin-top:10px;}
+  html body .ec-ia button.ec-btn,html body .ec-fb button.ec-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:6px 14px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+  html body .ec-ia button.ec-btn:hover,html body .ec-fb button.ec-btn:hover{color:var(--text);border-color:var(--ec-acc);}
+  html body .ec-ia button.ec-del:hover{color:#ff6b6b;border-color:#ff6b6b;}
+  html body .ec-fb button.ec-btn.on{color:var(--ec-acc);border-color:var(--ec-acc);background:rgba(76,141,255,.12);}
+  .ec-f{padding:0 14px 16px;overflow:auto;}
+  .ec-f label{display:block;margin:12px 0 4px;font-size:11.5px;font-weight:600;color:var(--text-faint);letter-spacing:.04em;}
+  .ec-f input,.ec-f select{width:100%;box-sizing:border-box;min-width:0;background:var(--panel-2,transparent);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;}
+  .ec-f #ecfC2{margin-top:6px;}
+  .ec-f2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .ec-fp{margin-top:12px;font-size:12.5px;color:var(--text-dim);min-height:18px;}
+  .ec-fe{margin-top:8px;font-size:12.5px;color:#ff6b6b;font-weight:600;}
+  .ec-fb{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
   .ec-note{margin-top:14px;font-size:12px;color:var(--text-faint);}
   @media (max-width:640px){.ec-b{font-size:11px;}.ec-rl{font-size:11.5px;padding:0 6px;}.ec-tb button.ec-btn{padding:6px 9px;}}
 </style>
@@ -1127,14 +1146,15 @@
   <div class="ec-tb">
     <span class="ec-grp"><button type="button" class="ec-btn ec-pre" data-p="day">Day</button><button type="button" class="ec-btn ec-pre" data-p="3d">3 days</button><button type="button" class="ec-btn ec-pre on" data-p="week">Week</button><button type="button" class="ec-btn ec-pre" data-p="all">All</button></span>
     <span class="ec-grp"><button type="button" class="ec-btn ec-sq" id="ecOutB" aria-label="Zoom out" title="Zoom out">−</button><button type="button" class="ec-btn ec-sq" id="ecIn" aria-label="Zoom in" title="Zoom in">+</button><button type="button" class="ec-btn" id="ecToNow" title="Move the timeline to the current time">Now</button></span>
+    <span class="ec-grp"><button type="button" class="ec-btn" id="ecAdd" title="Add an own entry, e.g. a battle" hidden>+ Add entry</button></span>
     <span class="ec-out" id="ecOut" hidden></span>
     <span class="ec-grp" id="ecChips"></span>
   </div>
   <div class="ec-end" id="ecEnd"></div>
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
-  <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day. Bear Trap times are fixed (30 minutes, every 2nd day, 12 Nov was a Bear Trap day).</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-12 · ec6</footer>
+  <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day. Bear Trap times are fixed (30 minutes, every 2nd day, 12 Nov was a Bear Trap day). Own entries (solid bars) are added by admins with “Add entry”.</div>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-13 · ec7</footer>
 </div>
 <script>
 (function(){
@@ -1173,8 +1193,66 @@
   function hm(t){ var d = new Date(t); return p2(d.getUTCHours()) + ':' + p2(d.getUTCMinutes()); }
   function utcFull(t){ return dayLab(t, true) + ' ' + hm(t) + ' UTC'; }
   function localFull(t){ try { return new Date(t).toLocaleString([], {weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'}); } catch(e) { return ''; } }
-  function dur(ms){ if(ms < HOUR) return Math.max(1, Math.round(ms / 60000)) + ' min'; var h = Math.round(ms / HOUR); if(h < 48) return h + ' h'; var d = ms / DAY; return (Math.round(d * 10) / 10) + ' days'; }
+  function dur(ms){ if(ms < HOUR) return Math.max(1, Math.round(ms / 60000)) + ' min'; var h = Math.round(ms / HOUR * 2) / 2; if(h < 48) return h + ' h'; var d = ms / DAY; return (Math.round(d * 10) / 10) + ' days'; }
   function rel(ms){ var a = Math.abs(ms), m = Math.round(a / 60000); if(m < 60) return m + ' min'; var h = Math.floor(m / 60); if(h < 48) return h + ' h ' + (m % 60) + ' min'; return Math.floor(h / 24) + ' d ' + (h % 24) + ' h'; }
+
+
+  // ---- own entries (table ec_custom in Supabase; admins add them with the "Add entry" button) ----
+  var BASE = null, CU = {items: [], can: false, code: '', checked: false, name: ''}, MOCK = /[?&]mock=1/.test(location.search), delArm = '', delT = 0;
+  function cfg(){ return window.EP_CONFIG || {}; }
+  function hasDb(){ return MOCK || !!cfg().url; }
+  function mockRead(){ try { return JSON.parse(localStorage.getItem('ec_mock_cu') || '[]') || []; } catch(e) { return []; } }
+  function mockWrite(a){ try { localStorage.setItem('ec_mock_cu', JSON.stringify(a)); } catch(e) {} }
+  function rpc(fn, args){
+    if(MOCK){
+      if(fn === 'sa_me') return Promise.resolve({role: 'super', name: 'Mock admin'});
+      var a = mockRead();
+      if(fn === 'ec_save'){
+        if(!args.p_title || args.p_end <= args.p_begin) return Promise.reject(new Error('The end must be after the start.'));
+        var row = {id: args.p_id || ('m' + Date.now()), title: args.p_title, category: args.p_category, begin_ts: args.p_begin, end_ts: args.p_end, note: args.p_note || null, created_by: 'Mock admin'};
+        if(args.p_id){ a = a.map(function(x){ return x.id === args.p_id ? row : x; }); } else a.push(row);
+        mockWrite(a); return Promise.resolve(row.id);
+      }
+      if(fn === 'ec_delete'){ mockWrite(a.filter(function(x){ return x.id !== args.p_id; })); return Promise.resolve(null); }
+      return Promise.reject(new Error('unknown'));
+    }
+    var c = cfg(), H = {apikey: c.key, 'Content-Type': 'application/json'}; if(/^eyJ/.test(c.key || '')) H.Authorization = 'Bearer ' + c.key;
+    var ac = window.AbortController ? new AbortController() : null, tm = setTimeout(function(){ if(ac) ac.abort(); }, 15000);
+    return fetch(c.url.replace(/\/+$/, '') + '/rest/v1/rpc/' + fn, {method: 'POST', headers: H, body: JSON.stringify(args), cache: 'no-store', signal: ac ? ac.signal : undefined}).then(function(r){
+      clearTimeout(tm);
+      return r.text().then(function(t){ var j = null; try { j = t ? JSON.parse(t) : null; } catch(e) {} if(!r.ok) throw new Error((j && (j.message || j.hint)) || ('HTTP ' + r.status)); return j; });
+    });
+  }
+  function loadCu(){
+    if(!hasDb()) return Promise.resolve();
+    var p;
+    if(MOCK) p = Promise.resolve(mockRead());
+    else { var c = cfg(), H = {apikey: c.key}; if(/^eyJ/.test(c.key || '')) H.Authorization = 'Bearer ' + c.key;
+      p = fetch(c.url.replace(/\/+$/, '') + '/rest/v1/ec_custom?select=*&order=begin_ts', {headers: H, cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); }
+    return p.then(function(a){ CU.items = Array.isArray(a) ? a : []; }).catch(function(){ /* table missing or offline: keep what we have */ }).then(checkRole);
+  }
+  function checkRole(){
+    if(CU.checked || !hasDb()) return;
+    CU.checked = true;
+    try { CU.code = localStorage.getItem('ep_code') || ''; } catch(e) { CU.code = ''; }
+    if(!CU.code && !MOCK) return;
+    return rpc('sa_me', {p_code: CU.code}).then(function(r){ CU.can = !!(r && (r.role === 'super' || r.role === 'admin')); CU.name = (r && r.name) || ''; }).catch(function(){ CU.can = false; })
+      .then(function(){ $('ecAdd').hidden = !CU.can; });
+  }
+  function cuEvent(r){ return {name: r.title, category: r.category, begin_ts: +r.begin_ts, end_ts: +r.end_ts, note: r.note || '', cu: r.id, by: r.created_by || '', lab: r.title + (r.note ? ' · ' + r.note : '')}; }
+  function evKey(e){ return e.cu || (e.category + '|' + e.name + '|' + e.begin_ts); }
+  function compose(){
+    var keep = sel != null && D && D.events[sel] ? evKey(D.events[sel]) : null;
+    var ev = BASE.events.concat(CU.items.map(cuEvent));
+    ev.sort(function(a, b){ return a.begin_ts - b.begin_ts; });
+    var bs = ev.map(function(e){ return e.begin_ts * 1000; }), es = ev.map(function(e){ return e.end_ts * 1000; });
+    var d = {}; Object.keys(BASE).forEach(function(k){ d[k] = BASE[k]; });
+    d.min = Math.min.apply(null, bs); d.max = Math.max.apply(null, es); d.real = BASE.events.length;
+    d.events = ev.concat(bearEvents(Math.min(d.min, now() - 30 * DAY), Math.max(d.max, now() + 60 * DAY)));
+    D = d; sel = null;
+    D.events.forEach(function(e, i){ e._i = i; if(keep && evKey(e) === keep) sel = i; });
+    build();
+  }
 
   function build(){
     var by = {}, cats = [];
@@ -1255,9 +1333,9 @@
       r.items.forEach(function(e){
         var s = e.begin_ts * 1000, en = e.end_ts * 1000;
         if(en < a || s > b) return;
-        var x0 = Math.max(0, X(s)), x1 = Math.min(W, X(en)), w = Math.max(e.fixed ? 7 : 3, x1 - x0), cls = 'ec-b' + (en < n ? ' past' : (s <= n ? ' run' : '')) + (en >= n && en <= dEnd && !e.fixed ? ' endt' : '') + (e.fixed ? ' fx' : '') + (sel === e._i ? ' sel' : '');
+        var x0 = Math.max(0, X(s)), x1 = Math.min(W, X(en)), w = Math.max(e.fixed || e.cu ? 7 : 3, x1 - x0), cls = 'ec-b' + (en < n ? ' past' : (s <= n ? ' run' : '')) + (en >= n && en <= dEnd && s <= n && !e.fixed ? ' endt' : '') + (e.fixed ? ' fx' : '') + (e.cu ? ' cu' + (x1 - x0 < 60 ? (x0 > W * .62 ? ' sl' : ' sr') : '') : '') + (sel === e._i ? ' sel' : '');
         var off = Math.max(0, -X(s)) , lab = off > 0 && x1 - x0 > 40 ? ' style="padding-left:' + 0 + 'px"' : '';
-        bars += '<div class="' + cls + '" data-i="' + e._i + '" style="left:' + x0.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;--cc:' + colOf(r.cat) + '"><span>' + (w < 34 ? '' : esc(e.lab || e.name)) + '</span>' + (en >= n && en <= dEnd && !e.fixed && w > 170 ? '<em>ends in ' + dur(en - n) + '</em>' : '') + '</div>';
+        bars += '<div class="' + cls + '" data-i="' + e._i + '" style="left:' + x0.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;--cc:' + colOf(r.cat) + '"><span>' + (w < 34 && !e.cu ? '' : esc(e.lab || e.name)) + '</span>' + (en >= n && en <= dEnd && s <= n && !e.fixed && w > 170 ? '<em>ends in ' + dur(en - n) + '</em>' : '') + '</div>';
       });
       out += '<div class="ec-r"><div class="ec-rl" title="' + esc(r.name) + '">' + esc(r.name) + '</div><div class="ec-rp">' + bars + '</div></div>';
     });
@@ -1292,7 +1370,8 @@
     var e = D.events[sel], s = e.begin_ts * 1000, en = e.end_ts * 1000, n = now(), st;
     if(en < n) st = 'ended ' + rel(n - en) + ' ago'; else if(s > n) st = 'starts in ' + rel(s - n); else st = 'running, ends in ' + rel(en - n);
     el.innerHTML = '<div class="ec-ih"><span class="ec-dot" style="background:' + colOf(e.category) + '"></span><b>' + esc(e.name) + '</b> <small>' + esc(e.category) + '</small></div>' +
-      '<div class="ec-ig"><span>Start</span><span>' + utcFull(s) + '</span><span>End</span><span>' + utcFull(en) + '</span><span>Length</span><span>' + dur(en - s) + '</span><span>Status</span><span>' + st + '</span><span>Your time</span><span>' + localFull(s) + ' – ' + localFull(en) + '</span>' + (e.note ? '<span>Note</span><span style="color:#ff8a8a">' + esc(e.note) + '</span>' : '') + '</div>';
+      '<div class="ec-ig"><span>Start</span><span>' + utcFull(s) + '</span><span>End</span><span>' + utcFull(en) + '</span><span>Length</span><span>' + dur(en - s) + '</span><span>Status</span><span>' + st + '</span><span>Your time</span><span>' + localFull(s) + ' – ' + localFull(en) + '</span>' + (e.note ? '<span>Note</span><span' + (e.cu ? '' : ' style="color:#ff8a8a"') + '>' + esc(e.note) + '</span>' : '') + (e.cu && e.by ? '<span>Added by</span><span>' + esc(e.by) + '</span>' : '') + '</div>' +
+      (e.cu && CU.can ? '<div class="ec-ia"><button type="button" class="ec-btn" id="ecEdit">Edit</button><button type="button" class="ec-btn ec-del" id="ecDel">' + (delArm === e.cu ? 'Really delete?' : 'Delete') + '</button></div>' : '');
   }
 
   function load(btn){
@@ -1308,13 +1387,11 @@
         return j;
       });
     }).then(function(j){
-      D = j; lastLoad = Date.now();
-      var bs = j.events.map(function(e){ return e.begin_ts * 1000; }), es = j.events.map(function(e){ return e.end_ts * 1000; });
-      D.min = Math.min.apply(null, bs); D.max = Math.max.apply(null, es);
-      var realN = j.events.length;
-      j.events = j.events.concat(bearEvents(Math.min(D.min, now() - 30 * DAY), Math.max(D.max, now() + 60 * DAY)));
-      build();
-      $('sub').textContent = realN + ' events · calendar of state ' + j.kid + ' · data from ' + (j.api_date || '') + ' (Whiteout Stats API, updated daily)';
+      BASE = j; lastLoad = Date.now();
+      return loadCu();
+    }).then(function(){
+      compose();
+      $('sub').textContent = D.real + ' events · calendar of state ' + BASE.kid + ' · data from ' + (BASE.api_date || '') + ' (Whiteout Stats API, updated daily)' + (CU.items.length ? ' · ' + CU.items.length + ' own entr' + (CU.items.length === 1 ? 'y' : 'ies') : '');
       if(!view.b) preset('week'); else render();
       info();
     }).catch(function(e){ $('sub').textContent = 'Could not load the event data (' + e.message + ').'; }).then(function(){ if(btn) btn.classList.remove('spin'); });
@@ -1384,6 +1461,89 @@
   window.epSettingsApply = function(){};
   window.__ec = {view: function(){ return view; }, set: function(a, b){ view.a = a; view.b = b; render(); }};
 
+  // ---- add / edit dialog ----
+  var LENS = [[15, '15 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1.5 hours'], [120, '2 hours'], [180, '3 hours'], [360, '6 hours'], [720, '12 hours'], [1440, '1 day'], [2880, '2 days'], [10080, '7 days']];
+  function toast(m){ var t = $('ecToast'); if(!t){ t = document.createElement('div'); t.id = 'ecToast'; t.className = 'sp-toast'; document.body.appendChild(t); } t.textContent = m; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function(){ t.classList.remove('show'); }, 3200); }
+  function cats(){ var o = {}; (BASE ? BASE.events : []).forEach(function(e){ if(e.category) o[e.category] = 1; }); CU.items.forEach(function(r){ o[r.category] = 1; }); ORDER.forEach(function(c){ if(c !== 'Bear Trap') o[c] = 1; }); delete o['Bear Trap'];
+    return Object.keys(o).sort(function(x, y){ var i = ORDER.indexOf(x), j = ORDER.indexOf(y); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || (x < y ? -1 : 1); }); }
+  function closeDlg(){ var o = $('ecDlg'); if(o) o.classList.remove('open'); }
+  function dlgTimes(){
+    var d = $('ecfD').value, t = $('ecfT').value, m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d), h = /^(\d{1,2}):(\d{2})$/.exec(t);
+    if(!m || !h) return null;
+    var b = Date.UTC(+m[1], +m[2] - 1, +m[3], +h[1], +h[2]), len = $('ecfL').value === 'x' ? Math.round(+$('ecfM').value) : +$('ecfL').value;
+    if(!(len > 0) || len > 400 * 1440) return {b: b, e: null};
+    return {b: b, e: b + len * 60000};
+  }
+  function dlgPrev(){
+    var r = dlgTimes(), el = $('ecfP'); $('ecfMW').hidden = $('ecfL').value !== 'x';
+    if(!r){ el.textContent = ''; return; }
+    el.textContent = r.e ? utcFull(r.b) + ' – ' + (Math.floor(r.e / DAY) === Math.floor(r.b / DAY) ? hm(r.e) : utcFull(r.e)) + ' UTC · your time: ' + localFull(r.b) + ' – ' + localFull(r.e) : 'Please enter a valid length.';
+  }
+  function openDlg(ev){
+    var o = $('ecDlg');
+    if(!o){
+      o = document.createElement('div'); o.className = 'modal-overlay'; o.id = 'ecDlg';
+      o.innerHTML = '<div class="modal-panel" style="max-width:460px"><div class="modal-header"><h2 id="ecfH">Add entry</h2><button type="button" class="modal-close" id="ecfX" aria-label="Close">×</button></div>' +
+        '<p class="modal-sub">Your own entry, for example a battle with an opponent. All times in UTC (game time).</p>' +
+        '<div class="ec-f"><label for="ecfT0">Title</label><input type="text" id="ecfT0" maxlength="60" placeholder="e.g. Tundra Hellfire Battle" list="ecfTL" autocomplete="off"><datalist id="ecfTL"></datalist>' +
+        '<label for="ecfC">Category</label><select id="ecfC"></select><input type="text" id="ecfC2" maxlength="40" placeholder="New category" hidden>' +
+        '<div class="ec-f2"><div><label for="ecfD">Start date (UTC)</label><input type="date" id="ecfD"></div><div><label for="ecfT">Start time (UTC)</label><input type="time" id="ecfT" step="60"></div></div>' +
+        '<label for="ecfL">Length</label><select id="ecfL"></select><div id="ecfMW" hidden><label for="ecfM">Minutes</label><input type="number" id="ecfM" min="1" max="576000" value="60"></div>' +
+        '<label for="ecfN">Note (optional)</label><input type="text" id="ecfN" maxlength="120" placeholder="e.g. OMG vs. 653" autocomplete="off">' +
+        '<div class="ec-fp" id="ecfP"></div><div class="ec-fe" id="ecfE" hidden></div>' +
+        '<div class="ec-fb"><button type="button" class="ec-btn" id="ecfCancel">Cancel</button><button type="button" class="ec-btn on" id="ecfSave">Save</button></div></div></div>';
+      document.body.appendChild(o);
+      o.addEventListener('click', function(e){ if(e.target === o) closeDlg(); });
+      $('ecfX').addEventListener('click', closeDlg); $('ecfCancel').addEventListener('click', closeDlg);
+      ['ecfD', 'ecfT', 'ecfL', 'ecfM'].forEach(function(id){ $(id).addEventListener('input', dlgPrev); $(id).addEventListener('change', dlgPrev); });
+      $('ecfC').addEventListener('change', function(){ $('ecfC2').hidden = this.value !== '__new'; });
+      $('ecfSave').addEventListener('click', saveDlg);
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDlg(); });
+    }
+    var e = ev || null, st = e ? e.begin_ts * 1000 : (Math.floor(now() / HOUR) + 1) * HOUR, len = e ? Math.round((e.end_ts - e.begin_ts) / 60) : 60;
+    $('ecfH').textContent = e ? 'Edit entry' : 'Add entry'; o._id = e ? e.cu : null;
+    $('ecfT0').value = e ? e.name : ''; $('ecfN').value = e ? e.note || '' : '';
+    $('ecfTL').innerHTML = CU.items.map(function(r){ return r.title; }).filter(function(t, i, a){ return a.indexOf(t) === i; }).map(function(t){ return '<option value="' + esc(t) + '">'; }).join('');
+    var cl = cats(), cur = e ? e.category : (cl.indexOf('Tundra Arms League') >= 0 ? 'Tundra Arms League' : cl[0]);
+    if(cl.indexOf(cur) < 0) cl.push(cur);
+    $('ecfC').innerHTML = cl.map(function(c){ return '<option' + (c === cur ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '<option value="__new">New category …</option>';
+    $('ecfC2').hidden = true; $('ecfC2').value = '';
+    var d = new Date(st); $('ecfD').value = d.getUTCFullYear() + '-' + p2(d.getUTCMonth() + 1) + '-' + p2(d.getUTCDate()); $('ecfT').value = p2(d.getUTCHours()) + ':' + p2(d.getUTCMinutes());
+    var known = LENS.some(function(x){ return x[0] === len; });
+    $('ecfL').innerHTML = LENS.map(function(x){ return '<option value="' + x[0] + '"' + (known && x[0] === len ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '<option value="x"' + (known ? '' : ' selected') + '>Other …</option>';
+    $('ecfM').value = len; $('ecfE').hidden = true; $('ecfSave').disabled = false;
+    dlgPrev(); o.classList.add('open'); setTimeout(function(){ try { $('ecfT0').focus(); } catch(x) {} }, 30);
+  }
+  function saveDlg(){
+    var o = $('ecDlg'), er = $('ecfE'), r = dlgTimes(), cat = $('ecfC').value === '__new' ? $('ecfC2').value.trim() : $('ecfC').value, title = $('ecfT0').value.trim();
+    function bad(m){ er.textContent = m; er.hidden = false; }
+    if(!title) return bad('Please enter a title.');
+    if(!cat) return bad('Please enter a category.');
+    if(!r) return bad('Please enter the start date and time.');
+    if(!r.e) return bad('Please enter a valid length.');
+    er.hidden = true; $('ecfSave').disabled = true;
+    rpc('ec_save', {p_code: CU.code, p_id: o._id || null, p_title: title, p_category: cat, p_begin: Math.round(r.b / 1000), p_end: Math.round(r.e / 1000), p_note: $('ecfN').value.trim() || null}).then(function(id){
+      closeDlg(); toast(o._id ? 'Entry changed.' : 'Entry added.');
+      return loadCu().then(function(){
+        compose(); var i = -1; D.events.forEach(function(x){ if(x.cu === (o._id || id)) i = x._i; });
+        sel = i >= 0 ? i : null;
+        if(i >= 0){ var a = D.events[i].begin_ts * 1000, e2 = D.events[i].end_ts * 1000; if(e2 < view.a || a > view.b){ var sp = span(); view.a = a - sp * .25; view.b = view.a + sp; clampView(); markPre(null); } }
+        render(); info();
+      });
+    }).catch(function(e){ bad(e.message || 'Could not save.'); $('ecfSave').disabled = false; });
+  }
+  $('ecAdd').addEventListener('click', function(){ openDlg(null); });
+  $('ecInfo').addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('button') : null; if(!b || sel == null) return;
+    var ev = D.events[sel]; if(!ev || !ev.cu) return;
+    if(b.id === 'ecEdit') openDlg(ev);
+    if(b.id === 'ecDel'){
+      if(delArm !== ev.cu){ delArm = ev.cu; clearTimeout(delT); delT = setTimeout(function(){ delArm = ''; info(); }, 4000); info(); return; }
+      clearTimeout(delT); delArm = ''; b.disabled = true;
+      rpc('ec_delete', {p_code: CU.code, p_id: ev.cu}).then(function(){ toast('Entry deleted.'); sel = null; return loadCu(); }).then(function(){ compose(); render(); info(); }).catch(function(x){ toast(x.message || 'Could not delete.'); info(); });
+    }
+  });
+
   // ---- theme ----
   (function(){
     var root = document.documentElement;
@@ -1402,7 +1562,7 @@
     });
   })();
   LW = window.innerWidth < 640 ? 112 : 190;
-  load();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ load(); }); else load();
 })();
 
 </script>
