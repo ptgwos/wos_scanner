@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-12",
- "fetched_at": "2026-11-12T07:37:06Z",
- "count": 25,
+ "api_date": "2026-11-13",
+ "fetched_at": "2026-11-13T06:56:38Z",
+ "count": 27,
  "events": [
   {
    "name": "Tundra Hellfire",
@@ -122,24 +122,6 @@
    "end_ts": 1794614400
   },
   {
-   "name": "Snowbusters",
-   "category": "Snowbusters",
-   "when": "10 Nov 00:00 – 12 Nov 24:00",
-   "begin": "2026-11-10T00:00:00Z",
-   "end": "2026-11-13T00:00:00Z",
-   "begin_ts": 1794268800,
-   "end_ts": 1794528000
-  },
-  {
-   "name": "Vision of Dawn",
-   "category": "Events",
-   "when": "10 Nov 00:00 – 12 Nov 24:00",
-   "begin": "2026-11-10T00:00:00Z",
-   "end": "2026-11-13T00:00:00Z",
-   "begin_ts": 1794268800,
-   "end_ts": 1794528000
-  },
-  {
    "name": "Wander Theater",
    "category": "Wander Theater",
    "when": "10 Nov 00:00 – 15 Nov 24:00",
@@ -156,15 +138,6 @@
    "end": "2026-11-14T00:00:00Z",
    "begin_ts": 1794355200,
    "end_ts": 1794614400
-  },
-  {
-   "name": "Officer Project",
-   "category": "Events",
-   "when": "11 Nov 00:00 – 12 Nov 24:00",
-   "begin": "2026-11-11T00:00:00Z",
-   "end": "2026-11-13T00:00:00Z",
-   "begin_ts": 1794355200,
-   "end_ts": 1794528000
   },
   {
    "name": "Armament Competition",
@@ -228,6 +201,51 @@
    "end": "2026-11-23T00:00:00Z",
    "begin_ts": 1794787200,
    "end_ts": 1795392000
+  },
+  {
+   "name": "Crazy Joe",
+   "category": "Events",
+   "when": "17 Nov 00:00 – 19 Nov 24:00",
+   "begin": "2026-11-17T00:00:00Z",
+   "end": "2026-11-20T00:00:00Z",
+   "begin_ts": 1794873600,
+   "end_ts": 1795132800
+  },
+  {
+   "name": "Defeat nearby beasts",
+   "category": "Events",
+   "when": "17 Nov 00:00 – 18 Nov 24:00",
+   "begin": "2026-11-17T00:00:00Z",
+   "end": "2026-11-19T00:00:00Z",
+   "begin_ts": 1794873600,
+   "end_ts": 1795046400
+  },
+  {
+   "name": "Fortress Battles",
+   "category": "Events",
+   "when": "17 Nov 00:00 – 20 Nov 24:00",
+   "begin": "2026-11-17T00:00:00Z",
+   "end": "2026-11-21T00:00:00Z",
+   "begin_ts": 1794873600,
+   "end_ts": 1795219200
+  },
+  {
+   "name": "Frostfire Mine",
+   "category": "Events",
+   "when": "17 Nov 2026 00:00 – 24:00",
+   "begin": "2026-11-17T00:00:00Z",
+   "end": "2026-11-18T00:00:00Z",
+   "begin_ts": 1794873600,
+   "end_ts": 1794960000
+  },
+  {
+   "name": "Lucky Wheel",
+   "category": "Events",
+   "when": "17 Nov 00:00 – 19 Nov 24:00",
+   "begin": "2026-11-17T00:00:00Z",
+   "end": "2026-11-20T00:00:00Z",
+   "begin_ts": 1794873600,
+   "end_ts": 1795132800
   }
  ]
 }

@@ -1,25 +1,25 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-12",
- "count": 25,
+ "date": "2026-11-13",
+ "count": 27,
  "categories": [
   {
    "name": "Events",
    "events": [
     {
-     "name": "Vision of Dawn",
+     "name": "Fortress Battles",
      "category": "Events",
-     "when": "10 Nov 00:00 – 12 Nov 24:00",
+     "when": "10 Nov 00:00 – 13 Nov 24:00",
      "begin_ts": 1794268800,
-     "end_ts": 1794528000
+     "end_ts": 1794614400
     },
     {
-     "name": "Officer Project",
+     "name": "Hero's Mission",
      "category": "Events",
-     "when": "11 Nov 00:00 – 12 Nov 24:00",
+     "when": "11 Nov 00:00 – 13 Nov 24:00",
      "begin_ts": 1794355200,
-     "end_ts": 1794528000
+     "end_ts": 1794614400
     },
     {
      "name": "State Transfer",
@@ -64,20 +64,6 @@
      "end_ts": 1794787200
     },
     {
-     "name": "Fortress Battles",
-     "category": "Events",
-     "when": "10 Nov 00:00 – 13 Nov 24:00",
-     "begin_ts": 1794268800,
-     "end_ts": 1794614400
-    },
-    {
-     "name": "Hero's Mission",
-     "category": "Events",
-     "when": "11 Nov 00:00 – 13 Nov 24:00",
-     "begin_ts": 1794355200,
-     "end_ts": 1794614400
-    },
-    {
      "name": "Armament Competition",
      "category": "Events",
      "when": "13 Nov 00:00 – 14 Nov 24:00",
@@ -111,6 +97,41 @@
      "when": "16 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794787200,
      "end_ts": 1795392000
+    },
+    {
+     "name": "Crazy Joe",
+     "category": "Events",
+     "when": "17 Nov 00:00 – 19 Nov 24:00",
+     "begin_ts": 1794873600,
+     "end_ts": 1795132800
+    },
+    {
+     "name": "Defeat nearby beasts",
+     "category": "Events",
+     "when": "17 Nov 00:00 – 18 Nov 24:00",
+     "begin_ts": 1794873600,
+     "end_ts": 1795046400
+    },
+    {
+     "name": "Fortress Battles",
+     "category": "Events",
+     "when": "17 Nov 00:00 – 20 Nov 24:00",
+     "begin_ts": 1794873600,
+     "end_ts": 1795219200
+    },
+    {
+     "name": "Frostfire Mine",
+     "category": "Events",
+     "when": "17 Nov 2026 00:00 – 24:00",
+     "begin_ts": 1794873600,
+     "end_ts": 1794960000
+    },
+    {
+     "name": "Lucky Wheel",
+     "category": "Events",
+     "when": "17 Nov 00:00 – 19 Nov 24:00",
+     "begin_ts": 1794873600,
+     "end_ts": 1795132800
     }
    ]
   },
@@ -170,18 +191,6 @@
      "when": "8 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794096000,
      "end_ts": 1795392000
-    }
-   ]
-  },
-  {
-   "name": "Snowbusters",
-   "events": [
-    {
-     "name": "Snowbusters",
-     "category": "Snowbusters",
-     "when": "10 Nov 00:00 – 12 Nov 24:00",
-     "begin_ts": 1794268800,
-     "end_ts": 1794528000
     }
    ]
   },
