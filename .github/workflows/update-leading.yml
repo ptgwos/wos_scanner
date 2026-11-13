@@ -1,8 +1,12 @@
 name: Update Leading State
 
-# Manual only: Actions -> "Update Leading State" -> Run workflow.
+# Daily: the VPS cron (wos-trigger-leading.sh, 03:30 UTC) starts this workflow via workflow_dispatch.
+# The GitHub schedule below (05:00 UTC) is only a safety net: if the API delivered the new boards late,
+# or the VPS trigger failed, this run picks them up. Manual start: Actions -> "Update Leading State" -> Run workflow.
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * *'
 
 permissions:
   contents: write
