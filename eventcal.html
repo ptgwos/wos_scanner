@@ -1059,7 +1059,6 @@
   .ec-grp{display:inline-flex;flex-wrap:wrap;gap:4px;align-items:center;max-width:100%;}
   #ecChips{display:flex;}
   html body .ec-tb button.ec-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;letter-spacing:.04em;cursor:pointer;min-height:0;height:auto;text-transform:none;box-shadow:none;}
-  html body .ec-tb button.ec-btn:hover{color:var(--text);border-color:var(--ec-acc);}
   html body .ec-tb button.ec-btn.on{color:var(--ec-acc);border-color:var(--ec-acc);background:rgba(76,141,255,.12);}
   html body .ec-tb button.ec-sq{width:34px;padding:6px 0;font-size:16px;line-height:1;}
   html body .ec-tb button.ec-chip{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--text-faint);border-radius:999px;padding:4px 11px;font:inherit;font-size:12px;cursor:pointer;min-height:0;height:auto;text-transform:none;letter-spacing:0;box-shadow:none;}
@@ -1117,8 +1116,6 @@
   .ec-b.cu.sl>span{right:100%;margin-right:6px;}
   .ec-ia{display:flex;gap:8px;margin-top:10px;}
   html body .ec-ia button.ec-btn,html body .ec-fb button.ec-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:6px 14px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;}
-  html body .ec-ia button.ec-btn:hover,html body .ec-fb button.ec-btn:hover{color:var(--text);border-color:var(--ec-acc);}
-  html body .ec-ia button.ec-del:hover{color:#ff6b6b;border-color:#ff6b6b;}
   html body .ec-fb button.ec-btn.on{color:var(--ec-acc);border-color:var(--ec-acc);background:rgba(76,141,255,.12);}
   .ec-f{padding:0 14px 16px;overflow:auto;}
   .ec-f label{display:block;margin:12px 0 4px;font-size:11.5px;font-weight:600;color:var(--text-faint);letter-spacing:.04em;}
@@ -1135,6 +1132,12 @@
   .ec-st span{color:#4ecbf2;}
   .ec-ss{font-size:14px;color:var(--text-dim);font-weight:600;}
   .ec-sf{margin:10px 2px 0;font-size:11.5px;color:var(--text-faint);}
+  @media (hover:hover) and (pointer:fine){
+    html body .ec-tb button.ec-btn:hover{color:var(--text);border-color:var(--ec-acc);}
+    html body .ec-ia button.ec-btn:hover,html body .ec-fb button.ec-btn:hover{color:var(--text);border-color:var(--ec-acc);}
+    html body .ec-ia button.ec-del:hover{color:#ff6b6b;border-color:#ff6b6b;}
+  }
+  .ec-tb button,.ec-ia button,.ec-fb button,.ec-pre{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
   .ec-note{margin-top:14px;font-size:12px;color:var(--text-faint);}
   @media (max-width:640px){.ec-b{font-size:11px;}.ec-rl{font-size:11.5px;padding:0 6px;}.ec-tb button.ec-btn{padding:6px 9px;}}
 </style>
@@ -1162,7 +1165,7 @@
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
   <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day. Bear Trap times are fixed (30 minutes, every 2nd day, 12 Nov was a Bear Trap day). Own entries (solid bars) are added by admins with “Add entry”.</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-13 · ec8</footer>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-13 · ec9</footer>
 </div>
 <script>
 (function(){
@@ -1472,7 +1475,9 @@
   window.addEventListener('resize', function(){ LW = window.innerWidth < 640 ? 112 : 190; render(); });
   $('refreshBtn').addEventListener('click', function(e){ load(e.currentTarget); });
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && Date.now() - lastLoad > 600000) load(); });
-  setInterval(function(){ nowLine(); var dk = Math.floor(now() / DAY), mk = Math.floor(now() / 60000); if(window.__ecd !== dk){ window.__ecd = dk; if(D) render(); } else if(window.__ecm2 !== mk && D){ window.__ecm2 = mk; render(); } if(sel != null && Math.floor(now() / 60000) !== (window.__ecm || 0)){ window.__ecm = Math.floor(now() / 60000); info(); } }, 1000);
+  // no DOM changes right around a tap: iOS Safari may swallow a click when the page changes under the finger
+  var tapAt = 0; ['pointerdown', 'pointerup', 'touchstart', 'touchend'].forEach(function(t){ document.addEventListener(t, function(){ tapAt = Date.now(); }, true); });
+  setInterval(function(){ if(Date.now() - tapAt < 700) return; nowLine(); var dk = Math.floor(now() / DAY), mk = Math.floor(now() / 60000); if(window.__ecd !== dk){ window.__ecd = dk; if(D) render(); } else if(window.__ecm2 !== mk && D){ window.__ecm2 = mk; render(); } if(sel != null && Math.floor(now() / 60000) !== (window.__ecm || 0)){ window.__ecm = Math.floor(now() / 60000); info(); } }, 1000);
   window.epSettingsApply = function(){};
   window.__ec = {view: function(){ return view; }, set: function(a, b){ view.a = a; view.b = b; render(); }};
 
