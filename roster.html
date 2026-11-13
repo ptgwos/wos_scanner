@@ -910,13 +910,13 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-12 · r24</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-13 · r25</footer>
 </div>
 <script>
 (function(){
   // fallback list; the active alliances come from data/alliances.json (chosen in access.html), see loadData()
   let TAGS = ['AIR', 'BLP', 'TBR', 'TbR', 'osm', 'OMG', 'PKB', 'GYN', 'EVL', 'HYg', 'KOJ', 'NEW', 'DFT', 'HOS', 'tbr'];
-  const BATTLE = ['PKB', 'GYN'];
+  let BATTLE = ['PKB', 'GYN'];   // fallback; the battle alliances come from data/alliances.json (access.html)
   const fmt = n => (n == null ? '–' : Number(n).toLocaleString('de-DE'));
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   const TAG_RED = {bg:'#b8283a', fg:'#ffffff', bd:'#b8283a'};
@@ -935,6 +935,8 @@
   const MOON_SVG = '<svg class="ws" viewBox="0 0 20 20" aria-hidden="true"><path d="M13.6 2.2a8 8 0 1 0 4.2 12.6 6.6 6.6 0 0 1-4.2-12.6z" fill="#f7c948" stroke="#a97400" stroke-width="1"/></svg>';
   const STAR_SVG = '<svg class="ws" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.8l2.4 5.1 5.6.7-4.1 3.9 1 5.5L10 14.3 5.1 17l1-5.5L2 7.6l5.6-.7z" fill="#5aa9ff" stroke="#2a5fa8" stroke-width="1" stroke-linejoin="round"/></svg>';
   const TAG_HOME_PLAIN = {bg:'#3a4357', fg:'#dfe6f2', bd:'#4d5873'};
+  function tagStyle(hex){ var m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || ''); if(!m) return null; var l = (0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16)) / 255; return {bg: hex, fg: l > 0.58 ? '#1b1b1b' : '#ffffff', bd: hex}; }
+  function applyFeedColors(f){ if(!f || !f.colors) return; Object.keys(f.colors).forEach(function(t){ var c = tagStyle(f.colors[t]); if(c) TAG_COLORS[t] = c; }); }   // colours chosen in access.html (data/alliances.json); the palette above is the fallback
   function tagChip(tag, s){
     const label = escapeHtml(tag || '—');
     const c = TAG_COLORS[tag] || TAG_HOME_PLAIN;
@@ -1276,7 +1278,7 @@
   function loadData(){
     if(loading) return; loading = true; loadHist();
     const b = document.getElementById('refreshBtn'); if(b) b.classList.add('spin');
-    const feed = fetch('data/alliances.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).then(f => { if(f && Array.isArray(f.tags) && f.tags.length) TAGS = f.tags.slice(); }).catch(() => {});
+    const feed = fetch('data/alliances.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).then(f => { if(f && Array.isArray(f.tags) && f.tags.length) TAGS = f.tags.slice(); if(f){ applyFeedColors(f); if(f.colors && Array.isArray(f.battle)) BATTLE = f.battle.slice(); } }).catch(() => {});
     Promise.all([fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()), feed]).then(a => a[0]).then(j => { D = j; D.alliances = D.alliances || {}; D.players = D.players || {}; lastLoad = Date.now(); render(); if(b){ b.classList.add('ok'); setTimeout(() => b.classList.remove('ok'), 1500); } })
       .catch(() => { if(!D) document.getElementById('sub').textContent = 'No data available (data/players.json not found).'; })
       .then(() => { loading = false; if(b) b.classList.remove('spin'); });

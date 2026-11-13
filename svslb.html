@@ -822,7 +822,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-08 · b94</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-13 · b95</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1611,6 +1611,8 @@
     return `<span class="wins" title="${title}" role="img" aria-label="${title}">${MOON_SVG.repeat(m)}${STAR_SVG.repeat(s)}</span>`;
   }
   const TAG_HOME_PLAIN = {bg:'#3a4357', fg:'#dfe6f2', bd:'#4d5873'};   // 646 alliances without own color: grey
+  function tagStyle(hex){ const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || ''); if(!m) return null; const l = (0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16)) / 255; return {bg: hex, fg: l > 0.58 ? '#1b1b1b' : '#ffffff', bd: hex}; }
+  function applyFeedColors(f){ if(!f || !f.colors) return; Object.keys(f.colors).forEach(t => { const c = tagStyle(f.colors[t]); if(c) TAG_COLORS[t] = c; }); }   // colours chosen in access.html (data/alliances.json); the palette above is the fallback
   function tagChip(tag, st){
     const label = escapeHtml(tag || '—');
     const s = st || (tag ? allianceStateMap[tag] : '') || '';
@@ -3436,7 +3438,8 @@
     if(pdBusy) return; pdBusy = true;
     const b = document.getElementById('refreshBtn'); if(b) b.classList.add('spin');
     try {
-      fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).then(j => {
+      const fd = fetch('data/alliances.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).catch(() => null);
+      Promise.all([fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null), fd]).then(a => { const j = a[0]; applyFeedColors(a[1]);
         if(!j || !j.players) return;
         PD = j.players; pdLast = Date.now(); renderControls(); renderTable();
         if(state.tab === 'trends') renderTrendParts();

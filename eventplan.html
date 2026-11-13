@@ -1102,7 +1102,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-11-13 · p33</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-11-13 · p34</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1127,6 +1127,8 @@
     TbR: {bg:'#86e3a1', fg:'#052311', bd:'#86e3a1'}, OMG: {bg:'#ffe55c', fg:'#2a2400', bd:'#ffe55c'}, PKB: TAG_GOLD, GYN: TAG_GOLD
   };
   const TAG_PLAIN = {bg:'#3a4357', fg:'#dfe6f2', bd:'#4d5873'};
+  function tagStyle(hex){ var m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || ''); if(!m) return null; var l = (0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16)) / 255; return {bg: hex, fg: l > 0.58 ? '#1b1b1b' : '#ffffff', bd: hex}; }
+  function applyFeedColors(f){ if(!f || !f.colors) return; Object.keys(f.colors).forEach(function(t){ var c = tagStyle(f.colors[t]); if(c) TAG_COLORS[t] = c; }); }   // colours chosen in access.html (data/alliances.json); the palette above is the fallback
   function tagChip(tag){
     const c = TAG_COLORS[tag] || TAG_PLAIN;
     return `<span class="tag tag-c" style="background:${c.bg};color:${c.fg};border-color:${c.bd}">${escapeHtml(tag || '—')}</span>`;
@@ -1732,7 +1734,7 @@
 
   // ---- start ----
   let plLast = 0;
-  function loadPlayers(){ const feed = fetch('data/alliances.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).then(f => { if(f && Array.isArray(f.tags) && f.tags.length){ TAGS = f.tags.slice(); ['PKB', 'GYN'].forEach(t => { if(TAGS.indexOf(t) < 0) TAGS.push(t); }); } }).catch(() => {});
+  function loadPlayers(){ const feed = fetch('data/alliances.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).then(f => { applyFeedColors(f); if(f && Array.isArray(f.tags) && f.tags.length){ TAGS = f.tags.slice(); ['PKB', 'GYN'].forEach(t => { if(TAGS.indexOf(t) < 0) TAGS.push(t); }); } }).catch(() => {});
     return Promise.all([fetch('data/players.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()), feed]).then(a => a[0]).then(j => { j.alliances = j.alliances || {}; j.players = j.players || {}; const first = !D; D = j; plLast = Date.now(); if(first) last = ''; render(); }).catch(() => {}); }
   (async function(){
     if(!api){ $('sub').textContent = 'Not set up yet: enter the Supabase URL and key at the top of the script (see the setup notes).'; return; }

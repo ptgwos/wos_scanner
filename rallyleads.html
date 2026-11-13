@@ -1049,7 +1049,7 @@
     <div class="rl-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-11-04 · rl30</footer>
+  <footer id="foot">State 646 · Rally Leads — data: Supabase · build 2026-11-13 · rl31</footer>
 </div>
 <div id="toast"></div>
 <div id="rlShot"></div>
@@ -1196,8 +1196,12 @@
       }
     }).catch(function(){});   // table not there yet (SQL not run): the 3 default heroes stay
   }
+  function tagStyle(hex){ var m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || ''); if(!m) return null; var l = (0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16)) / 255; return {bg: hex, fg: l > 0.58 ? '#1b1b1b' : '#ffffff', bd: hex}; }
+  function applyFeedColors(f){ if(!f || !f.colors) return; Object.keys(f.colors).forEach(function(t){ var c = tagStyle(f.colors[t]); if(c) TAG_COLORS[t] = c; }); }   // colours chosen in access.html (data/alliances.json); the palette above is the fallback
   function loadPlayers(){
-    return fetch('data/players.json', {cache: 'no-cache'}).then(function(r){ return r.ok ? r.json() : Promise.reject(); }).then(function(j){
+    var fd = fetch('data/alliances.json', {cache: 'no-cache'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+    return Promise.all([fetch('data/players.json', {cache: 'no-cache'}).then(function(r){ return r.ok ? r.json() : Promise.reject(); }), fd]).then(function(a){
+      var j = a[0]; applyFeedColors(a[1]);
       D = j; D.alliances = D.alliances || {}; D.players = D.players || {}; CUR = {};
       Object.keys(D.alliances).forEach(function(t){ (D.alliances[t].m || []).forEach(function(id){ CUR[id] = t; }); });
       render();
