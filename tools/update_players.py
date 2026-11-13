@@ -9,13 +9,13 @@ and write data/players.json + avatars/<id>.webp (small copies of the profile pic
 - if an alliance cannot be fetched, its players keep their last known entry
 - data/history.json: log of alliance changes (who moved from which alliance to which, when)
 - data/usage.json: remaining API allowance of the day (shown in access.html); changes with every run
-- which alliances are fetched is chosen in access.html (Supabase table roster_alliances, read with the public key from
-  SUPABASE_URL / SUPABASE_KEY); fallback = the last data/alliances.json, then DEFAULT_TAGS
+- which alliances are fetched is chosen in access.html (Supabase table roster_alliances, read with the public URL/key from
+  eventplan-config.js, or from the optional env variables SUPABASE_URL / SUPABASE_KEY); fallback = the last data/alliances.json, then DEFAULT_TAGS
 - data/alliances_known.json: all alliances seen in the two alliance rankings (refreshed about once a day, 2 requests)
 - data/alliances.json: the alliances that are fed right now (read by roster.html and the planners)
 - nothing else is written when nothing changed, so there is no commit noise
 """
-import io, json, os, sys, time, urllib.parse, urllib.request, urllib.error, datetime, pathlib
+import io, json, os, re, sys, time, urllib.parse, urllib.request, urllib.error, datetime, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import wos_history
 
@@ -31,6 +31,15 @@ FEED = ROOT / 'data' / 'alliances.json'
 KNOWN = ROOT / 'data' / 'alliances_known.json'
 SB_URL = os.environ.get('SUPABASE_URL', '').strip().rstrip('/')
 SB_KEY = os.environ.get('SUPABASE_KEY', '').strip()
+if not (SB_URL and SB_KEY):
+    # no secrets needed: the pages already use the public URL and key from eventplan-config.js (window.EP_CONFIG = {url, key})
+    try:
+        import re
+        cfg = (ROOT / 'eventplan-config.js').read_text(encoding='utf-8')
+        mu = re.search(r'''\burl\b["']?\s*:\s*["']([^"']+)["']''', cfg); mk = re.search(r'''\bkey\b["']?\s*:\s*["']([^"']+)["']''', cfg)
+        if mu and mk: SB_URL, SB_KEY = mu.group(1).strip().rstrip('/'), mk.group(1).strip()
+    except Exception:
+        pass
 SIZE = 64          # px, square
 MISS_LIMIT = 3     # days in a row without a picture before the stored one is removed
 PAUSE = 1.2        # seconds between API requests (limit is 60 per minute)
@@ -92,15 +101,22 @@ def write_json_if_changed(path, obj, ignore=('updated',)):
     pathlib.Path(path).write_text(json.dumps(obj, ensure_ascii=False, separators=(',', ':'), sort_keys=True), encoding='utf-8')
     return True
 
+STYLE = {'colors': {}, 'battle': [], 'ok': False}
+
 def load_selection():
     """Tags to fetch: the ticked alliances from Supabase; if that is not possible the last feed file, then the default list."""
     if SB_URL and SB_KEY:
         try:
             h = {'apikey': SB_KEY, 'Accept': 'application/json', 'User-Agent': UA}
             if SB_KEY.startswith('eyJ'): h['Authorization'] = 'Bearer ' + SB_KEY
-            rows = json.loads(get(SB_URL + '/rest/v1/roster_alliances?select=tag,selected&selected=eq.true&order=tag', h).decode('utf-8'))
-            tags = [r['tag'] for r in rows if r.get('tag')]
-            if tags: return tags, 'supabase'
+            rows = json.loads(get(SB_URL + '/rest/v1/roster_alliances?select=tag,selected,color,battle&order=tag', h).decode('utf-8'))
+            tags = [r['tag'] for r in rows if r.get('tag') and r.get('selected')]
+            if tags:
+                # tag colours and "battle alliance" flags set in access.html (used by the pages with a fallback of their own)
+                STYLE['colors'] = {r['tag']: r['color'] for r in rows if r.get('tag') and re.fullmatch(r'#[0-9a-fA-F]{6}', r.get('color') or '')}
+                STYLE['battle'] = sorted(r['tag'] for r in rows if r.get('tag') and r.get('battle'))
+                STYLE['ok'] = True
+                return tags, 'supabase'
             print('selection: Supabase list is empty - using the fallback', flush=True)
         except Exception as e:
             print(f'selection: Supabase not reachable ({type(e).__name__}) - using the fallback', flush=True)
@@ -239,7 +255,9 @@ if stable(new) != stable(old):
 else:
     print('no changes')
 # feed file for roster.html and the planners: which alliances are active right now
-feed = {'kid': KID, 'source': SEL_SRC, 'tags': [t for t in TAGS if t not in missing], 'missing': missing, 'failed': failed,
+if not STYLE['ok']:   # Supabase not reachable: keep the colours of the last feed file
+    STYLE['colors'] = prev_feed.get('colors') or {}; STYLE['battle'] = prev_feed.get('battle') or []
+feed = {'kid': KID, 'source': SEL_SRC, 'colors': STYLE['colors'], 'battle': STYLE['battle'], 'tags': [t for t in TAGS if t not in missing], 'missing': missing, 'failed': failed,
         'alliances': {t: {'name': (alliances.get(t) or {}).get('name') or (known.get(t) or {}).get('name', ''),
                           'count': (alliances.get(t) or {}).get('count'), 'power': (alliances.get(t) or {}).get('power')} for t in TAGS if t in alliances}}
 if write_json_if_changed(FEED, dict(feed, updated=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC'))): print('data/alliances.json written', flush=True)
