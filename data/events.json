@@ -1,7 +1,7 @@
 {
  "kid": 646,
- "api_date": "2026-11-13",
- "fetched_at": "2026-11-13T06:56:38Z",
+ "api_date": "2026-11-14",
+ "fetched_at": "2026-11-14T06:43:04Z",
  "count": 27,
  "events": [
   {
@@ -113,15 +113,6 @@
    "end_ts": 1794873600
   },
   {
-   "name": "Fortress Battles",
-   "category": "Events",
-   "when": "10 Nov 00:00 – 13 Nov 24:00",
-   "begin": "2026-11-10T00:00:00Z",
-   "end": "2026-11-14T00:00:00Z",
-   "begin_ts": 1794268800,
-   "end_ts": 1794614400
-  },
-  {
    "name": "Wander Theater",
    "category": "Wander Theater",
    "when": "10 Nov 00:00 – 15 Nov 24:00",
@@ -129,15 +120,6 @@
    "end": "2026-11-16T00:00:00Z",
    "begin_ts": 1794268800,
    "end_ts": 1794787200
-  },
-  {
-   "name": "Hero's Mission",
-   "category": "Events",
-   "when": "11 Nov 00:00 – 13 Nov 24:00",
-   "begin": "2026-11-11T00:00:00Z",
-   "end": "2026-11-14T00:00:00Z",
-   "begin_ts": 1794355200,
-   "end_ts": 1794614400
   },
   {
    "name": "Armament Competition",
@@ -246,6 +228,24 @@
    "end": "2026-11-20T00:00:00Z",
    "begin_ts": 1794873600,
    "end_ts": 1795132800
+  },
+  {
+   "name": "Dreamscape Memory",
+   "category": "Dreamscape Memory",
+   "when": "18 Nov 00:00 – 20 Nov 24:00",
+   "begin": "2026-11-18T00:00:00Z",
+   "end": "2026-11-21T00:00:00Z",
+   "begin_ts": 1794960000,
+   "end_ts": 1795219200
+  },
+  {
+   "name": "Shining City Pack",
+   "category": "Deals",
+   "when": "18 Nov 00:00 – 22 Nov 24:00",
+   "begin": "2026-11-18T00:00:00Z",
+   "end": "2026-11-23T00:00:00Z",
+   "begin_ts": 1794960000,
+   "end_ts": 1795392000
   }
  ]
 }

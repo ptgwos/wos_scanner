@@ -1,31 +1,31 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-13",
+ "date": "2026-11-14",
  "count": 27,
  "categories": [
   {
    "name": "Events",
    "events": [
     {
-     "name": "Fortress Battles",
-     "category": "Events",
-     "when": "10 Nov 00:00 – 13 Nov 24:00",
-     "begin_ts": 1794268800,
-     "end_ts": 1794614400
-    },
-    {
-     "name": "Hero's Mission",
-     "category": "Events",
-     "when": "11 Nov 00:00 – 13 Nov 24:00",
-     "begin_ts": 1794355200,
-     "end_ts": 1794614400
-    },
-    {
      "name": "State Transfer",
      "category": "Events",
      "when": "8 Nov 00:00 – 14 Nov 24:00",
      "begin_ts": 1794096000,
+     "end_ts": 1794700800
+    },
+    {
+     "name": "Tundra Trade Route",
+     "category": "Events",
+     "when": "9 Nov 00:00 – 15 Nov 04:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1794715200
+    },
+    {
+     "name": "Armament Competition",
+     "category": "Events",
+     "when": "13 Nov 00:00 – 14 Nov 24:00",
+     "begin_ts": 1794528000,
      "end_ts": 1794700800
     },
     {
@@ -50,25 +50,11 @@
      "end_ts": 1794787200
     },
     {
-     "name": "Tundra Trade Route",
-     "category": "Events",
-     "when": "9 Nov 00:00 – 15 Nov 04:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1794715200
-    },
-    {
      "name": "Winter Siege",
      "category": "Events",
      "when": "9 Nov 00:00 – 15 Nov 24:00",
      "begin_ts": 1794182400,
      "end_ts": 1794787200
-    },
-    {
-     "name": "Armament Competition",
-     "category": "Events",
-     "when": "13 Nov 00:00 – 14 Nov 24:00",
-     "begin_ts": 1794528000,
-     "end_ts": 1794700800
     },
     {
      "name": "Officer Project",
@@ -139,6 +125,13 @@
    "name": "Deals",
    "events": [
     {
+     "name": "Mia's Fortune Hut",
+     "category": "Deals",
+     "when": "13 Nov 00:00 – 14 Nov 24:00",
+     "begin_ts": 1794528000,
+     "end_ts": 1794700800
+    },
+    {
      "name": "Hero Rally",
      "category": "Deals",
      "when": "9 Nov 00:00 – 22 Nov 24:00",
@@ -153,18 +146,18 @@
      "end_ts": 1796601600
     },
     {
-     "name": "Mia's Fortune Hut",
-     "category": "Deals",
-     "when": "13 Nov 00:00 – 14 Nov 24:00",
-     "begin_ts": 1794528000,
-     "end_ts": 1794700800
-    },
-    {
      "name": "Hall of Heroes",
      "category": "Deals",
      "when": "15 Nov 00:00 – 17 Nov 24:00",
      "begin_ts": 1794700800,
      "end_ts": 1794960000
+    },
+    {
+     "name": "Shining City Pack",
+     "category": "Deals",
+     "when": "18 Nov 00:00 – 22 Nov 24:00",
+     "begin_ts": 1794960000,
+     "end_ts": 1795392000
     }
    ]
   },
@@ -191,6 +184,18 @@
      "when": "8 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794096000,
      "end_ts": 1795392000
+    }
+   ]
+  },
+  {
+   "name": "Dreamscape Memory",
+   "events": [
+    {
+     "name": "Dreamscape Memory",
+     "category": "Dreamscape Memory",
+     "when": "18 Nov 00:00 – 20 Nov 24:00",
+     "begin_ts": 1794960000,
+     "end_ts": 1795219200
     }
    ]
   },
