@@ -1165,7 +1165,7 @@
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
   <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day. Bear Trap times are fixed (30 minutes, every 2nd day, 12 Nov was a Bear Trap day). Own entries (solid bars) are added by admins with “Add entry”.</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-13 · ec9</footer>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-14 · ec10</footer>
 </div>
 <script>
 (function(){
@@ -1265,6 +1265,14 @@
     build();
   }
 
+  // Order of the groups: everything that comes from the game data first (known groups in the usual order, new ones after them),
+  // then the Bear Trap (calculated), then groups that exist only as own entries.
+  function catSort(list){
+    var api = {}; (BASE ? BASE.events : []).forEach(function(e){ if(e.category) api[e.category] = 1; });
+    function rk(c){ return c === 'Bear Trap' ? 1 : (api[c] || ORDER.indexOf(c) >= 0 ? 0 : 2); }
+    return list.sort(function(x, y){ var i = ORDER.indexOf(x), j = ORDER.indexOf(y); return rk(x) - rk(y) || (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || (x < y ? -1 : 1); });
+  }
+
   function build(){
     var by = {}, cats = [];
     D.events.forEach(function(e, i){
@@ -1276,7 +1284,7 @@
     var list = Object.keys(by).map(function(k){ return by[k]; });
     list.forEach(function(r){ r.first = Math.min.apply(null, r.items.map(function(e){ return e.begin_ts * 1000; })); });
     var cs = {}; list.forEach(function(r){ cs[r.cat] = 1; });
-    cats = Object.keys(cs).sort(function(x, y){ var i = ORDER.indexOf(x), j = ORDER.indexOf(y); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || (x < y ? -1 : 1); });
+    cats = catSort(Object.keys(cs));
     rows = []; cats.forEach(function(c){
       rows.push({head: true, cat: c});
       list.filter(function(r){ return r.cat === c; }).sort(function(x, y){ return x.first - y.first || (x.name < y.name ? -1 : 1); }).forEach(function(r){ rows.push(r); });
@@ -1485,7 +1493,7 @@
   var LENS = [[15, '15 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1.5 hours'], [120, '2 hours'], [180, '3 hours'], [360, '6 hours'], [720, '12 hours'], [1440, '1 day'], [2880, '2 days'], [10080, '7 days']];
   function toast(m){ var t = $('ecToast'); if(!t){ t = document.createElement('div'); t.id = 'ecToast'; t.className = 'sp-toast'; document.body.appendChild(t); } t.textContent = m; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function(){ t.classList.remove('show'); }, 3200); }
   function cats(){ var o = {}; (BASE ? BASE.events : []).forEach(function(e){ if(e.category) o[e.category] = 1; }); CU.items.forEach(function(r){ o[r.category] = 1; }); ORDER.forEach(function(c){ if(c !== 'Bear Trap') o[c] = 1; }); delete o['Bear Trap'];
-    return Object.keys(o).sort(function(x, y){ var i = ORDER.indexOf(x), j = ORDER.indexOf(y); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || (x < y ? -1 : 1); }); }
+    return catSort(Object.keys(o)); }
   function closeDlg(){ var o = $('ecDlg'); if(o) o.classList.remove('open'); }
   function dlgTimes(){
     var d = $('ecfD').value, t = $('ecfT').value, m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d), h = /^(\d{1,2}):(\d{2})$/.exec(t);
