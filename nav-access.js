@@ -17,33 +17,38 @@
   function css(){
     if(document.getElementById('naCss')) return;
     var s = document.createElement('style'); s.id = 'naCss';
-    s.textContent = '#naToast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);background:var(--panel-2,#161d33);color:var(--text,#e6ebff);border:1px solid var(--gold,#ffb400);border-radius:8px;padding:10px 16px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:300;max-width:90vw;text-align:center}' +
+    s.textContent = '#naToast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);background:var(--panel-2,#161d33);color:var(--text,#e6ebff);border:1px solid var(--gold,#ffb400);border-radius:10px;padding:10px 16px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:300;max-width:90vw;text-align:center}' +
       '#naToast.show{opacity:1;transform:translate(-50%,0)}' +
-      '.sitenav.na-g{overflow:visible!important;flex-wrap:wrap;position:relative;z-index:60;gap:4px;align-items:stretch}' +
+      '.sitenav.na-g{overflow:visible!important;flex-wrap:wrap;position:relative;z-index:60;gap:2px;align-items:stretch;padding:4px;border-radius:12px;font-size:13.5px;font-weight:500;letter-spacing:0;text-transform:none;font-variant-caps:normal}' +
       '.sitenav.na-g > *{position:relative}' +
-      '.sitenav.na-g .na-b{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:7px;border:0;background:none;color:var(--text-dim);font:inherit;letter-spacing:inherit;text-decoration:none;cursor:pointer;white-space:nowrap}' +
+      '.sitenav.na-g .na-b{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;border:0;background:none;color:var(--text-dim);font:inherit;font-size:13.5px;font-weight:500;letter-spacing:0;text-transform:none;font-variant-caps:normal;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}' +
       '.sitenav.na-g .na-b:hover,.sitenav.na-g .na-grp.open > .na-b{color:var(--strong);background:rgba(120,140,190,.14)}' +
-      '.sitenav.na-g .na-b.na-cur{color:var(--gold);background:rgba(255,180,0,.12);box-shadow:inset 0 -2px 0 var(--gold)}' +
-      '.sitenav.na-g .na-b svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}' +
+      '.sitenav.na-g .na-b:focus-visible,.sitenav.na-g .na-dd a:focus-visible{outline:2px solid var(--gold,#ffb400);outline-offset:1px}' +
+      '.sitenav.na-g .na-b.na-cur{color:var(--gold);background:rgba(255,180,0,.13);box-shadow:none}' +
+      '.sitenav.na-g .na-b svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.7;transition:transform .18s}' +
       '.sitenav.na-g .na-grp.open > .na-b svg{transform:rotate(180deg)}' +
-      '.sitenav.na-g .na-dd{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:210px;background:var(--panel,#10172b);border:1px solid var(--border,#26304d);border-radius:9px;padding:5px;box-shadow:0 14px 36px rgba(0,0,0,.45);z-index:80}' +
-      '.sitenav.na-g .na-dd.r{left:auto;right:0}' +
-      '.sitenav.na-g .na-grp.open > .na-dd{display:block}' +
-      '.sitenav.na-g .na-dd a,.sitenav.na-g .na-dd span.na-i{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:6px;color:var(--text-dim);text-decoration:none;white-space:nowrap;font-size:13px;font-variant-caps:small-caps;letter-spacing:.07em;font-weight:600}' +
+      '.sitenav.na-g .na-dd{display:none;position:absolute;top:calc(100% + 8px);left:0;min-width:220px;background:var(--panel,#10172b);border:1px solid var(--border,#26304d);border-radius:12px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.42);z-index:80;transform-origin:top left}' +
+      '.sitenav.na-g .na-dd.r{left:auto;right:0;transform-origin:top right}' +
+      '.sitenav.na-g .na-grp.open > .na-dd{display:block;animation:naIn .14s ease-out}' +
+      '@keyframes naIn{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:none}}' +
+      '@media (prefers-reduced-motion:reduce){.sitenav.na-g .na-grp.open > .na-dd{animation:none}.sitenav.na-g .na-b,.sitenav.na-g .na-b svg{transition:none}}' +
+      '.sitenav.na-g .na-dd a,.sitenav.na-g .na-dd span.na-i{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--text-dim);text-decoration:none;white-space:nowrap;font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;font-variant-caps:normal}' +
       '.sitenav.na-g .na-dd a:hover{color:var(--strong);background:rgba(120,140,190,.16)}' +
       '.sitenav.na-g .na-dd .na-cur{color:var(--gold);background:rgba(255,180,0,.12)}' +
+      '.sitenav.na-g .na-dd .na-cur::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);flex:0 0 auto;margin-left:-2px}' +
       '.sitenav.na-g .na-off{opacity:.42;cursor:not-allowed}.sitenav.na-g .na-off:hover{opacity:.6}' +
       '.sitenav .na-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3b3b;margin-left:5px;vertical-align:super;box-shadow:0 0 0 2px rgba(255,59,59,.25)}' +
-      '.sitenav.na-g .na-login{margin-left:auto}' +
-      '@media (max-width:640px){.sitenav.na-g{gap:1px}.sitenav.na-g .na-b{padding:6px 7px;gap:4px}.sitenav.na-g .na-login{margin-left:0}.sitenav.na-g .na-dd{min-width:190px}}';
+      '.sitenav.na-g .na-login{margin-left:auto;color:var(--gold);background:rgba(255,180,0,.12)}' +
+      '.sitenav.na-g .na-login:hover{background:rgba(255,180,0,.22);color:var(--gold)}' +
+      '@media (max-width:640px){.sitenav.na-g{gap:1px;padding:3px}.sitenav.na-g .na-b{padding:7px 9px;gap:4px;font-size:13px}.sitenav.na-g .na-login{margin-left:0}.sitenav.na-g .na-dd{min-width:200px}}';
     document.head.appendChild(s);
   }
   var GROUPS = [
-    {k: 'home', f: 'index.html', l: 'HOME', s: 'HOME'},
-    {k: 'info', l: 'INFORMATION', s: 'INFO', items: [['roster.html', 'Roster'], ['svslb.html', 'SvS Leaderboards'], ['statepower.html', 'State Power'], ['leading.html', 'Leading State'], ['rallyleads.html', 'Rally Leads']]},
-    {k: 'plan', l: 'PLANNING', s: 'PLAN', items: [['eventplan.html', 'Event Planner'], ['eventcal.html', 'Event Calendar'], ['rallyplan.html', 'Rally Planner'], ['pool.html', 'Rally Pool'], ['assignfsh.html', 'Fortress/SH Plan'], ['appointments.html', 'Appointments'], ['foundryplaner.html', 'Foundry/TAL Planner']]},
-    {k: 'tool', l: 'TOOLS', s: 'TOOLS', items: [['formations.html', 'Formations'], ['chests.html', 'Presidential Chests']]},
-    {k: 'admin', f: 'access.html', l: 'ADMIN', s: 'ADMIN'}
+    {k: 'home', f: 'index.html', l: 'Home', s: 'Home'},
+    {k: 'info', l: 'Information', s: 'Info', items: [['roster.html', 'Roster'], ['svslb.html', 'SvS Leaderboards'], ['statepower.html', 'State Power'], ['leading.html', 'Leading State'], ['rallyleads.html', 'Rally Leads']]},
+    {k: 'plan', l: 'Planning', s: 'Plan', items: [['eventplan.html', 'Event Planner'], ['eventcal.html', 'Event Calendar'], ['rallyplan.html', 'Rally Planner'], ['pool.html', 'Rally Pool'], ['assignfsh.html', 'Fortress/SH Plan'], ['appointments.html', 'Appointments'], ['foundryplaner.html', 'Foundry/TAL Planner']]},
+    {k: 'tool', l: 'Tools', s: 'Tools', items: [['formations.html', 'Formations'], ['chests.html', 'Presidential Chests']]},
+    {k: 'admin', f: 'access.html', l: 'Admin', s: 'Admin'}
   ];
   var CHEV = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3.5L5 7l3.5-3.5"/></svg>';
   var hereF = here === '' ? 'index.html' : (here.indexOf('.') < 0 ? here + '.html' : here);
@@ -103,7 +108,7 @@
       if(open === g.k) setOpen(true);
     });
     if(mm && mm.role === 'admin' && pend){
-      var rq = document.createElement('span'); rq.className = 'na-b na-off'; rq.setAttribute('data-na', 'requests'); rq.tabIndex = 0; rq.innerHTML = '<span class="sn-l">REQUESTS</span><span class="sn-s">REQ</span><span class="na-dot" title="' + dt + '"></span>';
+      var rq = document.createElement('span'); rq.className = 'na-b na-off'; rq.setAttribute('data-na', 'requests'); rq.tabIndex = 0; rq.innerHTML = '<span class="sn-l">Requests</span><span class="sn-s">Req</span><span class="na-dot" title="' + dt + '"></span>';
       rq.addEventListener('click', function(){ note(dt + ' waiting. Please log in with the super admin link to approve them.'); }); nav.appendChild(rq);
     }
     loginItem(!mm);
@@ -118,7 +123,7 @@
     if(!show || !C || !C.url){ if(old && old.parentNode) old.parentNode.removeChild(old); return; }
     if(old) return;
     var el = document.createElement('a'); el.href = '#'; el.className = 'na-b na-login'; el.setAttribute('data-na', 'dclogin');
-    el.innerHTML = '<span class="sn-l">LOG IN WITH DISCORD</span><span class="sn-s">LOGIN</span>';
+    el.innerHTML = '<span class="sn-l">Log in with Discord</span><span class="sn-s">Log in</span>';
     el.addEventListener('click', function(e){ e.preventDefault(); window.EPDiscord.start(); });
     nav.appendChild(el);
   }
