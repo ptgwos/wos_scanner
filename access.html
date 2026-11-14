@@ -1021,7 +1021,23 @@
 
 
   .ad-note{color:var(--text-dim);font-size:13.5px;line-height:1.55;margin:0 0 14px;max-width:760px;}
-  .dq{border:1px solid var(--gold,#ffb400);border-radius:10px;padding:12px 14px;margin:0 0 16px;background:rgba(255,180,0,.06);}
+  .dq{border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin:0 0 16px;background:rgba(120,140,190,.06);}
+  .dq.hot{border-color:var(--gold,#ffb400);background:rgba(255,180,0,.07);}
+  /* tabs: one area at a time; the pill slides to the active tab */
+  .ad-tabw{overflow-x:auto;margin:0 0 18px;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;} .ad-tabw::-webkit-scrollbar{display:none;}
+  .ad-tabs{position:relative;display:inline-flex;gap:2px;padding:3px;border-radius:12px;background:rgba(143,163,199,.10);border:1px solid var(--border);}
+  html[data-theme="light"] .ad-tabs{background:rgba(60,80,120,.07);}
+  html body .ad-tabs button.ad-tab{position:relative;z-index:1;background:transparent;border:0;border-radius:9px;padding:8px 16px;font:inherit;font-size:13px;font-weight:600;letter-spacing:.03em;color:var(--text-dim);cursor:pointer;white-space:nowrap;width:auto;transition:color .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  html body .ad-tabs button.ad-tab.on{color:var(--text);}
+  html body .ad-tabs:not(.js) button.ad-tab.on{background:rgba(76,141,255,.2);}
+  @media (hover:hover){ html body .ad-tabs button.ad-tab:hover{color:var(--text);} }
+  .ad-tab-i{position:absolute;z-index:0;left:0;top:0;width:0;height:0;border-radius:9px;background:rgba(76,141,255,.20);box-shadow:inset 0 0 0 1px #4c8dff;opacity:0;transition:left .2s ease-in-out,width .2s ease-in-out,opacity .15s;pointer-events:none;}
+  html[data-theme="light"] .ad-tab-i{background:rgba(47,111,224,.14);box-shadow:inset 0 0 0 1px #2f6fe0;}
+  .ad-bd{font-style:normal;display:inline-block;min-width:18px;margin-left:7px;padding:1px 6px;border-radius:9px;background:var(--gold,#ffb400);color:#1b1b1b;font-size:11px;font-weight:700;text-align:center;}
+  .ad-pn[hidden]{display:none;} .ad-pi{margin:0 0 14px;color:var(--text-dim);font-size:13.5px;}
+  details.ad-how{margin:0 0 12px;} details.ad-how>summary{cursor:pointer;font-size:12.5px;color:var(--text-dim);margin:0 0 6px;}
+  @media (prefers-reduced-motion:reduce){ .ad-tab-i{transition:none;} }
+  @media (max-width:640px){ html body .ad-tabs button.ad-tab{padding:8px 11px;font-size:12.5px;} }
   .dq h3{margin:0 0 8px;font-size:14px;letter-spacing:.04em;}
   .dq-r{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:9px 0;border-top:1px solid var(--border);}
   .dq-r:first-of-type{border-top:0;}
@@ -1057,6 +1073,20 @@
   table.ad th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);padding:8px 12px;border-bottom:1px solid var(--border);}
   table.ad td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);}
   table.ad tr.off td{opacity:.5;}
+  /* users table: compact so that it fits without sideways scrolling; cards on narrow screens */
+  table.ad-users th{padding:8px 6px;font-size:10.5px;letter-spacing:.04em;} table.ad-users td{padding:8px 6px;}
+  table.ad-users .ad-nm{min-width:0;} table.ad-users td:first-child{width:17%;}
+  table.ad-users .dq-id{display:inline-block;margin-top:2px;font-size:10.5px;} table.ad-users .ad-ll{display:block;margin-top:2px;font-size:11px;color:var(--text-faint);}
+  table.ad-users .dq-set{display:inline-flex;gap:4px;} table.ad-users .dq-set input{width:120px;min-width:0;}
+  table.ad-users select.ad-sel{max-width:100%;}
+  @media (max-width:1080px){
+    table.ad-users thead{display:none;} table.ad-users,table.ad-users tbody,table.ad-users tr{display:block;width:100%;}
+    table.ad-users tr{padding:10px 12px;border-bottom:1px solid var(--border);}
+    table.ad-users td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;padding:5px 0;text-align:left;width:auto !important;}
+    table.ad-users td::before{content:attr(data-label);color:var(--text-faint);font-size:11px;letter-spacing:.05em;text-transform:uppercase;flex:0 0 auto;}
+    table.ad-users td:first-child{display:block;padding-bottom:6px;} table.ad-users td:first-child::before{display:none;}
+    table.ad-users td.ad-dc{display:block;} table.ad-users .dq-set{display:flex;} table.ad-users .dq-set input{flex:1;width:auto;} table.ad-users td.ad-dc::before{display:block;margin-bottom:3px;}
+  }
   table.ad td.c,table.ad th.c{text-align:center;}
   table.ad input[type=checkbox]{width:18px;height:18px;accent-color:var(--good);cursor:pointer;}
   table.ad input[type=checkbox]:disabled{cursor:default;opacity:.6;}
@@ -1084,7 +1114,7 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-14 · a18</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-14 · a20</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1185,8 +1215,8 @@
   }
   var RN = {super: 'Super admin', admin: 'Admin', editor: 'Editor'};
   function draw(){
-    var h = usageHtml() + alHtml() + ldHtml() + reqHtml() + newUserHtml() + '<p class="ad-note"><b>Rally Leads:</b> tick who may open it (read and edit). The super admin always may; an admin of the Event Planner does <b>not</b> automatically see Rally Leads. <b>Rally Planner:</b> “Read” = may open the plans but not change them, “Read + write” = may also edit. Without a right the page says “No access”. Admins always have read + write. <b>Appointments:</b> everybody may sign up; tick who may see, sort and filter the overview of all sign-ups (admins may create the weeks). Changes are saved immediately. <b>Event Planner:</b> change a role or block a user (the change is also written to the Event Planner log). New users, alliances and personal links are still managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p>' +
-      '<div class="ad-box"><table class="ad"><thead><tr><th>Name</th><th>Event Planner<br><span class="ad-sh">role (edit)</span></th><th>Alliances<br><span class="ad-sh">editors only</span></th><th class="c">Rally Planner<br><span class="ad-sh">none / read / read + write</span></th><th class="c">Rally Leads<br><span class="ad-sh">see + edit</span></th><th class="c">Fortress/SH Plan<br><span class="ad-sh">edit</span></th><th class="c">Appointments<br><span class="ad-sh">overview</span></th><th class="c">Active<br><span class="ad-sh">untick = blocked</span></th><th>Discord</th><th>Last login</th></tr></thead><tbody>';
+    var pre = {usage: usageHtml(), al: alHtml(), ld: ldHtml(), rq: reqHtml() + newUserHtml()}, h = '<details class="ad-how"><summary>How do these rights work?</summary><p class="ad-note"><b>Rally Leads:</b> tick who may open it (read and edit). The super admin always may; an admin of the Event Planner does <b>not</b> automatically see Rally Leads. <b>Rally Planner:</b> “Read” = may open the plans but not change them, “Read + write” = may also edit. Without a right the page says “No access”. Admins always have read + write. <b>Appointments:</b> everybody may sign up; tick who may see, sort and filter the overview of all sign-ups (admins may create the weeks). Changes are saved immediately. <b>Event Planner:</b> change a role or block a user (the change is also written to the Event Planner log). New users, alliances and personal links are still managed in the <a class="ad-lnk" href="eventplan.html">Event Planner</a> (users view).</p></details>' +
+      '<div class="ad-box"><table class="ad ad-users"><thead><tr><th>Name</th><th>Event Planner<br><span class="ad-sh">role (edit)</span></th><th>Alliances<br><span class="ad-sh">editors only</span></th><th class="c">Rally Planner<br><span class="ad-sh">none / read / read + write</span></th><th class="c">Rally Leads<br><span class="ad-sh">see + edit</span></th><th class="c">Fortress/SH Plan<br><span class="ad-sh">edit</span></th><th class="c">Appointments<br><span class="ad-sh">overview</span></th><th class="c">Active<br><span class="ad-sh">untick = blocked</span></th><th>Discord<br><span class="ad-sh">last login</span></th></tr></thead><tbody>';
     st.users.forEach(function(u){
       var sup = u.role === 'super', adm = u.role === 'admin', on = sup || (u.pages || []).indexOf('rallyleads') >= 0, rpw = sup || adm || (u.pages || []).indexOf('rallyplan') >= 0, rpr = (u.pages || []).indexOf('rallyplan_view') >= 0, rpv = rpw ? 'w' : rpr ? 'r' : 'n';
       var ro = sup ? ' disabled title="The super admin cannot be changed here"' : '';
@@ -1199,8 +1229,7 @@
         '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-p="fsh"' + ((sup || (u.pages || []).indexOf('fsh') >= 0) ? ' checked' : '') + ro + ' aria-label="Fortress/SH Plan for ' + esc(u.name) + '"></td>' +
         '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-p="appointments"' + ((sup || (u.pages || []).indexOf('appointments') >= 0) ? ' checked' : '') + (sup ? ' disabled title="The super admin always has access"' : '') + ' aria-label="Appointments overview for ' + esc(u.name) + '"></td>' +
         '<td class="c"><input type="checkbox" data-u="' + esc(u.id) + '" data-k="active"' + (u.active ? ' checked' : '') + ro + ' aria-label="Active: ' + esc(u.name) + '"></td>' +
-        '<td>' + (u.discord_id ? '<span class="dq-ok">' + (u.last_login ? 'linked' : 'ready, waiting for 1st login') + '</span> <span class="dq-id">ID ' + esc(u.discord_id) + '</span> <button type="button" class="btn" data-unl="' + esc(u.id) + '" style="font-size:11.5px;padding:3px 8px">Unlink</button>' : '<span class="dq-set"><input type="text" inputmode="numeric" maxlength="25" placeholder="Discord ID" data-dcin="' + esc(u.id) + '" aria-label="Discord user ID for ' + esc(u.name) + '"><button type="button" class="btn" data-dcset="' + esc(u.id) + '">Set</button></span>') + '</td>' +
-        '<td class="ad-dt">' + (u.last_login ? esc(String(u.last_login).slice(0, 16).replace('T', ' ')) : '–') + '</td></tr>';
+        '<td class="ad-dc">' + (u.discord_id ? '<span class="dq-ok">' + (u.last_login ? 'linked' : 'ready, waiting for 1st login') + '</span> <button type="button" class="btn" data-unl="' + esc(u.id) + '" style="font-size:11.5px;padding:3px 8px">Unlink</button><br><span class="dq-id">ID ' + esc(u.discord_id) + '</span>' : '<span class="dq-set"><input type="text" inputmode="numeric" maxlength="25" placeholder="Discord ID" data-dcin="' + esc(u.id) + '" aria-label="Discord user ID for ' + esc(u.name) + '"><button type="button" class="btn" data-dcset="' + esc(u.id) + '">Set</button></span>') + '<span class="ad-dt ad-ll">last login: ' + (u.last_login ? esc(String(u.last_login).slice(0, 16).replace('T', ' ')) : '–') + '</span></td></tr>';
     });
     h += '</tbody></table></div><div class="ad-mx"><div class="ad-note"><b>Who may see what</b></div><div class="ad-box"><table class="ad"><thead><tr><th>Page</th><th>Read</th><th>Edit</th></tr></thead><tbody>' +
       '<tr><td>Roster, SvS Leaderboards, Formations</td><td>everybody</td><td>everybody</td></tr>' +
@@ -1210,9 +1239,9 @@
       '<tr><td>Fortress/SH Plan</td><td>everybody</td><td>only the users ticked above (the Discord bot reads this data)</td></tr>' +
       '<tr><td>Rally Leads</td><td colspan="2">only the users ticked above (and the super admin) – everybody else sees “No access”</td></tr></tbody></table></div></div>';
     var keepOpen = document.getElementById('alBox') && document.getElementById('alBox').open;
-    $('adm').innerHTML = h;
+    $('adm').innerHTML = tabsHtml(pre, h);
     if(keepOpen) document.getElementById('alBox').open = true;
-    alRows();
+    labelUsers(); alRows(); tabPos();
   }
   function getJson(u){ return fetch(u + '?t=' + Date.now(), {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
   function loadAl(){
@@ -1250,6 +1279,40 @@
     var sv = document.getElementById('alSave'); if(sv){ sv.disabled = !ch; sv.textContent = ch ? 'Save (' + ch + ' change' + (ch > 1 ? 's' : '') + ')' : 'Save'; }
     var est = document.getElementById('alEst'); if(est){ var lim = st.usage && st.usage.daily && st.usage.daily.limit; est.textContent = 'About ' + (n * 24) + ' requests per day for the member lists if the update job runs every hour' + (lim ? ' (limit ' + lim.toLocaleString('en-US') + ' per day)' : '') + '.'; }
   }
+  var TABS = [['users', 'Users'], ['requests', 'Requests'], ['alliances', 'Alliances'], ['leading', 'Leading State'], ['usage', 'Usage']];
+  function tabGet(){ if(!st.tab){ try { st.tab = localStorage.getItem('ad_tab') || ''; } catch(e) {} } if(!TABS.some(function(t){ return t[0] === st.tab; })) st.tab = 'users'; return st.tab; }
+  function tabsHtml(pre, users){
+    var cur = tabGet(), n = (st.reqs || []).length, intro = {
+      users: 'Who may open and change what. Changes are saved immediately.',
+      requests: 'People who logged in with Discord and wait for access, and users you add before their first login.',
+      alliances: 'Which alliances appear on the pages, with their colour, battle flag and banner symbols.',
+      leading: 'The states compared on the Leading State page.',
+      usage: 'How much of the daily allowance of the game data API is left.'};
+    var body = {users: users, requests: pre.rq, alliances: pre.al, leading: pre.ld, usage: pre.usage};
+    return '<div class="ad-tabw"><div class="ad-tabs" id="adTabs" role="tablist" aria-label="Sections">' + TABS.map(function(t){
+      return '<button type="button" role="tab" class="ad-tab' + (t[0] === cur ? ' on' : '') + '" data-tab="' + t[0] + '" aria-selected="' + (t[0] === cur) + '">' + t[1] + (t[0] === 'requests' && n ? '<em class="ad-bd">' + n + '</em>' : '') + '</button>';
+    }).join('') + '<i class="ad-tab-i" aria-hidden="true"></i></div></div>' + TABS.map(function(t){
+      return '<section class="ad-pn" data-pn="' + t[0] + '" role="tabpanel"' + (t[0] === cur ? '' : ' hidden') + '><p class="ad-pi">' + intro[t[0]] + '</p>' + body[t[0]] + '</section>';
+    }).join('');
+  }
+  function labelUsers(){      // for the card layout on narrow screens: every cell shows its column name
+    var t = document.querySelector('table.ad-users'); if(!t) return;
+    var L = Array.prototype.map.call(t.querySelectorAll('thead th'), function(th){ return th.firstChild ? th.firstChild.textContent : ''; });
+    Array.prototype.forEach.call(t.querySelectorAll('tbody tr'), function(tr){ Array.prototype.forEach.call(tr.children, function(td, i){ td.setAttribute('data-label', L[i] || ''); }); });
+  }
+  function tabPos(){
+    var bar = document.getElementById('adTabs'); if(!bar) return;
+    var on = bar.querySelector('.ad-tab.on'), ind = bar.querySelector('.ad-tab-i');
+    if(!on || !on.offsetWidth){ ind.style.opacity = '0'; return; }
+    bar.classList.add('js'); ind.style.top = on.offsetTop + 'px'; ind.style.height = on.offsetHeight + 'px'; ind.style.left = on.offsetLeft + 'px'; ind.style.width = on.offsetWidth + 'px'; ind.style.opacity = '1';
+  }
+  function tabSet(k){
+    st.tab = k; try { localStorage.setItem('ad_tab', k); } catch(e) {}
+    Array.prototype.forEach.call(document.querySelectorAll('.ad-tab'), function(b){ var on = b.dataset.tab === k; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    Array.prototype.forEach.call(document.querySelectorAll('.ad-pn'), function(p){ p.hidden = p.dataset.pn !== k; });
+    tabPos();
+  }
+  window.addEventListener('resize', tabPos);
   function ldHtml(){
     if(!st.ld) return '<div class="dq"><h3>Leading State – states of the bracket</h3><p class="ad-note" style="margin:0">Not set up yet: please run leading.sql in Supabase (see the instructions).</p></div>';
     var f = st.ld.first_kid, l = st.ld.last_kid;
@@ -1266,7 +1329,7 @@
   function alHtml(){
     if(!st.al || !st.al.db) return '<div class="dq"><h3>Alliances of State 646</h3><p class="ad-note" style="margin:0">Not set up yet: please run alliances.sql in Supabase (see the instructions).</p></div>';
     var al = st.al, n = Object.keys(st.alSel).filter(function(t){ return st.alSel[t].selected; }).length;
-    return '<details class="al" id="alBox"><summary>Alliances of State 646 – roster and planners<span id="alSum">' + n + ' selected</span></summary>' +
+    return '<details class="al" id="alBox" open><summary>Alliances of State 646 – roster and planners<span id="alSum">' + n + ' selected</span></summary>' +
       '<p class="ad-note" style="margin:8px 0 0">Tick the alliances whose members are fetched every hour. The ticked ones appear in the Roster and in the planners. The list comes from the alliance rankings of the game (top 100 by power and by kills' + (al.knownAt ? ', as of ' + esc(al.knownAt) : '') + '), so small alliances can be missing: add them by tag. <b>Colour</b> is the tag colour on all pages (× = back to the page default), <b>Moons / Stars</b> are the banner symbols shown next to the alliance in the Roster and the SvS Leaderboards (enter them by hand after a won event). <b>Battle</b> marks the battle alliances (Roster and planners; the SvS Leaderboards keep the battle alliances of each event).</p>' +
       '<div class="al-bar"><input type="text" id="alQ" placeholder="Search tag or name" value="' + esc(st.alQ) + '"><label><input type="checkbox" id="alOnly"' + (st.alOnly ? ' checked' : '') + '> selected only</label>' +
       '<input type="text" id="alAddT" maxlength="16" placeholder="Tag (exact case)"><button type="button" class="btn" id="alAdd">Add by tag</button><button type="button" class="btn" id="alSave" disabled>Save</button></div>' +
@@ -1294,7 +1357,7 @@
     if(st.noDc) return '<div class="dq"><h3>Discord login</h3><p class="ad-note" style="margin:0">Not set up yet: please run discord.sql in Supabase (see the instructions).</p></div>';
     if(!st.reqs.length) return '<div class="dq"><h3>Waiting list (Discord)</h3><p class="ad-note" style="margin:0">No open requests.</p></div>';
     var free = st.users.filter(function(u){ return !u.discord_id; });
-    var h = '<div class="dq"><h3>Waiting list (Discord): ' + st.reqs.length + '</h3>';
+    var h = '<div class="dq hot"><h3>Waiting list (Discord): ' + st.reqs.length + '</h3>';
     st.reqs.forEach(function(r){
       var id = esc(r.discord_id);
       h += '<div class="dq-r"><div class="dq-w"><b>' + esc(r.nick || r.name || 'Discord user') + '</b><small>' + (r.nick ? 'Discord name: ' + esc(r.name || '') + ' · ' : '') + 'ID ' + id + ' · ' + esc(String(r.created_at || '').slice(0, 16).replace('T', ' ')) + ' · ' +
@@ -1313,6 +1376,7 @@
   $('adm').addEventListener('input', function(e){ if(e.target.id === 'alQ'){ st.alQ = e.target.value; alRows(); } if(e.target.id === 'ldF' || e.target.id === 'ldL') ldCheck(); });
   $('adm').addEventListener('click', function(e){
     var b = e.target.closest('button'); if(!b) return;
+    if(b.dataset.tab){ tabSet(b.dataset.tab); return; }
     var rc = b.getAttribute('data-alcr');
     if(rc){ if(st.alSel[rc]) st.alSel[rc].color = ''; alRows(); return; }
     if(b.id === 'alAdd'){
