@@ -1056,6 +1056,17 @@
   :root{--ec-acc:#4c8dff;--ec-ln:rgba(143,163,199,.16);--ec-ln2:rgba(143,163,199,.34);}
   html[data-theme="light"]{--ec-acc:#2f6fe0;--ec-ln:rgba(60,80,120,.12);--ec-ln2:rgba(60,80,120,.28);}
   .ec-tb{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:4px 0 12px;}
+  /* segmented control: one choice out of several, the pill slides to the active option */
+  :root{--ec-pill:rgba(76,141,255,.20);--ec-segbg:rgba(143,163,199,.10);}
+  html[data-theme="light"]{--ec-pill:rgba(47,111,224,.14);--ec-segbg:rgba(60,80,120,.07);}
+  .ec-seg{position:relative;display:inline-flex;flex-wrap:nowrap;padding:3px;gap:2px;border-radius:11px;background:var(--ec-segbg);border:1px solid var(--border);}
+  html body .ec-seg button.ec-sg{position:relative;z-index:1;background:transparent;border:0;border-radius:8px;padding:5px 13px;font:inherit;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--text-dim);cursor:pointer;margin:0;white-space:nowrap;transition:color .2s;}
+  html body .ec-seg button.ec-sg.on{color:var(--text);}
+  html body .ec-seg:not(.js) button.ec-sg.on{background:var(--ec-pill);box-shadow:inset 0 0 0 1px var(--ec-acc);}
+  .ec-seg-i{position:absolute;z-index:0;left:0;top:0;width:0;height:0;border-radius:8px;background:var(--ec-pill);box-shadow:inset 0 0 0 1px var(--ec-acc);opacity:0;transition:left .2s ease-in-out,width .2s ease-in-out,opacity .15s;pointer-events:none;}
+  @media (hover:hover){ html body .ec-seg button.ec-sg:hover{color:var(--text);} }
+  @media (prefers-reduced-motion:reduce){ .ec-seg-i,html body .ec-seg button.ec-sg{transition:none;} }
+  @media (max-width:640px){ html body .ec-seg button.ec-sg{padding:5px 9px;} }
   .ec-grp{display:inline-flex;flex-wrap:wrap;gap:4px;align-items:center;max-width:100%;}
   #ecChips{display:flex;}
   html body .ec-tb button.ec-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;letter-spacing:.04em;cursor:pointer;min-height:0;height:auto;text-transform:none;box-shadow:none;}
@@ -1154,7 +1165,7 @@
     <p class="subtitle" id="sub">Loading …</p>
   </header>
   <div class="ec-tb">
-    <span class="ec-grp"><button type="button" class="ec-btn ec-pre" data-p="day">Day</button><button type="button" class="ec-btn ec-pre" data-p="3d">3 days</button><button type="button" class="ec-btn ec-pre on" data-p="week">Week</button><button type="button" class="ec-btn ec-pre" data-p="all">All</button></span>
+    <span class="ec-grp"><span class="ec-seg" id="ecSeg" role="group" aria-label="Time range"><button type="button" class="ec-sg ec-pre" data-p="day">Day</button><button type="button" class="ec-sg ec-pre" data-p="3d">3 days</button><button type="button" class="ec-sg ec-pre on" data-p="week">Week</button><button type="button" class="ec-sg ec-pre" data-p="all">All</button><i class="ec-seg-i" aria-hidden="true"></i></span></span>
     <span class="ec-grp"><button type="button" class="ec-btn ec-sq" id="ecOutB" aria-label="Zoom out" title="Zoom out">−</button><button type="button" class="ec-btn ec-sq" id="ecIn" aria-label="Zoom in" title="Zoom in">+</button><button type="button" class="ec-btn" id="ecToNow" title="Move the timeline to the current time">Now</button></span>
     <span class="ec-grp"><button type="button" class="ec-btn" id="ecAdd" title="Add an own entry, e.g. a battle" hidden>+ Add entry</button></span>
     <span class="ec-grp"><span class="ec-lbl">Share pic</span><button type="button" class="ec-btn" id="ecShT" title="Picture of today (00:00-24:00 UTC) to the clipboard">Today</button><button type="button" class="ec-btn" id="ecSh3" title="Picture of today and the next two days to the clipboard">3 days</button></span>
@@ -1165,7 +1176,7 @@
   <div class="ec"><div class="ec-body" id="ecBody"></div><div class="ec-empty" id="ecEmpty" hidden>No categories selected.</div></div>
   <div class="ec-info" id="ecInfo"></div>
   <div class="ec-note">All times are UTC (game time). The red line is the current time. The calendar shows what is running and what starts in the next days; it is refreshed once a day. Bear Trap times are fixed (30 minutes, every 2nd day, 12 Nov was a Bear Trap day). Own entries (solid bars) are added by admins with “Add entry”.</div>
-  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-14 · ec10</footer>
+  <footer id="foot">State 646 · Event Calendar — data: Whiteout Stats API · build 2026-11-14 · ec11</footer>
 </div>
 <script>
 (function(){
@@ -1309,13 +1320,19 @@
     else if(k === 'week'){ s = 7 * DAY; view.a = n - s * .2; }
     else { view.a = D.min - 12 * HOUR; s = D.max - D.min + 24 * HOUR; }
     view.b = view.a + s; clampView(); render();
-    [].forEach.call(document.querySelectorAll('.ec-pre'), function(b){ b.classList.toggle('on', b.dataset.p === k); });
+    [].forEach.call(document.querySelectorAll('.ec-pre'), function(b){ b.classList.toggle('on', b.dataset.p === k); }); segPos();
   }
   function zoom(f, tc){
     var s = span(), ns = Math.max(2 * HOUR, Math.min(s * f, 400 * DAY)), r = (tc - view.a) / s;
     view.a = tc - r * ns; view.b = view.a + ns; clampView(); render(); markPre(null);
   }
-  function markPre(k){ [].forEach.call(document.querySelectorAll('.ec-pre'), function(b){ b.classList.toggle('on', b.dataset.p === k); }); }
+  function markPre(k){ [].forEach.call(document.querySelectorAll('.ec-pre'), function(b){ b.classList.toggle('on', b.dataset.p === k); }); segPos(); }
+  function segPos(){
+    var seg = $('ecSeg'); if(!seg) return;
+    var on = seg.querySelector('.ec-pre.on'), ind = seg.querySelector('.ec-seg-i');
+    if(!on || !on.offsetWidth){ ind.style.opacity = '0'; return; }      // no option active (after zooming by hand): no pill
+    seg.classList.add('js'); ind.style.top = on.offsetTop + 'px'; ind.style.height = on.offsetHeight + 'px'; ind.style.left = on.offsetLeft + 'px'; ind.style.width = on.offsetWidth + 'px'; ind.style.opacity = '1';
+  }
 
   var STEPS = [HOUR, 2 * HOUR, 3 * HOUR, 6 * HOUR, 12 * HOUR, DAY, 2 * DAY, 7 * DAY, 14 * DAY];
   function render(o){
@@ -1473,6 +1490,7 @@
   $('ecOutB').addEventListener('click', function(){ var n = now(); zoom(1.6, n > view.a && n < view.b ? n : (view.a + view.b) / 2); });
   $('ecToNow').addEventListener('click', function(){ var s = span(), n = now(); view.a = n - s * .25; view.b = view.a + s; clampView(); render(); markPre(null); });
   [].forEach.call(document.querySelectorAll('.ec-pre'), function(b){ b.addEventListener('click', function(){ preset(b.dataset.p); }); });
+  segPos(); window.addEventListener('resize', segPos); window.addEventListener('load', segPos); if(document.fonts && document.fonts.ready) document.fonts.ready.then(segPos);
   $('ecChips').addEventListener('click', function(e){
     var c = e.target.closest ? e.target.closest('.ec-chip') : null; if(!c) return;
     var k = c.dataset.cat; if(hide[k]) delete hide[k]; else hide[k] = 1;
