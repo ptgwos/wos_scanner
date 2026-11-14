@@ -1104,6 +1104,19 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
 .ld-hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:22px}
 .ld-hrow .ld-h{margin:0 0 8px}
 .ld-hrow .seg{margin:0 0 6px}
+
+/* state detail popup */
+#ldTbl tbody tr[data-k]{cursor:pointer;}
+#ldDtShot{padding:6px 18px 14px;width:100%;max-width:700px;box-sizing:border-box;margin:0 auto;}
+.ld-dt-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:6px 0 10px;}
+.ld-dt-h b{font-size:22px;color:var(--strong);} .ld-dt-h span{font-size:12px;color:var(--text-faint);}
+.ld-dt-k{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 14px;}
+.ld-dt-k .ld-card{padding:9px 11px;} .ld-dt-k .ld-card b{font-size:17px;} .ld-dt-k .ld-card span{font-size:11.5px;}
+.ld-dt-s{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin:12px 0 4px;font-weight:700;}
+.ld-dt-t{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums;} .ld-dt-t th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);text-align:right;padding:4px 6px;font-weight:600;} .ld-dt-t td:first-child{white-space:nowrap;} .ld-dt-t td{text-align:right;padding:4px 6px;border-top:1px solid var(--border-soft);} .ld-dt-t th:first-child,.ld-dt-t td:first-child{text-align:left;}
+.ld-dt-bars .b{fill:var(--accent,#66e3ff);opacity:.75;} .ld-dt-bars .b.t{fill:#f2b705;opacity:.95;}
+.ld-dt-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-dim);margin:2px 0 0;} .ld-dt-leg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px;}
+@media (max-width:640px){ .ld-dt-k{grid-template-columns:1fr 1fr;} #ldDtShot{padding:6px 10px 12px;} }
 </style>
 </head>
 <body>
@@ -1142,9 +1155,12 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
     <div class="ld-shbar"><label for="ldShQ" style="font-size:12px;color:var(--text-faint)">Also show states</label><span class="rq-box"><input type="text" id="ldShQ" inputmode="numeric" placeholder="e.g. 646 625 558" autocomplete="off" style="width:190px"></span><label class="ld-ck"><input type="checkbox" id="ldShMe" checked> Our state</label><label class="ld-ck"><input type="checkbox" id="ldShNb" checked> Neighbours ±1</label><span id="ldShMiss" style="font-size:12px;color:var(--text-faint)"></span></div>
     <div class="ld-shbar" style="padding-top:8px"><span class="sp"></span><button type="button" class="btn" id="ldShCopy">Copy as picture</button><button type="button" class="btn" id="ldShSave">Save picture</button></div>
     <div style="overflow:auto;padding:6px 0 14px"><div id="ldShot"></div></div></div></div>
+  <div class="modal-overlay" id="ldDt" role="dialog" aria-modal="true" aria-labelledby="ldDtTitle"><div class="modal-panel" style="max-width:760px"><div class="modal-header"><h2 id="ldDtTitle">State</h2><button type="button" class="modal-close" id="ldDtClose" aria-label="Close">×</button></div>
+    <div class="ld-shbar"><span class="seg" id="ldDtCm" style="display:inline-flex;gap:4px"><button type="button" class="btn sp-act" data-m="pts">Score</button><button type="button" class="btn" data-m="rank">Rank</button><button type="button" class="btn" data-m="gap">Gap to #1</button></span><label class="ld-ck" id="ldDtCmpL"><input type="checkbox" id="ldDtCmp" checked> Compare with our state</label><span class="sp"></span><button type="button" class="btn" id="ldDtCopy">Copy as picture</button><button type="button" class="btn" id="ldDtSave">Save picture</button></div>
+    <div style="overflow:auto;padding:6px 0 4px"><div id="ldDtShot"></div></div></div></div>
   <div class="sp-toast" id="spToast" role="status"></div>
 
-  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-07 · l6</footer>
+  <footer id="foot">State 646 · Leading State — data: Whiteout Stats API · build 2026-11-14 · l7</footer>
 </div>
 
 <script>
@@ -1164,6 +1180,7 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
   function getJ(u){ return fetch(u + (u.indexOf('?') < 0 ? '?t=' + Date.now() : ''), {cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
 
   function load(){
+    SC = null;
     return getJ('data/leading.json').then(function(d){ D = d; return getJ('data/leading/index.json').catch(function(){ return {dates: []}; }); }).then(function(ix){
       var dates = (ix.dates || []).slice(-HMAX);
       return Promise.all(dates.map(function(x){ return getJ('data/leading/' + x + '.json').then(function(j){ j.date = x; return j; }).catch(function(){ return null; }); }));
@@ -1197,7 +1214,7 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
   function dl(v){ if(v == null || !isFinite(v)) return ''; if(!Math.round(v)) return '<small class="ld-dl">±0</small>'; return '<small class="ld-dl ' + (v > 0 ? 'ld-up' : 'ld-down') + '">' + sgn(v) + '</small>'; }
   function rowHtml(r, mx, full, pick){
       var me2 = r.k === OWN;
-      return '<tr class="' + (me2 ? 'ld-own' : pick ? 'ld-pick' : '') + '"><td class="sp-n">' + r.rank + '</td><td class="sp-p"><b>' + esc(r.k) + '</b>' + (me2 ? '<span class="ld-me">US</span>' : pick ? '<span class="ld-me ld-me2">★</span>' : '') + (r.stale ? '<span class="ld-old" title="The last fetch failed, these are older values.">old</span>' : '') + '</td>'
+      return '<tr data-k="' + esc(r.k) + '" title="Click for details" class="' + (me2 ? 'ld-own' : pick ? 'ld-pick' : '') + '"><td class="sp-n">' + r.rank + '</td><td class="sp-p"><b>' + esc(r.k) + '</b>' + (me2 ? '<span class="ld-me">US</span>' : pick ? '<span class="ld-me ld-me2">★</span>' : '') + (r.stale ? '<span class="ld-old" title="The last fetch failed, these are older values.">old</span>' : '') + '</td>'
         + '<td class="sp-s ld-sc" title="' + esc(dots(r.s)) + '">' + fmt(r.s) + '<span class="ld-bar"><i style="width:' + Math.max(2, (r.s - mx * 0.9) / (mx * 0.1) * 100).toFixed(1) + '%"></i></span></td>'
         + '<td>' + (r.rank === 1 ? '–' : '<span class="ld-down">' + sgn(r.gap) + '</span>') + (full && r.rank > 1 ? dl(r.gd) : '') + '</td>'
         + '<td>' + (r.d == null ? '<span class="sp-no">–</span>' : '<span class="' + (r.d >= 0 ? 'ld-up' : 'ld-down') + '">' + sgn(r.d) + '</span>' + (r.dr ? ' <small class="' + (r.dr > 0 ? 'ld-up' : 'ld-down') + '">' + (r.dr > 0 ? '▲' : '▼') + Math.abs(r.dr) + '</small>' : '')) + '</td>'
@@ -1284,6 +1301,96 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
     $('ldChart').innerHTML = '<svg class="ld-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + (rk ? 'Rank' : st.cm === 'gap' ? 'Gap to the leader' : 'Transfer score') + ' history">' + g + lines + '</svg>';
   }
 
+
+  // ---- state detail popup ----
+  var DT = {k: null, cm: 'pts'}, SC = null, SCP = null;
+  function allSnaps(){
+    var snaps = HIST.slice();
+    if(!snaps.length || (D.captured && snaps[snaps.length - 1].captured !== D.captured)){
+      var cur = {date: new Date(D.captured * 1000).toISOString().slice(0, 10), captured: D.captured, s: {}};
+      ROWS.forEach(function(r){ cur.s[r.k] = [r.s, r.n, r.c]; }); if(snaps.length && snaps[snaps.length - 1].date === cur.date) snaps.pop(); snaps.push(cur);
+    }
+    return snaps;
+  }
+  function pvm(sn, k, m){ var e = sn.s[k]; if(!e) return null; snapInfo(sn); return m === 'rank' ? sn._r[k] : m === 'gap' ? e[0] - sn._t : e[0]; }
+  function fmtM(v, m, axis){ return m === 'rank' ? '#' + Math.round(v) : m === 'gap' ? (Math.round(v) ? sgn(v) : '0') : (axis ? fmt(v) : dots(v)); }
+  function dtChart(snaps, series, m){
+    if(snaps.length < 2) return '<div class="ld-empty">The history starts with the first capture. After the next run there will be a line here.</div>';
+    var W = 660, H = 250, L = 58, R = 12, T = 12, B = 30, lo = Infinity, hi = -Infinity, rk = m === 'rank';
+    series.forEach(function(se){ se.p.forEach(function(p){ lo = Math.min(lo, p[1]); hi = Math.max(hi, p[1]); }); });
+    if(!isFinite(lo)) return '<div class="ld-empty">No data for this state.</div>';
+    var minr = lo, maxr = hi;
+    if(rk){ lo -= 0.5; hi += 0.5; } else { if(hi === lo){ hi += 1; lo -= 1; } var pad = (hi - lo) * 0.1; lo -= pad; hi += pad; }
+    var X = function(i){ return L + (W - L - R) * i / (snaps.length - 1); }, Y = function(v){ var f = (v - lo) / (hi - lo); return T + (H - T - B) * (rk ? f : 1 - f); };
+    var g = '', ticks = [];
+    if(rk){ var stp = Math.max(1, Math.ceil((maxr - minr) / 4)); [1, 2, 5, 10, 20, 25, 50, 100].some(function(n){ if(n >= stp){ stp = n; return true; } }); for(var q = Math.floor(minr / stp) * stp || stp; q <= maxr + 0.01; q += stp) if(q >= minr) ticks.push(q); if(!ticks.length) ticks.push(minr); }
+    else for(var i = 0; i <= 4; i++) ticks.push(lo + (hi - lo) * i / 4);
+    ticks.forEach(function(v){ var y = Y(v); g += '<line class="g" x1="' + L + '" x2="' + (W - R) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '"/><text class="t" x="' + (L - 8) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end">' + esc(fmtM(v, m, true)) + '</text>'; });
+    var step = Math.max(1, Math.ceil(snaps.length / 7));
+    snaps.forEach(function(sn, i){ if(i % step === 0 || i === snaps.length - 1) g += '<text class="t" x="' + X(i).toFixed(1) + '" y="' + (H - 9) + '" text-anchor="middle">' + esc(sn.date.slice(5)) + '</text>'; });
+    var lines = '';
+    series.forEach(function(se){
+      var d = se.p.map(function(p, j){ return (j ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(' ');
+      lines += '<path class="l' + (se.main ? ' me' : '') + '" stroke="' + se.c + '" d="' + d + '"' + (se.main ? '' : ' stroke-dasharray="5 4"') + '/>' + se.p.map(function(p){ return '<circle cx="' + X(p[0]).toFixed(1) + '" cy="' + Y(p[1]).toFixed(1) + '" r="' + (se.main ? 3.6 : 2.4) + '" fill="' + se.c + '"><title>' + esc(se.n + ' · ' + snaps[p[0]].date + ': ' + fmtM(p[1], m, false)) + '</title></circle>'; }).join('');
+    });
+    return '<svg class="ld-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="History">' + g + lines + '</svg>';
+  }
+  function dtHtml(r){
+    var k = r.k, own = k === OWN, snaps = allSnaps(), BL = baseLbl(), me = ROWS.filter(function(x){ return x.k === OWN; })[0];
+    var main = {n: 'State ' + k, c: own ? '#f2b705' : '#4f7cff', main: true, p: []}, series = [main];
+    snaps.forEach(function(sn, i){ var v = pvm(sn, k, DT.cm); if(v != null) main.p.push([i, v]); });
+    var cmp = !own && me && $('ldDtCmp').checked;
+    if(cmp){ var o = {n: 'State ' + OWN, c: '#f2b705', main: false, p: []}; snaps.forEach(function(sn, i){ var v = pvm(sn, OWN, DT.cm); if(v != null) o.p.push([i, v]); }); series.push(o); }
+    var h = '<div class="ld-dt-h"><b>State ' + esc(k) + '</b><span>' + (own ? 'our state · ' : '') + 'Transfer score of the top 100 · game capture ' + esc(stamp(D.captured)) + '</span></div>';
+    var top = ROWS[0];
+    h += '<div class="ld-dt-k">'
+      + '<div class="ld-card ld-main"><small>Rank</small><b>#' + r.rank + ' of ' + ROWS.length + '</b><span>' + (r.dr ? '<span class="' + (r.dr > 0 ? 'ld-up' : 'ld-down') + '" style="display:inline">' + (r.dr > 0 ? '▲' : '▼') + Math.abs(r.dr) + '</span> since ' + esc(BL) : (r.dr === 0 ? 'unchanged since ' + esc(BL) : 'no earlier capture yet')) + '</span></div>'
+      + '<div class="ld-card"><small>Transfer score</small><b>' + fmt(r.s) + '</b><span>' + (r.d != null ? '<span class="' + (r.d >= 0 ? 'ld-up' : 'ld-down') + '" style="display:inline">' + sgn(r.d) + '</span> since ' + esc(BL) : esc(dots(r.s))) + '</span></div>'
+      + '<div class="ld-card"><small>Gap to #1</small><b>' + (r.rank === 1 ? 'Leading' : fmt(-r.gap)) + '</b><span>' + (r.rank === 1 ? (ROWS[1] ? 'ahead of #2 by ' + fmt(r.s - ROWS[1].s) : '') : pct(-r.gap / top.s * 100).replace('+', '−') + ' behind State ' + esc(top.k)) + '</span></div>'
+      + '<div class="ld-card"><small>Avg. per player</small><b>' + fmt(r.avg) + '</b><span>' + (r.ad != null ? dl(r.ad) + ' since ' + esc(BL) : '&nbsp;') + '</span></div>'
+      + '<div class="ld-card"><small>100th place</small><b>' + fmt(r.c) + '</b><span>' + (r.cd != null ? dl(r.cd) + ' since ' + esc(BL) : 'cutoff of the top 100') + '</span></div>'
+      + '<div class="ld-card"><small>Best player</small><b>' + fmt(r.t1) + '</b><span>' + (r.n ? r.n + ' players counted' : '&nbsp;') + '</span></div></div>';
+    h += '<div class="ld-dt-s">' + (DT.cm === 'rank' ? 'Rank' : DT.cm === 'gap' ? 'Gap to #1' : 'Transfer score') + ' history</div>' + dtChart(snaps, series, DT.cm);
+    h += '<div class="ld-dt-leg"><span><i style="background:' + main.c + '"></i>State ' + esc(k) + '</span>' + (cmp ? '<span><i style="background:#f2b705"></i>State ' + OWN + ' (dashed)</span>' : '') + '</div>';
+    // top 100 players
+    var arr = SC && SC.states && SC.states[k];
+    if(arr && arr.length){
+      var tot = arr.reduce(function(a, b){ return a + b; }, 0), t10 = arr.slice(0, 10).reduce(function(a, b){ return a + b; }, 0), mx = arr[0] || 1, BW = 660, BH = 90, bw = (BW - 4) / arr.length;
+      var bars = arr.map(function(v, i){ var hh = Math.max(1, v / mx * (BH - 4)); return '<rect class="b' + (i < 10 ? ' t' : '') + '" x="' + (2 + i * bw).toFixed(2) + '" y="' + (BH - hh).toFixed(1) + '" width="' + Math.max(1, bw - 1).toFixed(2) + '" height="' + hh.toFixed(1) + '"><title>#' + (i + 1) + ': ' + esc(dots(v)) + '</title></rect>'; }).join('');
+      h += '<div class="ld-dt-s">Top ' + arr.length + ' players (transfer score)</div><svg class="ld-dt-bars" viewBox="0 0 ' + BW + ' ' + BH + '" style="width:100%;height:auto;display:block" role="img" aria-label="Scores of the top players">' + bars + '</svg>'
+        + '<div class="ld-dt-leg"><span><i style="background:#f2b705"></i>Top 10 = ' + (tot ? (t10 / tot * 100).toFixed(1) : '0') + '% of the total</span><span>#1: ' + fmt(arr[0]) + '</span><span>#10: ' + fmt(arr[9]) + '</span><span>#' + arr.length + ': ' + fmt(arr[arr.length - 1]) + '</span></div>';
+    }
+    // history table (newest first)
+    var rows = '', list = snaps.map(function(sn, i){ var e = sn.s[k]; return e ? {date: sn.date, s: e[0], c: e[2], rk: (snapInfo(sn), sn._r[k]), gap: e[0] - sn._t} : null; }).filter(Boolean);
+    list.slice(-12).reverse().forEach(function(x, j, a){
+      var idx = list.length - 1 - j, p = list[idx - 1];
+      rows += '<tr><td>' + esc(x.date) + '</td><td>' + fmt(x.s) + '</td><td>' + (p ? dl(x.s - p.s) || '±0' : '–') + '</td><td>#' + x.rk + (p && p.rk !== x.rk ? ' <small class="' + (p.rk > x.rk ? 'ld-up' : 'ld-down') + '">' + (p.rk > x.rk ? '▲' : '▼') + Math.abs(p.rk - x.rk) + '</small>' : '') + '</td><td>' + (x.rk === 1 ? '–' : fmt(x.gap)) + '</td><td>' + (x.c != null ? fmt(x.c) : '–') + '</td></tr>';
+    });
+    h += '<div class="ld-dt-s">Captures</div><table class="ld-dt-t"><thead><tr><th>Date</th><th>Score</th><th>Change</th><th>Rank</th><th>Gap to #1</th><th>100th</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    h += '<div class="ld-sh-f">state646.com · Leading State</div>';
+    return h;
+  }
+  function dtRender(){
+    var r = ROWS.filter(function(x){ return x.k === DT.k; })[0]; if(!r) return;
+    $('ldDtTitle').textContent = 'State ' + r.k;
+    $('ldDtCmpL').style.display = r.k === OWN ? 'none' : '';
+    Array.prototype.forEach.call($('ldDtCm').querySelectorAll('button'), function(b){ b.classList.toggle('sp-act', b.dataset.m === DT.cm); });
+    $('ldDtShot').innerHTML = dtHtml(r);
+  }
+  function dtOpen(k){
+    if(!D || !ROWS.length) return;
+    DT.k = String(k); $('ldDt').classList.add('open'); dtRender(); loadLib().catch(function(){});
+    if(!SC && !SCP) SCP = getJ('data/leading_scores.json').then(function(j){ SC = j; SCP = null; if($('ldDt').classList.contains('open')) dtRender(); }).catch(function(){ SC = {states: {}}; SCP = null; });
+  }
+  function dtClose(){ $('ldDt').classList.remove('open'); }
+  $('ldTbl').addEventListener('click', function(e){ if(e.target.closest('th')) return; var tr = e.target.closest('tr[data-k]'); if(tr) dtOpen(tr.dataset.k); });
+  $('ldDtClose').addEventListener('click', dtClose);
+  $('ldDt').addEventListener('click', function(e){ if(e.target === $('ldDt')) dtClose(); });
+  $('ldDtCm').addEventListener('click', function(e){ var b = e.target.closest('button[data-m]'); if(!b) return; DT.cm = b.dataset.m; dtRender(); });
+  $('ldDtCmp').addEventListener('change', dtRender);
+  $('ldDtCopy').addEventListener('click', function(){ shareImage(this, 'copy', $('ldDtShot'), 'state646-leading-state-' + DT.k + '.png'); });
+  $('ldDtSave').addEventListener('click', function(){ shareImage(this, 'save', $('ldDtShot'), 'state646-leading-state-' + DT.k + '.png'); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') dtClose(); });
   // ---- events ----
   $('ldTbl').addEventListener('click', function(e){
     var th = e.target.closest('th[data-k]'); if(!th) return;
@@ -1325,12 +1432,12 @@ tr.ld-pick td.sp-p,tr.ld-pick td.sp-n{box-shadow:inset 3px 0 0 #18c5d6;}
       return (safari ? run().catch(function(){}) : Promise.resolve()).then(run);
     }).then(function(b){ if(!b) throw new Error('empty'); return b; });
   }
-  function shareImage(btn, mode){
-    var el = $('ldShot'), end = function(){ btn.disabled = false; };
+  function shareImage(btn, mode, el0, fn0){
+    var el = el0 || $('ldShot'), end = function(){ btn.disabled = false; };
     btn.disabled = true;
     var save = function(msg){
       return shotBlob(el).then(function(b){
-        var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'state646-leading-state.png';
+        var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = fn0 || 'state646-leading-state.png';
         document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500); toast(msg);
       }).catch(function(){ toast('Could not create the picture'); });
     };
