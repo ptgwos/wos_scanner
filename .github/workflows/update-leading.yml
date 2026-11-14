@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Fetch top-100 transfer scores of states 536-803
+      - name: Fetch top-100 transfer scores of the bracket (set in access.html)
         env:
           WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
         run: python tools/update_leading.py
