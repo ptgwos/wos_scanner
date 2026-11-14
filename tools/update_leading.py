@@ -10,16 +10,19 @@ Merged states (e.g. 631 -> 646: the API answers for the old number with the data
 States that do not exist (any more), e.g. 631 after a merger, are detected (HTTP 4xx or an empty answer), remembered under "gone" and only
 checked again every GONE_RECHECK days, so they cost (almost) nothing and never break the run.
 A state that fails for other reasons (timeout, 5xx) keeps its old values and is marked "stale".
+Bracket: set by the super admin in access.html (Supabase table ld_settings, public read, read with the URL/key from eventplan-config.js);
+environment WOS_FIRST / WOS_LAST override it (tests); fallback = the bracket of the last data/leading.json, then 536-803.
+When the bracket changes, the old history is moved to data/leading_archive/<first>-<last>/ and the new one starts fresh.
 Settings (environment): WOS_FIRST / WOS_LAST (bracket), WOS_PAUSE (seconds between requests, default 1.2), WOS_MAXMIN (stop after this many minutes
 and keep the rest as it was, default 40), WOS_FORCE_GONE=1 (check the "gone" states again now), WOS_KIDS="646,622" (only these states, for tests).
 Only the Python standard library. The key comes from the environment variable WOS_API_KEY (GitHub secret).
 """
-import json, os, re, sys, time, urllib.request, urllib.error
+import json, os, re, shutil, sys, time, urllib.request, urllib.error
 
 BASE = os.environ.get('WOS_API_BASE', 'https://api.whiteoutstats.com/v1')
 UA = 'state646-board/1.0 (+https://www.state646.com)'
 OUT = os.environ.get('WOS_OUT', 'data')
-FIRST, LAST = int(os.environ.get('WOS_FIRST', '536') or 536), int(os.environ.get('WOS_LAST', '803') or 803)
+FIRST, LAST = 536, 803                  # replaced in resolve_range()
 PAUSE = float(os.environ.get('WOS_PAUSE', '1.2'))
 MAXMIN = float(os.environ.get('WOS_MAXMIN', '40'))
 GONE_RECHECK = 14                       # days
@@ -76,6 +79,35 @@ def load(p):
         return None
 
 
+def resolve_range(old):
+    """Bracket: environment (tests) > Supabase table ld_settings (set in access.html) > last leading.json > 536-803."""
+    global FIRST, LAST
+    f, l, src = None, None, 'default'
+    if old.get('first') and old.get('last'): f, l, src = int(old['first']), int(old['last']), 'last run'
+    url, key = os.environ.get('SUPABASE_URL', '').strip().rstrip('/'), os.environ.get('SUPABASE_KEY', '').strip()
+    if not (url and key):
+        try:    # no secrets needed: the public URL and key from eventplan-config.js (as in update_players.py)
+            cfg = open('eventplan-config.js', encoding='utf-8').read()
+            mu = re.search(r'''\burl\b["']?\s*:\s*["']([^"']+)["']''', cfg); mk = re.search(r'''\bkey\b["']?\s*:\s*["']([^"']+)["']''', cfg)
+            if mu and mk: url, key = mu.group(1).strip().rstrip('/'), mk.group(1).strip()
+        except Exception:
+            pass
+    if url and key:
+        try:
+            h = {'apikey': key, 'Accept': 'application/json', 'User-Agent': UA}
+            if key.startswith('eyJ'): h['Authorization'] = 'Bearer ' + key
+            with urllib.request.urlopen(urllib.request.Request(url + '/rest/v1/ld_settings?select=first_kid,last_kid&id=eq.1', headers=h), timeout=30) as r:
+                rows = json.loads(r.read().decode('utf-8'))
+            if rows and int(rows[0]['first_kid']) <= int(rows[0]['last_kid']): f, l, src = int(rows[0]['first_kid']), int(rows[0]['last_kid']), 'access.html setting'
+        except Exception as e:
+            print(f'bracket setting not readable ({e}), using the {src} value', flush=True)
+    ef, el = os.environ.get('WOS_FIRST', '').strip(), os.environ.get('WOS_LAST', '').strip()
+    if ef and el: f, l, src = int(ef), int(el), 'environment'
+    if not (f and l): f, l, src = 536, 803, 'default'
+    FIRST, LAST = f, l
+    print(f'Bracket {FIRST}-{LAST} (source: {src})', flush=True)
+
+
 def stamp(t):
     return time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(t)) if t else 'unknown'
 
@@ -124,9 +156,17 @@ def dedupe(states, gone, today):
 
 def main():
     only = [int(x) for x in re.findall(r'\d+', os.environ.get('WOS_KIDS', ''))]
-    kids = only or list(range(FIRST, LAST + 1))
     old = load(os.path.join(OUT, 'leading.json')) or {}
     if old.get('sample'): old = {}
+    resolve_range(old)
+    kids = only or list(range(FIRST, LAST + 1))
+    # a different bracket (new transfer cycle): start fresh; the old history is archived once the new data is there
+    changed = bool(old.get('first') and old.get('last')) and (int(old['first']), int(old['last'])) != (FIRST, LAST) and not only
+    if changed:
+        print(f"The bracket changed ({old['first']}-{old['last']} -> {FIRST}-{LAST}): the history starts fresh, the old one is archived.", flush=True)
+        prev_old, old = old, {}
+    else:
+        prev_old = None
     states, gone = dict(old.get('states') or {}), dict(old.get('gone') or {})
     today = time.strftime('%Y-%m-%d', time.gmtime())
     force_gone = os.environ.get('WOS_FORCE_GONE', '') == '1'
@@ -178,6 +218,17 @@ def main():
     same = old.get('states') == out['states'] and old.get('gone') == out['gone'] and old.get('merged') == out['merged'] and old.get('captured') == cap
     if same:
         print('Nothing changed since the last run, nothing written.'); write_usage(os.path.join(OUT, 'usage.json'), 'leading state job'); return 0
+    if prev_old is not None:                                  # archive the history of the old bracket
+        ad = os.path.join(OUT, 'leading_archive', f"{prev_old['first']}-{prev_old['last']}")
+        os.makedirs(ad, exist_ok=True)
+        try:
+            with open(os.path.join(ad, 'leading_final.json'), 'w', encoding='utf-8') as f: json.dump(prev_old, f, ensure_ascii=False, separators=(',', ':'))
+            ld = os.path.join(OUT, 'leading')
+            for fn in (os.listdir(ld) if os.path.isdir(ld) else []):
+                if fn.endswith('.json'): shutil.move(os.path.join(ld, fn), os.path.join(ad, fn))
+            print(f'Old history archived in {ad}', flush=True)
+        except Exception as e:
+            print(f'archiving failed: {e}', flush=True)
     os.makedirs(os.path.join(OUT, 'leading'), exist_ok=True)
     day = time.strftime('%Y-%m-%d', time.gmtime(cap)) if cap else today
     snap = {'captured': cap, 's': {k: [v['s'], v['n'], v.get('c')] for k, v in out['states'].items() if not v.get('stale')}}
