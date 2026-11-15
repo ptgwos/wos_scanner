@@ -1,7 +1,8 @@
 """Alliance-change log for data/history.json (used by update_players.py).
 
-Every entry: {t: UTC time of the run, i: player id, n: name, f: from-tag, a: to-tag}
+Alliance change: {t: UTC time of the run, i: player id, n: name, f: from-tag, a: to-tag}
 'unknown' = the player was not visible in any of our alliances (left, kicked, joined from outside, ...).
+Name change (since 2026-11-15): {t, i, k: 'n', o: old name, n: new name}   (alliance changes have no 'k')
 """
 import json, datetime
 
@@ -30,6 +31,18 @@ def diff(old_al, new_al, names, t, tags, skip_join=()):
     for i, ot in om.items():
         if i not in nm:
             out.append({'t': t, 'i': i, 'n': names.get(i, ''), 'f': ot, 'a': 'unknown'})
+    out.sort(key=lambda e: (e['n'].lower(), e['i']))
+    return out
+
+
+def renames(old_players, new_players, t):
+    """Name changes between two player snapshots (matched by player id). Empty names are ignored."""
+    out = []
+    for i, p in new_players.items():
+        o = (old_players.get(i) or {}).get('n')
+        n = p.get('n')
+        if not o or not n or str(o).strip() == str(n).strip(): continue
+        out.append({'t': t, 'i': str(i), 'k': 'n', 'o': o, 'n': n})
     out.sort(key=lambda e: (e['n'].lower(), e['i']))
     return out
 

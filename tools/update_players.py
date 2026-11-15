@@ -7,7 +7,7 @@ and write data/players.json + avatars/<id>.webp (small copies of the profile pic
 - API key comes from the environment variable WOS_API_KEY (never from a file)
 - players that are not in any fetched alliance keep their last known entry
 - if an alliance cannot be fetched, its players keep their last known entry
-- data/history.json: log of alliance changes (who moved from which alliance to which, when)
+- data/history.json: log of alliance changes (who moved from which alliance to which, when) and name changes (same player id, new name)
 - data/usage.json: remaining API allowance of the day (shown in access.html); changes with every run
 - which alliances are fetched is chosen in access.html (Supabase table roster_alliances, read with the public URL/key from
   eventplan-config.js, or from the optional env variables SUPABASE_URL / SUPABASE_KEY); fallback = the last data/alliances.json, then DEFAULT_TAGS
@@ -241,6 +241,8 @@ try:
     first_time = [t for t in ok if t not in old.get('alliances', {}) or t not in prev_tags]   # newly ticked: no 'moves' against old data
     ents = wos_history.diff(old.get('alliances', {}), alliances, {k: v.get('n', '') for k, v in players.items()},
                             now_dt.strftime('%Y-%m-%dT%H:%MZ'), TAGS, first_time) if old.get('alliances') else []
+    if old.get('players'):   # name changes (same player id, new name)
+        ents = ents + wos_history.renames(old.get('players', {}), players, now_dt.strftime('%Y-%m-%dT%H:%MZ'))
     oldlog = json.loads(HIST.read_text(encoding='utf-8')).get('log', []) if HIST.exists() else []
     if ents or not HIST.exists():
         wos_history.dump(HIST, wos_history.merge(oldlog, ents, now_dt))
