@@ -581,6 +581,26 @@
   }
   #tooltip{visibility:hidden;transition:opacity .12s ease,transform .12s ease,visibility 0s linear .12s;}
   #tooltip.show{opacity:1;transform:none;visibility:visible;transition-delay:0s;}
+  /* tabs in the player popup: hover shows a preview, a click pins it so that the tabs can be used */
+  #tooltip.pin{background:var(--panel) !important;pointer-events:auto;max-height:min(75vh,560px);overflow-y:auto;overscroll-behavior:contain;}
+  #tooltip .tt-x{display:none;position:absolute;top:6px;right:8px;width:26px;height:26px;border:0;border-radius:50%;background:none;color:var(--text-faint);font-size:19px;line-height:1;cursor:pointer;padding:0;}
+  #tooltip .tt-x:hover{color:var(--text);background:rgba(120,140,190,.16);}
+  #tooltip.pin .tt-x{display:block;}
+  #tooltip .tt-head{padding-right:22px;}
+  .tt-tabs{display:flex;gap:2px;margin:10px 0 8px;padding:3px;background:var(--panel-2);border:1px solid var(--border);border-radius:9px;}
+  .tt-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 10px;border:0;border-radius:7px;background:none;color:var(--text-dim);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .15s,color .15s;}
+  .tt-tab:hover{color:var(--strong);}
+  .tt-tab[aria-selected="true"]{background:rgba(255,180,0,.14);color:var(--gold);}
+  .tt-tab i{font-style:normal;font-size:10.5px;font-weight:700;min-width:17px;padding:1px 5px;border-radius:9px;background:rgba(120,140,190,.2);color:var(--text-dim);}
+  .tt-tab[aria-selected="true"] i{background:rgba(255,180,0,.22);color:var(--gold);}
+  .tt-pane[hidden]{display:none;}
+  .tt-ch{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--border);}
+  .tt-ch:first-child{border-top:0;}
+  .tt-kd{flex:0 0 52px;padding-top:2px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint);}
+  .tt-cm{flex:1;min-width:0;font-size:12.5px;line-height:1.5;word-break:break-word;}
+  .tt-cd{margin-top:1px;font-size:11px;color:var(--text-faint);}
+  .tt-nm{color:var(--strong);font-weight:600;}
+  .tt-nm.old{color:var(--text-dim);font-weight:500;text-decoration:line-through;text-decoration-color:var(--text-faint);}
   .tt-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
   .tt-head b{font-size:13.5px;color:var(--strong);}
   .tt-state{font-size:11px;font-weight:700;color:var(--state657);}
@@ -703,6 +723,8 @@
   @media (hover:none){
     #tooltip{left:max(14px, calc(50% - 230px)) !important;right:auto;width:min(460px, calc(100vw - 28px));top:auto !important;bottom:calc(env(safe-area-inset-bottom, 0px) + 24px);max-width:none;max-height:75vh;max-height:75dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;transform:translateY(10px);}
     #tooltip.show{transform:none;pointer-events:auto;}
+    #tooltip .tt-x{display:block;}
+    #tooltip.show{background:var(--panel) !important;}
     .switch{width:100%;}
   }
   @media (prefers-reduced-motion:reduce){
@@ -901,7 +923,7 @@
       <div class="field"><label for="rs">Sort members by</label>
         <select id="rs"><option value="power">Power</option><option value="rank">Alliance rank</option><option value="fc">Furnace</option><option value="name">Name</option></select></div>
       <button type="button" class="btn" id="expAll">Expand all</button>
-      <button type="button" class="btn" id="hisBtn" title="Who moved from which alliance to which, and when">History</button>
+      <button type="button" class="btn" id="hisBtn" title="Who moved from which alliance to which, who changed the name, and when">History</button>
       <button type="button" class="btn" id="expBtn" title="Download member lists as CSV or Excel">Export …</button>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
     </div>
@@ -910,7 +932,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-13 · r26</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-15 · r27</footer>
 </div>
 <script>
 (function(){
@@ -1111,7 +1133,7 @@
   // ---- alliance-change history (data/history.json, written by tools/update_players.py) ----
   const hiM = document.createElement('div'); hiM.className = 'modal-overlay'; hiM.id = 'hiModal';
   hiM.setAttribute('role', 'dialog'); hiM.setAttribute('aria-modal', 'true'); hiM.setAttribute('aria-labelledby', 'hiTitle');
-  hiM.innerHTML = '<div class="modal-panel hi-panel"><div class="modal-header"><h2 id="hiTitle">Alliance changes</h2><button type="button" class="modal-close" id="hiClose" aria-label="Close">×</button></div><div class="hi-body"><p class="hi-note" id="hiNote"></p><div class="hi-bar"><input type="search" class="hi-q" id="hiQ" placeholder="Filter by name or alliance …" autocomplete="off"><label class="hi-cal" id="hiCal" title="Show one day only"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><input type="date" id="hiD" aria-label="Show one day only"></label></div><div class="hi-day" id="hiDay" hidden></div><div id="hiList"></div></div></div>';
+  hiM.innerHTML = '<div class="modal-panel hi-panel"><div class="modal-header"><h2 id="hiTitle">Alliance &amp; name changes</h2><button type="button" class="modal-close" id="hiClose" aria-label="Close">×</button></div><div class="hi-body"><p class="hi-note" id="hiNote"></p><div class="hi-bar"><input type="search" class="hi-q" id="hiQ" placeholder="Filter by name or alliance …" autocomplete="off"><label class="hi-cal" id="hiCal" title="Show one day only"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><input type="date" id="hiD" aria-label="Show one day only"></label></div><div class="hi-day" id="hiDay" hidden></div><div id="hiList"></div></div></div>';
   document.body.appendChild(hiM);
   let HI = null, hiShown = 150;
   const hiChip = t => t === 'unknown' ? '<span class="sx-id">unknown</span>' : nameChip(t);
@@ -1130,10 +1152,10 @@
   function hiRender(){
     const q = document.getElementById('hiQ').value.trim().toLowerCase(), dd = document.getElementById('hiD').value;
     hiDayUi();
-    const all = (HI || []).filter(e => (!dd || (e.t || '').slice(0, 10) === dd) && (!q || (e.n || '').toLowerCase().includes(q) || e.f.toLowerCase() === q || e.a.toLowerCase() === q || String(e.i) === q));
+    const all = (HI || []).filter(e => (!dd || (e.t || '').slice(0, 10) === dd) && (!q || (e.n || '').toLowerCase().includes(q) || (e.o || '').toLowerCase().includes(q) || (e.f || '').toLowerCase() === q || (e.a || '').toLowerCase() === q || String(e.i) === q));
     const part = all.slice(0, hiShown);
     document.getElementById('hiNote').textContent = all.length + ' change' + (all.length === 1 ? '' : 's') + (q || dd ? ' found' : ' in the log') + ' · times are UTC · the game data can be up to 60 minutes behind · "unknown" = not visible in any of our alliances';
-    document.getElementById('hiList').innerHTML = all.length ? '<table class="hi-t"><tbody>' + part.map(e => '<tr><td class="hn">' + escapeHtml(e.n || e.i) + '</td><td class="hm">' + hiChip(e.f) + '<span class="hi-ar">→</span>' + hiChip(e.a) + '</td><td class="hd" title="' + escapeHtml(e.t) + '">' + hiTime(e.t) + '</td></tr>').join('') + '</tbody></table>' + (all.length > part.length ? '<button type="button" class="btn hi-more" id="hiMore">Show more (' + (all.length - part.length) + ')</button>' : '') : '<p class="hi-note">' + (HI ? 'Nothing found.' : 'No history available yet.') + '</p>';
+    document.getElementById('hiList').innerHTML = all.length ? '<table class="hi-t"><tbody>' + part.map(e => '<tr><td class="hn">' + escapeHtml(e.n || e.i) + '</td><td class="hm">' + (e.k === 'n' ? '<span class="sx-id">Name</span> <span class="tt-nm old">' + escapeHtml(e.o) + '</span><span class="hi-ar">→</span><span class="tt-nm">' + escapeHtml(e.n) + '</span>' : hiChip(e.f) + '<span class="hi-ar">→</span>' + hiChip(e.a)) + '</td><td class="hd" title="' + escapeHtml(e.t) + '">' + hiTime(e.t) + '</td></tr>').join('') + '</tbody></table>' + (all.length > part.length ? '<button type="button" class="btn hi-more" id="hiMore">Show more (' + (all.length - part.length) + ')</button>' : '') : '<p class="hi-note">' + (HI ? 'Nothing found.' : 'No history available yet.') + '</p>';
   }
   function loadHist(){
     return fetch('data/history.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : Promise.reject()).then(j => { HI = Array.isArray(j.log) ? j.log : []; return true; }).catch(() => false);
@@ -1213,20 +1235,25 @@
   // ---- hover popup (desktop) / bottom sheet on tap (touch), same look as on the board ----
   const NO_HOVER = window.matchMedia && window.matchMedia('(hover: none)').matches;
   const tipEl = document.createElement('div'); tipEl.id = 'tooltip'; tipEl.setAttribute('role', 'tooltip'); document.body.appendChild(tipEl);
-  let tipKey = '', tipTimer = null, pendKey = '', lx = 0, ly = 0;
+  let tipKey = '', tipTimer = null, pendKey = '', lx = 0, ly = 0, tipPin = false;
   function memberTip(id){
     const p = D && D.players[id]; if(!p) return '';
     const big = st.av ? (p.au ? `<img class="av xl" src="avatars/${escapeHtml(id)}.webp" alt="" onerror="this.remove()">` : `<span class="av ph xl" aria-hidden="true">${escapeHtml((Array.from(String(p.n || '?'))[0] || '?').toUpperCase())}</span>`) : '';
     const lv = Number(p.f);
     const hh = (HI || []).filter(e => String(e.i) === String(id));
-    const hist = hh.length ? '<div class="tt-h">Alliance changes</div><table class="tt-table">' + hh.slice(0, 4).map(e => '<tr><td class="r">' + hiChip(e.f) + '<span class="hi-ar">→</span>' + hiChip(e.a) + '</td><td>' + hiTime(e.t) + '</td></tr>').join('') + '</table>' + (hh.length > 4 ? '<div class="tt-note">+' + (hh.length - 4) + ' more in History</div>' : '') : '';
-    return `<div class="tt-head">${big}<div><b>${escapeHtml(p.n)}</b><div class="tt-id">ID: ${escapeHtml(id)}</div></div></div>
-      <table class="tt-table">
+    const chg = hh.length ? hh.slice(0, 40).map(e => '<div class="tt-ch"><span class="tt-kd">' + (e.k === 'n' ? 'Name' : 'Alliance') + '</span><div class="tt-cm">' +
+        (e.k === 'n' ? '<span class="tt-nm old">' + escapeHtml(e.o) + '</span><span class="hi-ar">→</span><span class="tt-nm">' + escapeHtml(e.n) + '</span>' : hiChip(e.f) + '<span class="hi-ar">→</span>' + hiChip(e.a)) +
+        '<div class="tt-cd">' + hiTime(e.t) + ' UTC</div></div></div>').join('') + (hh.length > 40 ? '<div class="tt-note">+' + (hh.length - 40) + ' older entries in History</div>' : '')
+      : '<p class="tt-note" style="margin:6px 0">' + (HI ? 'No changes recorded.' : 'No history available yet.') + '</p>';
+    return `<button type="button" class="tt-x" aria-label="Close">×</button><div class="tt-head">${big}<div><b>${escapeHtml(p.n)}</b><div class="tt-id">ID: ${escapeHtml(id)}</div></div></div>
+      <div class="tt-tabs" role="tablist" aria-label="Player details"><button type="button" class="tt-tab" role="tab" data-tab="g" aria-selected="true">General</button><button type="button" class="tt-tab" role="tab" data-tab="c" aria-selected="false">Changes${hh.length ? '<i>' + hh.length + '</i>' : ''}</button></div>
+      <div class="tt-pane" data-pane="g" role="tabpanel"><table class="tt-table">
         <tr><td class="r">Alliance</td><td>${tagChip(p.a)}</td></tr>
         <tr><td class="r">Rank</td><td><span class="ro-rk ro-${escapeHtml(rk(p.r))}">${escapeHtml(rk(p.r))}</span></td></tr>
         <tr><td class="r">Power</td><td class="p">${fmt(p.p)}</td></tr>
         <tr><td class="r">Furnace</td><td><span class="tt-fc">${fcHtml(p.f)}${lv ? `<span>Level ${lv}${lv >= 35 ? ' (FC' + Math.min(10, Math.floor(lv / 5) - 6) + ')' : ''}</span>` : ''}</span></td></tr>
-      </table>${hist}${NO_HOVER ? '<div class="tt-note">Tap outside to close</div>' : ''}`;
+      </table></div>
+      <div class="tt-pane" data-pane="c" role="tabpanel" hidden>${chg}<div class="tt-note">Times are UTC · the log keeps 60 days · name changes are recorded from the start of this feature on</div></div>${NO_HOVER ? '<div class="tt-note">Tap outside to close</div>' : '<div class="tt-note tt-pinhint">Click the player for more</div>'}`;
   }
   function placeTip(x, y){
     if(NO_HOVER) return;
@@ -1241,7 +1268,32 @@
     if(id !== tipKey){ const h = memberTip(id); if(!h){ hideTip(); return; } tipEl.innerHTML = h; tipEl.scrollTop = 0; tipKey = id; }
     tipEl.classList.add('show'); placeTip(x, y);
   }
-  function hideTip(){ clearTimeout(tipTimer); pendKey = ''; tipEl.classList.remove('show'); tipKey = ''; }
+  function hideTip(force){
+    if(tipPin && force !== true) return;                       // a pinned popup stays until it is closed on purpose
+    clearTimeout(tipTimer); pendKey = ''; tipPin = false; tipEl.classList.remove('show', 'pin'); tipKey = '';
+  }
+  function tipTab(k){
+    tipEl.querySelectorAll('.tt-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === k ? 'true' : 'false'));
+    tipEl.querySelectorAll('.tt-pane').forEach(p => { p.hidden = p.dataset.pane !== k; });
+    fitTip();
+  }
+  function fitTip(){   // keep the popup on screen after its height changed (does not move it otherwise)
+    if(NO_HOVER) return;
+    const h = tipEl.offsetHeight, t = parseFloat(tipEl.style.top) || 0;
+    if(t + h > window.innerHeight - 8) tipEl.style.top = Math.max(8, window.innerHeight - 8 - h) + 'px';
+  }
+  function pinTip(id, x, y){
+    lx = x; ly = y; clearTimeout(tipTimer); pendKey = '';
+    if(id !== tipKey) showTip(id, x, y); else tipEl.classList.add('show');   // same player: the popup stays where it is
+    tipPin = true; tipEl.classList.add('pin');
+    const h = tipEl.querySelector('.tt-pinhint'); if(h) h.remove();
+    fitTip();
+  }
+  tipEl.addEventListener('click', e => {
+    const t = e.target.closest('.tt-tab'); if(t){ tipTab(t.dataset.tab); return; }
+    if(e.target.closest('.tt-x')) hideTip(true);
+  });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && tipEl.classList.contains('show')) hideTip(true); });
   function schedTip(id, x, y){
     lx = x; ly = y;
     if(tipEl.classList.contains('show')){ showTip(id, x, y); return; }
@@ -1250,13 +1302,16 @@
     tipTimer = setTimeout(() => { pendKey = ''; showTip(id, lx, ly); }, 400);
   }
   if(!NO_HOVER){
-    cardsEl.addEventListener('mousemove', e => { const tr = e.target.closest('.ro-t tbody tr[data-pid]'); if(!tr){ hideTip(); return; } schedTip(tr.dataset.pid, e.clientX, e.clientY); });
-    cardsEl.addEventListener('mouseleave', hideTip);
+    cardsEl.addEventListener('mousemove', e => { if(tipPin) return; const tr = e.target.closest('.ro-t tbody tr[data-pid]'); if(!tr){ hideTip(); return; } schedTip(tr.dataset.pid, e.clientX, e.clientY); });
+    cardsEl.addEventListener('mouseleave', () => hideTip());
+    // a click pins the popup (so the tabs can be clicked); a click anywhere else closes it
+    cardsEl.addEventListener('click', e => { const tr = e.target.closest('.ro-t tbody tr[data-pid]'); if(!tr) return; if(e.target.closest('a,button,input,label')) return; e.stopPropagation(); pinTip(tr.dataset.pid, e.clientX, e.clientY); });
+    document.addEventListener('click', e => { if(tipPin && !tipEl.contains(e.target)) hideTip(true); });
   } else {
     cardsEl.addEventListener('click', e => { const tr = e.target.closest('.ro-t tbody tr[data-pid]'); if(!tr) return; e.stopPropagation(); showTip(tr.dataset.pid, 0, 0); });
-    document.addEventListener('click', e => { if(!tipEl.contains(e.target)) hideTip(); });
+    document.addEventListener('click', e => { if(!tipEl.contains(e.target)) hideTip(true); });
   }
-  window.addEventListener('scroll', hideTip, {passive: true});
+  window.addEventListener('scroll', () => hideTip(), {passive: true});
   // ---- theme (same keys as svslb.html) ----
   (function(){
     const root = document.documentElement;
