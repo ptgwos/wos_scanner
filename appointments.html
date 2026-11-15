@@ -1108,6 +1108,10 @@
   table.ap-tb th{position:sticky;top:0;background:var(--panel-2);color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;user-select:none;z-index:2;}
   table.ap-tb th.l,table.ap-tb td.l{text-align:left;}
   table.ap-tb th.on{color:var(--gold);}
+  /* column groups: FC items (blue tint) and speed-ups (gold tint), with a thin line at the group edges */
+  table.ap-tb .g1{background:rgba(110,231,255,.07);} table.ap-tb th.g1{background:linear-gradient(rgba(110,231,255,.14),rgba(110,231,255,.14)),var(--panel-2);}
+  table.ap-tb .g2{background:rgba(255,180,0,.07);} table.ap-tb th.g2{background:linear-gradient(rgba(255,180,0,.14),rgba(255,180,0,.14)),var(--panel-2);}
+  table.ap-tb .gs{border-left:1px solid var(--border);} table.ap-tb .ge{border-right:1px solid var(--border);}
   table.ap-tb tbody tr.r{cursor:pointer;} table.ap-tb tbody tr.r:hover{background:rgba(110,231,255,.06);}
   table.ap-tb td.nm{font-weight:700;color:var(--strong);}
   table.ap-tb tr.dt td{text-align:left;white-space:normal;background:var(--panel-2);}
@@ -1230,7 +1234,7 @@
     </div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-11-15 · ap4</footer>
+  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-11-15 · ap5</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
@@ -1700,7 +1704,8 @@
       return true;
     });
   }
-  var COLS = [{k: 'name', l: 'Name', c: 'l'}, {k: 'tag', l: 'Alliance', c: 'l'}, {k: 'fc', l: 'FCs'}, {k: 'fcr', l: 'Refined'}, {k: 'fcs', l: 'Shards'}, {k: 'sg', l: 'General'}, {k: 'st', l: 'Training'}, {k: 'sc', l: 'Constr.'}, {k: 'sr', l: 'Research'}, {k: 'd1', l: 'Mon 1st'}, {k: 'd2', l: 'Tue 1st'}, {k: 'd3', l: 'Thu 1st'}, {k: 'upd', l: 'Updated', c: 'l'}];
+  var COLS = [{k: 'name', l: 'Name', c: 'l'}, {k: 'tag', l: 'Alliance', c: 'l'}, {k: 'fc', l: 'FCs', g: 'g1 gs'}, {k: 'fcr', l: 'Refined', g: 'g1'}, {k: 'fcs', l: 'Shards', g: 'g1 ge'}, {k: 'sg', l: 'General', g: 'g2 gs'}, {k: 'sc', l: 'Constr.', g: 'g2'}, {k: 'sr', l: 'Research', g: 'g2'}, {k: 'st', l: 'Troops', g: 'g2 ge'}, {k: 'd1', l: 'Mon 1st'}, {k: 'd2', l: 'Tue 1st'}, {k: 'd3', l: 'Thu 1st'}, {k: 'upd', l: 'Updated', c: 'l'}];
+  var TK = ['fc', 'fcr', 'fcs', 'sg', 'sc', 'sr', 'st'], GC = {fc: 'g1 gs', fcr: 'g1', fcs: 'g1 ge', sg: 'g2 gs', sc: 'g2', sr: 'g2', st: 'g2 ge'};   // columns of the overview table; g1 = FC group, g2 = speed-ups
   function gv(r, k){ if(k === 'name') return (r.name || '').toLowerCase(); if(k === 'tag') return (r.tag || '').toLowerCase(); if(k === 'upd') return r.updated_at || ''; if(k.charAt(0) === 'd' && k.length === 2) return (r.slots[k.charAt(1)] || [])[0]; return r.vals ? r.vals[k] : undefined; }
   function sortRows(a){
     return a.slice().sort(function(x, y){ var p = gv(x, O.sk), q = gv(y, O.sk); if(p == null && q == null) return 0; if(p == null) return 1; if(q == null) return -1; return (p < q ? -1 : p > q ? 1 : 0) * O.sd; });
@@ -1711,10 +1716,10 @@
   function ovDraw(){
     var rows = rowsF(), b = $('oBody'); $('oCnt').textContent = rows.length + ' of ' + O.rows.length + ' players';
     if(O.tab === 'p'){
-      var h = '<div class="ap-tw"><table class="ap-tb"><thead><tr>' + COLS.map(function(c){ return '<th class="' + (c.c || '') + (O.sk === c.k ? ' on' : '') + '" data-k="' + c.k + '">' + c.l + (O.sk === c.k ? (O.sd > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('') + '<th></th></tr></thead><tbody>';
+      var h = '<div class="ap-tw"><table class="ap-tb"><thead><tr>' + COLS.map(function(c){ return '<th class="' + (c.c || '') + (c.g ? ' ' + c.g : '') + (O.sk === c.k ? ' on' : '') + '" data-k="' + c.k + '">' + c.l + (O.sk === c.k ? (O.sd > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('') + '<th></th></tr></thead><tbody>';
       sortRows(rows).forEach(function(r){
         h += '<tr class="r" data-id="' + esc(r.id) + '"><td class="l nm">' + esc(r.name) + '</td><td class="l">' + (r.tag ? '<span class="ap-tag">' + esc(r.tag) + '</span>' : '') + '</td>' +
-          VK.filter(function(k){ return k !== 'sl' && k !== 'sh'; }).map(function(k){ var v = r.vals ? r.vals[k] : null; return '<td' + (k.charAt(0) === 's' && v != null ? ' title="' + mins(v) + '"' : '') + '>' + fmt(v) + '</td>'; }).join('') +
+          TK.map(function(k){ var v = r.vals ? r.vals[k] : null; return '<td class="' + GC[k] + '"' + (k.charAt(0) === 's' && v != null ? ' title="' + mins(v) + '"' : '') + '>' + fmt(v) + '</td>'; }).join('') +
           [1, 2, 3].map(function(d){ var f = (r.slots[d] || [])[0]; return '<td>' + (f == null ? '–' : tl(f)) + '</td>'; }).join('') + '<td class="l">' + fdate(r.updated_at) + '</td>' +
           '<td><button type="button" class="ap-x' + (O.arm === r.id ? ' arm' : '') + '" data-del="' + esc(r.id) + '">' + (O.arm === r.id ? 'Really?' : 'Delete') + '</button></td></tr>';
         if(O.open[r.id]) h += '<tr class="dt"><td colspan="' + (COLS.length + 1) + '"><div class="ap-dg">' + DAYS.map(function(d){ return '<div><b>' + d.n + ' · ' + d.w + '</b><span>' + (chips(r, d.k) || '–') + '</span></div>'; }).join('') + '</div><div class="ap-note">Player ID ' + esc(r.pid) + ' · version ' + r.version + ' · Learning ' + (r.vals && r.vals.sl != null ? fmt(r.vals.sl) : '–') + ' · Healing ' + (r.vals && r.vals.sh != null ? fmt(r.vals.sh) : '–') + '</div></td></tr>';
