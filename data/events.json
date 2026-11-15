@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-14",
- "fetched_at": "2026-11-14T06:43:04Z",
- "count": 27,
+ "api_date": "2026-11-15",
+ "fetched_at": "2026-11-15T06:47:42Z",
+ "count": 24,
  "events": [
   {
    "name": "Tundra Hellfire",
@@ -30,15 +30,6 @@
    "end": "2026-11-23T00:00:00Z",
    "begin_ts": 1794096000,
    "end_ts": 1795392000
-  },
-  {
-   "name": "State Transfer",
-   "category": "Events",
-   "when": "8 Nov 00:00 – 14 Nov 24:00",
-   "begin": "2026-11-08T00:00:00Z",
-   "end": "2026-11-15T00:00:00Z",
-   "begin_ts": 1794096000,
-   "end_ts": 1794700800
   },
   {
    "name": "Alliance Championship",
@@ -120,24 +111,6 @@
    "end": "2026-11-16T00:00:00Z",
    "begin_ts": 1794268800,
    "end_ts": 1794787200
-  },
-  {
-   "name": "Armament Competition",
-   "category": "Events",
-   "when": "13 Nov 00:00 – 14 Nov 24:00",
-   "begin": "2026-11-13T00:00:00Z",
-   "end": "2026-11-15T00:00:00Z",
-   "begin_ts": 1794528000,
-   "end_ts": 1794700800
-  },
-  {
-   "name": "Mia's Fortune Hut",
-   "category": "Deals",
-   "when": "13 Nov 00:00 – 14 Nov 24:00",
-   "begin": "2026-11-13T00:00:00Z",
-   "end": "2026-11-15T00:00:00Z",
-   "begin_ts": 1794528000,
-   "end_ts": 1794700800
   },
   {
    "name": "Hall of Heroes",

@@ -1,33 +1,12 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-14",
- "count": 27,
+ "date": "2026-11-15",
+ "count": 24,
  "categories": [
   {
    "name": "Events",
    "events": [
-    {
-     "name": "State Transfer",
-     "category": "Events",
-     "when": "8 Nov 00:00 – 14 Nov 24:00",
-     "begin_ts": 1794096000,
-     "end_ts": 1794700800
-    },
-    {
-     "name": "Tundra Trade Route",
-     "category": "Events",
-     "when": "9 Nov 00:00 – 15 Nov 04:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1794715200
-    },
-    {
-     "name": "Armament Competition",
-     "category": "Events",
-     "when": "13 Nov 00:00 – 14 Nov 24:00",
-     "begin_ts": 1794528000,
-     "end_ts": 1794700800
-    },
     {
      "name": "Alliance Championship",
      "category": "Events",
@@ -118,19 +97,19 @@
      "when": "17 Nov 00:00 – 19 Nov 24:00",
      "begin_ts": 1794873600,
      "end_ts": 1795132800
+    },
+    {
+     "name": "Tundra Trade Route",
+     "category": "Events",
+     "when": "9 Nov 00:00 – 15 Nov 04:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1794715200
     }
    ]
   },
   {
    "name": "Deals",
    "events": [
-    {
-     "name": "Mia's Fortune Hut",
-     "category": "Deals",
-     "when": "13 Nov 00:00 – 14 Nov 24:00",
-     "begin_ts": 1794528000,
-     "end_ts": 1794700800
-    },
     {
      "name": "Hero Rally",
      "category": "Deals",
@@ -203,18 +182,18 @@
    "name": "Wander Theater",
    "events": [
     {
-     "name": "Bizarre Bazaar",
-     "category": "Wander Theater",
-     "when": "10 Nov 00:00 – 16 Nov 24:00",
-     "begin_ts": 1794268800,
-     "end_ts": 1794873600
-    },
-    {
      "name": "Wander Theater",
      "category": "Wander Theater",
      "when": "10 Nov 00:00 – 15 Nov 24:00",
      "begin_ts": 1794268800,
      "end_ts": 1794787200
+    },
+    {
+     "name": "Bizarre Bazaar",
+     "category": "Wander Theater",
+     "when": "10 Nov 00:00 – 16 Nov 24:00",
+     "begin_ts": 1794268800,
+     "end_ts": 1794873600
     }
    ]
   }
