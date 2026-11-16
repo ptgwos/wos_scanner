@@ -32,22 +32,64 @@
       '.sitenav.na-g .na-grp.open > .na-dd{display:block;animation:naIn .14s ease-out}' +
       '@keyframes naIn{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:none}}' +
       '@media (prefers-reduced-motion:reduce){.sitenav.na-g .na-grp.open > .na-dd{animation:none}.sitenav.na-g .na-b,.sitenav.na-g .na-b svg{transition:none}}' +
-      '.sitenav.na-g .na-dd a,.sitenav.na-g .na-dd span.na-i{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--text-dim);text-decoration:none;white-space:nowrap;font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;font-variant-caps:normal}' +
+      '.sitenav.na-g .na-dd{min-width:300px;max-width:calc(100vw - 16px)}' +
+      '.sitenav.na-g .na-dd a,.sitenav.na-g .na-dd span.na-i{display:flex;align-items:flex-start;gap:12px;padding:9px 12px;border-radius:9px;color:var(--text-dim);text-decoration:none;white-space:normal;font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;font-variant-caps:normal;line-height:1.3}' +
       '.sitenav.na-g .na-dd a:hover{color:var(--strong);background:rgba(120,140,190,.16)}' +
-      '.sitenav.na-g .na-dd .na-cur{color:var(--gold);background:rgba(255,180,0,.12)}' +
-      '.sitenav.na-g .na-dd .na-cur::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);flex:0 0 auto;margin-left:-2px}' +
+      '.sitenav.na-g .na-ic{flex:0 0 auto;width:20px;height:20px;margin-top:1px;opacity:.75;display:inline-flex}.sitenav.na-g .na-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:1;transition:none}' +
+      '.sitenav.na-g .na-dd a:hover .na-ic{opacity:1}' +
+      '.sitenav.na-g .na-tx{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}' +
+      '.sitenav.na-g .na-t{display:flex;align-items:center;gap:8px;color:var(--strong);font-weight:600}' +
+      '.sitenav.na-g .na-ds{font-size:12px;font-weight:400;color:var(--text-faint,var(--text-dim));line-height:1.35}' +
+      '.sitenav.na-g .na-bg{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1.5}' +
+      '.sitenav.na-g .na-bg.f{background:rgba(52,190,110,.15);color:#25a35f}' +
+      '.sitenav.na-g .na-bg.m{background:rgba(255,180,0,.16);color:var(--gold,#ffb400)}' +
+      '.sitenav.na-g .na-lg{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:6px 4px 2px;padding:9px 8px 4px;border-top:1px solid var(--border,#26304d);font-size:11.5px;color:var(--text-faint,var(--text-dim))}' +
+      '.sitenav.na-g .na-dd .na-cur{background:rgba(255,180,0,.1)}.sitenav.na-g .na-dd .na-cur .na-t{color:var(--gold)}' +
+      '.sitenav.na-g .na-dd .na-cur::before{display:none}' +
       '.sitenav.na-g .na-off{opacity:.42;cursor:not-allowed}.sitenav.na-g .na-off:hover{opacity:.6}' +
       '.sitenav .na-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3b3b;margin-left:5px;vertical-align:super;box-shadow:0 0 0 2px rgba(255,59,59,.25)}' +
       '.sitenav.na-g .na-login{margin-left:auto;color:var(--gold);background:rgba(255,180,0,.12)}' +
       '.sitenav.na-g .na-login:hover{background:rgba(255,180,0,.22);color:var(--gold)}' +
-      '@media (max-width:640px){.sitenav.na-g{gap:1px;padding:3px}.sitenav.na-g .na-b{padding:7px 9px;gap:4px;font-size:13px}.sitenav.na-g .na-login{margin-left:0}.sitenav.na-g .na-dd{min-width:200px}}';
+      '@media (max-width:640px){.sitenav.na-g{gap:1px;padding:3px}.sitenav.na-g .na-b{padding:7px 9px;gap:4px;font-size:13px}.sitenav.na-g .na-login{margin-left:0}.sitenav.na-g .na-dd,.sitenav.na-g .na-dd.r{position:fixed;left:8px;right:8px;top:var(--na-top,120px);min-width:0;max-width:none;max-height:calc(100vh - var(--na-top,120px) - 12px);overflow-y:auto}.sitenav.na-g .na-grp{position:static}}';
     document.head.appendChild(s);
   }
+  // icons: small line symbols (24x24, stroke = currentColor)
+  var IC = {
+    users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.4c1.8.8 3 2.6 3 5.6"/>',
+    trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H4v1.5A3.5 3.5 0 0 0 8 11M16 6h4v1.5A3.5 3.5 0 0 1 16 11"/><path d="M12 13v4M8.5 20h7M10 17h4"/>',
+    bars: '<path d="M5 20V11M12 20V4M19 20v-6"/>',
+    crown: '<path d="M3.5 18h17M4.5 18L3 7l5 4 4-6 4 6 5-4-1.5 11"/>',
+    flag: '<path d="M6 21V4M6 5h11l-2 4 2 4H6"/>',
+    calcheck: '<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4M9 15l2 2 4-4"/>',
+    cal: '<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+    target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8"/>',
+    waves: '<path d="M4 8c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1M4 14c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1M4 20c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1"/>',
+    castle: '<path d="M4 20V8h3v2h2V8h6v2h2V8h3v12H4zM10 20v-5a2 2 0 0 1 4 0v5"/>',
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+    shield: '<path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/>',
+    gift: '<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-3-5 0M12 9c2-4 6-3 5 0"/>'
+  };
+  // items: [page, label, icon, short description, badge]  badge f = open to everyone (you may need a login to edit), m = members of state 646 with access only
   var GROUPS = [
     {k: 'home', f: 'index.html', l: 'Home', s: 'Home'},
-    {k: 'info', l: 'Information', s: 'Info', items: [['roster.html', 'Roster'], ['svslb.html', 'SvS Leaderboards'], ['statepower.html', 'State Power'], ['leading.html', 'Leading State'], ['rallyleads.html', 'Rally Leads']]},
-    {k: 'plan', l: 'Planning', s: 'Plan', items: [['eventplan.html', 'Event Planner'], ['eventcal.html', 'Event Calendar'], ['rallyplan.html', 'Rally Planner'], ['pool.html', 'Rally Pool'], ['assignfsh.html', 'Fortress/SH Plan'], ['appointments.html', 'Appointments'], ['foundryplaner.html', 'Foundry/TAL Planner']]},
-    {k: 'tool', l: 'Tools', s: 'Tools', items: [['formations.html', 'Formations'], ['chests.html', 'Presidential Chests']]},
+    {k: 'info', l: 'Information', s: 'Info', items: [
+      ['roster.html', 'Roster', 'users', 'Alliance members, power and changes', 'f'],
+      ['svslb.html', 'SvS Leaderboards', 'trophy', 'Results of every SvS event', 'f'],
+      ['statepower.html', 'State Power', 'bars', 'Power ranking of the whole state', 'f'],
+      ['leading.html', 'Leading State', 'crown', 'Transfer scores of the states in the bracket', 'f'],
+      ['rallyleads.html', 'Rally Leads', 'flag', 'Rally leaders with heroes and stats', 'm']]},
+    {k: 'plan', l: 'Planning', s: 'Plan', items: [
+      ['eventplan.html', 'Event Planner', 'calcheck', 'Teams and hours for alliance events', 'f'],
+      ['eventcal.html', 'Event Calendar', 'cal', 'Game events on a timeline', 'f'],
+      ['rallyplan.html', 'Rally Planner', 'target', 'Rally slots, pets and Battle Buddies', 'm'],
+      ['pool.html', 'Rally Pool', 'waves', 'Pool of players for rallies', 'f'],
+      ['assignfsh.html', 'Fortress/SH Plan', 'castle', 'Fortress and stronghold assignments', 'f'],
+      ['appointments.html', 'Appointments', 'clock', 'Sign up for minister office slots', 'f'],
+      ['foundryplaner.html', 'Foundry/TAL Planner', 'grid', 'Team plan for the Foundry and TAL', 'f']]},
+    {k: 'tool', l: 'Tools', s: 'Tools', items: [
+      ['formations.html', 'Formations', 'shield', 'Hero formations for garrison and rally', 'f'],
+      ['chests.html', 'Presidential Chests', 'gift', 'Chest distribution calculator', 'f']]},
     {k: 'admin', f: 'access.html', l: 'Admin', s: 'Admin'}
   ];
   var CHEV = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3.5L5 7l3.5-3.5"/></svg>';
@@ -62,13 +104,15 @@
     if(f === 'access.html') return !!(mm && mm.role === 'super');
     return true;
   }
-  function itemEl(f, label, mm, dot){
+  function itemEl(f, label, mm, dot, ic, ds, bg){
     var ok = allowed(f, mm), el;
     if(f === hereF){ el = document.createElement('span'); el.className = 'na-i na-cur'; el.setAttribute('aria-current', 'page'); }
     else if(ok){ el = document.createElement('a'); el.href = f; }
     else { el = document.createElement('span'); el.className = 'na-i na-off'; el.setAttribute('aria-disabled', 'true'); el.tabIndex = 0; el.title = 'No access';
       var go = function(){ note(offMsg(f, mm)); }; el.addEventListener('click', go); el.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } }); }
-    el.setAttribute('data-na', f); el.innerHTML = '<span class="na-t">' + label + '</span>';
+    el.setAttribute('data-na', f);
+    el.innerHTML = '<span class="na-ic"><svg viewBox="0 0 24 24" aria-hidden="true">' + (IC[ic] || '') + '</svg></span><span class="na-tx"><span class="na-t">' + label +
+      (bg ? ' <span class="na-bg ' + bg + '" title="' + (bg === 'f' ? 'Open to everyone' : 'Members of state 646 with access') + '">' + (bg === 'f' ? 'Free' : '646') + '</span>' : '') + '</span>' + (ds ? '<span class="na-ds">' + ds + '</span>' : '') + '</span>';
     if(dot){ var d = document.createElement('span'); d.className = 'na-dot'; d.title = dot; el.appendChild(d); }
     return el;
   }
@@ -94,10 +138,11 @@
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'na-b' + (inHere ? ' na-cur' : ''); btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
       btn.innerHTML = '<span class="sn-l">' + g.l + '</span><span class="sn-s">' + g.s + '</span>' + CHEV;
       var dd = document.createElement('div'); dd.className = 'na-dd'; dd.setAttribute('role', 'menu');
-      g.items.forEach(function(it){ dd.appendChild(itemEl(it[0], it[1], mm)); });
+      g.items.forEach(function(it){ dd.appendChild(itemEl(it[0], it[1], mm, null, it[2], it[3], it[4])); });
+      var lg = document.createElement('div'); lg.className = 'na-lg'; lg.innerHTML = '<span><span class="na-bg f">Free</span> open to everyone</span><span><span class="na-bg m">646</span> members with access</span>'; dd.appendChild(lg);
       wrap.appendChild(btn); wrap.appendChild(dd); nav.appendChild(wrap);
       function setOpen(v){
-        if(v){ closeAll(wrap); dd.classList.remove('r'); wrap.classList.add('open'); var r = dd.getBoundingClientRect(); if(r.right > window.innerWidth - 6) dd.classList.add('r'); }
+        if(v){ closeAll(wrap); dd.classList.remove('r'); wrap.classList.add('open'); nav.style.setProperty('--na-top', Math.round(nav.getBoundingClientRect().bottom + 6) + 'px'); var r = dd.getBoundingClientRect(); if(r.right > window.innerWidth - 6) dd.classList.add('r'); }
         else wrap.classList.remove('open');
         btn.setAttribute('aria-expanded', v ? 'true' : 'false');
       }
@@ -116,6 +161,7 @@
   if(!window.__naBound){ window.__naBound = 1;
     document.addEventListener('click', function(e){ if(!e.target.closest || !e.target.closest('.sitenav .na-grp')) closeAll(); });
     document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeAll(); });
+    window.addEventListener('scroll', function(){ if(window.matchMedia && window.matchMedia('(max-width:640px)').matches) closeAll(); }, {passive: true});
   }
   function loginItem(show){
     var nav = document.querySelector('.sitenav'); if(!nav) return;
