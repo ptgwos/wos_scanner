@@ -33,6 +33,14 @@ if not KEY:
 T0 = time.time()
 
 
+DIAG = []      # what the API really answered when a state gave no ranking (printed for the first few, helps to find out why)
+
+
+def diag(msg):
+    if len(DIAG) < 3:
+        DIAG.append(msg); print('  diagnosis: ' + msg, flush=True)
+
+
 def get(path, timeout=40, tries=3):
     """Returns (status, json). status: 200 ok | 'gone' (HTTP 400/403/404/410: the state does not exist or is not served) | 'err' (everything else)."""
     for attempt in range(tries):
@@ -46,7 +54,11 @@ def get(path, timeout=40, tries=3):
                 try: wait = max(5, min(70, int(e.headers.get('Retry-After', '20'))))
                 except Exception: pass
                 print(f'  429, waiting {wait}s', flush=True); time.sleep(wait); continue
-            if e.code in (400, 403, 404, 410): return 'gone', None
+            if e.code in (400, 403, 404, 410):
+                try: body = e.read().decode('utf-8', 'replace')[:300].replace('\n', ' ')
+                except Exception: body = ''
+                diag(f'{path} -> HTTP {e.code} {body}')
+                return 'gone', None
             if e.code == 401: sys.exit('HTTP 401: the API key is not accepted (WOS_API_KEY).')
             if e.code >= 500: time.sleep(5 * (attempt + 1)); continue
             return 'err', None
@@ -123,7 +135,10 @@ def fetch_state(kid):
     for x in (d or {}).get('boards') or []:
         if x.get('key') == BOARD: b = x
     rows = [r for r in ((b or {}).get('rows') or []) if isinstance(r.get('score'), (int, float))]
-    if not rows: return 'gone', None                       # answered, but there is no ranking: the state does not exist (any more)
+    if not rows:
+        bl = [(x.get('key'), len(x.get('rows') or []), (x.get('rows') or [{}])[0] if x.get('rows') else None) for x in ((d or {}).get('boards') or [])]
+        diag(f'{BOARD} for state {kid} -> HTTP 200 but no usable rows; top-level keys {sorted((d or {}).keys())}; boards {str(bl)[:300]}')
+        return 'gone', None                       # answered, but there is no ranking: the state does not exist (any more)
     scores = [float(r['score']) for r in rows]
     cap = (b or {}).get('captured_at')
     # Merged states: the API may answer for the old number with the data of the state it was merged into. If the answer names its own state, remember it.
@@ -171,7 +186,7 @@ def main():
     today = time.strftime('%Y-%m-%d', time.gmtime())
     force_gone = os.environ.get('WOS_FORCE_GONE', '') == '1'
     n_req = n_ok = n_err = n_gone = n_skip = 0
-    fails_in_row = 0
+    fails_in_row = 0; lost_prev = 0
     print(f'Leading State: {len(kids)} states ({kids[0]}-{kids[-1]}), board {BOARD}', flush=True)
     for kid in kids:
         k = str(kid)
@@ -185,7 +200,11 @@ def main():
         if code == 'ok':
             states[k] = e; gone.pop(k, None); n_ok += 1; fails_in_row = 0
         elif code == 'gone':
+            if k in states: lost_prev += 1
             states.pop(k, None); gone[k] = today; n_gone += 1; fails_in_row = 0
+            if n_ok == 0 and lost_prev >= 10:
+                # the states that worked last time all answer without a ranking: the board is closed or the API changed. Do not burn the daily allowance on the rest.
+                print(f'The first {lost_prev} states that had data before all answer without a ranking: the board seems to be closed (or the API changed). Stopping, old files are kept.', flush=True); break
         else:
             n_err += 1; fails_in_row += 1
             if k in states: states[k]['stale'] = True
