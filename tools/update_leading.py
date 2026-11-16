@@ -27,6 +27,8 @@ PAUSE = float(os.environ.get('WOS_PAUSE', '1.2'))
 MAXMIN = float(os.environ.get('WOS_MAXMIN', '40'))
 GONE_RECHECK = 14                       # days
 BOARD = 'state_transfer'
+ALIASES = ('state_transfer', 'migrant_score')      # the API now names this board 'migrant_score' in its answer (seen 2026-11-16); both are accepted
+NOTE = []
 KEY = os.environ.get('WOS_API_KEY', '').strip()
 if not KEY:
     sys.exit('WOS_API_KEY is not set.')
@@ -132,8 +134,11 @@ def fetch_state(kid):
     code, d = get(f'/states/{kid}/ranks?board={BOARD}&limit=100')
     if code != 200: return code, None
     b = None
-    for x in (d or {}).get('boards') or []:
-        if x.get('key') == BOARD: b = x
+    for al in ALIASES:                                      # the requested name first, then the alias
+        for x in (d or {}).get('boards') or []:
+            if x.get('key') == al and b is None: b = x
+    if b is not None and b.get('key') != BOARD and not NOTE:
+        NOTE.append(1); print(f"  note: the API answers with board '{b.get('key')}' instead of '{BOARD}' - accepted (same ranking assumed, please compare the scores).", flush=True)
     rows = [r for r in ((b or {}).get('rows') or []) if isinstance(r.get('score'), (int, float))]
     if not rows:
         bl = [(x.get('key'), len(x.get('rows') or []), (x.get('rows') or [{}])[0] if x.get('rows') else None) for x in ((d or {}).get('boards') or [])]
@@ -198,6 +203,7 @@ def main():
             print(f'Time limit of {MAXMIN:g} min reached at state {kid}; the remaining states keep their old values.', flush=True); break
         code, e = fetch_state(kid); n_req += 1
         if code == 'ok':
+            if n_ok == 0 and k in states: print(f"  check state {k}: top-1 before {states[k].get('t1')}, now {e.get('t1')}; sum before {states[k].get('s')}, now {e.get('s')}", flush=True)
             states[k] = e; gone.pop(k, None); n_ok += 1; fails_in_row = 0
         elif code == 'gone':
             if k in states: lost_prev += 1
