@@ -1,40 +1,12 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-15",
- "count": 24,
+ "date": "2026-11-16",
+ "count": 20,
  "categories": [
   {
    "name": "Events",
    "events": [
-    {
-     "name": "Alliance Championship",
-     "category": "Events",
-     "when": "9 Nov 00:00 – 15 Nov 24:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1794787200
-    },
-    {
-     "name": "Alliance Showdown",
-     "category": "Events",
-     "when": "9 Nov 00:00 – 15 Nov 12:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1794744000
-    },
-    {
-     "name": "Foundry Battle",
-     "category": "Events",
-     "when": "9 Nov 00:00 – 15 Nov 24:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1794787200
-    },
-    {
-     "name": "Winter Siege",
-     "category": "Events",
-     "when": "9 Nov 00:00 – 15 Nov 24:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1794787200
-    },
     {
      "name": "Officer Project",
      "category": "Events",
@@ -99,11 +71,18 @@
      "end_ts": 1795132800
     },
     {
-     "name": "Tundra Trade Route",
+     "name": "Brothers in Arms",
      "category": "Events",
-     "when": "9 Nov 00:00 – 15 Nov 04:00",
+     "when": "20 Nov 00:00 – 21 Nov 24:00",
+     "begin_ts": 1795132800,
+     "end_ts": 1795305600
+    },
+    {
+     "name": "Alliance Showdown",
+     "category": "Events",
+     "when": "9 Nov 00:00 – 15 Nov 12:00",
      "begin_ts": 1794182400,
-     "end_ts": 1794715200
+     "end_ts": 1794744000
     }
    ]
   },
@@ -181,13 +160,6 @@
   {
    "name": "Wander Theater",
    "events": [
-    {
-     "name": "Wander Theater",
-     "category": "Wander Theater",
-     "when": "10 Nov 00:00 – 15 Nov 24:00",
-     "begin_ts": 1794268800,
-     "end_ts": 1794787200
-    },
     {
      "name": "Bizarre Bazaar",
      "category": "Wander Theater",

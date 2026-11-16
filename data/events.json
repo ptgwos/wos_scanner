@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-15",
- "fetched_at": "2026-11-15T06:47:42Z",
- "count": 24,
+ "api_date": "2026-11-16",
+ "fetched_at": "2026-11-16T06:47:10Z",
+ "count": 20,
  "events": [
   {
    "name": "Tundra Hellfire",
@@ -32,15 +32,6 @@
    "end_ts": 1795392000
   },
   {
-   "name": "Alliance Championship",
-   "category": "Events",
-   "when": "9 Nov 00:00 – 15 Nov 24:00",
-   "begin": "2026-11-09T00:00:00Z",
-   "end": "2026-11-16T00:00:00Z",
-   "begin_ts": 1794182400,
-   "end_ts": 1794787200
-  },
-  {
    "name": "Alliance Showdown",
    "category": "Events",
    "when": "9 Nov 00:00 – 15 Nov 12:00",
@@ -48,15 +39,6 @@
    "end": "2026-11-15T12:00:00Z",
    "begin_ts": 1794182400,
    "end_ts": 1794744000
-  },
-  {
-   "name": "Foundry Battle",
-   "category": "Events",
-   "when": "9 Nov 00:00 – 15 Nov 24:00",
-   "begin": "2026-11-09T00:00:00Z",
-   "end": "2026-11-16T00:00:00Z",
-   "begin_ts": 1794182400,
-   "end_ts": 1794787200
   },
   {
    "name": "Hero Rally",
@@ -77,24 +59,6 @@
    "end_ts": 1796601600
   },
   {
-   "name": "Tundra Trade Route",
-   "category": "Events",
-   "when": "9 Nov 00:00 – 15 Nov 04:00",
-   "begin": "2026-11-09T00:00:00Z",
-   "end": "2026-11-15T04:00:00Z",
-   "begin_ts": 1794182400,
-   "end_ts": 1794715200
-  },
-  {
-   "name": "Winter Siege",
-   "category": "Events",
-   "when": "9 Nov 00:00 – 15 Nov 24:00",
-   "begin": "2026-11-09T00:00:00Z",
-   "end": "2026-11-16T00:00:00Z",
-   "begin_ts": 1794182400,
-   "end_ts": 1794787200
-  },
-  {
    "name": "Bizarre Bazaar",
    "category": "Wander Theater",
    "when": "10 Nov 00:00 – 16 Nov 24:00",
@@ -102,15 +66,6 @@
    "end": "2026-11-17T00:00:00Z",
    "begin_ts": 1794268800,
    "end_ts": 1794873600
-  },
-  {
-   "name": "Wander Theater",
-   "category": "Wander Theater",
-   "when": "10 Nov 00:00 – 15 Nov 24:00",
-   "begin": "2026-11-10T00:00:00Z",
-   "end": "2026-11-16T00:00:00Z",
-   "begin_ts": 1794268800,
-   "end_ts": 1794787200
   },
   {
    "name": "Hall of Heroes",
@@ -219,6 +174,15 @@
    "end": "2026-11-23T00:00:00Z",
    "begin_ts": 1794960000,
    "end_ts": 1795392000
+  },
+  {
+   "name": "Brothers in Arms",
+   "category": "Events",
+   "when": "20 Nov 00:00 – 21 Nov 24:00",
+   "begin": "2026-11-20T00:00:00Z",
+   "end": "2026-11-22T00:00:00Z",
+   "begin_ts": 1795132800,
+   "end_ts": 1795305600
   }
  ]
 }
