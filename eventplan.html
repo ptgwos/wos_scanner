@@ -956,6 +956,10 @@
   .hs i.on,:root[data-theme="light"] .hs i.on{background:var(--ice);border-color:var(--ice);}
   .fl{font-size:9.5px;font-weight:700;letter-spacing:.03em;padding:1px 5px;border-radius:3px;border:1px solid var(--border);color:var(--text-dim);}
   .fl.pb{color:var(--gold);border-color:var(--gold);}
+  /* T12 skill levels (Rally Pool data): one small circle per troop type (infantry, lancer, marksman) */
+  .t12{display:inline-flex;gap:2px;align-items:center;}
+  .t12 b{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:#e11d2e;color:#fff;font-size:9.5px;font-weight:700;line-height:1;}
+  .t12 b.n{background:none;border:1px solid var(--border);color:var(--text-faint);font-weight:400;}
   .fl.b20{color:var(--ice);border-color:var(--ice);}
   .fl.g{color:var(--good);border-color:var(--good);}
   .fl.heal{display:inline-flex;align-items:center;justify-content:center;background:#fff;border-color:#c5cad3;padding:1px 3px;}
@@ -1102,7 +1106,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-11-13 · p34</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-11-16 · p35</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1176,6 +1180,7 @@
     const open = id => { const e = db.events.find(x => x.id === id); if(e && e.locked) throw new Error('This event is locked. Unlock it first to make changes.'); };
     const find = (e, p) => db.entries.find(x => x.event_id === e && String(x.pid) === String(p));
     const F = {
+      pool_skills: a => { need(a.p_code); const m = {}; const V = [[2, 2, 3], [1, null, 3], [3, 3, 3], [null, null, null]]; db.entries.forEach((e, i) => { const v = V[i % 4]; if(v.some(x => x != null)) m[String(e.pid)] = v; }); return m; },
       ev_login: a => { const w = who(a.p_code); if(!w) return null; const u = users.find(x => x.id === w.uid); if(u) u.last_login = iso(); return {role: w.role, name: w.name, alliances: w.alliances, alliance: w.alliances[0] || ''}; },
       ev_user_list: a => { needSuper(a.p_code); return users.map(u => ({id: u.id, name: u.name, role: u.role, alliances: u.alliances.slice(), active: u.active, created_at: u.created_at, last_login: u.last_login, last_active: u.last_active})); },
       ev_user_save: a => { const w = needSuper(a.p_code); if(!String(a.p_name || '').trim()) throw new Error('Please enter a name');
@@ -1250,7 +1255,12 @@
   function strip(h){ let s = ''; for(let i = 0; i < slotsOf(); i++) s += `<i class="${(h >> i) & 1 ? 'on' : ''}" title="${slotLabel(i)}"></i>`; return `<span class="hs">${s}</span>`; }
   const HEAL_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#e11d2e"/></svg>';
   const BASKET = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 11H5L3 9z"/><path d="M8 9l4-6 4 6"/><path d="M10 13v4M14 13v4"/></svg>';
-  function flags(e){ const h = (e.rl ? '<span class="fl rl" title="Rally leader">RL</span>' : '') + (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? `<span class="fl g" title="Gatherer (helps with loot)">${BASKET}</span>` : '') + (e.heal ? '<span class="fl heal" title="Auto heal"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#e11d2e"/></svg></span>' : ''); return h ? `<span class="fls">${h}</span>` : ''; }
+  const SKN = ['Infantry', 'Lancer', 'Marksman'];
+  function skHtml(pid){
+    const a = S.sk && S.sk[String(pid)]; if(!Array.isArray(a) || !a.some(v => v != null)) return '';
+    return `<span class="t12" title="T12 skill level: ${SKN.map((n, i) => n + ' ' + (a[i] == null ? '-' : a[i])).join(', ')}">${[0, 1, 2].map(i => a[i] == null ? '<b class="n">-</b>' : `<b>${a[i]}</b>`).join('')}</span>`;
+  }
+  function flags(e){ const h = (e.rl ? '<span class="fl rl" title="Rally leader">RL</span>' : '') + (e.pb ? '<span class="fl pb" title="Powerbooster">PB</span>' : '') + (e.b20 ? '<span class="fl b20" title="Has the 20% buff and will use it">20%</span>' : '') + (e.gather ? `<span class="fl g" title="Gatherer (helps with loot)">${BASKET}</span>` : '') + (e.heal ? '<span class="fl heal" title="Auto heal"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#e11d2e"/></svg></span>' : '') + skHtml(e.pid); return h ? `<span class="fls">${h}</span>` : ''; }
   function status(e, team){
     if(!team || !team.target) return '';
     const i = pinfo(e);
@@ -1425,14 +1435,20 @@
   $('modal').addEventListener('click', e => { if(e.target.closest('[data-close]')) closeModal(); });
 
   // login
+  // T12 skill levels from the Rally Pool (central player data); only with a login, a missing function or right just means: no circles
+  async function loadSkills(){
+    let m = {};
+    if(S.code && api){ try { m = (await api.rpc('pool_skills', {p_code: S.code})) || {}; } catch(e) { m = {}; } }
+    if(JSON.stringify(m) !== JSON.stringify(S.sk || {})){ S.sk = m; try { last = ''; render(); } catch(e) {} }
+  }
   function setLogin(res, code){
     if(res){ S.role = res.role; S.alliances = res.alliances || (res.alliance ? [res.alliance] : []); S.uname = res.name || ''; S.code = code; try { localStorage.setItem('ep_code', code); } catch(e) {} }
-    else { S.role = null; S.alliances = []; S.uname = ''; S.code = ''; S.view = 'board'; try { localStorage.removeItem('ep_code'); } catch(e) {} }
+    else { S.role = null; S.alliances = []; S.uname = ''; S.code = ''; S.sk = {}; S.view = 'board'; try { localStorage.removeItem('ep_code'); } catch(e) {} }
   }
   $('login').addEventListener('click', () => {
     if(canEdit()){ setLogin(null); render(); return; }
     openModal(`<div class="ep-box sm">${mhead('Log in')}<div class="ep-mb"><div class="field"><label for="lc">Your personal link or code</label><input type="password" id="lc" autocomplete="off" placeholder="Paste your invitation link"></div><div class="acts"><button type="button" class="btn" id="lgo">Log in</button></div></div></div>`, m => {
-      const go = async () => { try { let c = $('lc').value.trim(); const mm = c.match(/invite=([^&\s#]+)/); if(mm) c = decodeURIComponent(mm[1]); const r = await api.rpc('ev_login', {p_code: c}); if(!r){ toast('This code is not valid.'); return; } setLogin(r, c); closeModal(); render(); } catch(err){ toast(err.message); } };
+      const go = async () => { try { let c = $('lc').value.trim(); const mm = c.match(/invite=([^&\s#]+)/); if(mm) c = decodeURIComponent(mm[1]); const r = await api.rpc('ev_login', {p_code: c}); if(!r){ toast('This code is not valid.'); return; } setLogin(r, c); closeModal(); render(); loadSkills(); } catch(err){ toast(err.message); } };
       $('lgo').addEventListener('click', go); $('lc').addEventListener('keydown', e => { if(e.key === 'Enter') go(); }); $('lc').focus();
     });
   });
@@ -1744,9 +1760,9 @@
       try { const r = await api.rpc('ev_login', {p_code: inv}); if(r){ setLogin(r, inv); toast('Welcome, ' + (r.name || '') + '!', true); } else toast('This link is not valid (any more). Please ask for a new one.'); } catch(e) { toast(e.message); }
       try { const u = new URL(location.href); u.searchParams.delete('invite'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch(e) {}
     } else try { const c = localStorage.getItem('ep_code'); if(c){ const r = await api.rpc('ev_login', {p_code: c}); if(r) setLogin(r, c); else setLogin(null); } } catch(e) {}
-    await loadPlayers(); await refresh(true); setHash();
+    await loadPlayers(); await refresh(true); setHash(); loadSkills();
     setInterval(() => { if(!document.hidden && !dragPid) refresh(false); }, 10000);
-    setInterval(loadPlayers, 300000);
+    setInterval(loadPlayers, 300000); setInterval(loadSkills, 300000);
   })();
 })();
 </script>
