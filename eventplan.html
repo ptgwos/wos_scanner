@@ -1058,6 +1058,16 @@
   .uv-f{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
   .uv-f select{min-width:160px;}
   .uv-t th.al{text-transform:none;letter-spacing:0;font-size:12.5px;}
+  .ep-seg{position:relative;display:inline-flex;align-self:flex-start;padding:3px;gap:2px;border-radius:11px;background:rgba(143,163,199,.10);border:1px solid var(--border);margin-top:8px;}
+  html[data-theme="light"] .ep-seg{background:rgba(60,80,120,.07);}
+  html body .ep-seg button.ep-sg{position:relative;z-index:1;background:transparent;border:0;border-radius:8px;padding:4px 12px;font:inherit;font-size:12px;font-weight:600;letter-spacing:.03em;color:var(--text-dim);cursor:pointer;margin:0;white-space:nowrap;transition:color .2s;}
+  html body .ep-seg button.ep-sg.on{color:var(--text);}
+  html body .ep-seg:not(.js) button.ep-sg.on{background:rgba(76,141,255,.20);}
+  .ep-seg-i{position:absolute;z-index:0;left:0;top:0;width:0;height:0;border-radius:8px;background:rgba(76,141,255,.20);box-shadow:inset 0 0 0 1px #4c8dff;opacity:0;transition:left .2s ease-in-out,width .2s ease-in-out,opacity .15s;pointer-events:none;}
+  html[data-theme="light"] .ep-seg-i{background:rgba(47,111,224,.14);box-shadow:inset 0 0 0 1px #2f6fe0;}
+  .ep-sums{grid-template-columns:minmax(0,1fr) minmax(0,1fr);} .ep-sum{min-width:0;}
+  @media (max-width:640px){ .ep-seg{display:flex;align-self:stretch;} html body .ep-seg button.ep-sg{flex:1;padding:4px 4px;font-size:11px;letter-spacing:0;} }
+  @media (prefers-reduced-motion:reduce){ .ep-seg-i,html body .ep-seg button.ep-sg{transition:none;} }
 </style>
 </head>
 <body>
@@ -1106,7 +1116,7 @@
   </div>
 
   <div class="sx-share-note ep-note" id="note"></div>
-  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-11-16 · p35</footer>
+  <footer id="foot">State 646 · Event Planner — players: Whiteout Stats API (up to 60 minutes old) · build 2026-11-16 · p36</footer>
 </div>
 <div id="modal" class="ep-modal" hidden></div>
 <div id="toast"></div>
@@ -1341,6 +1351,8 @@
   function missingOf(tag){
     return S.entries.filter(x => { const t = teamById(x.team_id); if(!t || t.target !== tag) return false; const i = pinfo(x); return !(i.known && i.tag === tag) && !x.joined; });
   }
+  let sumMode = PREFS.sumv === 'dur' ? 'dur' : 'hour';
+  const segHtmlF = () => `<div class="ep-seg no-shot" role="group" aria-label="Summary view"><i class="ep-seg-i"></i><button type="button" class="ep-sg${sumMode === 'hour' ? ' on' : ''}" data-m="hour">By hour</button><button type="button" class="ep-sg${sumMode === 'dur' ? ' on' : ''}" data-m="dur">By duration</button></div>`;
   function renderSums(){
     const box = $('sums'); const e = ev(); box.hidden = !e; if(!e) return;
     box.innerHTML = ['PKB', 'GYN'].map(tag => {
@@ -1352,7 +1364,14 @@
       m.forEach(x => { const c = cnt[Math.min(n, bits(x.hours))], ty = teamType(teamById(x.team_id)); c[ty]++; c.all++; });
       const seg = (c, what) => TY.filter(ty => c[ty]).map(ty => `<i class="t-${ty}" style="width:${Math.min(100, c[ty] / MAXP * 100)}%" title="${TN[ty]}: ${c[ty]}"></i>`).join('');
       let dur = '';
-      for(let k = n; k >= 0; k--){
+      if(sumMode === 'hour'){
+        for(let i = 0; i < n; i++){
+          const c = {main: 0, sub: 0, boost: 0, other: 0, all: 0};
+          m.forEach(x => { if((x.hours >> i) & 1){ c[teamType(teamById(x.team_id))]++; c.all++; } });
+          dur += `<span class="l${c.all ? '' : ' z'}">${slotLabel(i)}</span><span class="b">${seg(c)}</span><span class="v${c.all ? '' : ' z'}">${c.all}/${MAXP}</span>`;
+        }
+      }
+      else for(let k = n; k >= 0; k--){
         const c = cnt[k]; if(k === 0 && !c.all) continue;
         const lab = k === n ? '<span class="d-only">whole time</span><span class="m-only">whole</span>' : (k === 0 ? '<span class="d-only">no hour set</span><span class="m-only">none</span>' : `<span class="d-only">${k} hour${k === 1 ? '' : 's'}</span><span class="m-only">${k}h</span>`);
         dur += `<span class="l${c.all ? '' : ' z'}">${lab}</span><span class="b">${seg(c)}</span><span class="v${c.all ? '' : ' z'}">${c.all}/${MAXP}</span>`;
@@ -1363,8 +1382,16 @@
       dur += `<span class="l${hx.all ? '' : ' z'}" style="grid-column:1"><span class="gl hl">${HEAL_SVG}</span><span class="d-only"> auto heal</span><span class="m-only"> H</span></span><span class="b">${seg(hx)}</span><span class="v${hx.all ? '' : ' z'}">${hx.all}/${MAXP}</span>`;
       const used = TY.filter(ty => m.some(x => teamType(teamById(x.team_id)) === ty));
       dur += `<span class="dleg">${used.map(ty => `<span><i class="t-${ty}"></i>${TN[ty]}</span>`).join('')}</span>`;
-      return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span><button type="button" class="shot-btn no-shot" title="Copy this block as an image" aria-label="Copy this block as an image">${CAM_SVG}</button></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}<div class="dur" title="Players by the number of hours they ticked (each player is counted once)">${dur}</div></div>`;
+      return `<div class="ep-sum"><div class="h">${tagChip(tag)}<span>all ${tag} teams</span><button type="button" class="shot-btn no-shot" title="Copy this block as an image" aria-label="Copy this block as an image">${CAM_SVG}</button></div><div class="big">${m.length} players<small title="${fmt(tot)}">${fmtM(tot)} power</small></div>${m.length ? (miss ? `<div class="miss">${miss} still to join ${tag}</div>` : '<div class="okk">All are in ' + tag + '</div>') : '<div class="sx-id">No players in these teams yet</div>'}${segHtmlF()}<div class="dur" title="${sumMode === 'hour' ? 'Players available in each hour (a player is counted in every hour he ticked)' : 'Players by the number of hours they ticked (each player is counted once)'}">${dur}</div></div>`;
     }).join('');
+    segPos();
+  }
+  function segPos(){
+    document.querySelectorAll('#sums .ep-seg').forEach(seg => {
+      const on = seg.querySelector('.ep-sg.on'), ind = seg.querySelector('.ep-seg-i');
+      if(!on || !on.offsetWidth){ if(ind) ind.style.opacity = '0'; return; }
+      seg.classList.add('js'); ind.style.top = on.offsetTop + 'px'; ind.style.height = on.offsetHeight + 'px'; ind.style.left = on.offsetLeft + 'px'; ind.style.width = on.offsetWidth + 'px'; ind.style.opacity = '1';
+    });
   }
   // ---- block as an image (library html-to-image is loaded on the first click) ----
   const CAM_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
@@ -1382,6 +1409,8 @@
       try { navigator.clipboard.write([new ClipboardItem({'image/png': png})]).then(() => toast('Image copied.', true), save); } catch(x) { save(); }
     } else save();
   }
+  $('sums').addEventListener('click', e => { const g = e.target.closest && e.target.closest('.ep-sg'); if(g){ sumMode = g.dataset.m === 'dur' ? 'dur' : 'hour'; prefSet('sumv', sumMode); renderSums(); } });
+  window.addEventListener('resize', () => segPos());
   $('sums').addEventListener('click', e => { const b = e.target.closest && e.target.closest('.shot-btn'); if(!b) return; const el = b.closest('.ep-sum'); const t = el && el.querySelector('.h span'); shotCopy(el, (t ? t.textContent : 'block').replace(/\W+/g, '-')); });
   function clip(txt, okMsg){
     const fb = () => { try { const t = document.createElement('textarea'); t.value = txt; t.style.cssText = 'position:fixed;left:-999px;top:0'; document.body.appendChild(t); t.select(); const r = document.execCommand('copy'); t.remove(); r ? toast(okMsg, true) : toast('Please copy the text by hand.'); } catch(x) { toast('Please copy the text by hand.'); } };
