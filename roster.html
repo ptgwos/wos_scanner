@@ -772,6 +772,11 @@
   .ro-head b{margin-left:8px;}
   .ro-head{flex-wrap:nowrap;align-items:center;gap:12px;}
   .ro-hl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;flex:1 1 auto;min-width:0;}
+  .ro-fcs{flex:0 0 100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin-top:2px;font-size:13px;color:var(--text-dim);}
+  .ro-fcs .fcs-i{display:inline-flex;align-items:center;gap:6px;}
+  .ro-fcs .fc{height:24px;}
+  .ro-fcs b{margin:0;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums;}
+  .ro-fcs .fcs-t{font-size:12px;}
   .ro-r5{display:flex;align-items:center;gap:10px;flex:none;margin-left:auto;max-width:45%;}
   .ro-head .r5n{margin-left:0;font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .av.r5av{width:52px;height:52px;margin:0;border:1px solid var(--border);}
@@ -932,7 +937,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-15 · r27</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-17 · r28</footer>
 </div>
 <script>
 (function(){
@@ -1036,6 +1041,12 @@
     return r.n.toLowerCase().includes(q) || r.id.includes(q);
   }
   function nameChip(tag){ return tagChip(tag, '646'); }
+  function fcSumHtml(all){
+    const c = {10: 0, 9: 0, 8: 0, lo: 0};
+    all.forEach(r => { const lv = Number(r.f) || 0; if(lv < 1) return; if(lv >= 70) c[Math.min(10, Math.floor(lv / 5) - 6)]++; else c.lo++; });
+    const it = n => `<span class="fcs-i" title="${c[n]} player${c[n] === 1 ? '' : 's'} with furnace FC${n}${n === 10 ? ' (level 80+)' : ''}"><img class="fc" src="${FC_IMG[n]}" alt="FC${n}"><b>${c[n]}</b></span>`;
+    return `<div class="ro-fcs" aria-label="Furnace level overview">${it(10)}${it(9)}${it(8)}<span class="fcs-i fcs-lo" title="${c.lo} player${c.lo === 1 ? '' : 's'} below FC8 (furnace level under 70)"><span class="fcs-t">below FC8</span><b>${c.lo}</b></span></div>`;
+  }
   function r5Html(all, A){
     const l = all.find(r => r.r === 'Leader');
     const name = l ? l.n : (A.leader || '');
@@ -1069,7 +1080,7 @@
       const isB = BATTLE.includes(t);
       const isOpen = open.has(t) || !!st.q;
       const body = !isOpen ? '' : rows.map((r, i) => `<tr data-pid="${escapeHtml(r.id)}"><td class="ro-i">${i + 1}</td><td class="name"><span class="nm">${av(r.id, r)}<span class="nt">${escapeHtml(r.n)}</span></span></td><td><span class="ro-rk ro-${escapeHtml(rk(r.r))}">${escapeHtml(rk(r.r))}</span></td><td class="num">${fmt(r.p)}</td><td class="num fc-col">${fcHtml(r.f)}</td></tr>`).join('');
-      return `<div class="sx-card ro-card${isOpen ? ' is-open' : ''}" id="al-${escapeHtml(t)}"><div class="sx-card-head ro-head" role="button" tabindex="0" aria-expanded="${isOpen}" data-t="${escapeHtml(t)}" title="Show or hide the members"><div class="ro-hl"><span class="ro-chev" aria-hidden="true">▸</span>${nameChip(t)}<b>${escapeHtml(A.name || t)}</b>${isB ? '<span class="aflag">Battle alliance</span>' : ''}${winsHtml(t)}<span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span></div>${r5Html(all, A)}</div>
+      return `<div class="sx-card ro-card${isOpen ? ' is-open' : ''}" id="al-${escapeHtml(t)}"><div class="sx-card-head ro-head" role="button" tabindex="0" aria-expanded="${isOpen}" data-t="${escapeHtml(t)}" title="Show or hide the members"><div class="ro-hl"><span class="ro-chev" aria-hidden="true">▸</span>${nameChip(t)}<b>${escapeHtml(A.name || t)}</b>${isB ? '<span class="aflag">Battle alliance</span>' : ''}${winsHtml(t)}<span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span>${isOpen ? fcSumHtml(all) : ''}</div>${r5Html(all, A)}</div>
         ${isOpen ? `<div class="sx-scroll"><table class="ro-t"><thead><tr><th class="ro-i">#</th>${th('Member', 'name')}${th('Rank', 'rank')}${th('Power', 'power', 'num')}${th('Furnace level', 'fc', 'num fc-col', '<span class="d-only">Furnace</span><span class="m-only">FC</span>')}</tr></thead><tbody>${body}</tbody></table></div>` : ''}</div>`;
     }).join('');
     document.getElementById('cards').innerHTML = cards || '<div class="sx-card"><div class="sx-card-head"><b>No player found</b></div></div>';
