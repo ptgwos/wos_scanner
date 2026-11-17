@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-16",
- "fetched_at": "2026-11-16T06:47:10Z",
- "count": 20,
+ "api_date": "2026-11-17",
+ "fetched_at": "2026-11-17T08:06:25Z",
+ "count": 22,
  "events": [
   {
    "name": "Tundra Hellfire",
@@ -32,15 +32,6 @@
    "end_ts": 1795392000
   },
   {
-   "name": "Alliance Showdown",
-   "category": "Events",
-   "when": "9 Nov 00:00 – 15 Nov 12:00",
-   "begin": "2026-11-09T00:00:00Z",
-   "end": "2026-11-15T12:00:00Z",
-   "begin_ts": 1794182400,
-   "end_ts": 1794744000
-  },
-  {
    "name": "Hero Rally",
    "category": "Deals",
    "when": "9 Nov 00:00 – 22 Nov 24:00",
@@ -59,15 +50,6 @@
    "end_ts": 1796601600
   },
   {
-   "name": "Bizarre Bazaar",
-   "category": "Wander Theater",
-   "when": "10 Nov 00:00 – 16 Nov 24:00",
-   "begin": "2026-11-10T00:00:00Z",
-   "end": "2026-11-17T00:00:00Z",
-   "begin_ts": 1794268800,
-   "end_ts": 1794873600
-  },
-  {
    "name": "Hall of Heroes",
    "category": "Deals",
    "when": "15 Nov 00:00 – 17 Nov 24:00",
@@ -75,15 +57,6 @@
    "end": "2026-11-18T00:00:00Z",
    "begin_ts": 1794700800,
    "end_ts": 1794960000
-  },
-  {
-   "name": "Officer Project",
-   "category": "Events",
-   "when": "15 Nov 00:00 – 16 Nov 24:00",
-   "begin": "2026-11-15T00:00:00Z",
-   "end": "2026-11-17T00:00:00Z",
-   "begin_ts": 1794700800,
-   "end_ts": 1794873600
   },
   {
    "name": "Alliance Championship",
@@ -167,6 +140,15 @@
    "end_ts": 1795219200
   },
   {
+   "name": "Shaved Ice Stall",
+   "category": "Spectral Ice Shack",
+   "when": "18 Nov 00:00 – 21 Nov 24:00",
+   "begin": "2026-11-18T00:00:00Z",
+   "end": "2026-11-22T00:00:00Z",
+   "begin_ts": 1794960000,
+   "end_ts": 1795305600
+  },
+  {
    "name": "Shining City Pack",
    "category": "Deals",
    "when": "18 Nov 00:00 – 22 Nov 24:00",
@@ -176,6 +158,15 @@
    "end_ts": 1795392000
   },
   {
+   "name": "Slush Station",
+   "category": "Spectral Ice Shack",
+   "when": "18 Nov 00:00 – 20 Nov 24:00",
+   "begin": "2026-11-18T00:00:00Z",
+   "end": "2026-11-21T00:00:00Z",
+   "begin_ts": 1794960000,
+   "end_ts": 1795219200
+  },
+  {
    "name": "Brothers in Arms",
    "category": "Events",
    "when": "20 Nov 00:00 – 21 Nov 24:00",
@@ -183,6 +174,33 @@
    "end": "2026-11-22T00:00:00Z",
    "begin_ts": 1795132800,
    "end_ts": 1795305600
+  },
+  {
+   "name": "Hall of Heroism",
+   "category": "Tundra Arms League",
+   "when": "21 Nov 00:00 – 29 Nov 24:00",
+   "begin": "2026-11-21T00:00:00Z",
+   "end": "2026-11-30T00:00:00Z",
+   "begin_ts": 1795219200,
+   "end_ts": 1795996800
+  },
+  {
+   "name": "Wild Brawl",
+   "category": "Events",
+   "when": "21 Nov 00:00 – 22 Nov 24:00",
+   "begin": "2026-11-21T00:00:00Z",
+   "end": "2026-11-23T00:00:00Z",
+   "begin_ts": 1795219200,
+   "end_ts": 1795392000
+  },
+  {
+   "name": "Castle Battle",
+   "category": "Events",
+   "when": "21 Nov 2026 12:00 – 17:00",
+   "begin": "2026-11-21T12:00:00Z",
+   "end": "2026-11-21T17:00:00Z",
+   "begin_ts": 1795262400,
+   "end_ts": 1795280400
   }
  ]
 }

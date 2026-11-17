@@ -1,18 +1,25 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-16",
- "count": 20,
+ "date": "2026-11-17",
+ "count": 22,
  "categories": [
   {
    "name": "Events",
    "events": [
     {
-     "name": "Officer Project",
+     "name": "Flame and Fangs",
      "category": "Events",
-     "when": "15 Nov 00:00 – 16 Nov 24:00",
-     "begin_ts": 1794700800,
-     "end_ts": 1794873600
+     "when": "16 Nov 00:00 – 17 Nov 24:00",
+     "begin_ts": 1794787200,
+     "end_ts": 1794960000
+    },
+    {
+     "name": "Frostfire Mine",
+     "category": "Events",
+     "when": "17 Nov 2026 00:00 – 24:00",
+     "begin_ts": 1794873600,
+     "end_ts": 1794960000
     },
     {
      "name": "Alliance Championship",
@@ -20,13 +27,6 @@
      "when": "16 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794787200,
      "end_ts": 1795392000
-    },
-    {
-     "name": "Flame and Fangs",
-     "category": "Events",
-     "when": "16 Nov 00:00 – 17 Nov 24:00",
-     "begin_ts": 1794787200,
-     "end_ts": 1794960000
     },
     {
      "name": "King of Icefield",
@@ -57,13 +57,6 @@
      "end_ts": 1795219200
     },
     {
-     "name": "Frostfire Mine",
-     "category": "Events",
-     "when": "17 Nov 2026 00:00 – 24:00",
-     "begin_ts": 1794873600,
-     "end_ts": 1794960000
-    },
-    {
      "name": "Lucky Wheel",
      "category": "Events",
      "when": "17 Nov 00:00 – 19 Nov 24:00",
@@ -78,17 +71,31 @@
      "end_ts": 1795305600
     },
     {
-     "name": "Alliance Showdown",
+     "name": "Wild Brawl",
      "category": "Events",
-     "when": "9 Nov 00:00 – 15 Nov 12:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1794744000
+     "when": "21 Nov 00:00 – 22 Nov 24:00",
+     "begin_ts": 1795219200,
+     "end_ts": 1795392000
+    },
+    {
+     "name": "Castle Battle",
+     "category": "Events",
+     "when": "21 Nov 2026 12:00 – 17:00",
+     "begin_ts": 1795262400,
+     "end_ts": 1795280400
     }
    ]
   },
   {
    "name": "Deals",
    "events": [
+    {
+     "name": "Hall of Heroes",
+     "category": "Deals",
+     "when": "15 Nov 00:00 – 17 Nov 24:00",
+     "begin_ts": 1794700800,
+     "end_ts": 1794960000
+    },
     {
      "name": "Hero Rally",
      "category": "Deals",
@@ -102,13 +109,6 @@
      "when": "9 Nov 00:00 – 6 Dec 24:00",
      "begin_ts": 1794182400,
      "end_ts": 1796601600
-    },
-    {
-     "name": "Hall of Heroes",
-     "category": "Deals",
-     "when": "15 Nov 00:00 – 17 Nov 24:00",
-     "begin_ts": 1794700800,
-     "end_ts": 1794960000
     },
     {
      "name": "Shining City Pack",
@@ -142,6 +142,13 @@
      "when": "8 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794096000,
      "end_ts": 1795392000
+    },
+    {
+     "name": "Hall of Heroism",
+     "category": "Tundra Arms League",
+     "when": "21 Nov 00:00 – 29 Nov 24:00",
+     "begin_ts": 1795219200,
+     "end_ts": 1795996800
     }
    ]
   },
@@ -158,14 +165,21 @@
    ]
   },
   {
-   "name": "Wander Theater",
+   "name": "Spectral Ice Shack",
    "events": [
     {
-     "name": "Bizarre Bazaar",
-     "category": "Wander Theater",
-     "when": "10 Nov 00:00 – 16 Nov 24:00",
-     "begin_ts": 1794268800,
-     "end_ts": 1794873600
+     "name": "Shaved Ice Stall",
+     "category": "Spectral Ice Shack",
+     "when": "18 Nov 00:00 – 21 Nov 24:00",
+     "begin_ts": 1794960000,
+     "end_ts": 1795305600
+    },
+    {
+     "name": "Slush Station",
+     "category": "Spectral Ice Shack",
+     "when": "18 Nov 00:00 – 20 Nov 24:00",
+     "begin_ts": 1794960000,
+     "end_ts": 1795219200
     }
    ]
   }
