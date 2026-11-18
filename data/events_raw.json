@@ -1,25 +1,18 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-17",
- "count": 22,
+ "date": "2026-11-18",
+ "count": 21,
  "categories": [
   {
    "name": "Events",
    "events": [
     {
-     "name": "Flame and Fangs",
+     "name": "Defeat nearby beasts",
      "category": "Events",
-     "when": "16 Nov 00:00 – 17 Nov 24:00",
-     "begin_ts": 1794787200,
-     "end_ts": 1794960000
-    },
-    {
-     "name": "Frostfire Mine",
-     "category": "Events",
-     "when": "17 Nov 2026 00:00 – 24:00",
+     "when": "17 Nov 00:00 – 18 Nov 24:00",
      "begin_ts": 1794873600,
-     "end_ts": 1794960000
+     "end_ts": 1795046400
     },
     {
      "name": "Alliance Championship",
@@ -41,13 +34,6 @@
      "when": "17 Nov 00:00 – 19 Nov 24:00",
      "begin_ts": 1794873600,
      "end_ts": 1795132800
-    },
-    {
-     "name": "Defeat nearby beasts",
-     "category": "Events",
-     "when": "17 Nov 00:00 – 18 Nov 24:00",
-     "begin_ts": 1794873600,
-     "end_ts": 1795046400
     },
     {
      "name": "Fortress Battles",
@@ -83,19 +69,19 @@
      "when": "21 Nov 2026 12:00 – 17:00",
      "begin_ts": 1795262400,
      "end_ts": 1795280400
+    },
+    {
+     "name": "Flame and Fangs",
+     "category": "Events",
+     "when": "16 Nov 00:00 – 17 Nov 24:00",
+     "begin_ts": 1794787200,
+     "end_ts": 1794960000
     }
    ]
   },
   {
    "name": "Deals",
    "events": [
-    {
-     "name": "Hall of Heroes",
-     "category": "Deals",
-     "when": "15 Nov 00:00 – 17 Nov 24:00",
-     "begin_ts": 1794700800,
-     "end_ts": 1794960000
-    },
     {
      "name": "Hero Rally",
      "category": "Deals",
@@ -116,6 +102,13 @@
      "when": "18 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794960000,
      "end_ts": 1795392000
+    },
+    {
+     "name": "Hall of Heroes",
+     "category": "Deals",
+     "when": "22 Nov 00:00 – 24 Nov 24:00",
+     "begin_ts": 1795305600,
+     "end_ts": 1795564800
     }
    ]
   },

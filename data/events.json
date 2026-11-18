@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-17",
- "fetched_at": "2026-11-17T08:06:25Z",
- "count": 22,
+ "api_date": "2026-11-18",
+ "fetched_at": "2026-11-18T07:41:45Z",
+ "count": 21,
  "events": [
   {
    "name": "Tundra Hellfire",
@@ -48,15 +48,6 @@
    "end": "2026-12-07T00:00:00Z",
    "begin_ts": 1794182400,
    "end_ts": 1796601600
-  },
-  {
-   "name": "Hall of Heroes",
-   "category": "Deals",
-   "when": "15 Nov 00:00 – 17 Nov 24:00",
-   "begin": "2026-11-15T00:00:00Z",
-   "end": "2026-11-18T00:00:00Z",
-   "begin_ts": 1794700800,
-   "end_ts": 1794960000
   },
   {
    "name": "Alliance Championship",
@@ -111,15 +102,6 @@
    "end": "2026-11-21T00:00:00Z",
    "begin_ts": 1794873600,
    "end_ts": 1795219200
-  },
-  {
-   "name": "Frostfire Mine",
-   "category": "Events",
-   "when": "17 Nov 2026 00:00 – 24:00",
-   "begin": "2026-11-17T00:00:00Z",
-   "end": "2026-11-18T00:00:00Z",
-   "begin_ts": 1794873600,
-   "end_ts": 1794960000
   },
   {
    "name": "Lucky Wheel",
@@ -201,6 +183,15 @@
    "end": "2026-11-21T17:00:00Z",
    "begin_ts": 1795262400,
    "end_ts": 1795280400
+  },
+  {
+   "name": "Hall of Heroes",
+   "category": "Deals",
+   "when": "22 Nov 00:00 – 24 Nov 24:00",
+   "begin": "2026-11-22T00:00:00Z",
+   "end": "2026-11-25T00:00:00Z",
+   "begin_ts": 1795305600,
+   "end_ts": 1795564800
   }
  ]
 }
