@@ -1039,7 +1039,7 @@
   </div>
   </div>
 
-  <footer id="foot">State 646 · Rally Timer · build 2026-11-18 · rt9<br><span id="sync">connecting …</span></footer>
+  <footer id="foot">State 646 · Rally Timer · build 2026-11-18 · rt10<br><span id="sync">connecting …</span></footer>
 </div>
 <div class="modal-overlay" id="grpModal" role="dialog" aria-modal="true" aria-labelledby="grpTitle"><div class="modal-panel"><div class="modal-header"><h2 id="grpTitle">Groups</h2><button type="button" class="modal-close" id="grpClose" aria-label="Close">×</button></div><p class="modal-sub">Name up to 8 groups and put each player into one of them. Tapping a group later selects all its players at once.</p><div class="rt-gbody"><div class="rt-gnames" id="grpNames"></div><div id="grpPlayers"></div></div><div class="rt-gfoot"><button type="button" class="btn" id="grpCancel">Cancel</button><button type="button" class="btn rt-pri" id="grpSave">Save groups</button></div></div></div>
 <div id="flash"></div>
@@ -1176,6 +1176,10 @@ function calc(){
   var pl=S.plan;if(!pl.impact)return[];
   return pl.leaders.map(function(pid){var m=marchOf(pid);return m==null?null:{pid:pid,n:nameOf(pid),m:m,start:pl.impact-(pl.prep+m)*1000};}).filter(Boolean).sort(function(a,b){return a.start-b.start;});
 }
+function planLive(){
+  var pl=calc();if(!S.plan.impact||!pl.length)return false;
+  return NOW()<pl[pl.length-1].start+8000;   // 5 s until every row shows "gone", plus 3 s
+}
 function myStart(){if(!S.me)return null;var r=calc().filter(function(x){return x.pid===S.me;})[0];return r?r.start:null;}
 function impactNow(secs){
   var mx=0;S.sel.forEach(function(pid){var m=marchOf(pid);if(m>mx)mx=m;});
@@ -1212,7 +1216,7 @@ function renderMe(){
 }
 function renderPlan(){
   var box=$('plan'),pl=calc();
-  if(!S.plan.impact||!pl.length){box.style.display='none';return;}
+  if(!planLive()){box.style.display='none';return;}
   box.style.display='';
   var h='<tr><th>Leader</th><th class="rt-r">March</th><th class="rt-r">Start at</th><th class="rt-r">In</th></tr>';
   pl.forEach(function(r){h+='<tr class="'+(S.me===r.pid?'rt-me':'')+'"><td>'+esc(r.n)+'</td><td class="rt-r">'+r.m+'s</td><td class="rt-r rt-cd">'+hms(r.start)+'</td><td class="rt-r rt-cd" data-st="'+r.start+'"></td></tr>';});
@@ -1221,6 +1225,7 @@ function renderPlan(){
 function renderAll(){renderPlayers();renderMe();renderPlan();checkWarn();fillPlayers();}
 function tick(){
   var pl=S.plan;if(!pl.impact)return;
+  if(!planLive()){if($('plan').style.display!=='none'){$('plan').style.display='none';$('warn').textContent='';if(armed)hint('Armed. Waiting for the next plan …');}return;}
   var now=NOW(),cells=document.querySelectorAll('[data-st]'),first=Infinity;
   for(var i=0;i<cells.length;i++){
     var st=+cells[i].getAttribute('data-st'),d=Math.ceil((st-now)/1000);if(st<first)first=st;
@@ -1382,7 +1387,7 @@ function draw(){
   if(!cv)return;
   var c=cv.getContext('2d'),W=cv.width,H=cv.height,now=NOW(),pl=S.plan;
   var st=myStart(),label,big,bg='#0e1420',foot='';
-  if(!pl.impact||!calc().length){label=(S.me?nameOf(S.me):'Rally Timer');big='Waiting';foot='for the next rally';}
+  if(!planLive()){label=(S.me?nameOf(S.me):'Rally Timer');big='Waiting';foot='for the next rally';}
   else if(st==null){var idn=Math.ceil((pl.impact-now)/1000);label=(S.me?nameOf(S.me)+' – not a leader':'Not a leader');big=idn>0?mmss(idn):'hit';foot='Impact '+hms(pl.impact);}
   else{
     var rd=Math.ceil((st-now)/1000),id=Math.ceil((pl.impact-now)/1000);
