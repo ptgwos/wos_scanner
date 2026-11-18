@@ -1039,7 +1039,7 @@
   </div>
   </div>
 
-  <footer id="foot">State 646 · Rally Timer · build 2026-11-18 · rt10<br><span id="sync">connecting …</span></footer>
+  <footer id="foot">State 646 · Rally Timer · build 2026-11-18 · rt11<br><span id="sync">connecting …</span></footer>
 </div>
 <div class="modal-overlay" id="grpModal" role="dialog" aria-modal="true" aria-labelledby="grpTitle"><div class="modal-panel"><div class="modal-header"><h2 id="grpTitle">Groups</h2><button type="button" class="modal-close" id="grpClose" aria-label="Close">×</button></div><p class="modal-sub">Name up to 8 groups and put each player into one of them. Tapping a group later selects all its players at once.</p><div class="rt-gbody"><div class="rt-gnames" id="grpNames"></div><div id="grpPlayers"></div></div><div class="rt-gfoot"><button type="button" class="btn" id="grpCancel">Cancel</button><button type="button" class="btn rt-pri" id="grpSave">Save groups</button></div></div></div>
 <div id="flash"></div>
@@ -1121,7 +1121,8 @@ function pollTick(){
   if(!S.pin||busy)return;busy=true;var t0=Date.now();
   call('rt_poll',{}).then(function(j){sample(j.now_ms,t0,Date.now());if(j.ver!==S.ver)return loadAll();}).catch(netErr).then(function(){busy=false;});
 }
-setInterval(pollTick,2500);
+/* adaptive: 1 s while a plan is running (changes matter most then), 2.5 s while idle */
+(function loop(){var fast=false;try{fast=planLive();}catch(e){}setTimeout(function(){pollTick();loop();},fast?1000:2500);})();
 document.addEventListener('visibilitychange',function(){if(!document.hidden)pollTick();});
 function stopAll(){armed=false;cancelBeeps();setArmUI();if(wake){try{wake.release();}catch(e){}wake=null;}}
 
@@ -1451,6 +1452,7 @@ if(S.pin){showApp();loadAll().catch(function(e){netErr(e);});}else{showGate('');
     {k: 'ban', t: 'Banner symbols', d: 'Gold moons and blue stars next to the alliances (Roster, SvS Leaderboards)', def: true},
     {g: 'SvS Leaderboards'},
     {k: 'dots', t: 'Phase dots', d: 'Five dots showing in which prep phases a player or alliance is listed', def: true},
+    {k: 'whale', t: 'Whale mode', d: 'Joke: shows a whale instead of one player’s name (Player tab)', def: false},
     {k: 'koi', t: 'Presidents after King of Icefield', d: 'Also list them in the presidency table (Trends)', def: false},
     {g: 'Event Planner'},
     {k: 'epc', t: 'Compact team view', d: 'Smaller tiles in the teams', def: false}
