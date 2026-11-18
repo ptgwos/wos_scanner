@@ -91,7 +91,7 @@ a{color:var(--gold)}
   <table id="ptab"></table>
   <div class="row" style="margin-top:12px">
     <button class="pri" id="mini">Mini window + arm</button>
-    <button id="mini2">Mini (16:9)</button>
+    <button id="mini2">Mini (flat, test)</button>
     <button id="arm">Arm sound for me</button>
     <button id="share">Copy link</button>
     <button id="clr">Clear</button>
@@ -99,7 +99,7 @@ a{color:var(--gold)}
   <div class="hint" id="armhint">Pick "I am" in the table, then arm: beeps at 10, 5, 3, 2, 1 and a long beep + flash at start. Keeps the screen awake. On iPhone the silent switch mutes the beeps, the flash still works. (iOS Safari has no vibration.)</div>
 </div>
 
-<footer>build 2026-11-17 · rt4</footer>
+<footer>build 2026-11-17 · rt5</footer>
 </div>
 
 <script>
@@ -274,19 +274,29 @@ function myStart(){
 }
 function draw(){
   if(!cv||!S.impact)return;
-  var c=cv.getContext('2d'),W=cv.width,H=cv.height,k=W/400,now=Date.now();
+  var c=cv.getContext('2d'),W=cv.width,H=cv.height,now=Date.now();
   var rd=Math.ceil((myStart()-now)/1000);
   c.fillStyle=rd>10?'#0e1420':(rd>0?'#8a1f1f':(rd>-4?'#14803f':'#0e1420'));
   c.fillRect(0,0,W,H);
-  c.fillStyle='#fff';c.textBaseline='middle';
-  c.textAlign='left';c.font='800 '+Math.round(78*k)+'px system-ui,sans-serif';
-  c.fillText(rd>0?mmss(rd):(rd>-4?'GO!':'—'),14*k,H/2+3*k);
   var id=Math.ceil((S.impact-now)/1000);
-  c.textAlign='right';
-  c.font='700 '+Math.round(22*k)+'px system-ui,sans-serif';c.fillText(S.me||'First leader',W-12*k,H/2-18*k);
-  c.font='600 '+Math.round(18*k)+'px system-ui,sans-serif';c.fillStyle='#f2c14e';
-  c.fillText('Hit '+hms(S.impact),W-12*k,H/2+8*k);
-  c.fillText(id>0?'in '+mmss(id):'hit',W-12*k,H/2+32*k);
+  c.fillStyle='#fff';
+  if(W/H>2.5){
+    var k=W/400;
+    c.textBaseline='middle';c.textAlign='left';c.font='800 '+Math.round(78*k)+'px system-ui,sans-serif';
+    c.fillText(rd>0?mmss(rd):(rd>-4?'GO!':'—'),14*k,H/2+3*k);
+    c.textAlign='right';
+    c.font='700 '+Math.round(22*k)+'px system-ui,sans-serif';c.fillText(S.me||'First leader',W-12*k,H/2-18*k);
+    c.font='600 '+Math.round(18*k)+'px system-ui,sans-serif';c.fillStyle='#f2c14e';
+    c.fillText('Hit '+hms(S.impact),W-12*k,H/2+8*k);
+    c.fillText(id>0?'in '+mmss(id):'hit',W-12*k,H/2+32*k);
+  }else{
+    c.textBaseline='alphabetic';c.textAlign='center';
+    c.font='700 22px system-ui,sans-serif';c.fillText((S.me||'First leader')+' starts in',W/2,34);
+    c.font='800 110px system-ui,sans-serif';
+    c.fillText(rd>0?mmss(rd):(rd>-4?'GO!':'—'),W/2,H/2+38);
+    c.font='600 20px system-ui,sans-serif';c.fillStyle='#f2c14e';
+    c.fillText('Impact '+hms(S.impact)+(id>0?'  ·  '+mmss(id):''),W/2,H-16);
+  }
 }
 setInterval(draw,100);
 function startMini(w,h){
@@ -330,8 +340,8 @@ function startMini(w,h){
     $('armhint').textContent='Mini window failed ('+w+'x'+h+'): '+(e&&(e.name||'')+' '+(e.message||e))+'  – try the other mini button.';
   });
 }
-$('mini').onclick=function(){startMini(400,100);};
-$('mini2').onclick=function(){startMini(320,180);};
+$('mini').onclick=function(){startMini(360,200);};
+$('mini2').onclick=function(){startMini(400,100);};
 
 renderPlayers();renderPlan();checkWarn();
 })();
