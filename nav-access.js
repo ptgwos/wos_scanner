@@ -83,6 +83,7 @@
       ['eventplan.html', 'Event Planner', 'calcheck', 'Teams and hours for alliance events', 'f'],
       ['eventcal.html', 'Event Calendar', 'cal', 'Game events on a timeline', 'f'],
       ['rallyplan.html', 'Rally Planner', 'target', 'Rally slots, pets and Battle Buddies', 'm'],
+      ['rallytimer.html', 'Rally Timer', 'clock', 'Countdown so all rallies land together (PIN)', 'f'],
       ['pool.html', 'Rally Pool', 'waves', 'Pool of players for rallies', 'f'],
       ['assignfsh.html', 'Fortress/SH Plan', 'castle', 'Fortress and stronghold assignments', 'f'],
       ['appointments.html', 'Appointments', 'clock', 'Sign up for minister office slots', 'f'],
