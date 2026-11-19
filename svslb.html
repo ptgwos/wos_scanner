@@ -457,6 +457,14 @@
     margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border-soft);
   }
   .slider-block{flex:1;min-width:260px;}
+  .lucy-wrap{overflow-x:auto;}
+  .lucy-wrap th{white-space:normal;vertical-align:bottom;}
+  .lu-m{display:none;}
+  @media (max-width:640px){ .lu-d{display:none;} .lu-m{display:inline;} .lucy-wrap th,.lucy-wrap td{white-space:nowrap;} }
+  .lucy-wrap td.num,.lucy-wrap th.num{text-align:right;}
+  .lucy-wrap td.cnt{color:var(--dim, inherit);}
+  .lucy-wrap td.an{font-weight:600;}
+  .lucy-wrap tr.row-646 td.an{font-weight:700;color:var(--strong);}
   .slider-labels{display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-size:12.5px;margin-bottom:8px;}
   .slider-labels .a{color:var(--ice);}
   .slider-labels .b{color:var(--frost);}
@@ -782,6 +790,7 @@
     <button class="tab" data-tab="alliance">Alliance</button>
     <button class="tab" data-tab="castle">Castle</button>
     <button class="tab" data-tab="chests">Chests</button>
+    <button class="tab" data-tab="lucy">Lucy</button>
     <button class="tab" data-tab="trends">Statistics</button>
   </div>
 
@@ -797,6 +806,21 @@
 
   <!-- STATISTICS TAB (across events) -->
   <div class="panel" id="trendPanel" style="display:none;"></div>
+
+  <!-- LUCY TAB (alliance ranking with adjustable weighting) -->
+  <div class="panel" id="lucyPanel" style="display:none;">
+    <div class="chest-config">
+      <div class="slider-block">
+        <div class="slider-labels">
+          <span class="a" id="lucyPrepLabel">Prep Score: 60%</span>
+          <span class="b" id="lucyCastleLabel">Castle Score: 40%</span>
+        </div>
+        <input type="range" id="lucySlider" min="0" max="100" value="60">
+        <div class="formula-note">Overall rank = Prep Score × weight + Castle Score × (100% − weight), ranked among all alliances of both states, only 646 shown · Prep Score = alliance Prep Total · Castle Score = sum of the Castle Battle points of the alliance's players in the Castle Top 100 · missing value = 0</div>
+      </div>
+    </div>
+    <div id="lucyTableWrap" class="lucy-wrap"></div>
+  </div>
 
   <!-- CHESTS TAB -->
   <div class="panel" id="chestPanel" style="display:none;">
@@ -822,7 +846,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-13 · b96</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b98</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -974,7 +998,7 @@
   // optional: ?ev=<event id>  ?ph=<prep|p1..p5|battle|castle>  ?p=<public ids>  ?a=<alliance keys>
   const INITIAL_HASH = location.hash;   // read before the first render rewrites the address
   let hashApplying = false;
-  const TAB_SLUG = {player: 'player', alliance: 'alliance', castle: 'castle', chests: 'chests', trends: 'statistics'};
+  const TAB_SLUG = {player: 'player', alliance: 'alliance', castle: 'castle', chests: 'chests', lucy: 'lucy', trends: 'statistics'};
   const SUB_SLUG = {player: 'players', alliance: 'alliances', state: 'state', hl: 'highlights', cons: 'consistency', hof: 'hall-of-fame', pres: 'presidents'};
   const PH_SLUG = {'Prep Total': 'prep', 'Day 1': 'p1', 'Day 2': 'p2', 'Day 3': 'p3', 'Day 4': 'p4', 'Day 5': 'p5', 'Battle Phase': 'battle', 'Castle Battle': 'castle'};
   function buildHash(){
@@ -1011,7 +1035,7 @@
       }
     } else {
       if(CUR.id !== EVENTS[0].id) q.push('ev=' + encodeURIComponent(CUR.id));
-      if(tab !== 'chests' && PH_SLUG[state.phase] && state.phase !== defaultPhase(tab)) q.push('ph=' + PH_SLUG[state.phase]);
+      if(tab !== 'chests' && tab !== 'lucy' && PH_SLUG[state.phase] && state.phase !== defaultPhase(tab)) q.push('ph=' + PH_SLUG[state.phase]);
     }
     return (path === 'player' && !q.length) ? '' : '#' + path + (q.length ? '?' + q.join('&') : '');
   }
@@ -1088,6 +1112,7 @@
   const tabsEl = document.getElementById('tabs');
   const tablePanel = document.getElementById('tablePanel');
   const chestPanel = document.getElementById('chestPanel');
+  const lucyPanel = document.getElementById('lucyPanel');
   const controlsEl = document.getElementById('controls');
   const tableWrap = document.getElementById('tableWrap');
 
@@ -1682,17 +1707,27 @@
     if(state.tab === 'trends'){
       tablePanel.style.display = 'none';
       chestPanel.style.display = 'none';
+      lucyPanel.style.display = 'none';
       trendPanel.style.display = 'block';
       renderTrends();
       replayFade(trendPanel);
     } else if(state.tab === 'chests'){
       tablePanel.style.display = 'none';
+      lucyPanel.style.display = 'none';
       chestPanel.style.display = 'block';
       renderChests();
       replayFade(chestPanel);
       writeHash();
+    } else if(state.tab === 'lucy'){
+      tablePanel.style.display = 'none';
+      chestPanel.style.display = 'none';
+      lucyPanel.style.display = 'block';
+      renderLucy();
+      replayFade(lucyPanel);
+      writeHash();
     } else {
       chestPanel.style.display = 'none';
+      lucyPanel.style.display = 'none';
       tablePanel.style.display = 'block';
       state.sortKey = 'rank'; state.sortDir = 'asc';
       renderControls();
@@ -1833,6 +1868,52 @@
     });
 
     updateSummary();
+  }
+
+  // ---------- LUCY (alliance ranking, weighted) ----------
+  const lucyState = {weight: 60};
+  const lucySlider = document.getElementById('lucySlider');
+  const lucyWrap = document.getElementById('lucyTableWrap');
+  lucySlider.value = lucyState.weight;
+  lucySlider.addEventListener('input', () => { lucyState.weight = parseInt(lucySlider.value, 10); renderLucy(); });
+  function buildLucyRows(){
+    const stOf = (tag, st) => st || allianceStateMap[tag] || '';
+    const map = new Map();
+    const get = (tag, st) => {
+      const stt = stOf(tag, st), k = stt + '|' + tag;
+      let e = map.get(k);
+      if(!e){ e = {tag: tag, state: stt, name: '', prep: 0, hasPrep: false, prepN: 0, castle: 0, castleN: 0}; map.set(k, e); }
+      return e;
+    };
+    Object.values(DATA.alliance || {}).forEach(rows => rows.forEach(r => { if(r.alliance){ const e = get(r.alliance, r.state); if(!e.name) e.name = r.name; } }));
+    (DATA.alliance['Prep Total'] || []).forEach(r => { if(!r.alliance) return; const e = get(r.alliance, r.state); e.prep = r.points; e.hasPrep = true; });
+    (DATA.player['Prep Total'] || []).forEach(r => { if(r.rank <= 100 && r.alliance) get(r.alliance, r.state).prepN++; });
+    (DATA.castle['Castle Battle'] || []).forEach(r => { if(r.rank <= 100 && r.alliance){ const e = get(r.alliance, r.state); e.castle += r.points; e.castleN++; } });
+    const w = lucyState.weight / 100;
+    const rows = [...map.values()].filter(e => e.hasPrep || e.prepN || e.castleN);
+    rows.forEach(e => { e.score = e.prep * w + e.castle * (1 - w); });
+    rows.sort((a, b) => b.score - a.score || b.prep - a.prep);
+    const cnt = {};
+    rows.forEach((e, i) => { e.rank = i + 1; cnt[e.state] = (cnt[e.state] || 0) + 1; e.srank = e.state ? cnt[e.state] : 0; });
+    return rows.filter(e => e.state === '646');
+  }
+  function renderLucy(){
+    document.getElementById('lucyPrepLabel').textContent = `Prep Score: ${lucyState.weight}%`;
+    document.getElementById('lucyCastleLabel').textContent = `Castle Score: ${100 - lucyState.weight}%`;
+    const rows = buildLucyRows();
+    if(!rows.length){ lucyWrap.innerHTML = '<div class="empty">No alliance data for this event yet.</div>'; return; }
+    const thead = '<tr><th class="num"><span class="lu-d">Overall rank</span><span class="lu-m">Rank</span></th><th class="num"><span class="lu-d">State rank</span><span class="lu-m">State</span></th><th>Alliance</th><th>Tag</th><th class="num"><span class="lu-d">Prep score (total)</span><span class="lu-m">Prep score</span></th><th class="num"><span class="lu-d">Players in Prep Top 100</span><span class="lu-m">Prep top 100</span></th><th class="num">Castle score</th><th class="num"><span class="lu-d">Players in Castle Top 100</span><span class="lu-m">Castle top 100</span></th></tr>';
+    const tbody = rows.map(e => `<tr class="${e.state === '646' ? 'row-646' : (e.state ? 'row-away' : '')}">
+      <td class="rank num">${e.rank}</td>
+      <td class="rank srank num">${e.srank || '—'}</td>
+      <td class="an">${escapeHtml(e.name || e.tag)}</td>
+      <td>${tagChip(e.tag, e.state)}</td>
+      <td class="num">${e.hasPrep ? fmt(e.prep) : '—'}</td>
+      <td class="num cnt">${e.prepN}</td>
+      <td class="num">${e.castleN ? fmt(e.castle) : '—'}</td>
+      <td class="num cnt">${e.castleN}</td>
+    </tr>`).join('');
+    lucyWrap.innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
   }
 
   function updateSummary(){
@@ -3422,6 +3503,7 @@
     eventSel.value = ev.id;
     setHeader();
     if(state.tab === 'chests'){ renderChests(); }
+    else if(state.tab === 'lucy'){ renderLucy(); }
     else if(state.tab !== 'trends'){ renderControls(); renderTable(); }
     writeHash();
   }
