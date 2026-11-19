@@ -460,7 +460,26 @@
   .lucy-wrap{overflow-x:auto;}
   .lucy-wrap th{white-space:normal;vertical-align:bottom;}
   .lu-m{display:none;}
-  @media (max-width:640px){ .lu-d{display:none;} .lu-m{display:inline;} .lucy-wrap th,.lucy-wrap td{white-space:nowrap;} }
+  input[type="number"]{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;min-width:90px;}
+  input[type="number"]:focus{outline:2px solid var(--ice-dim);outline-offset:1px;}
+  .lucy-ch{margin:0 0 22px;padding-bottom:20px;border-bottom:1px solid var(--border-soft);}
+  .lch-h{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);font-family:'Inter',sans-serif;margin-bottom:10px;}
+  .lch-in{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:14px;}
+  .lch-in input{width:110px;}
+  .lch-grp{margin:0 0 14px;font-size:13px;color:var(--text-dim);}
+  .lch-grp summary{cursor:pointer;user-select:none;}
+  .lch-grp summary:hover{color:var(--ice);}
+  .lch-gl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:center;margin-top:10px;max-width:520px;}
+  .lch-gl select{min-width:0;padding:5px 8px;font-size:12.5px;}
+  .lch-t{max-width:760px;}
+  .lch-t input{width:74px;padding:5px 8px;text-align:right;font-size:12.5px;}
+  .lch-t td.gn{font-weight:700;}
+  .lch-t .sum td{font-weight:700;border-top:2px solid var(--border);}
+  .lucy-ch .ok{color:var(--good);} .lucy-ch .bad{color:var(--danger);}
+  .lch-note{margin-top:12px;}
+  .lch-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:12px;}
+  .lch-tools .btn{width:auto;}
+  @media (max-width:640px){ .lch-in input{width:100%;} .lch-in .field{flex:1 1 40%;} .lch-tools .btn{width:100%;} .lu-d{display:none;} .lu-m{display:inline;} .lucy-wrap th,.lucy-wrap td{white-space:nowrap;} }
   .lucy-wrap td.num,.lucy-wrap th.num{text-align:right;}
   .lucy-wrap td.cnt{color:var(--dim, inherit);}
   .lucy-wrap td.an{font-weight:600;}
@@ -819,6 +838,17 @@
         <div class="formula-note">Overall rank = Prep Score × weight + Castle Score × (100% − weight), ranked among all alliances of both states, only 646 shown · Prep Score = alliance Prep Total · Castle Score = sum of the Castle Battle points of the alliance's players in the Castle Top 100 · missing value = 0</div>
       </div>
     </div>
+    <div class="lucy-ch" id="lucyCh">
+      <div class="lch-h">Chest distribution</div>
+      <div class="lch-in">
+        <div class="field"><label for="lchBig">Big chests</label><input type="number" id="lchBig" min="0" max="999" inputmode="numeric"></div>
+        <div class="field"><label for="lchSmall">Small chests</label><input type="number" id="lchSmall" min="0" max="999" inputmode="numeric"></div>
+        <button class="btn" id="lchGo" type="button">Suggest distribution</button>
+      </div>
+      <details class="lch-grp" id="lchGrp"><summary id="lchGrpSum"></summary><div id="lchGrpBody"></div></details>
+      <div id="lchRes"></div>
+      <div class="formula-note lch-note">Rule: chests are split in proportion to the number of players each group has in the Prep Top 100 (largest remainder, ties go to the better weighted score). Big and small chests are calculated separately. Afterwards you can change every number by hand.</div>
+    </div>
     <div id="lucyTableWrap" class="lucy-wrap"></div>
   </div>
 
@@ -846,7 +876,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b98</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b99</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1914,7 +1944,110 @@
       <td class="num cnt">${e.castleN}</td>
     </tr>`).join('');
     lucyWrap.innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+    renderLch(rows);
   }
+
+  // ----- chest distribution inside the Lucy tab -----
+  const LCH_KEY = 'svs646_lucy_ch', LGRP_KEY = 'svs646_lucy_grp';
+  const lch = {big: 12, small: 50, grp: null, res: null};
+  try { const j = JSON.parse(localStorage.getItem(LCH_KEY) || 'null'); if(j){ lch.big = Math.max(0, parseInt(j.big, 10) || 0); lch.small = Math.max(0, parseInt(j.small, 10) || 0); } } catch(e) {}
+  try { lch.grp = JSON.parse(localStorage.getItem(LGRP_KEY) || 'null'); } catch(e) {}
+  if(!lch.grp || typeof lch.grp !== 'object') lch.grp = {osm: 'BLP', TbR: 'TBR'};
+  const lchBig = document.getElementById('lchBig'), lchSmall = document.getElementById('lchSmall');
+  lchBig.value = lch.big; lchSmall.value = lch.small;
+  function lchSave(){ try { localStorage.setItem(LCH_KEY, JSON.stringify({big: lch.big, small: lch.small})); localStorage.setItem(LGRP_KEY, JSON.stringify(lch.grp)); } catch(e) {} }
+  let lchRows = [];
+  function lchRoot(t, tags){ let c = t, n = 0; while(lch.grp[c] && lch.grp[c] !== c && tags.has(lch.grp[c]) && n++ < 6) c = lch.grp[c]; return c; }
+  function lchGroups(rows){
+    const tags = new Set(rows.filter(e => e.prepN || e.castleN).map(e => e.tag));
+    const g = new Map();
+    rows.forEach(e => {
+      if(!tags.has(e.tag)) return;
+      const r = lchRoot(e.tag, tags);
+      let x = g.get(r); if(!x){ x = {key: r, tags: [], prepN: 0, score: 0}; g.set(r, x); }
+      x.tags.push(e); x.prepN += e.prepN; x.score += e.score;
+    });
+    g.forEach(x => { x.tags.sort((a, b) => b.prepN - a.prepN || b.score - a.score); x.label = x.tags.map(e => e.tag).join(' + '); });
+    return [...g.values()].sort((a, b) => b.prepN - a.prepN || b.score - a.score);
+  }
+  function lchSplit(groups, n){
+    const tot = groups.reduce((a, x) => a + x.prepN, 0), out = {};
+    if(!tot){ groups.forEach(x => out[x.key] = 0); return out; }
+    const q = groups.map(x => ({x, q: x.prepN / tot * n}));
+    q.forEach(o => { o.f = Math.floor(o.q + 1e-9); });
+    let rest = n - q.reduce((a, o) => a + o.f, 0);
+    q.slice().sort((a, b) => (b.q - b.f) - (a.q - a.f) || b.x.score - a.x.score).forEach(o => { if(rest > 0 && o.x.prepN > 0){ o.f++; rest--; } });
+    q.forEach(o => { out[o.x.key] = o.f; });
+    return out;
+  }
+  function lchTotals(){
+    let b = 0, sm = 0; (lch.res || []).forEach(r => { b += r.big; sm += r.small; });
+    const bd = b - lch.big, sd = sm - lch.small;
+    const msg = (name, have, want, d) => d === 0 ? `<span class="ok">${name}: ${have} / ${want} ✓</span>` : `<span class="bad">${name}: ${have} / ${want} (${d > 0 ? d + ' too many' : -d + ' left'})</span>`;
+    return {b, sm, html: msg('Big', b, lch.big, bd) + ' &nbsp;·&nbsp; ' + msg('Small', sm, lch.small, sd)};
+  }
+  function renderLch(rows){
+    if(rows) lchRows = rows;
+    const groups = lchGroups(lchRows), tags = new Set(lchRows.filter(e => e.prepN || e.castleN).map(e => e.tag));
+    // group editor
+    const cand = lchRows.filter(e => e.prepN || e.castleN).slice().sort((a, b) => b.prepN - a.prepN || b.score - a.score);
+    const multi = groups.filter(g => g.tags.length > 1);
+    document.getElementById('lchGrpSum').textContent = 'Groups: ' + (multi.length ? multi.map(g => g.label).join(' · ') : 'none merged') + ' (edit)';
+    const roots = new Set(groups.map(g => g.key));
+    document.getElementById('lchGrpBody').innerHTML = '<div class="lch-gl">' + cand.map(e => {
+      const own = lchRoot(e.tag, tags), kids = cand.some(o => o.tag !== e.tag && lchRoot(o.tag, tags) === e.tag);
+      const opts = '<option value="">Own group</option>' + cand.filter(o => o.tag !== e.tag && roots.has(o.tag)).map(o => `<option value="${escapeHtml(o.tag)}"${own === o.tag ? ' selected' : ''}>counts with ${escapeHtml(o.tag)}</option>`).join('');
+      return `<span>${tagChip(e.tag, e.state)} <small>${e.prepN} in Prep Top 100</small></span><select data-t="${escapeHtml(e.tag)}"${kids ? ' disabled title="Other alliances are merged into this one"' : ''}>${opts}</select>`;
+    }).join('') + '</div>';
+    // result
+    const box = document.getElementById('lchRes');
+    const act = groups.filter(g => g.prepN > 0);
+    if(!act.length){ box.innerHTML = '<div class="empty">No players in the Prep Top 100 for this event yet.</div>'; return; }
+    const tot = act.reduce((a, g) => a + g.prepN, 0);
+    const byKey = new Map((lch.res || []).map(r => [r.key, r]));
+    const body = act.map(g => {
+      const r = byKey.get(g.key);
+      const chips = g.tags.map(e => tagChip(e.tag, e.state)).join(' ');
+      const cell = k => r ? `<input type="number" min="0" max="999" inputmode="numeric" data-k="${escapeHtml(g.key)}" data-t="${k}" value="${r[k]}">` : '—';
+      return `<tr><td class="gn">${chips}</td><td class="num">${g.prepN}</td><td class="num">${(g.prepN / tot * 100).toFixed(1).replace('.', ',')} %</td><td class="num">${cell('big')}</td><td class="num">${cell('small')}</td><td class="num" data-sum="${escapeHtml(g.key)}">${r ? r.big + r.small : '—'}</td></tr>`;
+    }).join('');
+    box.innerHTML = `<div class="lucy-wrap"><table class="lch-t"><thead><tr><th>Group</th><th class="num">Players in Prep Top 100</th><th class="num">Share</th><th class="num">Big</th><th class="num">Small</th><th class="num">Total</th></tr></thead><tbody>${body}</tbody></table></div>`
+      + (lch.res ? `<div class="lch-tools"><span class="chest-summary" id="lchTot">${lchTotals().html}</span><button class="btn" id="lchCopy" type="button">Copy list</button><span class="copy-status" id="lchCopied">Copied ✓</span></div>` : '<div class="chest-summary" style="margin-top:10px;">Enter the number of chests and click “Suggest distribution”.</div>');
+  }
+  function lchRead(){ lch.big = Math.max(0, parseInt(lchBig.value, 10) || 0); lch.small = Math.max(0, parseInt(lchSmall.value, 10) || 0); lchSave(); }
+  lchBig.addEventListener('input', () => { lchRead(); if(lch.res) renderLchTot(); });
+  lchSmall.addEventListener('input', () => { lchRead(); if(lch.res) renderLchTot(); });
+  function renderLchTot(){ const t = document.getElementById('lchTot'); if(t) t.innerHTML = lchTotals().html; }
+  document.getElementById('lchGo').addEventListener('click', () => {
+    lchRead();
+    const act = lchGroups(lchRows).filter(g => g.prepN > 0);
+    const b = lchSplit(act, lch.big), sm = lchSplit(act, lch.small);
+    lch.res = act.map(g => ({key: g.key, big: b[g.key] || 0, small: sm[g.key] || 0}));
+    renderLch();
+  });
+  document.getElementById('lchGrpBody').addEventListener('change', e => {
+    const sel = e.target.closest('select[data-t]'); if(!sel) return;
+    if(sel.value) lch.grp[sel.dataset.t] = sel.value; else delete lch.grp[sel.dataset.t];
+    // an alliance explicitly set to "own group" must not fall back to a default merge
+    if(!sel.value && (sel.dataset.t === 'osm' || sel.dataset.t === 'TbR')) lch.grp[sel.dataset.t] = sel.dataset.t;
+    lchSave(); lch.res = null; renderLch();
+    document.getElementById('lchGrp').open = true;
+  });
+  document.getElementById('lchRes').addEventListener('input', e => {
+    const i = e.target.closest('input[data-k]'); if(!i) return;
+    const r = (lch.res || []).find(x => x.key === i.dataset.k); if(!r) return;
+    r[i.dataset.t] = Math.max(0, parseInt(i.value, 10) || 0);
+    const c = document.querySelector('[data-sum="' + i.dataset.k + '"]'); if(c) c.textContent = r.big + r.small;
+    renderLchTot();
+  });
+  document.getElementById('lchRes').addEventListener('click', e => {
+    if(!e.target.closest('#lchCopy')) return;
+    const byKey = new Map(lchGroups(lchRows).map(g => [g.key, g]));
+    let text = `🎁 Chest distribution — ${CUR.date} (${lch.big} big, ${lch.small} small)\n\n`;
+    lch.res.forEach(r => { const g = byKey.get(r.key); if(g) text += `${g.label}: ${r.big} big + ${r.small} small = ${r.big + r.small}\n`; });
+    const done = () => { const c = document.getElementById('lchCopied'); if(c){ c.classList.add('show'); setTimeout(() => c.classList.remove('show'), 1600); } };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text.trim()).then(done).catch(() => fallbackCopy(text.trim(), done)); else fallbackCopy(text.trim(), done);
+  });
 
   function updateSummary(){
     let big = 0, small = 0;
@@ -3493,6 +3626,7 @@
     // chests: new event -> new alliance list, assignments start empty
     chestState.alliance = '';
     chestState.picks = new Map();
+    lch.res = null;
     fillChestAlliances();
     state.allianceFilter = '';
     state.sel.player.clear(); state.sel.alliance.clear();
