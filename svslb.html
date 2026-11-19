@@ -809,7 +809,7 @@
     <button class="tab" data-tab="alliance">Alliance</button>
     <button class="tab" data-tab="castle">Castle</button>
     <button class="tab" data-tab="chests">Chests</button>
-    <button class="tab" data-tab="lucy">Lucy</button>
+    <button class="tab" data-tab="lucy" style="display:none">Lucy</button>
     <button class="tab" data-tab="trends">Statistics</button>
   </div>
 
@@ -877,7 +877,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b101</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b102</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1028,6 +1028,7 @@
   // #player | #alliance | #castle | #chests | #statistics/(players|alliances|state|highlights)
   // optional: ?ev=<event id>  ?ph=<prep|p1..p5|battle|castle>  ?p=<public ids>  ?a=<alliance keys>
   const INITIAL_HASH = location.hash;   // read before the first render rewrites the address
+  let LUCY_WANT = /^#lucy/.test(INITIAL_HASH);
   let hashApplying = false;
   const TAB_SLUG = {player: 'player', alliance: 'alliance', castle: 'castle', chests: 'chests', lucy: 'lucy', trends: 'statistics'};
   const SUB_SLUG = {player: 'players', alliance: 'alliances', state: 'state', hl: 'highlights', cons: 'consistency', hof: 'hall-of-fame', pres: 'presidents'};
@@ -1081,6 +1082,7 @@
     const seg = parts[0].split('/');
     const tab = Object.keys(TAB_SLUG).find(k => TAB_SLUG[k] === seg[0]);
     if(!tab) return;
+    if(tab === 'lucy' && !lucyOk()) return;   // the tab only exists for users with the Lucy right
     const q = new URLSearchParams(parts.slice(1).join('?'));
     hashApplying = true;
     try {
@@ -3684,6 +3686,20 @@
   };
   document.addEventListener('visibilitychange', () => { if(!document.hidden && Date.now() - pdLast > 600000) loadPD(); });
   window.addEventListener('pageshow', e => { if(e.persisted && Date.now() - pdLast > 600000) loadPD(); });
+  // Lucy tab: only exists for users with the Lucy right (sa_me -> lucy; the menu script nav-access.js publishes it)
+  function lucyOk(){
+    let m = window.NAV_ME;
+    if(m === undefined){ try { const c = localStorage.getItem('ep_code'), j = JSON.parse(sessionStorage.getItem('na_m') || 'null'); m = (j && j.c === c) ? j.m : null; } catch(e) { m = null; } }
+    return !!(m && m.lucy);
+  }
+  function syncLucy(){
+    const ok = lucyOk(), tb = tabsEl.querySelector('.tab[data-tab="lucy"]');
+    if(tb) tb.style.display = ok ? '' : 'none';
+    if(!ok && state.tab === 'lucy') tabsEl.querySelector('.tab[data-tab="player"]').click();
+    else if(ok && LUCY_WANT && state.tab !== 'lucy'){ LUCY_WANT = false; applyHash(INITIAL_HASH); }
+  }
+  window.addEventListener('na:me', syncLucy);
+  syncLucy();
   applyHash(INITIAL_HASH);   // open the tab / event / players given in the link
 })();
 

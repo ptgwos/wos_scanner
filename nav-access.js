@@ -118,7 +118,12 @@
     if(dot){ var d = document.createElement('span'); d.className = 'na-dot'; d.title = dot; el.appendChild(d); }
     return el;
   }
+  function publish(mm){   // lets the page know what the logged-in person may see (e.g. the Lucy tab in svslb.html)
+    window.NAV_ME = mm || null;
+    try { window.dispatchEvent(new CustomEvent('na:me', {detail: mm || null})); } catch(e) {}
+  }
   function apply(mm){
+    publish(mm);
     css();
     var nav = document.querySelector('.sitenav'); if(!nav) return;
     var open = null; var o = nav.querySelector('.na-grp.open'); if(o) open = o.getAttribute('data-g');
