@@ -1115,7 +1115,7 @@
     </div>
     <div class="ch-act"><button type="button" class="btn" id="chShare">Copy list for Discord</button><button type="button" class="btn btn-secondary" id="chClr">Clear all</button></div>
   </div>
-  <footer id="foot">State 646 · Presidential Chests — saved in this browser · build 2026-10-31 · ch2</footer>
+  <footer id="foot">State 646 · Presidential Chests — saved in this browser · build 2026-11-19 · ch3</footer>
 </div>
 <div id="toast"></div>
 <div class="ch-m" id="chM"><div class="ch-mp" id="chMp"></div></div>
@@ -1147,7 +1147,7 @@
   function toast(msg, ok){ var t = $('toast'); t.textContent = msg; t.className = ok ? 'ok' : ''; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(function(){ t.style.display = 'none'; }, 3500); }
   function clean(n){ return String(n || '').replace(/\s+/g, ' ').trim(); }
   function pow(p){ p = +p || 0; return p >= 999e6 ? (p / 1e9).toFixed(1).replace('.', ',') + ' B' : p >= 1e6 ? Math.round(p / 1e6) + ' M' : ''; }
-  var KEY = 'chests646_state', NB = 5, NS = 15, D = {players: {}, alliances: {}}, S = {al: [], big: [], sm: []}, avOn = true;
+  var KEY = 'chests646_state', NB = 6, NS = 20, D = {players: {}, alliances: {}}, S = {al: [], big: [], sm: []}, avOn = true;
   try { var o = JSON.parse(localStorage.getItem('svs646_prefs') || 'null'); if(o && o.av === false) avOn = false; } catch(e) {}
   function load(){
     try { var j = JSON.parse(localStorage.getItem(KEY) || 'null'); if(j){ S.al = Array.isArray(j.al) ? j.al.filter(function(x){ return typeof x === 'string'; }).slice(0, 12) : []; S.big = (j.big || []).slice(0, NB); S.sm = (j.sm || []).slice(0, NS); } } catch(e) {}
