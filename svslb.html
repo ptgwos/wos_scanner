@@ -843,12 +843,13 @@
       <div class="lch-in">
         <div class="field"><label for="lchBig">Big chests</label><input type="number" id="lchBig" min="0" max="999" inputmode="numeric"></div>
         <div class="field"><label for="lchSmall">Small chests</label><input type="number" id="lchSmall" min="0" max="999" inputmode="numeric"></div>
-        <div class="field"><label for="lchTop" title="Only alliances in the Top N of the alliance Prep Total ranking (both states) take part">Prep Top (alliances)</label><input type="number" id="lchTop" min="1" max="99" inputmode="numeric"></div>
+        <div class="field"><label for="lchTop" title="Only the alliances in the Top N of the chosen ranking (both states) take part">Top N alliances</label><input type="number" id="lchTop" min="1" max="99" inputmode="numeric"></div>
+        <div class="field"><label for="lchMode" title="Prep: rank in the alliance Prep Total ranking. Combined: Overall rank of the table below (Prep / Castle weighting of the slider)">Top N by</label><select id="lchMode"><option value="prep">Prep ranking</option><option value="comb">Combined ranking</option></select></div>
         <button class="btn" id="lchGo" type="button">Suggest distribution</button>
       </div>
       <details class="lch-grp" id="lchGrp"><summary id="lchGrpSum"></summary><div id="lchGrpBody"></div></details>
       <div id="lchRes"></div>
-      <div class="formula-note lch-note">Only alliances in the Prep Top N of the alliance ranking (both states, default 10) take part; all others are ignored, also when merged into a group. Share = weight × (group's share of the players in the Prep Top 100) + (100% − weight) × (group's share of the Castle score), with the weighting of the slider above (60 / 40 by default). Chests are split by that share (largest remainder, ties go to the better ranked group); big and small chests are calculated separately. Afterwards you can change every number by hand.</div>
+      <div class="formula-note lch-note">Only alliances in the Top N (default 10) of the chosen ranking take part, counted among all alliances of both states: “Prep ranking” = the alliance Prep Total ranking, “Combined ranking” = the Overall rank of the table below (weighting of the slider). All others are ignored, also when merged into a group. Share = weight × (group's share of the players in the Prep Top 100) + (100% − weight) × (group's share of the Castle score), with the weighting of the slider above (60 / 40 by default). Chests are split by that share (largest remainder, ties go to the better ranked group); big and small chests are calculated separately. Afterwards you can change every number by hand.</div>
     </div>
     <div id="lucyTableWrap" class="lucy-wrap"></div>
   </div>
@@ -877,7 +878,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b102</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b103</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1952,15 +1953,15 @@
 
   // ----- chest distribution inside the Lucy tab -----
   const LCH_KEY = 'svs646_lucy_ch', LGRP_KEY = 'svs646_lucy_grp';
-  const lch = {big: 12, small: 50, top: 10, grp: null, res: null};
-  try { const j = JSON.parse(localStorage.getItem(LCH_KEY) || 'null'); if(j){ lch.big = Math.max(0, parseInt(j.big, 10) || 0); lch.small = Math.max(0, parseInt(j.small, 10) || 0); lch.top = Math.max(1, parseInt(j.top, 10) || 10); } } catch(e) {}
+  const lch = {big: 12, small: 50, top: 10, mode: 'comb', grp: null, res: null};
+  try { const j = JSON.parse(localStorage.getItem(LCH_KEY) || 'null'); if(j){ lch.big = Math.max(0, parseInt(j.big, 10) || 0); lch.small = Math.max(0, parseInt(j.small, 10) || 0); lch.top = Math.max(1, parseInt(j.top, 10) || 10); if(j.mode === 'prep' || j.mode === 'comb') lch.mode = j.mode; } } catch(e) {}
   try { lch.grp = JSON.parse(localStorage.getItem(LGRP_KEY) || 'null'); } catch(e) {}
   if(!lch.grp || typeof lch.grp !== 'object') lch.grp = {osm: 'BLP', TbR: 'TBR'};
   const lchBig = document.getElementById('lchBig'), lchSmall = document.getElementById('lchSmall');
-  const lchTop = document.getElementById('lchTop');
-  lchBig.value = lch.big; lchSmall.value = lch.small; lchTop.value = lch.top;
-  const lchOk = e => e.hasPrep && e.prepRank <= lch.top && (e.prepN || e.castleN);
-  function lchSave(){ try { localStorage.setItem(LCH_KEY, JSON.stringify({big: lch.big, small: lch.small, top: lch.top})); localStorage.setItem(LGRP_KEY, JSON.stringify(lch.grp)); } catch(e) {} }
+  const lchTop = document.getElementById('lchTop'), lchMode = document.getElementById('lchMode');
+  lchBig.value = lch.big; lchSmall.value = lch.small; lchTop.value = lch.top; lchMode.value = lch.mode;
+  const lchOk = e => (lch.mode === 'prep' ? (e.hasPrep && e.prepRank <= lch.top) : e.rank <= lch.top) && (e.prepN || e.castleN);
+  function lchSave(){ try { localStorage.setItem(LCH_KEY, JSON.stringify({big: lch.big, small: lch.small, top: lch.top, mode: lch.mode})); localStorage.setItem(LGRP_KEY, JSON.stringify(lch.grp)); } catch(e) {} }
   let lchRows = [];
   function lchRoot(t, tags){ let c = t, n = 0; while(lch.grp[c] && lch.grp[c] !== c && tags.has(lch.grp[c]) && n++ < 6) c = lch.grp[c]; return c; }
   function lchGroups(rows){
@@ -2024,6 +2025,7 @@
   }
   function lchRead(){ lch.big = Math.max(0, parseInt(lchBig.value, 10) || 0); lch.small = Math.max(0, parseInt(lchSmall.value, 10) || 0); lch.top = Math.max(1, parseInt(lchTop.value, 10) || 10); lchSave(); }
   lchTop.addEventListener('change', () => { lchRead(); lchTop.value = lch.top; lch.res = null; renderLch(); });
+  lchMode.addEventListener('change', () => { lch.mode = lchMode.value; lchSave(); lch.res = null; renderLch(); });
   lchBig.addEventListener('input', () => { lchRead(); if(lch.res) renderLchTot(); });
   lchSmall.addEventListener('input', () => { lchRead(); if(lch.res) renderLchTot(); });
   function renderLchTot(){ const t = document.getElementById('lchTot'); if(t) t.innerHTML = lchTotals().html; }
