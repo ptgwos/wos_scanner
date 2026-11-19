@@ -843,11 +843,12 @@
       <div class="lch-in">
         <div class="field"><label for="lchBig">Big chests</label><input type="number" id="lchBig" min="0" max="999" inputmode="numeric"></div>
         <div class="field"><label for="lchSmall">Small chests</label><input type="number" id="lchSmall" min="0" max="999" inputmode="numeric"></div>
+        <div class="field"><label for="lchTop" title="Only alliances in the Top N of the alliance Prep Total ranking (both states) take part">Prep Top (alliances)</label><input type="number" id="lchTop" min="1" max="99" inputmode="numeric"></div>
         <button class="btn" id="lchGo" type="button">Suggest distribution</button>
       </div>
       <details class="lch-grp" id="lchGrp"><summary id="lchGrpSum"></summary><div id="lchGrpBody"></div></details>
       <div id="lchRes"></div>
-      <div class="formula-note lch-note">Rule: chests are split in proportion to the number of players each group has in the Prep Top 100 (largest remainder, ties go to the better weighted score). Big and small chests are calculated separately. Afterwards you can change every number by hand.</div>
+      <div class="formula-note lch-note">Only alliances in the Prep Top N of the alliance ranking (both states, default 10) take part; all others are ignored, also when merged into a group. Chests are split in proportion to the number of players each group has in the Prep Top 100 (largest remainder, ties go to the better weighted score). Big and small chests are calculated separately. Afterwards you can change every number by hand.</div>
     </div>
     <div id="lucyTableWrap" class="lucy-wrap"></div>
   </div>
@@ -876,7 +877,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b99</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b100</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1912,11 +1913,11 @@
     const get = (tag, st) => {
       const stt = stOf(tag, st), k = stt + '|' + tag;
       let e = map.get(k);
-      if(!e){ e = {tag: tag, state: stt, name: '', prep: 0, hasPrep: false, prepN: 0, castle: 0, castleN: 0}; map.set(k, e); }
+      if(!e){ e = {tag: tag, state: stt, name: '', prep: 0, hasPrep: false, prepRank: 9999, prepN: 0, castle: 0, castleN: 0}; map.set(k, e); }
       return e;
     };
     Object.values(DATA.alliance || {}).forEach(rows => rows.forEach(r => { if(r.alliance){ const e = get(r.alliance, r.state); if(!e.name) e.name = r.name; } }));
-    (DATA.alliance['Prep Total'] || []).forEach(r => { if(!r.alliance) return; const e = get(r.alliance, r.state); e.prep = r.points; e.hasPrep = true; });
+    (DATA.alliance['Prep Total'] || []).forEach(r => { if(!r.alliance) return; const e = get(r.alliance, r.state); e.prep = r.points; e.hasPrep = true; e.prepRank = r.rank; });
     (DATA.player['Prep Total'] || []).forEach(r => { if(r.rank <= 100 && r.alliance) get(r.alliance, r.state).prepN++; });
     (DATA.castle['Castle Battle'] || []).forEach(r => { if(r.rank <= 100 && r.alliance){ const e = get(r.alliance, r.state); e.castle += r.points; e.castleN++; } });
     const w = lucyState.weight / 100;
@@ -1949,17 +1950,19 @@
 
   // ----- chest distribution inside the Lucy tab -----
   const LCH_KEY = 'svs646_lucy_ch', LGRP_KEY = 'svs646_lucy_grp';
-  const lch = {big: 12, small: 50, grp: null, res: null};
-  try { const j = JSON.parse(localStorage.getItem(LCH_KEY) || 'null'); if(j){ lch.big = Math.max(0, parseInt(j.big, 10) || 0); lch.small = Math.max(0, parseInt(j.small, 10) || 0); } } catch(e) {}
+  const lch = {big: 12, small: 50, top: 10, grp: null, res: null};
+  try { const j = JSON.parse(localStorage.getItem(LCH_KEY) || 'null'); if(j){ lch.big = Math.max(0, parseInt(j.big, 10) || 0); lch.small = Math.max(0, parseInt(j.small, 10) || 0); lch.top = Math.max(1, parseInt(j.top, 10) || 10); } } catch(e) {}
   try { lch.grp = JSON.parse(localStorage.getItem(LGRP_KEY) || 'null'); } catch(e) {}
   if(!lch.grp || typeof lch.grp !== 'object') lch.grp = {osm: 'BLP', TbR: 'TBR'};
   const lchBig = document.getElementById('lchBig'), lchSmall = document.getElementById('lchSmall');
-  lchBig.value = lch.big; lchSmall.value = lch.small;
-  function lchSave(){ try { localStorage.setItem(LCH_KEY, JSON.stringify({big: lch.big, small: lch.small})); localStorage.setItem(LGRP_KEY, JSON.stringify(lch.grp)); } catch(e) {} }
+  const lchTop = document.getElementById('lchTop');
+  lchBig.value = lch.big; lchSmall.value = lch.small; lchTop.value = lch.top;
+  const lchOk = e => e.hasPrep && e.prepRank <= lch.top && (e.prepN || e.castleN);
+  function lchSave(){ try { localStorage.setItem(LCH_KEY, JSON.stringify({big: lch.big, small: lch.small, top: lch.top})); localStorage.setItem(LGRP_KEY, JSON.stringify(lch.grp)); } catch(e) {} }
   let lchRows = [];
   function lchRoot(t, tags){ let c = t, n = 0; while(lch.grp[c] && lch.grp[c] !== c && tags.has(lch.grp[c]) && n++ < 6) c = lch.grp[c]; return c; }
   function lchGroups(rows){
-    const tags = new Set(rows.filter(e => e.prepN || e.castleN).map(e => e.tag));
+    const tags = new Set(rows.filter(lchOk).map(e => e.tag));
     const g = new Map();
     rows.forEach(e => {
       if(!tags.has(e.tag)) return;
@@ -1988,9 +1991,9 @@
   }
   function renderLch(rows){
     if(rows) lchRows = rows;
-    const groups = lchGroups(lchRows), tags = new Set(lchRows.filter(e => e.prepN || e.castleN).map(e => e.tag));
+    const groups = lchGroups(lchRows), tags = new Set(lchRows.filter(lchOk).map(e => e.tag));
     // group editor
-    const cand = lchRows.filter(e => e.prepN || e.castleN).slice().sort((a, b) => b.prepN - a.prepN || b.score - a.score);
+    const cand = lchRows.filter(lchOk).slice().sort((a, b) => b.prepN - a.prepN || b.score - a.score);
     const multi = groups.filter(g => g.tags.length > 1);
     document.getElementById('lchGrpSum').textContent = 'Groups: ' + (multi.length ? multi.map(g => g.label).join(' · ') : 'none merged') + ' (edit)';
     const roots = new Set(groups.map(g => g.key));
@@ -2014,7 +2017,8 @@
     box.innerHTML = `<div class="lucy-wrap"><table class="lch-t"><thead><tr><th>Group</th><th class="num">Players in Prep Top 100</th><th class="num">Share</th><th class="num">Big</th><th class="num">Small</th><th class="num">Total</th></tr></thead><tbody>${body}</tbody></table></div>`
       + (lch.res ? `<div class="lch-tools"><span class="chest-summary" id="lchTot">${lchTotals().html}</span><button class="btn" id="lchCopy" type="button">Copy list</button><span class="copy-status" id="lchCopied">Copied ✓</span></div>` : '<div class="chest-summary" style="margin-top:10px;">Enter the number of chests and click “Suggest distribution”.</div>');
   }
-  function lchRead(){ lch.big = Math.max(0, parseInt(lchBig.value, 10) || 0); lch.small = Math.max(0, parseInt(lchSmall.value, 10) || 0); lchSave(); }
+  function lchRead(){ lch.big = Math.max(0, parseInt(lchBig.value, 10) || 0); lch.small = Math.max(0, parseInt(lchSmall.value, 10) || 0); lch.top = Math.max(1, parseInt(lchTop.value, 10) || 10); lchSave(); }
+  lchTop.addEventListener('change', () => { lchRead(); lchTop.value = lch.top; lch.res = null; renderLch(); });
   lchBig.addEventListener('input', () => { lchRead(); if(lch.res) renderLchTot(); });
   lchSmall.addEventListener('input', () => { lchRead(); if(lch.res) renderLchTot(); });
   function renderLchTot(){ const t = document.getElementById('lchTot'); if(t) t.innerHTML = lchTotals().html; }
