@@ -848,7 +848,7 @@
       </div>
       <details class="lch-grp" id="lchGrp"><summary id="lchGrpSum"></summary><div id="lchGrpBody"></div></details>
       <div id="lchRes"></div>
-      <div class="formula-note lch-note">Only alliances in the Prep Top N of the alliance ranking (both states, default 10) take part; all others are ignored, also when merged into a group. Chests are split in proportion to the number of players each group has in the Prep Top 100 (largest remainder, ties go to the better weighted score). Big and small chests are calculated separately. Afterwards you can change every number by hand.</div>
+      <div class="formula-note lch-note">Only alliances in the Prep Top N of the alliance ranking (both states, default 10) take part; all others are ignored, also when merged into a group. Share = weight × (group's share of the players in the Prep Top 100) + (100% − weight) × (group's share of the Castle score), with the weighting of the slider above (60 / 40 by default). Chests are split by that share (largest remainder, ties go to the better ranked group); big and small chests are calculated separately. Afterwards you can change every number by hand.</div>
     </div>
     <div id="lucyTableWrap" class="lucy-wrap"></div>
   </div>
@@ -877,7 +877,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b100</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-19 · b101</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -1906,7 +1906,7 @@
   const lucySlider = document.getElementById('lucySlider');
   const lucyWrap = document.getElementById('lucyTableWrap');
   lucySlider.value = lucyState.weight;
-  lucySlider.addEventListener('input', () => { lucyState.weight = parseInt(lucySlider.value, 10); renderLucy(); });
+  lucySlider.addEventListener('input', () => { lucyState.weight = parseInt(lucySlider.value, 10); if(typeof lch !== 'undefined') lch.res = null; renderLucy(); });
   function buildLucyRows(){
     const stOf = (tag, st) => st || allianceStateMap[tag] || '';
     const map = new Map();
@@ -1967,19 +1967,23 @@
     rows.forEach(e => {
       if(!tags.has(e.tag)) return;
       const r = lchRoot(e.tag, tags);
-      let x = g.get(r); if(!x){ x = {key: r, tags: [], prepN: 0, score: 0}; g.set(r, x); }
-      x.tags.push(e); x.prepN += e.prepN; x.score += e.score;
+      let x = g.get(r); if(!x){ x = {key: r, tags: [], prepN: 0, castle: 0, score: 0}; g.set(r, x); }
+      x.tags.push(e); x.prepN += e.prepN; x.castle += e.castle; x.score += e.score;
     });
     g.forEach(x => { x.tags.sort((a, b) => b.prepN - a.prepN || b.score - a.score); x.label = x.tags.map(e => e.tag).join(' + '); });
-    return [...g.values()].sort((a, b) => b.prepN - a.prepN || b.score - a.score);
+    const arr = [...g.values()];
+    // share = weight x (share of Prep Top 100 players) + (100% - weight) x (share of Castle score), weight = slider
+    const w = lucyState.weight / 100, tp = arr.reduce((a, x) => a + x.prepN, 0), tc = arr.reduce((a, x) => a + x.castle, 0);
+    arr.forEach(x => { const sp = tp ? x.prepN / tp : 0, sc = tc ? x.castle / tc : 0; x.share = !tp ? sc : (!tc ? sp : w * sp + (1 - w) * sc); });
+    return arr.sort((a, b) => b.share - a.share || b.prepN - a.prepN || b.score - a.score);
   }
   function lchSplit(groups, n){
-    const tot = groups.reduce((a, x) => a + x.prepN, 0), out = {};
+    const tot = groups.reduce((a, x) => a + x.share, 0), out = {};
     if(!tot){ groups.forEach(x => out[x.key] = 0); return out; }
-    const q = groups.map(x => ({x, q: x.prepN / tot * n}));
+    const q = groups.map(x => ({x, q: x.share / tot * n}));
     q.forEach(o => { o.f = Math.floor(o.q + 1e-9); });
     let rest = n - q.reduce((a, o) => a + o.f, 0);
-    q.slice().sort((a, b) => (b.q - b.f) - (a.q - a.f) || b.x.score - a.x.score).forEach(o => { if(rest > 0 && o.x.prepN > 0){ o.f++; rest--; } });
+    q.slice().sort((a, b) => (b.q - b.f) - (a.q - a.f) || b.x.score - a.x.score).forEach(o => { if(rest > 0 && o.x.share > 0){ o.f++; rest--; } });
     q.forEach(o => { out[o.x.key] = o.f; });
     return out;
   }
@@ -2004,17 +2008,16 @@
     }).join('') + '</div>';
     // result
     const box = document.getElementById('lchRes');
-    const act = groups.filter(g => g.prepN > 0);
+    const act = groups.filter(g => g.share > 0);
     if(!act.length){ box.innerHTML = '<div class="empty">No players in the Prep Top 100 for this event yet.</div>'; return; }
-    const tot = act.reduce((a, g) => a + g.prepN, 0);
     const byKey = new Map((lch.res || []).map(r => [r.key, r]));
     const body = act.map(g => {
       const r = byKey.get(g.key);
       const chips = g.tags.map(e => tagChip(e.tag, e.state)).join(' ');
       const cell = k => r ? `<input type="number" min="0" max="999" inputmode="numeric" data-k="${escapeHtml(g.key)}" data-t="${k}" value="${r[k]}">` : '—';
-      return `<tr><td class="gn">${chips}</td><td class="num">${g.prepN}</td><td class="num">${(g.prepN / tot * 100).toFixed(1).replace('.', ',')} %</td><td class="num">${cell('big')}</td><td class="num">${cell('small')}</td><td class="num" data-sum="${escapeHtml(g.key)}">${r ? r.big + r.small : '—'}</td></tr>`;
+      return `<tr><td class="gn">${chips}</td><td class="num">${g.prepN}</td><td class="num">${g.castle ? fmt(g.castle) : '—'}</td><td class="num">${(g.share * 100).toFixed(1).replace('.', ',')} %</td><td class="num">${cell('big')}</td><td class="num">${cell('small')}</td><td class="num" data-sum="${escapeHtml(g.key)}">${r ? r.big + r.small : '—'}</td></tr>`;
     }).join('');
-    box.innerHTML = `<div class="lucy-wrap"><table class="lch-t"><thead><tr><th>Group</th><th class="num">Players in Prep Top 100</th><th class="num">Share</th><th class="num">Big</th><th class="num">Small</th><th class="num">Total</th></tr></thead><tbody>${body}</tbody></table></div>`
+    box.innerHTML = `<div class="lucy-wrap"><table class="lch-t"><thead><tr><th>Group</th><th class="num">Players in Prep Top 100</th><th class="num">Castle score</th><th class="num">Share</th><th class="num">Big</th><th class="num">Small</th><th class="num">Total</th></tr></thead><tbody>${body}</tbody></table></div>`
       + (lch.res ? `<div class="lch-tools"><span class="chest-summary" id="lchTot">${lchTotals().html}</span><button class="btn" id="lchCopy" type="button">Copy list</button><span class="copy-status" id="lchCopied">Copied ✓</span></div>` : '<div class="chest-summary" style="margin-top:10px;">Enter the number of chests and click “Suggest distribution”.</div>');
   }
   function lchRead(){ lch.big = Math.max(0, parseInt(lchBig.value, 10) || 0); lch.small = Math.max(0, parseInt(lchSmall.value, 10) || 0); lch.top = Math.max(1, parseInt(lchTop.value, 10) || 10); lchSave(); }
@@ -2024,7 +2027,7 @@
   function renderLchTot(){ const t = document.getElementById('lchTot'); if(t) t.innerHTML = lchTotals().html; }
   document.getElementById('lchGo').addEventListener('click', () => {
     lchRead();
-    const act = lchGroups(lchRows).filter(g => g.prepN > 0);
+    const act = lchGroups(lchRows).filter(g => g.share > 0);
     const b = lchSplit(act, lch.big), sm = lchSplit(act, lch.small);
     lch.res = act.map(g => ({key: g.key, big: b[g.key] || 0, small: sm[g.key] || 0}));
     renderLch();
