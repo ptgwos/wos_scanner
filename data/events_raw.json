@@ -1,18 +1,25 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-18",
- "count": 21,
+ "date": "2026-11-19",
+ "count": 26,
  "categories": [
   {
    "name": "Events",
    "events": [
     {
-     "name": "Defeat nearby beasts",
+     "name": "Crazy Joe",
      "category": "Events",
-     "when": "17 Nov 00:00 – 18 Nov 24:00",
+     "when": "17 Nov 00:00 – 19 Nov 24:00",
      "begin_ts": 1794873600,
-     "end_ts": 1795046400
+     "end_ts": 1795132800
+    },
+    {
+     "name": "Lucky Wheel",
+     "category": "Events",
+     "when": "17 Nov 00:00 – 19 Nov 24:00",
+     "begin_ts": 1794873600,
+     "end_ts": 1795132800
     },
     {
      "name": "Alliance Championship",
@@ -29,25 +36,11 @@
      "end_ts": 1795392000
     },
     {
-     "name": "Crazy Joe",
-     "category": "Events",
-     "when": "17 Nov 00:00 – 19 Nov 24:00",
-     "begin_ts": 1794873600,
-     "end_ts": 1795132800
-    },
-    {
      "name": "Fortress Battles",
      "category": "Events",
      "when": "17 Nov 00:00 – 20 Nov 24:00",
      "begin_ts": 1794873600,
      "end_ts": 1795219200
-    },
-    {
-     "name": "Lucky Wheel",
-     "category": "Events",
-     "when": "17 Nov 00:00 – 19 Nov 24:00",
-     "begin_ts": 1794873600,
-     "end_ts": 1795132800
     },
     {
      "name": "Brothers in Arms",
@@ -71,11 +64,39 @@
      "end_ts": 1795280400
     },
     {
-     "name": "Flame and Fangs",
+     "name": "Alliance Championship",
      "category": "Events",
-     "when": "16 Nov 00:00 – 17 Nov 24:00",
-     "begin_ts": 1794787200,
-     "end_ts": 1794960000
+     "when": "23 Nov 00:00 – 29 Nov 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1795996800
+    },
+    {
+     "name": "Alliance Mobilization",
+     "category": "Events",
+     "when": "23 Nov 00:00 – 28 Nov 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1795910400
+    },
+    {
+     "name": "Armament Competition",
+     "category": "Events",
+     "when": "23 Nov 00:00 – 24 Nov 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1795564800
+    },
+    {
+     "name": "Canyon Clash",
+     "category": "Events",
+     "when": "23 Nov 00:00 – 28 Nov 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1795910400
+    },
+    {
+     "name": "Foundry Battle",
+     "category": "Events",
+     "when": "23 Nov 00:00 – 29 Nov 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1795996800
     }
    ]
   },
@@ -108,6 +129,20 @@
      "category": "Deals",
      "when": "22 Nov 00:00 – 24 Nov 24:00",
      "begin_ts": 1795305600,
+     "end_ts": 1795564800
+    },
+    {
+     "name": "Hero Rally",
+     "category": "Deals",
+     "when": "23 Nov 00:00 – 6 Dec 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1796601600
+    },
+    {
+     "name": "Tundra Trading Station",
+     "category": "Deals",
+     "when": "23 Nov 00:00 – 24 Nov 24:00",
+     "begin_ts": 1795392000,
      "end_ts": 1795564800
     }
    ]
