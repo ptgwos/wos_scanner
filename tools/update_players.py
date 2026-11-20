@@ -7,7 +7,7 @@ and write data/players.json + avatars/<id>.webp (small copies of the profile pic
 - API key comes from the environment variable WOS_API_KEY (never from a file)
 - players that are not in any fetched alliance keep their last known entry
 - if an alliance cannot be fetched, its players keep their last known entry
-- data/history.json: log of alliance changes (who moved from which alliance to which, when) and name changes (same player id, new name)
+- data/history.json: log of alliance changes (who moved from which alliance to which, when)
 - data/usage.json: remaining API allowance of the day (shown in access.html); changes with every run
 - which alliances are fetched is chosen in access.html (Supabase table roster_alliances, read with the public URL/key from
   eventplan-config.js, or from the optional env variables SUPABASE_URL / SUPABASE_KEY); fallback = the last data/alliances.json, then DEFAULT_TAGS
@@ -42,7 +42,11 @@ if not (SB_URL and SB_KEY):
         pass
 SIZE = 64          # px, square
 MISS_LIMIT = 3     # days in a row without a picture before the stored one is removed
-PAUSE = 1.2        # seconds between API requests (limit is 60 per minute)
+PAUSE = float(os.environ.get('WOS_PAUSE', '1.2'))   # seconds between API requests (limit is 60 per minute)
+# The API sometimes sends a roster without part of its members (and a moving player is seen by the old alliance before the new one lists him).
+# A player who is missing everywhere is therefore kept in his old alliance until he has been missing for GONE_AFTER seconds;
+# only then he counts as gone ("unknown" in the change log). Someone who reappears earlier (or shows up in another alliance) causes no phantom entries.
+GONE_AFTER = int(os.environ.get('WOS_GONE_AFTER', 90 * 60))
 
 key = os.environ.get('WOS_API_KEY', '').strip()
 if not key:
@@ -193,6 +197,7 @@ for n, tag in enumerate(TAGS):
         if not cid: continue
         seen_now[cid] = tag
         p = players.get(cid, {})
+        p.pop('gs', None)                    # seen again: no longer "missing since"
         p.update({'n': m.get('nick_name', p.get('n', '')), 'a': tag, 'r': m.get('alliance_rank_label', ''),
                   'p': m.get('power'), 'f': m.get('furnace_level'), 's': now})
         if m.get('avatar_url'):
@@ -208,6 +213,20 @@ for n, tag in enumerate(TAGS):
                 print(f'  avatar removed: {cid} {p.get("n")}', flush=True)
         players[cid] = p
     print(f'{tag}: {len(members)} members', flush=True); ok.append(tag)
+
+# debounce: players of a fetched alliance who are missing in all fetched rosters stay where they were for GONE_AFTER seconds
+nowts = int(time.time()); kept = 0
+for tag in ok:
+    cur = set(alliances[tag].get('m') or [])
+    for cid in ((old.get('alliances', {}).get(tag) or {}).get('m') or []):
+        if cid in cur or cid in seen_now: continue      # still there, or now listed by another alliance (a real move)
+        p = players.get(cid)
+        if p is None: continue
+        gs = p.setdefault('gs', nowts)
+        if nowts - gs >= GONE_AFTER:
+            p.pop('gs', None); continue                 # missing long enough: really gone
+        alliances[tag]['m'].append(cid); kept += 1
+if kept: print(f'{kept} player(s) missing in the rosters, kept for now', flush=True)
 
 # profile pictures: download only when the URL is new
 dl = 0
@@ -241,8 +260,6 @@ try:
     first_time = [t for t in ok if t not in old.get('alliances', {}) or t not in prev_tags]   # newly ticked: no 'moves' against old data
     ents = wos_history.diff(old.get('alliances', {}), alliances, {k: v.get('n', '') for k, v in players.items()},
                             now_dt.strftime('%Y-%m-%dT%H:%MZ'), TAGS, first_time) if old.get('alliances') else []
-    if old.get('players'):   # name changes (same player id, new name)
-        ents = ents + wos_history.renames(old.get('players', {}), players, now_dt.strftime('%Y-%m-%dT%H:%MZ'))
     oldlog = json.loads(HIST.read_text(encoding='utf-8')).get('log', []) if HIST.exists() else []
     if ents or not HIST.exists():
         wos_history.dump(HIST, wos_history.merge(oldlog, ents, now_dt))
