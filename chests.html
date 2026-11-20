@@ -1115,7 +1115,7 @@
     </div>
     <div class="ch-act"><button type="button" class="btn" id="chShare">Copy list for Discord</button><button type="button" class="btn btn-secondary" id="chClr">Clear all</button></div>
   </div>
-  <footer id="foot">State 646 · Presidential Chests — saved in this browser · build 2026-11-19 · ch3</footer>
+  <footer id="foot">State 646 · Presidential Chests — saved in this browser · build 2026-11-20 · ch4</footer>
 </div>
 <div id="toast"></div>
 <div class="ch-m" id="chM"><div class="ch-mp" id="chMp"></div></div>
@@ -1208,7 +1208,7 @@
   $('chAlB').addEventListener('click', openAl);
   function text(){
     var al = S.al.slice(), t = 'PRESIDENTIAL CHESTS' + (al.length ? ' for ' + (al.length > 1 ? al.slice(0, -1).join(', ') + ' & ' + al[al.length - 1] : al[0]) : '');
-    function blk(h, arr){ var l = arr.filter(Boolean).map(function(p){ var w = who(p); return w.n + ' - ' + w.id; }); return h + ':\n' + (l.length ? l.join('\n') : '-'); }
+    function blk(h, arr){ var l = arr.filter(Boolean).map(function(p){ var w = who(p); return w.n + ' - `' + w.id + '`'; }); return h + ':\n' + (l.length ? l.join('\n') : '-'); }
     return t + '\n\n' + blk('BIG', S.big) + '\n\n' + blk('SMALL', S.sm);
   }
   $('chShare').addEventListener('click', function(){
