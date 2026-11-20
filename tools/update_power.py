@@ -10,11 +10,7 @@ Opponent state (optional, only while data/opponent.json says so, e.g. {"kid": 62
     data/power/k622-YYYY-MM-DD.json   history of the opponent
     After the "until" date (UTC, inclusive) the opponent is not fetched any more; to start a new one just edit opponent.json.
 
-Also writes data/usage.json (remaining API allowance of the day, shown in access.html; /usage is free).
-Probe first: the job may be triggered several times in the night (e.g. every 30 minutes from 01:10 UTC). Each run asks ONE request
-(top-1 of the personal power board) when the game captured the boards. If that capture is not newer than the stored one, the run ends
-right there ("not yet"), otherwise the full fetch follows. Set WOS_FORCE=1 to skip the probe.
-Cost per state and run: 1 request probe, then (only when new) 1 request (state) + 20 requests (boards) = 21 of the 5000 per day.
+Cost per state and run: 1 request (state) + 20 requests (boards) = 21 of the 5000 per day.
 Only the Python standard library. The key comes from the environment variable WOS_API_KEY (GitHub secret).
 If a board fails, the previous values of that board are kept and the key is listed under "stale".
 """
@@ -29,17 +25,20 @@ BOARDS = ['personal_power', 'kills', 'single_hero', 'hero_total', 'troop_power',
           'chief_gear', 'chief_charm', 'pet_power', 'island_prosperity',
           'land_of_heroes', 'cave_of_monsters', 'charm_mine', 'research_center', 'gear_forge', 'gaia_heart',
           'state_transfer', 'labyrinth', 'master_power']
+# The API renamed the "Real power" board (state_transfer -> migrant_score, 2026-11). It is stored under the old name
+# "state_transfer" so that statepower.html and the history stay unchanged; the candidates are tried in this order.
+ALIASES = {'state_transfer': ['migrant_score', 'state_transfer']}
 KEY = os.environ.get('WOS_API_KEY', '').strip()
 if not KEY:
     sys.exit('WOS_API_KEY is not set.')
 
 
-def get(path, timeout=30, tries=4):
+def get(path):
     """GET with retries (429 -> wait, 5xx -> retry). Returns parsed JSON or None."""
-    for attempt in range(tries):
+    for attempt in range(4):
         req = urllib.request.Request(BASE + path, headers={'Authorization': 'Bearer ' + KEY, 'User-Agent': UA, 'Accept': 'application/json'})
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
+            with urllib.request.urlopen(req, timeout=30) as r:
                 return json.loads(r.read().decode('utf-8'))
         except urllib.error.HTTPError as e:
             if e.code == 429:
@@ -55,25 +54,6 @@ def get(path, timeout=30, tries=4):
     return None
 
 
-def write_usage(base, key, ua, path, by):
-    """data/usage.json: remaining API allowance (GET /usage does not count against the limits). Never breaks the run."""
-    try:
-        req = urllib.request.Request(base + '/usage', headers={'Authorization': 'Bearer ' + key, 'User-Agent': ua, 'Accept': 'application/json'})
-        with urllib.request.urlopen(req, timeout=30) as r:
-            d = json.loads(r.read().decode('utf-8'))
-        dl = d.get('daily') or {}
-        if not d.get('ok') or not isinstance(dl.get('remaining'), int): return
-        out = {'frosty': bool(d.get('frosty')), 'daily': {k: dl.get(k) for k in ('limit', 'used', 'remaining', 'resets_at')},
-               'minute_limit': (d.get('minute') or {}).get('limit'), 'updated': int(time.time()), 'by': by}
-        os.makedirs(os.path.dirname(str(path)) or '.', exist_ok=True)
-        tmp = str(path) + '.tmp'
-        with open(tmp, 'w', encoding='utf-8') as f: json.dump(out, f, separators=(',', ':'))
-        os.replace(tmp, str(path))
-        print(f"usage: {dl.get('remaining')} of {dl.get('limit')} requests left today", flush=True)
-    except Exception as e:
-        print(f'usage skipped: {e}', flush=True)
-
-
 def load(p):
     try:
         with open(p, encoding='utf-8') as f: return json.load(f)
@@ -85,32 +65,10 @@ def stamp(t):
     return time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(t)) if t else 'unknown'
 
 
-FORCE = os.environ.get('WOS_FORCE', '') == '1'
-FETCHED = False          # a full fetch happened in this run (then usage.json is refreshed)
-
-
-def probe(kid, old_cap):
-    """True = fetch the full boards (new capture, or unknown), False = nothing new yet. One request; the API may wait up to 90 s for a refresh."""
-    if FORCE or not old_cap:
-        return True
-    d = get(f'/states/{kid}/ranks?board=personal_power&limit=1', timeout=100, tries=2)
-    cap = None
-    for x in (d or {}).get('boards') or []:
-        if x.get('key') == 'personal_power' and x.get('captured_at'): cap = float(x['captured_at'])
-    if cap is None:
-        print(f'State {kid}: probe gave no capture time, fetching the full boards to be safe.', flush=True); return True
-    if cap <= float(old_cap):
-        print(f'State {kid}: not yet - the API still serves the capture of {stamp(cap)} (stored: {stamp(float(old_cap))}); checked {stamp(time.time())}.', flush=True); return False
-    print(f'State {kid}: NEW capture {stamp(cap)} is available (checked {stamp(time.time())}, {int((time.time() - cap) / 60)} min after the capture).', flush=True)
-    return True
-
-
 def run(kid, latest, hist_prefix):
     """Fetch one state. Returns True when something usable was fetched."""
     old = load(os.path.join(OUT, latest)) or {}
     if old.get('sample'): old = {}                      # never carry sample data over
-    if not probe(kid, old.get('captured')): return True
-    global FETCHED; FETCHED = True
     boards, players, captured, stale = {}, {}, [], []
 
     st = get(f'/states/{kid}')
@@ -120,15 +78,22 @@ def run(kid, latest, hist_prefix):
         state = {k: s.get(k) for k in ('player_count', 'active_7d', 'alliance_count', 'power')}
         for b in s.get('board_totals') or []:
             state[b.get('key')] = b.get('total')
+        for slug, names in ALIASES.items():         # total of a renamed board under its old name
+            for n in names:
+                if state.get(n) is not None: state[slug] = state[n]; break
     else:
         state = old.get('state'); stale.append('state')
     time.sleep(PAUSE)
 
     for slug in BOARDS:
-        d = get(f'/states/{kid}/ranks?board={slug}&limit=100')
         b = None
-        for x in (d or {}).get('boards') or []:
-            if x.get('key') == slug: b = x
+        for api_slug in ALIASES.get(slug, [slug]):
+            d = get(f'/states/{kid}/ranks?board={api_slug}&limit=100')
+            for x in (d or {}).get('boards') or []:
+                if x.get('key') == api_slug: b = x
+            if b and b.get('rows'): break
+            b = None
+            time.sleep(PAUSE)
         if not b or not b.get('rows'):
             stale.append(slug)
             if slug in (old.get('boards') or {}): boards[slug] = old['boards'][slug]
@@ -200,8 +165,6 @@ if kid.isdigit() and kid != OWN and str(opp.get('until') or '') >= today:
         print(f'Opponent state failed: {e}', flush=True)
 elif kid:
     print(f'Opponent state {kid}: not active (until {opp.get("until")}, today {today}).')
-
-if FETCHED: write_usage(BASE, KEY, UA, os.path.join(OUT, 'usage.json'), 'state power job')
 
 if not ok_own:
     sys.exit(1)
