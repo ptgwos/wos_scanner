@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-19",
- "fetched_at": "2026-11-19T07:38:27Z",
- "count": 26,
+ "api_date": "2026-11-20",
+ "fetched_at": "2026-11-20T07:28:55Z",
+ "count": 27,
  "events": [
   {
    "name": "Tundra Hellfire",
@@ -84,15 +84,6 @@
    "end": "2026-11-21T00:00:00Z",
    "begin_ts": 1794873600,
    "end_ts": 1795219200
-  },
-  {
-   "name": "Lucky Wheel",
-   "category": "Events",
-   "when": "17 Nov 00:00 – 19 Nov 24:00",
-   "begin": "2026-11-17T00:00:00Z",
-   "end": "2026-11-20T00:00:00Z",
-   "begin_ts": 1794873600,
-   "end_ts": 1795132800
   },
   {
    "name": "Dreamscape Memory",
@@ -237,6 +228,24 @@
    "end": "2026-11-25T00:00:00Z",
    "begin_ts": 1795392000,
    "end_ts": 1795564800
+  },
+  {
+   "name": "Fishing Tournament",
+   "category": "Fishing Tournament",
+   "when": "24 Nov 00:00 – 26 Nov 24:00",
+   "begin": "2026-11-24T00:00:00Z",
+   "end": "2026-11-27T00:00:00Z",
+   "begin_ts": 1795478400,
+   "end_ts": 1795737600
+  },
+  {
+   "name": "Fortress Battles",
+   "category": "Events",
+   "when": "24 Nov 00:00 – 27 Nov 24:00",
+   "begin": "2026-11-24T00:00:00Z",
+   "end": "2026-11-28T00:00:00Z",
+   "begin_ts": 1795478400,
+   "end_ts": 1795824000
   }
  ]
 }

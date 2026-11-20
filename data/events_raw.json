@@ -1,25 +1,18 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-19",
- "count": 26,
+ "date": "2026-11-20",
+ "count": 27,
  "categories": [
   {
    "name": "Events",
    "events": [
     {
-     "name": "Crazy Joe",
+     "name": "Fortress Battles",
      "category": "Events",
-     "when": "17 Nov 00:00 – 19 Nov 24:00",
+     "when": "17 Nov 00:00 – 20 Nov 24:00",
      "begin_ts": 1794873600,
-     "end_ts": 1795132800
-    },
-    {
-     "name": "Lucky Wheel",
-     "category": "Events",
-     "when": "17 Nov 00:00 – 19 Nov 24:00",
-     "begin_ts": 1794873600,
-     "end_ts": 1795132800
+     "end_ts": 1795219200
     },
     {
      "name": "Alliance Championship",
@@ -34,13 +27,6 @@
      "when": "16 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794787200,
      "end_ts": 1795392000
-    },
-    {
-     "name": "Fortress Battles",
-     "category": "Events",
-     "when": "17 Nov 00:00 – 20 Nov 24:00",
-     "begin_ts": 1794873600,
-     "end_ts": 1795219200
     },
     {
      "name": "Brothers in Arms",
@@ -97,6 +83,20 @@
      "when": "23 Nov 00:00 – 29 Nov 24:00",
      "begin_ts": 1795392000,
      "end_ts": 1795996800
+    },
+    {
+     "name": "Fortress Battles",
+     "category": "Events",
+     "when": "24 Nov 00:00 – 27 Nov 24:00",
+     "begin_ts": 1795478400,
+     "end_ts": 1795824000
+    },
+    {
+     "name": "Crazy Joe",
+     "category": "Events",
+     "when": "17 Nov 00:00 – 19 Nov 24:00",
+     "begin_ts": 1794873600,
+     "end_ts": 1795132800
     }
    ]
   },
@@ -196,18 +196,30 @@
    "name": "Spectral Ice Shack",
    "events": [
     {
-     "name": "Shaved Ice Stall",
-     "category": "Spectral Ice Shack",
-     "when": "18 Nov 00:00 – 21 Nov 24:00",
-     "begin_ts": 1794960000,
-     "end_ts": 1795305600
-    },
-    {
      "name": "Slush Station",
      "category": "Spectral Ice Shack",
      "when": "18 Nov 00:00 – 20 Nov 24:00",
      "begin_ts": 1794960000,
      "end_ts": 1795219200
+    },
+    {
+     "name": "Shaved Ice Stall",
+     "category": "Spectral Ice Shack",
+     "when": "18 Nov 00:00 – 21 Nov 24:00",
+     "begin_ts": 1794960000,
+     "end_ts": 1795305600
+    }
+   ]
+  },
+  {
+   "name": "Fishing Tournament",
+   "events": [
+    {
+     "name": "Fishing Tournament",
+     "category": "Fishing Tournament",
+     "when": "24 Nov 00:00 – 26 Nov 24:00",
+     "begin_ts": 1795478400,
+     "end_ts": 1795737600
     }
    ]
   }
