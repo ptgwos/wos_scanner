@@ -1,18 +1,18 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-20",
+ "date": "2026-11-21",
  "count": 27,
  "categories": [
   {
    "name": "Events",
    "events": [
     {
-     "name": "Fortress Battles",
+     "name": "Brothers in Arms",
      "category": "Events",
-     "when": "17 Nov 00:00 – 20 Nov 24:00",
-     "begin_ts": 1794873600,
-     "end_ts": 1795219200
+     "when": "20 Nov 00:00 – 21 Nov 24:00",
+     "begin_ts": 1795132800,
+     "end_ts": 1795305600
     },
     {
      "name": "Alliance Championship",
@@ -27,13 +27,6 @@
      "when": "16 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794787200,
      "end_ts": 1795392000
-    },
-    {
-     "name": "Brothers in Arms",
-     "category": "Events",
-     "when": "20 Nov 00:00 – 21 Nov 24:00",
-     "begin_ts": 1795132800,
-     "end_ts": 1795305600
     },
     {
      "name": "Wild Brawl",
@@ -92,11 +85,18 @@
      "end_ts": 1795824000
     },
     {
-     "name": "Crazy Joe",
+     "name": "Hero's Mission",
      "category": "Events",
-     "when": "17 Nov 00:00 – 19 Nov 24:00",
-     "begin_ts": 1794873600,
-     "end_ts": 1795132800
+     "when": "25 Nov 00:00 – 27 Nov 24:00",
+     "begin_ts": 1795564800,
+     "end_ts": 1795824000
+    },
+    {
+     "name": "Officer Project",
+     "category": "Events",
+     "when": "25 Nov 00:00 – 26 Nov 24:00",
+     "begin_ts": 1795564800,
+     "end_ts": 1795737600
     }
    ]
   },
@@ -196,18 +196,18 @@
    "name": "Spectral Ice Shack",
    "events": [
     {
-     "name": "Slush Station",
-     "category": "Spectral Ice Shack",
-     "when": "18 Nov 00:00 – 20 Nov 24:00",
-     "begin_ts": 1794960000,
-     "end_ts": 1795219200
-    },
-    {
      "name": "Shaved Ice Stall",
      "category": "Spectral Ice Shack",
      "when": "18 Nov 00:00 – 21 Nov 24:00",
      "begin_ts": 1794960000,
      "end_ts": 1795305600
+    },
+    {
+     "name": "Slush Station",
+     "category": "Spectral Ice Shack",
+     "when": "18 Nov 00:00 – 20 Nov 24:00",
+     "begin_ts": 1794960000,
+     "end_ts": 1795219200
     }
    ]
   },
