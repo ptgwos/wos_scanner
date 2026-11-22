@@ -828,6 +828,12 @@
     .koi-t .namecell{flex-direction:column;align-items:flex-start;}
     .koi-t .nt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
   }
+  /* Lucy tab: pink, with a cat (a small surprise for Lucy) */
+  .tab.tab-lucy{color:#ff7ac8;border-color:rgba(255,122,200,.55);background:linear-gradient(180deg, rgba(255,122,200,0.12), rgba(255,122,200,0.03));}
+  .tab.tab-lucy:hover{color:#ff9bd6;border-color:#ff7ac8;}
+  .tab.tab-lucy.active{color:#ffd1ec;background:linear-gradient(180deg, rgba(255,122,200,0.35), rgba(255,122,200,0.12));border-color:#ff7ac8;box-shadow:0 0 0 1px rgba(255,122,200,.25), 0 0 18px rgba(255,122,200,.3);}
+  :root[data-theme="light"] .tab.tab-lucy{color:#c2185b;border-color:rgba(214,36,127,.5);background:linear-gradient(180deg, rgba(255,122,200,0.22), rgba(255,122,200,0.08));}
+  :root[data-theme="light"] .tab.tab-lucy.active{color:#ffffff;background:#e0408f;border-color:#c2185b;box-shadow:0 0 0 1px rgba(214,36,127,.25), 0 0 14px rgba(214,36,127,.25);}
 </style>
 </head>
 <body>
@@ -857,14 +863,14 @@
     <button class="tab" data-tab="alliance">Alliance</button>
     <button class="tab" data-tab="castle">Castle</button>
     <button class="tab" data-tab="chests">Chests</button>
-    <button class="tab" data-tab="lucy" style="display:none">Lucy</button>
+    <button class="tab tab-lucy" data-tab="lucy" style="display:none">Lucy 🐱</button>
     <button class="tab" data-tab="trends">Statistics</button>
   </div>
 
   <div class="tabs" id="koiTabs" style="display:none">
     <button class="tab active" data-k="player">Player</button>
     <button class="tab" data-k="castle">Castle</button>
-    <button class="tab" data-k="lucy" style="display:none">Lucy</button>
+    <button class="tab tab-lucy" data-k="lucy" style="display:none">Lucy 🐱</button>
   </div>
   <div class="panel" id="koiPanel" style="display:none;"></div>
 
@@ -933,7 +939,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-22 · b108</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-22 · b109</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
