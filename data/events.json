@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-21",
- "fetched_at": "2026-11-21T07:24:48Z",
- "count": 27,
+ "api_date": "2026-11-22",
+ "fetched_at": "2026-11-22T07:04:27Z",
+ "count": 22,
  "events": [
   {
    "name": "Tundra Hellfire",
@@ -68,24 +68,6 @@
    "end_ts": 1795392000
   },
   {
-   "name": "Dreamscape Memory",
-   "category": "Dreamscape Memory",
-   "when": "18 Nov 00:00 – 20 Nov 24:00",
-   "begin": "2026-11-18T00:00:00Z",
-   "end": "2026-11-21T00:00:00Z",
-   "begin_ts": 1794960000,
-   "end_ts": 1795219200
-  },
-  {
-   "name": "Shaved Ice Stall",
-   "category": "Spectral Ice Shack",
-   "when": "18 Nov 00:00 – 21 Nov 24:00",
-   "begin": "2026-11-18T00:00:00Z",
-   "end": "2026-11-22T00:00:00Z",
-   "begin_ts": 1794960000,
-   "end_ts": 1795305600
-  },
-  {
    "name": "Shining City Pack",
    "category": "Deals",
    "when": "18 Nov 00:00 – 22 Nov 24:00",
@@ -93,24 +75,6 @@
    "end": "2026-11-23T00:00:00Z",
    "begin_ts": 1794960000,
    "end_ts": 1795392000
-  },
-  {
-   "name": "Slush Station",
-   "category": "Spectral Ice Shack",
-   "when": "18 Nov 00:00 – 20 Nov 24:00",
-   "begin": "2026-11-18T00:00:00Z",
-   "end": "2026-11-21T00:00:00Z",
-   "begin_ts": 1794960000,
-   "end_ts": 1795219200
-  },
-  {
-   "name": "Brothers in Arms",
-   "category": "Events",
-   "when": "20 Nov 00:00 – 21 Nov 24:00",
-   "begin": "2026-11-20T00:00:00Z",
-   "end": "2026-11-22T00:00:00Z",
-   "begin_ts": 1795132800,
-   "end_ts": 1795305600
   },
   {
    "name": "Hall of Heroism",
@@ -129,15 +93,6 @@
    "end": "2026-11-23T00:00:00Z",
    "begin_ts": 1795219200,
    "end_ts": 1795392000
-  },
-  {
-   "name": "Castle Battle",
-   "category": "Events",
-   "when": "21 Nov 2026 12:00 – 17:00",
-   "begin": "2026-11-21T12:00:00Z",
-   "end": "2026-11-21T17:00:00Z",
-   "begin_ts": 1795262400,
-   "end_ts": 1795280400
   },
   {
    "name": "Hall of Heroes",

@@ -1,19 +1,12 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-21",
- "count": 27,
+ "date": "2026-11-22",
+ "count": 22,
  "categories": [
   {
    "name": "Events",
    "events": [
-    {
-     "name": "Brothers in Arms",
-     "category": "Events",
-     "when": "20 Nov 00:00 – 21 Nov 24:00",
-     "begin_ts": 1795132800,
-     "end_ts": 1795305600
-    },
     {
      "name": "Alliance Championship",
      "category": "Events",
@@ -34,13 +27,6 @@
      "when": "21 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1795219200,
      "end_ts": 1795392000
-    },
-    {
-     "name": "Castle Battle",
-     "category": "Events",
-     "when": "21 Nov 2026 12:00 – 17:00",
-     "begin_ts": 1795262400,
-     "end_ts": 1795280400
     },
     {
      "name": "Alliance Championship",
@@ -111,18 +97,18 @@
      "end_ts": 1795392000
     },
     {
-     "name": "Journey Treasures",
-     "category": "Deals",
-     "when": "9 Nov 00:00 – 6 Dec 24:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1796601600
-    },
-    {
      "name": "Shining City Pack",
      "category": "Deals",
      "when": "18 Nov 00:00 – 22 Nov 24:00",
      "begin_ts": 1794960000,
      "end_ts": 1795392000
+    },
+    {
+     "name": "Journey Treasures",
+     "category": "Deals",
+     "when": "9 Nov 00:00 – 6 Dec 24:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1796601600
     },
     {
      "name": "Hall of Heroes",
@@ -177,37 +163,6 @@
      "when": "21 Nov 00:00 – 29 Nov 24:00",
      "begin_ts": 1795219200,
      "end_ts": 1795996800
-    }
-   ]
-  },
-  {
-   "name": "Dreamscape Memory",
-   "events": [
-    {
-     "name": "Dreamscape Memory",
-     "category": "Dreamscape Memory",
-     "when": "18 Nov 00:00 – 20 Nov 24:00",
-     "begin_ts": 1794960000,
-     "end_ts": 1795219200
-    }
-   ]
-  },
-  {
-   "name": "Spectral Ice Shack",
-   "events": [
-    {
-     "name": "Shaved Ice Stall",
-     "category": "Spectral Ice Shack",
-     "when": "18 Nov 00:00 – 21 Nov 24:00",
-     "begin_ts": 1794960000,
-     "end_ts": 1795305600
-    },
-    {
-     "name": "Slush Station",
-     "category": "Spectral Ice Shack",
-     "when": "18 Nov 00:00 – 20 Nov 24:00",
-     "begin_ts": 1794960000,
-     "end_ts": 1795219200
     }
    ]
   },
