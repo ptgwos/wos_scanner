@@ -810,10 +810,11 @@
   .koi-t th.koi-bh{padding-top:22px;padding-bottom:18px;}
   .kb{position:relative;height:40px;min-width:120px;}
   .kb-fill{position:absolute;left:0;top:11px;height:18px;border-radius:4px;background:var(--ice);opacity:.85;}
-  .kb-fill.over{background:var(--good);opacity:.9;}
+  .kb-fill.heat{background:var(--kc);opacity:.95;}
   .kb-ln{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--text-faint);opacity:.7;}
-  .kb-ln.top{border-left:2px solid var(--danger);opacity:1;}
-  .kb-pct{position:absolute;top:0;line-height:40px;font-size:12px;font-weight:700;color:var(--good);white-space:nowrap;}
+  .kb-ln.top{border-left:2px solid var(--danger);opacity:1;box-shadow:0 0 0 1px rgba(255,255,255,.85);}
+  .kb-pct{position:absolute;top:0;line-height:40px;font-size:12px;font-weight:700;color:var(--kc,var(--ice));white-space:nowrap;}
+  :root[data-theme="light"] .kb-pct{color:var(--ktl,var(--ice));}
   .kb-fill{display:flex;align-items:center;justify-content:flex-end;}
   .kb-in{font-size:11px;font-weight:700;color:var(--on-ice);padding-right:6px;white-space:nowrap;}
   .kb-head{position:relative;height:0;}
@@ -940,7 +941,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-22 · b112</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-22 · b113</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -3817,6 +3818,13 @@
     let rows = all.filter(r => (!koi.ally || r.alliance === koi.ally) && (!koi.search.trim() || r.name.toLowerCase().includes(koi.search.trim().toLowerCase())));
     const max = Math.max(1, ...all.map(r => r.points), ti.top) * 1.04;
     const pc = v => (Math.min(100, v / max * 100)).toFixed(2);
+    // heat colour: yellow -> red on a log scale between the lowest and the best player of the phase (not for the Castle list)
+    const pts = all.map(r => Math.max(1, r.points)), hmin = Math.min(...pts), hmax = Math.max(...pts);
+    const heat = v => {
+      if(isCastle) return '';
+      const t = hmax > hmin ? Math.max(0, Math.min(1, Math.log(Math.max(1, v) / hmin) / Math.log(hmax / hmin))) : .5, h = Math.round(48 - 48 * t);
+      return `--kc:hsl(${h} 88% ${Math.round(62 - 14 * t)}%);--ktl:hsl(${h} 85% ${Math.round(44 - 8 * t)}%);--kin:${t > .72 ? '#fff' : '#1a1a1a'};`;
+    };
     // tier lines (one for the top tier, red; the others only with the switch)
     const lines = ti.list.map((v, i) => ({v, top: i === ti.list.length - 1})).filter(l => l.top || koi.all);
     const lineHtml = lines.map(l => `<i class="kb-ln${l.top ? ' top' : ''}" style="left:${pc(l.v)}%"></i>`).join('');
@@ -3828,7 +3836,7 @@
       return `<tr class="row-646"><td class="rank">${r.rank}</td>
         <td class="name"><div class="namecell"><span class="nm">${avHtml(r.id, 22, r.name)}<span class="nt">${r.name ? escapeHtml(r.name) : '<i class="koi-noname">ID ' + r.uid + '</i>'}</span>${presIconHtml(r)}</span><span class="koi-mtag">${tagChip(r.alliance, '646')}</span></div></td>
         <td class="koi-tagc">${tagChip(r.alliance, '646')}</td>
-        <td class="koi-bar"><div class="kb"><span class="kb-fill${over ? ' over' : ''}" style="width:${w}%">${pct && inside ? `<b class="kb-in" title="${pct} more points than the highest reward tier needs">${pct}</b>` : ''}</span>${lineHtml}${pct && !inside ? `<span class="kb-pct" style="left:calc(${w}% + 8px)" title="${pct} more points than the highest reward tier needs">${pct}</span>` : ''}</div></td>
+        <td class="koi-bar"><div class="kb" style="${heat(r.points)}"><span class="kb-fill${isCastle ? '' : ' heat'}" style="width:${w}%">${pct && inside ? `<b class="kb-in" style="color:var(--kin,var(--on-ice))" title="${pct} more points than the highest reward tier needs">${pct}</b>` : ''}</span>${lineHtml}${pct && !inside ? `<span class="kb-pct" style="left:calc(${w}% + 8px)" title="${pct} more points than the highest reward tier needs">${pct}</span>` : ''}</div></td>
         <td class="num">${fmt(r.points)}</td></tr>`;
     }).join('');
     let note = '';
