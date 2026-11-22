@@ -799,6 +799,7 @@
   #modeSeg{flex-wrap:nowrap;}
   #modeSeg button{padding:6px 14px;}
   .koi-mtag{display:none;}
+  body.koi-lucy #lucyTableWrap th:nth-child(5), body.koi-lucy #lucyTableWrap td:nth-child(5), body.koi-lucy #lucyTableWrap th:nth-child(6), body.koi-lucy #lucyTableWrap td:nth-child(6){display:none;}
   .event-bar{flex-wrap:wrap;}
   @media (max-width:640px){ #modeSeg{flex:0 0 100%;} }
   .koi-t{width:100%;border-collapse:collapse;}
@@ -932,7 +933,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-22 · b107</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-22 · b108</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -3742,7 +3743,7 @@
     'Day 7': [9400, 84000, 180000, 345000]
   };
   let KOI_LUCY_WANT = false;
-  const koi = {tab: 'player', phase: 'Day 1', ev: KOI_EVENTS[0] || null, ally: '', search: '', all: false, svsId: null, lucyOn: false};
+  const koi = {tab: 'player', phase: 'Day 1', ev: KOI_EVENTS[0] || null, ally: '', search: '', all: false, svsId: null, lucyOn: false, w: 50, svsW: 60};
   const koiTabsEl = document.getElementById('koiTabs'), koiPanel = document.getElementById('koiPanel');
   const koiSel = document.getElementById('koiSel'), modeSeg = document.getElementById('modeSeg');
   const koiPl = p => p === 'KoI Total' ? 'KoI Total' : 'Phase ' + p.slice(4);
@@ -3840,26 +3841,47 @@
     const sw = q('#koiAll'); if(sw) sw.addEventListener('change', () => { koi.all = sw.checked; koiRenderList(); });
   }
 
-  // Lucy tab for KoI: the existing Lucy code runs on a synthetic event (KoI Total in place of Prep Total, alliance sums from the players)
+  // Lucy tab for KoI: chests are shared by the Castle Battle only (in KoI nobody wants points in the phases).
+  // The existing Lucy code runs on a synthetic event: the Castle Top 100 stands in for the "Prep" side, so
+  // rank = Castle points, and the chest share = weight x share of Castle Top 100 players + (100% - weight) x share of Castle points.
   function koiLucyEvent(ev){
-    const t = koiTotal(ev), al = new Map();
-    t.rows.forEach(r => { if(!r.alliance) return; let e = al.get(r.alliance); if(!e){ e = {name: '', alliance: r.alliance, state: '646', points: 0}; al.set(r.alliance, e); } e.points += r.points; });
+    const cr = ((ev.data.castle || {})['Castle Battle'] || []).filter(r => r.rank <= 100), al = new Map();
+    cr.forEach(r => { if(!r.alliance) return; let e = al.get(r.alliance); if(!e){ e = {name: '', alliance: r.alliance, state: '646', points: 0}; al.set(r.alliance, e); } e.points += r.points; });
     const arows = [...al.values()].sort((a, b) => b.points - a.points); arows.forEach((r, i) => { r.rank = i + 1; });
-    return {id: ev.id, date: ev.date, away: '', battle: [], data: {player: {'Prep Total': t.rows}, alliance: {'Prep Total': arows}, castle: ev.data.castle || {}}};
+    return {id: ev.id, date: ev.date, away: '', battle: [], data: {player: {'Prep Total': cr}, alliance: {'Prep Total': arows}, castle: ev.data.castle || {}}};
   }
+  const KOI_NOTE1 = 'King of Icefield: chests are shared by the Castle Battle only. Overall rank = Castle points of the alliance\'s players in the Castle Top 100 · the slider sets how the chest share mixes the number of players in the Castle Top 100 (left) and the Castle points (right).';
+  const KOI_NOTE2 = 'Only alliances in the Top N (default 10) of the Castle ranking take part. Share = weight × share of the Castle Top 100 players + (100% − weight) × share of the Castle points. Edit the groups to merge alliances.';
   const lucyObs = new MutationObserver(() => koiPatchLucy());
   function koiPatchLucy(){
     if(!KOI_ON || !koi.lucyOn) return;
     lucyObs.disconnect();
     const w = document.createTreeWalker(lucyPanel, NodeFilter.SHOW_TEXT); let n;
     while((n = w.nextNode())){
-      if(n.nodeValue.indexOf('Prep') < 0) continue;
-      n.nodeValue = n.nodeValue.replace(/Prep ranking/g, 'KoI ranking').replace(/Prep Top 100/g, 'KoI Top 100').replace(/Prep Total/g, 'KoI Total').replace(/Prep [sS]core/g, m => 'KoI ' + m.slice(5)).replace(/\bPrep\b/g, 'KoI');
+      if(n.nodeValue.indexOf('Prep') < 0 && n.nodeValue.indexOf('Castle Score') < 0) continue;
+      n.nodeValue = n.nodeValue.replace(/Prep Score: (\d+)%/, 'Players in Top 100: $1%').replace(/Castle Score: (\d+)%/, 'Castle points: $1%')
+        .replace(/Players in Prep Top 100/g, 'Players in Castle Top 100').replace(/in Prep Top 100/g, 'in Castle Top 100');
     }
     lucyObs.observe(lucyPanel, {childList: true, subtree: true, characterData: true});
   }
+  function koiLucyChrome(on){
+    const n1 = lucyPanel.querySelector('.slider-block .formula-note'), n2 = lucyPanel.querySelector('.lch-note'), md = lchMode.closest('.field');
+    if(on){
+      if(n1 && n1.dataset.o === undefined){ n1.dataset.o = n1.innerHTML; } if(n2 && n2.dataset.o === undefined){ n2.dataset.o = n2.innerHTML; }
+      if(n1) n1.textContent = KOI_NOTE1; if(n2) n2.textContent = KOI_NOTE2;
+      if(md) md.style.display = 'none';
+    } else {
+      if(n1 && n1.dataset.o !== undefined){ n1.innerHTML = n1.dataset.o; delete n1.dataset.o; }
+      if(n2 && n2.dataset.o !== undefined){ n2.innerHTML = n2.dataset.o; delete n2.dataset.o; }
+      if(md) md.style.display = '';
+    }
+  }
   function koiShowLucy(){
     if(!koi.ev) return;
+    if(!koi.lucyOn){
+      koi.svsW = lucyState.weight; koi.svsMode = lch.mode; lucyState.weight = koi.w; lucySlider.value = koi.w; lchMode.value = 'comb'; lch.mode = 'comb';
+      koiLucyChrome(true);
+    }
     buildDerived(koiLucyEvent(koi.ev));
     totalsCache = {}; lch.res = null; koi.lucyOn = true;
     renderLucy();
@@ -3867,9 +3889,14 @@
   }
   function koiBackFromLucy(){
     if(!koi.lucyOn) return;
+    koi.w = lucyState.weight;
     koi.lucyOn = false; lucyObs.disconnect();
+    koiLucyChrome(false);
+    lucyState.weight = koi.svsW; lucySlider.value = koi.svsW;
+    lch.mode = koi.svsMode; lchMode.value = lch.mode;
     const ev = EVENTS.find(e => e.id === koi.svsId) || EVENTS[0];
     buildDerived(ev); totalsCache = {}; lch.res = null;
+    renderLucy();
   }
 
   function koiSyncLucyBtn(){
