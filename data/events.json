@@ -1,45 +1,9 @@
 {
  "kid": 646,
- "api_date": "2026-11-22",
- "fetched_at": "2026-11-22T07:04:27Z",
- "count": 22,
+ "api_date": "2026-11-23",
+ "fetched_at": "2026-11-23T07:52:52Z",
+ "count": 21,
  "events": [
-  {
-   "name": "Tundra Hellfire",
-   "category": "Tundra Arms League",
-   "when": "31 Oct 00:00 – 22 Nov 24:00",
-   "begin": "2026-10-31T00:00:00Z",
-   "end": "2026-11-23T00:00:00Z",
-   "begin_ts": 1793404800,
-   "end_ts": 1795392000
-  },
-  {
-   "name": "Match Missions",
-   "category": "Tundra Arms League",
-   "when": "2 Nov 00:00 – 22 Nov 24:00",
-   "begin": "2026-11-02T00:00:00Z",
-   "end": "2026-11-23T00:00:00Z",
-   "begin_ts": 1793577600,
-   "end_ts": 1795392000
-  },
-  {
-   "name": "Outcome Prediction",
-   "category": "Tundra Arms League",
-   "when": "8 Nov 00:00 – 22 Nov 24:00",
-   "begin": "2026-11-08T00:00:00Z",
-   "end": "2026-11-23T00:00:00Z",
-   "begin_ts": 1794096000,
-   "end_ts": 1795392000
-  },
-  {
-   "name": "Hero Rally",
-   "category": "Deals",
-   "when": "9 Nov 00:00 – 22 Nov 24:00",
-   "begin": "2026-11-09T00:00:00Z",
-   "end": "2026-11-23T00:00:00Z",
-   "begin_ts": 1794182400,
-   "end_ts": 1795392000
-  },
   {
    "name": "Journey Treasures",
    "category": "Deals",
@@ -50,30 +14,12 @@
    "end_ts": 1796601600
   },
   {
-   "name": "Alliance Championship",
-   "category": "Events",
-   "when": "16 Nov 00:00 – 22 Nov 24:00",
-   "begin": "2026-11-16T00:00:00Z",
-   "end": "2026-11-23T00:00:00Z",
-   "begin_ts": 1794787200,
-   "end_ts": 1795392000
-  },
-  {
    "name": "King of Icefield",
    "category": "Events",
    "when": "16 Nov 00:00 – 22 Nov 24:00",
    "begin": "2026-11-16T00:00:00Z",
    "end": "2026-11-23T00:00:00Z",
    "begin_ts": 1794787200,
-   "end_ts": 1795392000
-  },
-  {
-   "name": "Shining City Pack",
-   "category": "Deals",
-   "when": "18 Nov 00:00 – 22 Nov 24:00",
-   "begin": "2026-11-18T00:00:00Z",
-   "end": "2026-11-23T00:00:00Z",
-   "begin_ts": 1794960000,
    "end_ts": 1795392000
   },
   {
@@ -185,6 +131,15 @@
    "end_ts": 1795824000
   },
   {
+   "name": "Thanksgiving Menu",
+   "category": "Thanksgiving",
+   "when": "24 Nov 00:00 – 30 Nov 24:00",
+   "begin": "2026-11-24T00:00:00Z",
+   "end": "2026-12-01T00:00:00Z",
+   "begin_ts": 1795478400,
+   "end_ts": 1796083200
+  },
+  {
    "name": "Hero's Mission",
    "category": "Events",
    "when": "25 Nov 00:00 – 27 Nov 24:00",
@@ -201,6 +156,42 @@
    "end": "2026-11-27T00:00:00Z",
    "begin_ts": 1795564800,
    "end_ts": 1795737600
+  },
+  {
+   "name": "Armament Competition",
+   "category": "Events",
+   "when": "27 Nov 00:00 – 28 Nov 24:00",
+   "begin": "2026-11-27T00:00:00Z",
+   "end": "2026-11-29T00:00:00Z",
+   "begin_ts": 1795737600,
+   "end_ts": 1795910400
+  },
+  {
+   "name": "Emporium of Enigma",
+   "category": "Frosty Fortune",
+   "when": "27 Nov 00:00 – 4 Dec 24:00",
+   "begin": "2026-11-27T00:00:00Z",
+   "end": "2026-12-05T00:00:00Z",
+   "begin_ts": 1795737600,
+   "end_ts": 1796428800
+  },
+  {
+   "name": "Frosty Fortune",
+   "category": "Frosty Fortune",
+   "when": "27 Nov 00:00 – 3 Dec 24:00",
+   "begin": "2026-11-27T00:00:00Z",
+   "end": "2026-12-04T00:00:00Z",
+   "begin_ts": 1795737600,
+   "end_ts": 1796342400
+  },
+  {
+   "name": "Treasure Hunt Drill",
+   "category": "Frosty Fortune",
+   "when": "27 Nov 00:00 – 3 Dec 24:00",
+   "begin": "2026-11-27T00:00:00Z",
+   "end": "2026-12-04T00:00:00Z",
+   "begin_ts": 1795737600,
+   "end_ts": 1796342400
   }
  ]
 }
