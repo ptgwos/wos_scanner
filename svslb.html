@@ -799,6 +799,10 @@
   #modeSeg{flex-wrap:nowrap;}
   #modeSeg button{padding:6px 14px;}
   .koi-mtag{display:none;}
+  .koi-cnt{font-size:11px;font-weight:400;color:var(--text-faint);margin-left:8px;white-space:nowrap;}
+  .koi-stbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;}
+  .koi-stbar .btn-pic{margin-left:auto;}
+  @media (max-width:640px){ .koi-cnt{display:block;margin:2px 0 0;} }
   .koi-noname{color:var(--text-faint);font-weight:400;}
   body.koi-lucy #lucyTableWrap th:nth-child(5), body.koi-lucy #lucyTableWrap td:nth-child(5), body.koi-lucy #lucyTableWrap th:nth-child(6), body.koi-lucy #lucyTableWrap td:nth-child(6){display:none;}
   .event-bar{flex-wrap:wrap;}
@@ -872,6 +876,7 @@
   <div class="tabs" id="koiTabs" style="display:none">
     <button class="tab active" data-k="player">Player</button>
     <button class="tab" data-k="castle">Castle</button>
+    <button class="tab" data-k="stats">Statistics</button>
     <button class="tab tab-lucy" data-k="lucy" style="display:none">Lucy 🐱</button>
   </div>
   <div class="panel" id="koiPanel" style="display:none;"></div>
@@ -941,7 +946,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b114</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b115</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -3751,7 +3756,7 @@
     'Day 7': [9400, 84000, 180000, 345000]
   };
   let KOI_LUCY_WANT = false;
-  const koi = {tab: 'player', phase: 'KoI Total', ev: KOI_EVENTS[0] || null, ally: '', search: '', all: false, svsId: null, lucyOn: false, w: 50, svsW: 60};
+  const koi = {tab: 'player', phase: 'KoI Total', ev: KOI_EVENTS[0] || null, ally: '', search: '', all: false, sph: 'KoI Total', svsId: null, lucyOn: false, w: 50, svsW: 60};
   const koiTabsEl = document.getElementById('koiTabs'), koiPanel = document.getElementById('koiPanel');
   const koiSel = document.getElementById('koiSel'), modeSeg = document.getElementById('modeSeg');
   const koiPl = p => p === 'KoI Total' ? 'KoI Total' : 'Phase ' + p.slice(4);
@@ -3796,7 +3801,7 @@
     koiTabsEl.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.k === koi.tab));
     if(koi.tab === 'lucy'){ koiShowLucy(); koiWriteHash(); return; }
     koiBackFromLucy();
-    koiRenderList();
+    if(koi.tab === 'stats') koiRenderStats(); else koiRenderList();
     koiWriteHash();
   }
   function koiHeader(){
@@ -3854,6 +3859,86 @@
     q('#koiSearch').addEventListener('input', e => { koi.search = e.target.value; const pos = e.target.selectionStart; koiRenderList(); const el = q('#koiSearch'); el.focus(); try { el.setSelectionRange(pos, pos); } catch(x) {} });
     const ph = q('#koiPh'); if(ph) ph.addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if(b){ koi.phase = b.dataset.p; koiRenderList(); koiWriteHash(); } });
     const sw = q('#koiAll'); if(sw) sw.addEventListener('change', () => { koi.all = sw.checked; koiRenderList(); });
+  }
+
+  // ---- Statistics tab (alliance comparison) ----
+  function koiAllyNames(){
+    const m = {};
+    EVENTS.slice().reverse().forEach(ev => Object.values((ev.data && ev.data.alliance) || {}).forEach(l => l.forEach(r => { if(r.name && r.alliance && (r.state === '646' || !r.state)) m[r.alliance] = r.name; })));
+    return m;
+  }
+  function koiStatsRows(){
+    const ev = koi.ev; if(!ev) return [];
+    const src = koi.sph === 'Castle' ? ((ev.data.castle || {})['Castle Battle'] || []) : (koi.sph === 'KoI Total' ? koiTotal(ev).rows : ((ev.data.player || {})[koi.sph] || []));
+    const m = new Map();
+    src.forEach(r => { if(!r.alliance) return; let e = m.get(r.alliance); if(!e){ e = {alliance: r.alliance, points: 0, n: 0}; m.set(r.alliance, e); } e.points += r.points; e.n++; });
+    const names = koiAllyNames();
+    const rows = [...m.values()].map(e => Object.assign(e, {name: names[e.alliance] || ''})).sort((a, b) => b.points - a.points);
+    rows.forEach((r, i) => { r.rank = i + 1; });
+    return rows;
+  }
+  const koiHeatT = (v, hi) => hi > 0 ? Math.pow(Math.max(0, Math.min(1, v / hi)), .7) : .5;   // alliance sums are comparable: linear-ish scale
+  const koiSPl = p => p === 'Castle' ? 'Castle Battle' : koiPl(p);
+  function koiRenderStats(){
+    if(!KOI_PHASES.includes(koi.sph) && koi.sph !== 'Castle') koi.sph = 'KoI Total';
+    const rows = koiStatsRows();
+    const has = p => { const ev = koi.ev; return !!ev && (p === 'Castle' ? ((ev.data.castle || {})['Castle Battle'] || []).length > 0 : koiHas(p)); };
+    const opts = KOI_PHASES.concat(['Castle']);
+    const phBtn = `<div class="field"><label>Phase</label><div class="seg" id="koiSPh">${opts.map(p => `<button data-p="${p}" class="${p === koi.sph ? 'active' : ''}${has(p) ? '' : ' nodata'}">${p === 'Castle' ? 'Castle' : koiPl(p)}</button>`).join('')}</div></div>`;
+    const hi = Math.max(...rows.map(r => r.points), 1), max = hi * 1.04;
+    const tbody = rows.map(r => {
+      const t = koiHeatT(r.points, hi), h = Math.round(48 - 48 * t);
+      const css = `--kc:hsl(${h} 88% ${Math.round(62 - 14 * t)}%);`;
+      return `<tr class="row-646"><td class="rank">${r.rank}</td>
+        <td class="name"><div class="namecell"><span class="nm"><span class="nt">${r.name ? escapeHtml(r.name) : escapeHtml(r.alliance)}</span></span><small class="koi-cnt">${r.n} player${r.n === 1 ? '' : 's'}</small><span class="koi-mtag">${tagChip(r.alliance, '646')}</span></div></td>
+        <td class="koi-tagc">${tagChip(r.alliance, '646')}</td>
+        <td class="koi-bar"><div class="kb" style="${css}"><span class="kb-fill heat" style="width:${(r.points / max * 100).toFixed(2)}%"></span></div></td>
+        <td class="num">${fmt(r.points)}</td></tr>`;
+    }).join('');
+    koiPanel.innerHTML = `<div class="controls">${phBtn}<div class="count-pill">${rows.length} alliances</div></div>
+      <div class="koi-stbar"><span class="formula-note" style="margin:0;flex:1 1 260px">Sum of the points of each alliance's players in the Top 100 of this list. Players outside the Top 100 are not listed, so this compares the listed players only.</span><button type="button" class="btn btn-pic" id="koiPic" title="Copy a picture of this comparison to the clipboard (or save it as a file)"${rows.length ? '' : ' disabled'}>📷 Share pic</button></div>
+      <div id="koiWrap" style="overflow-x:auto">${rows.length ? `<table class="koi-t"><thead><tr><th>R</th><th>Alliance</th><th class="koi-tagc">Tag</th><th class="koi-bh" style="padding-top:10px;padding-bottom:10px"></th><th class="num">Points</th></tr></thead><tbody>${tbody}</tbody></table>` : '<div class="empty">No data for this list yet.</div>'}</div>`;
+    const ph = koiPanel.querySelector('#koiSPh'); if(ph) ph.addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if(b){ koi.sph = b.dataset.p; koiRenderStats(); koiWriteHash(); } });
+    const pb = koiPanel.querySelector('#koiPic'); if(pb) pb.addEventListener('click', () => koiSharePic(rows, pb));
+  }
+  // Share pic: drawn on a canvas (no external library, fixed dark look so it reads the same everywhere).
+  function koiPicCanvas(rows){
+    const W = 960, padX = 28, top = 92, rh = 38, foot = 40, H = top + rows.length * rh + foot, sc = 2;
+    const cv = document.createElement('canvas'); cv.width = W * sc; cv.height = H * sc;
+    const c = cv.getContext('2d'); c.scale(sc, sc);
+    const F = '"Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+    const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+    const fit = (txt, w) => { if(c.measureText(txt).width <= w) return txt; while(txt.length > 1 && c.measureText(txt + '…').width > w) txt = txt.slice(0, -1); return txt + '…'; };
+    c.fillStyle = '#0d1424'; c.fillRect(0, 0, W, H);
+    c.fillStyle = '#6fe3ff'; c.font = '700 12px ' + F; c.textBaseline = 'alphabetic'; c.fillText('KING OF ICEFIELD — STATE 646', padX, 30);
+    c.fillStyle = '#eaf0ff'; c.font = '800 24px ' + F; c.fillText('Alliance comparison · ' + koiSPl(koi.sph), padX, 62);
+    c.fillStyle = '#8b97b3'; c.font = '500 12px ' + F; c.textAlign = 'right'; c.fillText(koi.ev ? koi.ev.date : '', W - padX, 30); c.textAlign = 'left';
+    c.fillStyle = '#1d2740'; c.fillRect(padX, top - 14, W - 2 * padX, 1);
+    const xRank = padX, xName = padX + 40, xTag = 300, xBar = 490, xVal = W - padX, barW = xVal - 120 - xBar;
+    const hi = Math.max(...rows.map(r => r.points), 1);
+    rows.forEach((r, i) => {
+      const y = top + i * rh, cy = y + rh / 2;
+      if(i % 2 === 0){ c.fillStyle = 'rgba(255,255,255,.025)'; c.fillRect(padX - 8, y, W - 2 * padX + 16, rh); }
+      c.fillStyle = '#8b97b3'; c.font = '600 13px ' + F; c.textBaseline = 'middle'; c.fillText(String(r.rank), xRank, cy);
+      c.fillStyle = '#eaf0ff'; c.font = '700 15px ' + F; c.fillText(fit(r.name || r.alliance, xTag - xName - 12), xName, cy - (r.name ? 0 : 0));
+      const col = TAG_COLORS[r.alliance] || TAG_HOME_PLAIN; c.font = '700 12px ' + F;
+      const tw = c.measureText(r.alliance).width + 18; rr(xTag, cy - 11, tw, 22, 11); c.fillStyle = col.bg; c.fill(); c.fillStyle = col.fg; c.fillText(r.alliance, xTag + 9, cy + 0.5);
+      const t = koiHeatT(r.points, hi), h = Math.round(48 - 48 * t);
+      const bw = Math.max(3, r.points / (hi * 1.04) * barW); rr(xBar, cy - 9, bw, 18, 4); c.fillStyle = `hsl(${h} 88% ${Math.round(62 - 14 * t)}%)`; c.fill();
+      c.fillStyle = '#eaf0ff'; c.font = '700 14px ' + F; c.textAlign = 'right'; c.fillText(fmt(r.points), xVal, cy); c.textAlign = 'left';
+      c.fillStyle = '#8b97b3'; c.font = '500 11px ' + F; c.textAlign = 'right'; c.fillText(r.n + (r.n === 1 ? ' player' : ' players'), xBar - 12, cy); c.textAlign = 'left';
+    });
+    c.fillStyle = '#6b7690'; c.font = '500 11px ' + F; c.textBaseline = 'alphabetic';
+    c.fillText('Sum of the points of the alliance\'s players in the Top 100 of this list · state646.com', padX, H - 16);
+    return cv;
+  }
+  function koiSharePic(rows, btn){
+    const label = btn.textContent, say = (t) => { btn.textContent = t; setTimeout(() => { btn.textContent = label; }, 2200); };
+    const save = (blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'koi_alliances_' + (koi.ev ? koi.ev.date : '') + '_' + koi.sph.replace(/\s+/g, '').toLowerCase() + '.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); say('💾 Saved'); };
+    const blobP = new Promise((res, rej) => { try { koiPicCanvas(rows).toBlob(b => b ? res(b) : rej(new Error('toBlob')), 'image/png'); } catch(e) { rej(e); } });
+    if(navigator.clipboard && window.ClipboardItem){
+      navigator.clipboard.write([new ClipboardItem({'image/png': blobP})]).then(() => say('✓ Copied'), () => blobP.then(save, () => say('Failed')));
+    } else blobP.then(save, () => say('Failed'));
   }
 
   // Lucy tab for KoI: chests are shared by the Castle Battle only (in KoI nobody wants points in the phases).
@@ -3925,6 +4010,7 @@
     const q = [];
     if(koi.ev && KOI_EVENTS[0] && koi.ev.id !== KOI_EVENTS[0].id) q.push('ev=' + koi.ev.id);
     if(koi.tab === 'player' && koi.phase !== 'KoI Total') q.push('ph=p' + koi.phase.slice(4));
+    if(koi.tab === 'stats' && koi.sph !== 'KoI Total') q.push('ph=' + (koi.sph === 'Castle' ? 'castle' : 'p' + koi.sph.slice(4)));
     try { history.replaceState(null, '', location.pathname + location.search + '#koi' + (koi.tab === 'player' ? '' : '/' + koi.tab) + (q.length ? '?' + q.join('&') : '')); } catch(e) {}
   }
   function koiSetMode(on, keepHash){
@@ -3958,9 +4044,10 @@
     if(seg[0] !== 'koi' || !KOI_EVENTS.length) return false;
     const q = new URLSearchParams(parts.slice(1).join('?'));
     const ev = KOI_EVENTS.find(e => e.id === q.get('ev')); if(ev){ koi.ev = ev; koiSel.value = ev.id; }
-    koi.tab = ['castle', 'lucy'].includes(seg[1]) ? seg[1] : 'player';
+    koi.tab = ['castle', 'lucy', 'stats'].includes(seg[1]) ? seg[1] : 'player';
     if(koi.tab === 'lucy' && !lucyOk()){ koi.tab = 'player'; KOI_LUCY_WANT = true; }
     const ph = q.get('ph'); if(ph === 'total') koi.phase = 'KoI Total'; else if(/^p[1-7]$/.test(ph || '')) koi.phase = 'Day ' + ph.slice(1);
+    if(ph === 'castle') koi.sph = 'Castle'; else if(ph === 'total') koi.sph = 'KoI Total'; else if(/^p[1-7]$/.test(ph || '')) koi.sph = 'Day ' + ph.slice(1);
     koiSel.value = koi.ev.id;
     koiSetMode(true);
     return true;
