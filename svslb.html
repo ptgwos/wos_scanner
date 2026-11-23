@@ -800,6 +800,8 @@
   #modeSeg button{padding:6px 14px;}
   .koi-mtag{display:none;}
   .koi-need{color:var(--text-dim);}
+  .koi-pm{display:none;font-size:11px;font-weight:700;line-height:1.2;margin-top:2px;white-space:nowrap;color:var(--kc,var(--ice));}
+  :root[data-theme="light"] .koi-pm{color:var(--ktl,var(--ice));}
   @media (max-width:640px){ .koi-need{display:none;} }
   .koi-cnt{font-size:11px;font-weight:400;color:var(--text-faint);margin-left:8px;white-space:nowrap;}
   .koi-stbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;}
@@ -830,6 +832,8 @@
     .koi-t td.koi-bar, .koi-t th.koi-bh{width:42%;padding-left:6px;padding-right:6px;}
     .koi-t td.rank{width:34px;}
     .kb{min-width:90px;}
+    .kb-in,.kb-pct{display:none;}
+    .koi-pm{display:block;}
     .koi-tagc{display:none;}
     .koi-t th.num, .koi-t td.num{padding-left:2px;padding-right:8px;font-size:12.5px;}
     .koi-mtag{display:block;margin-top:4px;}
@@ -948,7 +952,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b117</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b118</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -3844,7 +3848,7 @@
         <td class="name"><div class="namecell"><span class="nm">${avHtml(r.id, 22, r.name)}<span class="nt">${r.name ? escapeHtml(r.name) : '<i class="koi-noname">ID ' + r.uid + '</i>'}</span>${presIconHtml(r)}</span><span class="koi-mtag">${tagChip(r.alliance, '646')}</span></div></td>
         <td class="koi-tagc">${tagChip(r.alliance, '646')}</td>
         <td class="koi-bar"><div class="kb" style="${heat(r.points)}"><span class="kb-fill${isCastle ? '' : ' heat'}" style="width:${w}%">${pct && inside ? `<b class="kb-in" style="color:var(--kin,var(--on-ice))" title="${pct} more points than the highest reward tier needs">${pct}</b>` : ''}</span>${lineHtml}${pct && !inside ? `<span class="kb-pct" style="left:calc(${w}% + 8px)" title="${pct} more points than the highest reward tier needs">${pct}</span>` : ''}</div></td>
-        <td class="num">${fmt(r.points)}</td></tr>`;
+        <td class="num" style="${heat(r.points)}">${fmt(r.points)}${pct ? `<small class="koi-pm">${pct}</small>` : ''}</td></tr>`;
     }).join('');
     let note = '';
     if(!isCastle && koi.phase === 'KoI Total' && koi.ev && koiTotal(koi.ev).derived) note = 'KoI Total is added up from the phases listed so far (a player outside the Top 100 of a phase counts 0 for it). The official total ranking has not been entered yet.';
@@ -3899,7 +3903,7 @@
         <td class="koi-tagc">${tagChip(r.alliance, '646')}</td>
         <td class="koi-bar"><div class="kb" style="${css}"><span class="kb-fill heat" style="width:${pc(r.points)}%">${r.pct !== null && +pc(r.points) > 78 ? `<b class="kb-in" style="color:var(--kin,var(--on-ice))" title="${koiPctTxt(r.pct)} compared with what ${r.n} players need for the highest reward tier">${koiPctTxt(r.pct)}</b>` : ''}</span>${r.need ? `<i class="kb-ln top" style="left:${pc(r.need)}%" title="${r.n} players × ${fmt(rows.top)} = ${fmt(r.need)}"></i>` : ''}${r.pct !== null && +pc(r.points) <= 78 ? `<span class="kb-pct" style="left:calc(${pc(r.points)}% + 8px)" title="${koiPctTxt(r.pct)} compared with what ${r.n} players need for the highest reward tier">${koiPctTxt(r.pct)}</span>` : ''}</div></td>
         ${hasNeed ? `<td class="num koi-need" title="${r.n} players × ${fmt(rows.top)}">${fmt(r.need)}</td>` : ''}
-        <td class="num">${fmt(r.points)}</td></tr>`;
+        <td class="num" style="${css}">${fmt(r.points)}${r.pct !== null ? `<small class="koi-pm">${koiPctTxt(r.pct)}</small>` : ''}</td></tr>`;
     }).join('');
     koiPanel.innerHTML = `<div class="controls">${phBtn}<div class="count-pill">${rows.length} alliances</div></div>
       <div class="koi-stbar"><span class="formula-note" style="margin:0;flex:1 1 260px">Sum of the points of each alliance's players in the Top 100 of this list. Players outside the Top 100 are not listed, so this compares the listed players only.${hasNeed ? ` Red line = what the alliance's players would have needed for the highest reward tier (players × ${fmt(rows.top)}); the percentage shows how much more the alliance spent.` : ''}</span><button type="button" class="btn btn-pic" id="koiPic" title="Copy a picture of this comparison to the clipboard (or save it as a file)"${rows.length ? '' : ' disabled'}>📷 Share pic</button></div>
