@@ -952,7 +952,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b118</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b119</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -3810,10 +3810,17 @@
     if(koi.tab === 'stats') koiRenderStats(); else koiRenderList();
     koiWriteHash();
   }
+  // "Week 47 (2026-11-16 - 2026-11-22)": ISO week of the event date; range = from .. day before 'to' (the export's end date is exclusive)
+  function koiWeekTxt(ev){
+    const d = new Date(ev.date + 'T00:00:00Z'); if(isNaN(d)) return ev.date;
+    const t = new Date(d); t.setUTCDate(t.getUTCDate() + 3 - ((t.getUTCDay() + 6) % 7));
+    const j4 = new Date(Date.UTC(t.getUTCFullYear(), 0, 4)), w = 1 + Math.round(((t - j4) / 864e5 - 3 + ((j4.getUTCDay() + 6) % 7)) / 7);
+    return ev.from && ev.to ? `Week ${ev.week || w} (${ev.from} - ${new Date(Date.parse(ev.to) - 864e5).toISOString().slice(0, 10)})` : ev.date;
+  }
   function koiHeader(){
     const el = document.getElementById('eyebrow'), sub = document.getElementById('eventLabel');
     if(el) el.textContent = 'King of Icefield — State 646';
-    if(sub) sub.textContent = koi.ev ? koi.ev.date : '';
+    if(sub) sub.textContent = koi.ev ? koiWeekTxt(koi.ev) : '';
     const h = document.querySelector('header h1'); if(h) h.innerHTML = 'KoI <span>Leaderboards</span>';
     document.title = 'State 646 · KoI Leaderboards' + (koi.ev ? ' (' + koi.ev.date + ')' : '');
   }
