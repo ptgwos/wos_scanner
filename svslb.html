@@ -799,6 +799,8 @@
   #modeSeg{flex-wrap:nowrap;}
   #modeSeg button{padding:6px 14px;}
   .koi-mtag{display:none;}
+  .koi-need{color:var(--text-dim);}
+  @media (max-width:640px){ .koi-need{display:none;} }
   .koi-cnt{font-size:11px;font-weight:400;color:var(--text-faint);margin-left:8px;white-space:nowrap;}
   .koi-stbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;}
   .koi-stbar .btn-pic{margin-left:auto;}
@@ -946,7 +948,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b116</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b117</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -3874,9 +3876,12 @@
     src.forEach(r => { if(!r.alliance) return; let e = m.get(r.alliance); if(!e){ e = {alliance: r.alliance, points: 0, n: 0}; m.set(r.alliance, e); } e.points += r.points; e.n++; });
     const names = koiAllyNames();
     const rows = [...m.values()].map(e => Object.assign(e, {name: names[e.alliance] || ''})).sort((a, b) => b.points - a.points);
-    rows.forEach((r, i) => { r.rank = i + 1; });
+    const top = koi.sph === 'Castle' ? 0 : koiTiers(koi.sph).top;   // highest reward tier of this list (KoI Total: sum of the 7 highest = 2.271.000)
+    rows.forEach((r, i) => { r.rank = i + 1; r.need = top ? r.n * top : 0; r.pct = r.need ? Math.round((r.points / r.need - 1) * 100) : null; });
+    rows.top = top;
     return rows;
   }
+  const koiPctTxt = p => (p >= 0 ? '+' : '−') + Math.abs(p) + ' %';
   const koiHeatT = (v, hi) => hi > 0 ? Math.pow(Math.max(0, Math.min(1, v / hi)), .7) : .5;   // alliance sums are comparable: linear-ish scale
   const koiSPl = p => p === 'Castle' ? 'Castle Battle' : koiPl(p);
   function koiRenderStats(){
@@ -3885,25 +3890,26 @@
     const has = p => { const ev = koi.ev; return !!ev && (p === 'Castle' ? ((ev.data.castle || {})['Castle Battle'] || []).length > 0 : koiHas(p)); };
     const opts = KOI_PHASES.concat(['Castle']);
     const phBtn = `<div class="field"><label>Phase</label><div class="seg" id="koiSPh">${opts.map(p => `<button data-p="${p}" class="${p === koi.sph ? 'active' : ''}${has(p) ? '' : ' nodata'}">${p === 'Castle' ? 'Castle' : koiPl(p)}</button>`).join('')}</div></div>`;
-    const hi = Math.max(...rows.map(r => r.points), 1), max = hi * 1.04;
+    const hasNeed = !!rows.top, hi = Math.max(...rows.map(r => r.points), 1), max = Math.max(hi, ...rows.map(r => r.need)) * 1.04, pc = v => Math.min(100, v / max * 100).toFixed(2);
     const tbody = rows.map(r => {
       const t = koiHeatT(r.points, hi), h = Math.round(48 - 48 * t);
       const css = `--kc:hsl(${h} 88% ${Math.round(62 - 14 * t)}%);`;
       return `<tr class="row-646"><td class="rank">${r.rank}</td>
         <td class="name"><div class="namecell"><span class="nm"><span class="nt">${r.name ? escapeHtml(r.name) : escapeHtml(r.alliance)}</span></span><small class="koi-cnt">${r.n} player${r.n === 1 ? '' : 's'}</small><span class="koi-mtag">${tagChip(r.alliance, '646')}</span></div></td>
         <td class="koi-tagc">${tagChip(r.alliance, '646')}</td>
-        <td class="koi-bar"><div class="kb" style="${css}"><span class="kb-fill heat" style="width:${(r.points / max * 100).toFixed(2)}%"></span></div></td>
+        <td class="koi-bar"><div class="kb" style="${css}"><span class="kb-fill heat" style="width:${pc(r.points)}%">${r.pct !== null && +pc(r.points) > 78 ? `<b class="kb-in" style="color:var(--kin,var(--on-ice))" title="${koiPctTxt(r.pct)} compared with what ${r.n} players need for the highest reward tier">${koiPctTxt(r.pct)}</b>` : ''}</span>${r.need ? `<i class="kb-ln top" style="left:${pc(r.need)}%" title="${r.n} players × ${fmt(rows.top)} = ${fmt(r.need)}"></i>` : ''}${r.pct !== null && +pc(r.points) <= 78 ? `<span class="kb-pct" style="left:calc(${pc(r.points)}% + 8px)" title="${koiPctTxt(r.pct)} compared with what ${r.n} players need for the highest reward tier">${koiPctTxt(r.pct)}</span>` : ''}</div></td>
+        ${hasNeed ? `<td class="num koi-need" title="${r.n} players × ${fmt(rows.top)}">${fmt(r.need)}</td>` : ''}
         <td class="num">${fmt(r.points)}</td></tr>`;
     }).join('');
     koiPanel.innerHTML = `<div class="controls">${phBtn}<div class="count-pill">${rows.length} alliances</div></div>
-      <div class="koi-stbar"><span class="formula-note" style="margin:0;flex:1 1 260px">Sum of the points of each alliance's players in the Top 100 of this list. Players outside the Top 100 are not listed, so this compares the listed players only.</span><button type="button" class="btn btn-pic" id="koiPic" title="Copy a picture of this comparison to the clipboard (or save it as a file)"${rows.length ? '' : ' disabled'}>📷 Share pic</button></div>
-      <div id="koiWrap" style="overflow-x:auto">${rows.length ? `<table class="koi-t"><thead><tr><th>R</th><th>Alliance</th><th class="koi-tagc">Tag</th><th class="koi-bh" style="padding-top:10px;padding-bottom:10px"></th><th class="num">Points</th></tr></thead><tbody>${tbody}</tbody></table>` : '<div class="empty">No data for this list yet.</div>'}</div>`;
+      <div class="koi-stbar"><span class="formula-note" style="margin:0;flex:1 1 260px">Sum of the points of each alliance's players in the Top 100 of this list. Players outside the Top 100 are not listed, so this compares the listed players only.${hasNeed ? ` Red line = what the alliance's players would have needed for the highest reward tier (players × ${fmt(rows.top)}); the percentage shows how much more the alliance spent.` : ''}</span><button type="button" class="btn btn-pic" id="koiPic" title="Copy a picture of this comparison to the clipboard (or save it as a file)"${rows.length ? '' : ' disabled'}>📷 Share pic</button></div>
+      <div id="koiWrap" style="overflow-x:auto">${rows.length ? `<table class="koi-t"><thead><tr><th>R</th><th>Alliance</th><th class="koi-tagc">Tag</th><th class="koi-bh" style="padding-top:10px;padding-bottom:10px"></th>${hasNeed ? '<th class="num koi-need" title="Players of the alliance in this list × highest reward tier">Needed</th>' : ''}<th class="num">Points</th></tr></thead><tbody>${tbody}</tbody></table>` : '<div class="empty">No data for this list yet.</div>'}</div>`;
     const ph = koiPanel.querySelector('#koiSPh'); if(ph) ph.addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if(b){ koi.sph = b.dataset.p; koiRenderStats(); koiWriteHash(); } });
     const pb = koiPanel.querySelector('#koiPic'); if(pb) pb.addEventListener('click', () => koiSharePic(rows, pb));
   }
   // Share pic: drawn on a canvas (no external library; the colours are read from the current theme).
   function koiPicCanvas(rows){
-    const W = 960, padX = 28, top = 92, rh = 38, foot = 40, H = top + rows.length * rh + foot, sc = 2;
+    const hasNeed = !!rows.top, W = hasNeed ? 1100 : 960, padX = 28, top = 92, rh = 38, foot = 40, H = top + rows.length * rh + foot, sc = 2;
     const cs = getComputedStyle(document.documentElement), V = (n, d) => cs.getPropertyValue(n).trim() || d;
     const K = {bg: V('--panel', '#0f1626'), ice: V('--ice', '#6fe3ff'), strong: V('--strong', '#fff'), text: V('--text', '#e3e9f8'), dim: V('--text-dim', '#8a9bbd'), faint: V('--text-faint', '#5b6c8c'), line: V('--border-soft', '#182236'), border: V('--border', '#1f2c47'), zebra: 'rgba(127,140,170,.08)'};
     const cv = document.createElement('canvas'); cv.width = W * sc; cv.height = H * sc;
@@ -3916,8 +3922,9 @@
     c.fillStyle = K.strong; c.font = '800 24px ' + F; c.fillText('Alliance comparison · ' + koiSPl(koi.sph), padX, 62);
     c.fillStyle = K.dim; c.font = '500 12px ' + F; c.textAlign = 'right'; c.fillText(koi.ev ? koi.ev.date : '', W - padX, 30); c.textAlign = 'left';
     c.fillStyle = K.border; c.fillRect(padX, top - 14, W - 2 * padX, 1);
-    const xRank = padX, xName = padX + 40, xTag = 300, xBar = 490, xVal = W - padX, barW = xVal - 120 - xBar;
-    const hi = Math.max(...rows.map(r => r.points), 1);
+    const xRank = padX, xName = padX + 40, xTag = 300, xBar = 490, xVal = W - padX, xNeed = xVal - 128, barW = hasNeed ? 330 : xVal - 120 - xBar;
+    const hi = Math.max(...rows.map(r => r.points), 1), mx = Math.max(hi, ...rows.map(r => r.need || 0)) * 1.04, light = document.documentElement.getAttribute('data-theme') === 'light';
+    if(hasNeed){ c.fillStyle = K.dim; c.font = '600 10.5px ' + F; c.textBaseline = 'alphabetic'; c.textAlign = 'right'; c.fillText('NEEDED', xNeed, top - 24); c.fillText('POINTS', xVal, top - 24); c.textAlign = 'left'; }
     rows.forEach((r, i) => {
       const y = top + i * rh, cy = y + rh / 2;
       if(i % 2 === 0){ c.fillStyle = K.zebra; c.fillRect(padX - 8, y, W - 2 * padX + 16, rh); }
@@ -3926,12 +3933,20 @@
       const col = TAG_COLORS[r.alliance] || TAG_HOME_PLAIN; c.font = '700 12px ' + F;
       const tw = c.measureText(r.alliance).width + 18; rr(xTag, cy - 11, tw, 22, 11); c.fillStyle = col.bg; c.fill(); c.fillStyle = col.fg; c.fillText(r.alliance, xTag + 9, cy + 0.5);
       const t = koiHeatT(r.points, hi), h = Math.round(48 - 48 * t);
-      const bw = Math.max(3, r.points / (hi * 1.04) * barW); rr(xBar, cy - 9, bw, 18, 4); c.fillStyle = `hsl(${h} 88% ${Math.round(62 - 14 * t)}%)`; c.fill();
+      const bw = Math.max(3, r.points / mx * barW); rr(xBar, cy - 9, bw, 18, 4); c.fillStyle = `hsl(${h} 88% ${Math.round(62 - 14 * t)}%)`; c.fill();
+      if(r.need){
+        const lx = xBar + Math.min(1, r.need / mx) * barW;
+        c.fillStyle = 'rgba(255,255,255,.9)'; c.fillRect(lx - 2, cy - 14, 4, 28); c.fillStyle = V('--danger', '#ff5d73'); c.fillRect(lx - 1, cy - 14, 2, 28);
+        const pt = koiPctTxt(r.pct); c.font = '700 11px ' + F; c.textBaseline = 'middle';
+        if(bw > barW * .62){ c.fillStyle = t > .72 ? '#fff' : '#1a1a1a'; c.textAlign = 'right'; c.fillText(pt, xBar + bw - 6, cy); }
+        else { c.fillStyle = `hsl(${h} 85% ${light ? 40 : 60}%)`; c.textAlign = 'left'; c.fillText(pt, xBar + bw + 9, cy); }
+        c.textAlign = 'right'; c.fillStyle = K.dim; c.font = '500 13px ' + F; c.fillText(fmt(r.need), xNeed, cy); c.textAlign = 'left';
+      }
       c.fillStyle = K.strong; c.font = '700 14px ' + F; c.textAlign = 'right'; c.fillText(fmt(r.points), xVal, cy); c.textAlign = 'left';
       c.fillStyle = K.dim; c.font = '500 11px ' + F; c.textAlign = 'right'; c.fillText(r.n + (r.n === 1 ? ' player' : ' players'), xBar - 12, cy); c.textAlign = 'left';
     });
     c.fillStyle = K.faint; c.font = '500 11px ' + F; c.textBaseline = 'alphabetic';
-    c.fillText('Sum of the points of the alliance\'s players in the Top 100 of this list · state646.com', padX, H - 16);
+    c.fillText(hasNeed ? 'Sum of the points of the alliance\'s players in the Top 100 · Needed = players × ' + fmt(rows.top) + ' (highest reward tier) · red line = needed · % = points above needed · state646.com' : 'Sum of the points of the alliance\'s players in the Top 100 of this list · state646.com', padX, H - 16);
     return cv;
   }
   function koiSharePic(rows, btn){
