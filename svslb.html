@@ -946,7 +946,7 @@
     </div>
   </div>
 
-  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b115</footer>
+  <footer>State 646 · SvS Leaderboards — static export · build 2026-11-23 · b116</footer>
 </div>
 
 <div class="modal-overlay" id="top100Overlay">
@@ -3901,34 +3901,36 @@
     const ph = koiPanel.querySelector('#koiSPh'); if(ph) ph.addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if(b){ koi.sph = b.dataset.p; koiRenderStats(); koiWriteHash(); } });
     const pb = koiPanel.querySelector('#koiPic'); if(pb) pb.addEventListener('click', () => koiSharePic(rows, pb));
   }
-  // Share pic: drawn on a canvas (no external library, fixed dark look so it reads the same everywhere).
+  // Share pic: drawn on a canvas (no external library; the colours are read from the current theme).
   function koiPicCanvas(rows){
     const W = 960, padX = 28, top = 92, rh = 38, foot = 40, H = top + rows.length * rh + foot, sc = 2;
+    const cs = getComputedStyle(document.documentElement), V = (n, d) => cs.getPropertyValue(n).trim() || d;
+    const K = {bg: V('--panel', '#0f1626'), ice: V('--ice', '#6fe3ff'), strong: V('--strong', '#fff'), text: V('--text', '#e3e9f8'), dim: V('--text-dim', '#8a9bbd'), faint: V('--text-faint', '#5b6c8c'), line: V('--border-soft', '#182236'), border: V('--border', '#1f2c47'), zebra: 'rgba(127,140,170,.08)'};
     const cv = document.createElement('canvas'); cv.width = W * sc; cv.height = H * sc;
     const c = cv.getContext('2d'); c.scale(sc, sc);
     const F = '"Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
     const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
     const fit = (txt, w) => { if(c.measureText(txt).width <= w) return txt; while(txt.length > 1 && c.measureText(txt + '…').width > w) txt = txt.slice(0, -1); return txt + '…'; };
-    c.fillStyle = '#0d1424'; c.fillRect(0, 0, W, H);
-    c.fillStyle = '#6fe3ff'; c.font = '700 12px ' + F; c.textBaseline = 'alphabetic'; c.fillText('KING OF ICEFIELD — STATE 646', padX, 30);
-    c.fillStyle = '#eaf0ff'; c.font = '800 24px ' + F; c.fillText('Alliance comparison · ' + koiSPl(koi.sph), padX, 62);
-    c.fillStyle = '#8b97b3'; c.font = '500 12px ' + F; c.textAlign = 'right'; c.fillText(koi.ev ? koi.ev.date : '', W - padX, 30); c.textAlign = 'left';
-    c.fillStyle = '#1d2740'; c.fillRect(padX, top - 14, W - 2 * padX, 1);
+    c.fillStyle = K.bg; c.fillRect(0, 0, W, H);
+    c.fillStyle = K.ice; c.font = '700 12px ' + F; c.textBaseline = 'alphabetic'; c.fillText('KING OF ICEFIELD — STATE 646', padX, 30);
+    c.fillStyle = K.strong; c.font = '800 24px ' + F; c.fillText('Alliance comparison · ' + koiSPl(koi.sph), padX, 62);
+    c.fillStyle = K.dim; c.font = '500 12px ' + F; c.textAlign = 'right'; c.fillText(koi.ev ? koi.ev.date : '', W - padX, 30); c.textAlign = 'left';
+    c.fillStyle = K.border; c.fillRect(padX, top - 14, W - 2 * padX, 1);
     const xRank = padX, xName = padX + 40, xTag = 300, xBar = 490, xVal = W - padX, barW = xVal - 120 - xBar;
     const hi = Math.max(...rows.map(r => r.points), 1);
     rows.forEach((r, i) => {
       const y = top + i * rh, cy = y + rh / 2;
-      if(i % 2 === 0){ c.fillStyle = 'rgba(255,255,255,.025)'; c.fillRect(padX - 8, y, W - 2 * padX + 16, rh); }
-      c.fillStyle = '#8b97b3'; c.font = '600 13px ' + F; c.textBaseline = 'middle'; c.fillText(String(r.rank), xRank, cy);
-      c.fillStyle = '#eaf0ff'; c.font = '700 15px ' + F; c.fillText(fit(r.name || r.alliance, xTag - xName - 12), xName, cy - (r.name ? 0 : 0));
+      if(i % 2 === 0){ c.fillStyle = K.zebra; c.fillRect(padX - 8, y, W - 2 * padX + 16, rh); }
+      c.fillStyle = K.dim; c.font = '600 13px ' + F; c.textBaseline = 'middle'; c.fillText(String(r.rank), xRank, cy);
+      c.fillStyle = K.strong; c.font = '700 15px ' + F; c.fillText(fit(r.name || r.alliance, xTag - xName - 12), xName, cy - (r.name ? 0 : 0));
       const col = TAG_COLORS[r.alliance] || TAG_HOME_PLAIN; c.font = '700 12px ' + F;
       const tw = c.measureText(r.alliance).width + 18; rr(xTag, cy - 11, tw, 22, 11); c.fillStyle = col.bg; c.fill(); c.fillStyle = col.fg; c.fillText(r.alliance, xTag + 9, cy + 0.5);
       const t = koiHeatT(r.points, hi), h = Math.round(48 - 48 * t);
       const bw = Math.max(3, r.points / (hi * 1.04) * barW); rr(xBar, cy - 9, bw, 18, 4); c.fillStyle = `hsl(${h} 88% ${Math.round(62 - 14 * t)}%)`; c.fill();
-      c.fillStyle = '#eaf0ff'; c.font = '700 14px ' + F; c.textAlign = 'right'; c.fillText(fmt(r.points), xVal, cy); c.textAlign = 'left';
-      c.fillStyle = '#8b97b3'; c.font = '500 11px ' + F; c.textAlign = 'right'; c.fillText(r.n + (r.n === 1 ? ' player' : ' players'), xBar - 12, cy); c.textAlign = 'left';
+      c.fillStyle = K.strong; c.font = '700 14px ' + F; c.textAlign = 'right'; c.fillText(fmt(r.points), xVal, cy); c.textAlign = 'left';
+      c.fillStyle = K.dim; c.font = '500 11px ' + F; c.textAlign = 'right'; c.fillText(r.n + (r.n === 1 ? ' player' : ' players'), xBar - 12, cy); c.textAlign = 'left';
     });
-    c.fillStyle = '#6b7690'; c.font = '500 11px ' + F; c.textBaseline = 'alphabetic';
+    c.fillStyle = K.faint; c.font = '500 11px ' + F; c.textBaseline = 'alphabetic';
     c.fillText('Sum of the points of the alliance\'s players in the Top 100 of this list · state646.com', padX, H - 16);
     return cv;
   }

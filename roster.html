@@ -947,7 +947,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-23 · r29</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-23 · r30</footer>
 </div>
 <script>
 (function(){
@@ -1178,38 +1178,40 @@
   document.getElementById('stsClose').addEventListener('click', stsClose);
   stsM.addEventListener('click', e => { if(e.target === stsM) stsClose(); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape' && stsM.classList.contains('open')) stsClose(); });
-  // Share pic: drawn on a canvas (own fixed dark look, no external library)
+  // Share pic: drawn on a canvas (no external library); the colours are read from the current theme
   function stsImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
   function stsCanvas(){
     const d = stsData(), lines = d.rows.concat(d.sum ? [Object.assign({}, d.sum, {tag: '', name: 'All alliances', total: true})] : []);
     return Promise.all(FCN.map(n => stsImg(FC_IMG[n]))).then(imgs => {
       const W = 1100, pad = 28, top = 120, rh = 36, foot = 44, H = top + lines.length * rh + foot, sc = 2;
+      const cs = getComputedStyle(document.documentElement), V = (n, d) => cs.getPropertyValue(n).trim() || d;
+    const K = {bg: V('--panel', '#0f1626'), ice: V('--ice', '#6fe3ff'), strong: V('--strong', '#fff'), text: V('--text', '#e3e9f8'), dim: V('--text-dim', '#8a9bbd'), faint: V('--text-faint', '#5b6c8c'), line: V('--border-soft', '#182236'), border: V('--border', '#1f2c47'), zebra: 'rgba(127,140,170,.08)'};
       const cv = document.createElement('canvas'); cv.width = W * sc; cv.height = H * sc;
       const c = cv.getContext('2d'); c.scale(sc, sc);
       const F = '"Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
       const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
       const fit = (t, w) => { if(c.measureText(t).width <= w) return t; while(t.length > 1 && c.measureText(t + '…').width > w) t = t.slice(0, -1); return t + '…'; };
-      c.fillStyle = '#0d1424'; c.fillRect(0, 0, W, H);
-      c.fillStyle = '#6fe3ff'; c.font = '700 12px ' + F; c.textBaseline = 'alphabetic'; c.fillText('ALLIANCE ROSTER — STATE 646', pad, 30);
-      c.fillStyle = '#eaf0ff'; c.font = '800 24px ' + F; c.fillText('Furnace levels by alliance', pad, 62);
-      c.fillStyle = '#8b97b3'; c.font = '500 12px ' + F; c.textAlign = 'right'; c.fillText(D && D.updated ? 'data: ' + D.updated : '', W - pad, 30); c.textAlign = 'left';
+      c.fillStyle = K.bg; c.fillRect(0, 0, W, H);
+      c.fillStyle = K.ice; c.font = '700 12px ' + F; c.textBaseline = 'alphabetic'; c.fillText('ALLIANCE ROSTER — STATE 646', pad, 30);
+      c.fillStyle = K.strong; c.font = '800 24px ' + F; c.fillText('Furnace levels by alliance', pad, 62);
+      c.fillStyle = K.dim; c.font = '500 12px ' + F; c.textAlign = 'right'; c.fillText(D && D.updated ? 'data: ' + D.updated : '', W - pad, 30); c.textAlign = 'left';
       const xAl = pad, colW = 60, xFirst = 340, xOther = xFirst + FCN.length * colW, xTotR = xOther + colW + 66;
       // header: FC icons
-      FCN.forEach((n, i) => { const im = imgs[i], h = 30, w = im.width / im.height * h, cx = xFirst + i * colW + colW - 8; c.drawImage(im, cx - w, top - 52, w, h); c.fillStyle = '#8b97b3'; c.font = '600 11px ' + F; c.textAlign = 'right'; c.fillText('FC' + n, cx, top - 10); });
-      c.fillStyle = '#8b97b3'; c.font = '600 11px ' + F; c.textAlign = 'right'; c.fillText('OTHER', xOther + colW - 8, top - 10); c.fillText('TOTAL', xTotR, top - 10); c.textAlign = 'left'; c.fillText('ALLIANCE', xAl, top - 10);
-      c.fillStyle = '#1d2740'; c.fillRect(pad, top - 2, W - 2 * pad, 1);
+      FCN.forEach((n, i) => { const im = imgs[i], h = 30, w = im.width / im.height * h, cx = xFirst + i * colW + colW - 8; c.drawImage(im, cx - w, top - 52, w, h); c.fillStyle = K.dim; c.font = '600 11px ' + F; c.textAlign = 'right'; c.fillText('FC' + n, cx, top - 10); });
+      c.fillStyle = K.dim; c.font = '600 11px ' + F; c.textAlign = 'right'; c.fillText('OTHER', xOther + colW - 8, top - 10); c.fillText('TOTAL', xTotR, top - 10); c.textAlign = 'left'; c.fillText('ALLIANCE', xAl, top - 10);
+      c.fillStyle = K.border; c.fillRect(pad, top - 2, W - 2 * pad, 1);
       lines.forEach((e, i) => {
         const y = top + 4 + i * rh, cy = y + rh / 2;
-        if(e.total){ c.fillStyle = '#1d2740'; c.fillRect(pad, y - 2, W - 2 * pad, 1.5); }
-        else if(i % 2 === 0){ c.fillStyle = 'rgba(255,255,255,.025)'; c.fillRect(pad - 8, y, W - 2 * pad + 16, rh); }
+        if(e.total){ c.fillStyle = K.border; c.fillRect(pad, y - 2, W - 2 * pad, 1.5); }
+        else if(i % 2 === 0){ c.fillStyle = K.zebra; c.fillRect(pad - 8, y, W - 2 * pad + 16, rh); }
         c.textBaseline = 'middle'; let x = xAl;
         if(e.tag){ const col = TAG_COLORS[e.tag] || TAG_HOME_PLAIN; c.font = '700 12px ' + F; const tw = c.measureText(e.tag).width + 18; rr(x, cy - 11, tw, 22, 11); c.fillStyle = col.bg; c.fill(); c.fillStyle = col.fg; c.fillText(e.tag, x + 9, cy + 0.5); x += tw + 10; }
-        c.fillStyle = e.total ? '#eaf0ff' : '#cfd8ee'; c.font = (e.total ? '700 ' : '600 ') + '14px ' + F; c.fillText(fit(e.name || e.tag, xFirst - x - 14), x, cy);
+        c.fillStyle = e.total ? K.strong : K.text; c.font = (e.total ? '700 ' : '600 ') + '14px ' + F; c.fillText(fit(e.name || e.tag, xFirst - x - 14), x, cy);
         c.textAlign = 'right';
-        FCN.concat([0]).forEach((n, k) => { const v = e.c[n], cx = xFirst + k * colW + colW - 8; c.fillStyle = v ? (e.total ? '#eaf0ff' : '#e3e9f8') : '#4c5772'; c.font = (e.total ? '700 ' : '500 ') + '14px ' + F; c.fillText(v ? String(v) : '–', cx, cy); });
-        c.fillStyle = '#eaf0ff'; c.font = '700 14px ' + F; c.fillText(String(e.n), xTotR, cy); c.textAlign = 'left';
+        FCN.concat([0]).forEach((n, k) => { const v = e.c[n], cx = xFirst + k * colW + colW - 8; c.fillStyle = v ? (e.total ? K.strong : K.text) : K.border; c.font = (e.total ? '700 ' : '500 ') + '14px ' + F; c.fillText(v ? String(v) : '–', cx, cy); });
+        c.fillStyle = K.strong; c.font = '700 14px ' + F; c.fillText(String(e.n), xTotR, cy); c.textAlign = 'left';
       });
-      c.fillStyle = '#6b7690'; c.font = '500 11px ' + F; c.textBaseline = 'alphabetic';
+      c.fillStyle = K.faint; c.font = '500 11px ' + F; c.textBaseline = 'alphabetic';
       c.fillText('FC1 = furnace level 35–39 … FC10 = level 80+ · Other = below level 35 or unknown · current members · state646.com', pad, H - 16);
       return cv;
     });
