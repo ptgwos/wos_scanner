@@ -771,12 +771,21 @@
   .ro-head .wins,.ro-ov td:first-child .wins{margin-left:8px;}
   .ro-head b{margin-left:8px;}
   .ro-head{flex-wrap:nowrap;align-items:center;gap:12px;}
+  .sts-panel{max-width:1060px;}
+  .sts-body{padding:6px 22px 4px;overflow:auto;}
+  .sts-t{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:13.5px;}
+  .sts-t th,.sts-t td{padding:7px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border-soft, rgba(120,140,190,.14));}
+  .sts-t th{font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;vertical-align:bottom;}
+  .sts-t th.al, .sts-t td.al{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1;}
+  .sts-t th .fc{height:26px;display:block;margin:0 0 3px auto;}
+  .sts-t td.al .nm-col{color:var(--text-dim);margin-left:8px;}
+  .sts-t td.z{color:var(--text-faint);}
+  .sts-t td.tot, .sts-t th.tot{font-weight:700;color:var(--strong, var(--text));border-left:1px solid var(--border-soft, rgba(120,140,190,.18));}
+  .sts-t tr.sum td{font-weight:700;border-top:2px solid var(--border);border-bottom:0;}
+  .sts-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 22px 18px;}
+  .sts-foot .hi-note{flex:1 1 260px;margin:0;padding:0;}
+  @media (max-width:640px){ .sts-body{padding:6px 12px 4px;} .sts-foot{padding:12px 12px 16px;} .sts-t td.al .nm-col{display:none;} .sts-t th,.sts-t td{padding:7px 6px;font-size:13px;} .sts-foot .btn{width:100%;} }
   .ro-hl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;flex:1 1 auto;min-width:0;}
-  .ro-fcs{flex:0 0 100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin-top:2px;font-size:13px;color:var(--text-dim);}
-  .ro-fcs .fcs-i{display:inline-flex;align-items:center;gap:6px;}
-  .ro-fcs .fc{height:24px;}
-  .ro-fcs b{margin:0;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums;}
-  .ro-fcs .fcs-t{font-size:12px;}
   .ro-r5{display:flex;align-items:center;gap:10px;flex:none;margin-left:auto;max-width:45%;}
   .ro-head .r5n{margin-left:0;font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .av.r5av{width:52px;height:52px;margin:0;border:1px solid var(--border);}
@@ -928,6 +937,7 @@
       <div class="field"><label for="rs">Sort members by</label>
         <select id="rs"><option value="power">Power</option><option value="rank">Alliance rank</option><option value="fc">Furnace</option><option value="name">Name</option></select></div>
       <button type="button" class="btn" id="expAll">Expand all</button>
+      <button type="button" class="btn" id="stsBtn" title="Furnace levels per alliance (table and share picture)">Statistics</button>
       <button type="button" class="btn" id="hisBtn" title="Who moved from which alliance to which, who changed the name, and when">History</button>
       <button type="button" class="btn" id="expBtn" title="Download member lists as CSV or Excel">Export …</button>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
@@ -937,7 +947,7 @@
     <div class="sx-share-note" id="note"></div>
   </div>
 
-  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-17 · r28</footer>
+  <footer id="foot">State 646 · Alliance Roster — data: Whiteout Stats API · build 2026-11-23 · r29</footer>
 </div>
 <script>
 (function(){
@@ -1041,12 +1051,6 @@
     return r.n.toLowerCase().includes(q) || r.id.includes(q);
   }
   function nameChip(tag){ return tagChip(tag, '646'); }
-  function fcSumHtml(all){
-    const c = {10: 0, 9: 0, 8: 0, lo: 0};
-    all.forEach(r => { const lv = Number(r.f) || 0; if(lv < 1) return; if(lv >= 70) c[Math.min(10, Math.floor(lv / 5) - 6)]++; else c.lo++; });
-    const it = n => `<span class="fcs-i" title="${c[n]} player${c[n] === 1 ? '' : 's'} with furnace FC${n}${n === 10 ? ' (level 80+)' : ''}"><img class="fc" src="${FC_IMG[n]}" alt="FC${n}"><b>${c[n]}</b></span>`;
-    return `<div class="ro-fcs" aria-label="Furnace level overview">${it(10)}${it(9)}${it(8)}<span class="fcs-i fcs-lo" title="${c.lo} player${c.lo === 1 ? '' : 's'} below FC8 (furnace level under 70)"><span class="fcs-t">below FC8</span><b>${c.lo}</b></span></div>`;
-  }
   function r5Html(all, A){
     const l = all.find(r => r.r === 'Leader');
     const name = l ? l.n : (A.leader || '');
@@ -1080,7 +1084,7 @@
       const isB = BATTLE.includes(t);
       const isOpen = open.has(t) || !!st.q;
       const body = !isOpen ? '' : rows.map((r, i) => `<tr data-pid="${escapeHtml(r.id)}"><td class="ro-i">${i + 1}</td><td class="name"><span class="nm">${av(r.id, r)}<span class="nt">${escapeHtml(r.n)}</span></span></td><td><span class="ro-rk ro-${escapeHtml(rk(r.r))}">${escapeHtml(rk(r.r))}</span></td><td class="num">${fmt(r.p)}</td><td class="num fc-col">${fcHtml(r.f)}</td></tr>`).join('');
-      return `<div class="sx-card ro-card${isOpen ? ' is-open' : ''}" id="al-${escapeHtml(t)}"><div class="sx-card-head ro-head" role="button" tabindex="0" aria-expanded="${isOpen}" data-t="${escapeHtml(t)}" title="Show or hide the members"><div class="ro-hl"><span class="ro-chev" aria-hidden="true">▸</span>${nameChip(t)}<b>${escapeHtml(A.name || t)}</b>${isB ? '<span class="aflag">Battle alliance</span>' : ''}${winsHtml(t)}<span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span>${isOpen ? fcSumHtml(all) : ''}</div>${r5Html(all, A)}</div>
+      return `<div class="sx-card ro-card${isOpen ? ' is-open' : ''}" id="al-${escapeHtml(t)}"><div class="sx-card-head ro-head" role="button" tabindex="0" aria-expanded="${isOpen}" data-t="${escapeHtml(t)}" title="Show or hide the members"><div class="ro-hl"><span class="ro-chev" aria-hidden="true">▸</span>${nameChip(t)}<b>${escapeHtml(A.name || t)}</b>${isB ? '<span class="aflag">Battle alliance</span>' : ''}${winsHtml(t)}<span class="sx-id">${fmt(all.length)} members · power ${fmt(A.power)}${A.power_rank ? ' · rank #' + A.power_rank + ' in the state' : ''}${st.q ? ' · ' + rows.length + ' match' + (rows.length === 1 ? '' : 'es') : ''}</span></div>${r5Html(all, A)}</div>
         ${isOpen ? `<div class="sx-scroll"><table class="ro-t"><thead><tr><th class="ro-i">#</th>${th('Member', 'name')}${th('Rank', 'rank')}${th('Power', 'power', 'num')}${th('Furnace level', 'fc', 'num fc-col', '<span class="d-only">Furnace</span><span class="m-only">FC</span>')}</tr></thead><tbody>${body}</tbody></table></div>` : ''}</div>`;
     }).join('');
     document.getElementById('cards').innerHTML = cards || '<div class="sx-card"><div class="sx-card-head"><b>No player found</b></div></div>';
@@ -1140,6 +1144,82 @@
     if(e.target.id === 'exAll') expM.querySelectorAll('.exa').forEach(i => i.checked = e.target.checked);
     else if(e.target.classList.contains('exa')){ const all = [...expM.querySelectorAll('.exa')]; document.getElementById('exAll').checked = all.every(i => i.checked); }
     exInfo();
+  });
+  // ---- Statistics: furnace levels per alliance (table + share pic) ----
+  const FCN = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+  function fcBucket(lv){ lv = Number(lv) || 0; return lv >= 35 ? Math.min(10, Math.floor(lv / 5) - 6) : 0; }   // 0 = other (below FC1 or unknown)
+  function stsData(){
+    if(!D) return {rows: [], sum: null};
+    const tags = TAGS.filter(t => D.alliances[t]).sort((a, b) => (D.alliances[b].power || 0) - (D.alliances[a].power || 0));
+    const mk = () => ({c: {10: 0, 9: 0, 8: 0, 7: 0, 6: 0, 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0}, n: 0});
+    const sum = mk();
+    const rows = tags.map(t => {
+      const e = mk(); e.tag = t; e.name = D.alliances[t].name || '';
+      members(t).forEach(p => { const b = fcBucket(p.f); e.c[b]++; e.n++; sum.c[b]++; sum.n++; });
+      return e;
+    });
+    return {rows, sum};
+  }
+  const stsM = document.createElement('div'); stsM.className = 'modal-overlay'; stsM.id = 'stsModal';
+  stsM.setAttribute('role', 'dialog'); stsM.setAttribute('aria-modal', 'true'); stsM.setAttribute('aria-labelledby', 'stsTitle');
+  stsM.innerHTML = '<div class="modal-panel sts-panel"><div class="modal-header"><h2 id="stsTitle">Furnace levels by alliance</h2><button type="button" class="modal-close" id="stsClose" aria-label="Close">×</button></div><p class="modal-sub" id="stsSub"></p><div class="sts-body" id="stsBody"></div><div class="sts-foot"><p class="hi-note" id="stsNote">Current members as of the last data update. FC1 = furnace level 35–39 … FC10 = level 80 and above; “other” = below level 35 or no level known.</p><button type="button" class="btn" id="stsPic" title="Copy a picture of this table to the clipboard (or save it as a file)">📷 Share pic</button></div></div>';
+  document.body.appendChild(stsM);
+  function stsRender(){
+    const d = stsData(), cell = v => v ? fmt(v) : '–';
+    document.getElementById('stsSub').textContent = d.rows.length + ' alliances · ' + fmt(d.sum ? d.sum.n : 0) + ' members' + (D && D.updated ? ' · last change ' + D.updated : '');
+    const head = '<tr><th class="al">Alliance</th>' + FCN.map(n => '<th title="Furnace level ' + (n === 10 ? '80 and above' : (n * 5 + 30) + '–' + (n * 5 + 34)) + '"><img class="fc" src="' + FC_IMG[n] + '" alt="FC' + n + '">FC' + n + '</th>').join('') + '<th title="Below level 35 or no level known">Other</th><th class="tot">Total</th></tr>';
+    const line = (e, label) => '<td class="al">' + label + '</td>' + FCN.map(n => '<td' + (e.c[n] ? '' : ' class="z"') + '>' + cell(e.c[n]) + '</td>').join('') + '<td' + (e.c[0] ? '' : ' class="z"') + '>' + cell(e.c[0]) + '</td><td class="tot">' + fmt(e.n) + '</td>';
+    const body = d.rows.map(e => '<tr>' + line(e, nameChip(e.tag) + '<span class="nm-col">' + escapeHtml(e.name) + '</span>') + '</tr>').join('') + (d.sum ? '<tr class="sum">' + line(d.sum, 'All alliances') + '</tr>' : '');
+    document.getElementById('stsBody').innerHTML = '<table class="sts-t"><thead>' + head + '</thead><tbody>' + body + '</tbody></table>';
+  }
+  const stsOpen = () => { if(!D) return; stsRender(); stsM.classList.add('open'); };
+  const stsClose = () => stsM.classList.remove('open');
+  document.getElementById('stsBtn').addEventListener('click', stsOpen);
+  document.getElementById('stsClose').addEventListener('click', stsClose);
+  stsM.addEventListener('click', e => { if(e.target === stsM) stsClose(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && stsM.classList.contains('open')) stsClose(); });
+  // Share pic: drawn on a canvas (own fixed dark look, no external library)
+  function stsImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+  function stsCanvas(){
+    const d = stsData(), lines = d.rows.concat(d.sum ? [Object.assign({}, d.sum, {tag: '', name: 'All alliances', total: true})] : []);
+    return Promise.all(FCN.map(n => stsImg(FC_IMG[n]))).then(imgs => {
+      const W = 1100, pad = 28, top = 120, rh = 36, foot = 44, H = top + lines.length * rh + foot, sc = 2;
+      const cv = document.createElement('canvas'); cv.width = W * sc; cv.height = H * sc;
+      const c = cv.getContext('2d'); c.scale(sc, sc);
+      const F = '"Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+      const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+      const fit = (t, w) => { if(c.measureText(t).width <= w) return t; while(t.length > 1 && c.measureText(t + '…').width > w) t = t.slice(0, -1); return t + '…'; };
+      c.fillStyle = '#0d1424'; c.fillRect(0, 0, W, H);
+      c.fillStyle = '#6fe3ff'; c.font = '700 12px ' + F; c.textBaseline = 'alphabetic'; c.fillText('ALLIANCE ROSTER — STATE 646', pad, 30);
+      c.fillStyle = '#eaf0ff'; c.font = '800 24px ' + F; c.fillText('Furnace levels by alliance', pad, 62);
+      c.fillStyle = '#8b97b3'; c.font = '500 12px ' + F; c.textAlign = 'right'; c.fillText(D && D.updated ? 'data: ' + D.updated : '', W - pad, 30); c.textAlign = 'left';
+      const xAl = pad, colW = 60, xFirst = 340, xOther = xFirst + FCN.length * colW, xTotR = xOther + colW + 66;
+      // header: FC icons
+      FCN.forEach((n, i) => { const im = imgs[i], h = 30, w = im.width / im.height * h, cx = xFirst + i * colW + colW - 8; c.drawImage(im, cx - w, top - 52, w, h); c.fillStyle = '#8b97b3'; c.font = '600 11px ' + F; c.textAlign = 'right'; c.fillText('FC' + n, cx, top - 10); });
+      c.fillStyle = '#8b97b3'; c.font = '600 11px ' + F; c.textAlign = 'right'; c.fillText('OTHER', xOther + colW - 8, top - 10); c.fillText('TOTAL', xTotR, top - 10); c.textAlign = 'left'; c.fillText('ALLIANCE', xAl, top - 10);
+      c.fillStyle = '#1d2740'; c.fillRect(pad, top - 2, W - 2 * pad, 1);
+      lines.forEach((e, i) => {
+        const y = top + 4 + i * rh, cy = y + rh / 2;
+        if(e.total){ c.fillStyle = '#1d2740'; c.fillRect(pad, y - 2, W - 2 * pad, 1.5); }
+        else if(i % 2 === 0){ c.fillStyle = 'rgba(255,255,255,.025)'; c.fillRect(pad - 8, y, W - 2 * pad + 16, rh); }
+        c.textBaseline = 'middle'; let x = xAl;
+        if(e.tag){ const col = TAG_COLORS[e.tag] || TAG_HOME_PLAIN; c.font = '700 12px ' + F; const tw = c.measureText(e.tag).width + 18; rr(x, cy - 11, tw, 22, 11); c.fillStyle = col.bg; c.fill(); c.fillStyle = col.fg; c.fillText(e.tag, x + 9, cy + 0.5); x += tw + 10; }
+        c.fillStyle = e.total ? '#eaf0ff' : '#cfd8ee'; c.font = (e.total ? '700 ' : '600 ') + '14px ' + F; c.fillText(fit(e.name || e.tag, xFirst - x - 14), x, cy);
+        c.textAlign = 'right';
+        FCN.concat([0]).forEach((n, k) => { const v = e.c[n], cx = xFirst + k * colW + colW - 8; c.fillStyle = v ? (e.total ? '#eaf0ff' : '#e3e9f8') : '#4c5772'; c.font = (e.total ? '700 ' : '500 ') + '14px ' + F; c.fillText(v ? String(v) : '–', cx, cy); });
+        c.fillStyle = '#eaf0ff'; c.font = '700 14px ' + F; c.fillText(String(e.n), xTotR, cy); c.textAlign = 'left';
+      });
+      c.fillStyle = '#6b7690'; c.font = '500 11px ' + F; c.textBaseline = 'alphabetic';
+      c.fillText('FC1 = furnace level 35–39 … FC10 = level 80+ · Other = below level 35 or unknown · current members · state646.com', pad, H - 16);
+      return cv;
+    });
+  }
+  document.getElementById('stsPic').addEventListener('click', () => {
+    const btn = document.getElementById('stsPic'), label = btn.textContent, say = t => { btn.textContent = t; setTimeout(() => { btn.textContent = label; }, 2200); };
+    const save = blob => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'furnace_levels_by_alliance.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); say('💾 Saved'); };
+    const blobP = stsCanvas().then(cv => new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error('toBlob')), 'image/png')));
+    if(navigator.clipboard && window.ClipboardItem) navigator.clipboard.write([new ClipboardItem({'image/png': blobP})]).then(() => say('✓ Copied'), () => blobP.then(save, () => say('Failed')));
+    else blobP.then(save, () => say('Failed'));
   });
   // ---- alliance-change history (data/history.json, written by tools/update_players.py) ----
   const hiM = document.createElement('div'); hiM.className = 'modal-overlay'; hiM.id = 'hiModal';
