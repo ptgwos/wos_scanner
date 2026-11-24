@@ -1093,6 +1093,10 @@
   .bk-t td.sl small{color:var(--text-faint);font-size:11px;margin-left:5px;}
   .bk-t td.ed{cursor:pointer;} .bk-t td.ed:hover,.bk-t td.ed:focus{background:rgba(111,227,255,.10);outline:none;}
   .bk .z{color:var(--text-faint);}
+  .bk-t td.has{display:table-cell;} .bk-t td.has .nm{display:inline-block;max-width:calc(100% - 28px);vertical-align:middle;}
+  .bk-t td.has .ck{float:right;margin:3px 0 0 8px;width:16px;height:16px;accent-color:#5fbf7a;cursor:pointer;}
+  .bk-t td.has .ck:disabled{cursor:default;}
+  .bk-t .nm.dn{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--text-faint);}
   #wkShare{display:flex;gap:8px;margin-top:14px;}
   #pkModal .modal-panel{max-width:460px;}
   .pk-body{padding:0 22px 6px;display:flex;flex-direction:column;gap:12px;}
@@ -1127,10 +1131,10 @@
     <div id="fsStat"></div>
   </div>
   <div id="wkBar"></div>
-  <div id="wkShare"><button type="button" class="btn sm" id="wkPic">Share pic (whole week)</button><button type="button" class="btn sm" id="wkTxt">Share text (whole week)</button></div>
+  <div id="wkShare"><button type="button" class="btn sm" id="wkPic">Share pic (whole week)</button><button type="button" class="btn sm" id="wkTxt">Share Text - total (whole week)</button><button type="button" class="btn sm" id="wkMiss">Share Text - missing (whole week)</button></div>
   <div id="blocks"></div>
   <p class="fs-note" id="fsNote">Everybody can look at the lists. Only people with the Fortress/SH Plan permission can change them. The alliance shown per fortress comes from the Fortress/SH plan.</p>
-  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf1</footer>
+  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf2</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel"><div class="modal-header"><h2 id="pkTitle">Pick player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p>
@@ -1190,13 +1194,13 @@
   function getData(s){
     if(MOCK){
       var m = jget(MK)[s] || {}, f = jget(MKF)[s] || {};
-      var slots = Object.keys(m).map(function(k){ var p = k.split('|'), v = m[k]; return {phase: +p[0], facility: p[1], col: p[2], slot: +p[3], player_id: v.id, player_name: v.name, player_alliance: v.al}; });
+      var slots = Object.keys(m).map(function(k){ var p = k.split('|'), v = m[k]; return {phase: +p[0], facility: p[1], col: p[2], slot: +p[3], player_id: v.id, player_name: v.name, player_alliance: v.al, done: !!v.done}; });
       var hold = Object.keys(f).map(function(k){ var p = k.split('|'); return {facility: p[0], phase: +p[1], alliance: f[k]}; });
       return Promise.resolve({slots: slots, hold: hold});
     }
     if(!CFG) return Promise.reject(new Error('No configuration (eventplan-config.js).'));
     return Promise.all([
-      rest('buff_slots?select=phase,facility,col,slot,player_id,player_name,player_alliance&season=eq.' + s),
+      rest('buff_slots?select=phase,facility,col,slot,player_id,player_name,player_alliance,done&season=eq.' + s),
       rest('assignments?select=facility,phase,alliance&season=eq.' + s)
     ]).then(function(r){ return {slots: r[0], hold: r[1]}; });
   }
@@ -1205,9 +1209,10 @@
       var u = MU[args.p_code];
       if(fn === 'sa_me') return Promise.resolve(u || null);
       if(!u || !u.fsh) return Promise.reject(new Error('Not allowed (no Fortress/SH Plan permission).'));
+      if(fn === 'bf_done'){ var dd = jget(MK), kk = args.p_phase + '|' + args.p_facility + '|' + args.p_col + '|' + args.p_slot; if(dd[args.p_season] && dd[args.p_season][kk]){ dd[args.p_season][kk].done = !!args.p_done; try { localStorage.setItem(MK, JSON.stringify(dd)); } catch(e) {} } return Promise.resolve(null); }
       var d = jget(MK); d[args.p_season] = d[args.p_season] || {};
       var key = args.p_phase + '|' + args.p_facility + '|' + args.p_col + '|' + args.p_slot;
-      if(args.p_player_id || args.p_player_name) d[args.p_season][key] = {id: args.p_player_id, name: args.p_player_name, al: args.p_player_alliance}; else delete d[args.p_season][key];
+      if(args.p_player_id || args.p_player_name) d[args.p_season][key] = {id: args.p_player_id, name: args.p_player_name, al: args.p_player_alliance, done: false}; else delete d[args.p_season][key];
       try { localStorage.setItem(MK, JSON.stringify(d)); } catch(e) {}
       return Promise.resolve(null);
     }
@@ -1234,7 +1239,7 @@
   function holder(ph, fac){ return D.hold[ph + '|' + fac] || ''; }
   function ingest(d){
     D.slots = {}; D.hold = {};
-    d.slots.forEach(function(r){ if(r.player_id || r.player_name) D.slots[r.phase + '|' + r.facility + '|' + r.col + '|' + r.slot] = {id: r.player_id || '', name: r.player_name || '', al: r.player_alliance || ''}; });
+    d.slots.forEach(function(r){ if(r.player_id || r.player_name) D.slots[r.phase + '|' + r.facility + '|' + r.col + '|' + r.slot] = {id: r.player_id || '', name: r.player_name || '', al: r.player_alliance || '', done: !!r.done}; });
     d.hold.forEach(function(r){ if(r.alliance) D.hold[r.phase + '|' + r.facility] = r.alliance; });
   }
   function load(quiet){
@@ -1262,13 +1267,13 @@
       var hd = holder(phase, b.fac);
       h += '<section class="bk" data-i="' + bi + '"><div class="bk-h"><div class="bk-t1"><b>Week ' + phase + '</b><span class="dot">·</span>Fortress ' + b.n + '<span class="dot">·</span><span class="bk-r" style="background:' + BUFF[b.reward] + '">' + b.reward + '</span></div>' +
         '<div class="bk-al">Alliance: <b>' + (hd ? esc(hd) : '<span class="z">not assigned yet</span>') + '</b></div>' +
-        '<div class="bk-acts"><button type="button" class="btn sm" data-a="pic" data-i="' + bi + '">Share pic</button><button type="button" class="btn sm" data-a="txt" data-i="' + bi + '">Share text</button></div></div>' +
+        '<div class="bk-acts"><button type="button" class="btn sm" data-a="pic" data-i="' + bi + '">Share pic</button><button type="button" class="btn sm" data-a="txt" data-i="' + bi + '">Share Text - total</button><button type="button" class="btn sm" data-a="miss" data-i="' + bi + '">Share Text - missing</button></div></div>' +
         '<div class="bk-scroll"><table class="bk-t"><thead><tr><th class="n">#</th>' + COLS.map(function(c){ return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
       for(var s = 1; s <= SLOTS; s++){
         h += '<tr><td class="n">' + s + '</td>';
         COLS.forEach(function(c){
-          var v = cellOf(phase, b.fac, c, s), t = v ? esc(v.name || v.id) + (v.al && v.al !== c ? ' <small>' + esc(v.al) + '</small>' : '') : '<span class="z">–</span>';
-          h += '<td class="sl' + (V.canEdit ? ' ed' : '') + (v ? '' : ' em') + '" data-f="' + b.fac + '" data-c="' + c + '" data-s="' + s + '"' + (V.canEdit ? ' tabindex="0"' : '') + '>' + t + '</td>';
+          var v = cellOf(phase, b.fac, c, s), t = v ? '<span class="nm' + (v.done ? ' dn' : '') + '">' + esc(v.name || v.id) + (v.al && v.al !== c ? ' <small>' + esc(v.al) + '</small>' : '') + '</span><input type="checkbox" class="ck" aria-label="Got the buff"' + (v.done ? ' checked' : '') + (V.canEdit ? '' : ' disabled') + '>' : '<span class="z">–</span>';
+          h += '<td class="sl' + (V.canEdit ? ' ed' : '') + (v ? ' has' : ' em') + '" data-f="' + b.fac + '" data-c="' + c + '" data-s="' + s + '"' + (V.canEdit ? ' tabindex="0"' : '') + '>' + t + '</td>';
         });
         h += '</tr>';
       }
@@ -1318,9 +1323,14 @@
     V.busy++;
     return rpc('bf_save', {p_code: V.code, p_season: s, p_phase: ph, p_facility: fac, p_col: col, p_slot: slot,
       p_player_id: pl ? pl.id : null, p_player_name: pl ? pl.name : null, p_player_alliance: pl ? pl.al : null}).then(function(){
-      if(pl) D.slots[key] = {id: pl.id, name: pl.name, al: pl.al}; else delete D.slots[key];
+      if(pl) D.slots[key] = {id: pl.id, name: pl.name, al: pl.al, done: false}; else delete D.slots[key];
       render(); stat('Saved.', 'ok');
     }).catch(function(e){ toast(e.message); }).then(function(){ V.busy--; });
+  }
+  function toggleDone(fac, col, slot, val){
+    var key = phase + '|' + fac + '|' + col + '|' + slot, v = D.slots[key]; if(!v || !V.canEdit) return;
+    var old = !!v.done; v.done = val; render(); V.busy++;
+    rpc('bf_done', {p_code: V.code, p_season: season(), p_phase: phase, p_facility: fac, p_col: col, p_slot: slot, p_done: val}).catch(function(e){ v.done = old; render(); toast(e.message); }).then(function(){ V.busy--; });
   }
   function pkSave(){
     var id = $('pkPl').value; if(!id || !pk) return;
@@ -1342,26 +1352,34 @@
   // ---- clicks ----
   $('wkBar').addEventListener('click', function(e){ var b = e.target.closest ? e.target.closest('.wk') : null; if(!b) return; phase = +b.getAttribute('data-w'); render(); });
   $('blocks').addEventListener('click', function(e){
+    if(e.target.classList && e.target.classList.contains('ck')){ var td = e.target.parentNode; toggleDone(td.getAttribute('data-f'), td.getAttribute('data-c'), +td.getAttribute('data-s'), e.target.checked); return; }
     var a = e.target.closest ? e.target.closest('[data-a]') : null;
     if(a){ var list = blocks(phase), b = list[+a.getAttribute('data-i')]; share(a.getAttribute('data-a'), [b]); return; }
     var c = e.target.closest ? e.target.closest('td.sl') : null;
     if(c) openPick(c.getAttribute('data-f'), c.getAttribute('data-c'), +c.getAttribute('data-s'));
   });
-  $('blocks').addEventListener('keydown', function(e){ if((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('sl')){ e.preventDefault(); openPick(e.target.getAttribute('data-f'), e.target.getAttribute('data-c'), +e.target.getAttribute('data-s')); } });
+  $('blocks').addEventListener('keydown', function(e){ if((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('sl') && e.target.tagName === 'TD'){ e.preventDefault(); openPick(e.target.getAttribute('data-f'), e.target.getAttribute('data-c'), +e.target.getAttribute('data-s')); } });
   $('wkPic').addEventListener('click', function(){ share('pic', blocks(phase)); });
   $('wkTxt').addEventListener('click', function(){ share('txt', blocks(phase)); });
+  $('wkMiss').addEventListener('click', function(){ share('miss', blocks(phase)); });
   $('season').addEventListener('change', function(){ load(false); });
 
   // ---- share text ----
-  function textFor(list){
+  function textFor(list, onlyMissing){
     var out = [];
     list.forEach(function(b){
       var hd = holder(phase, b.fac);
-      out.push('**Buff recipients · Season ' + season() + ' · Week ' + phase + '**');
+      out.push('**Buff recipients' + (onlyMissing ? ' – still missing' : '') + ' · Season ' + season() + ' · Week ' + phase + '**');
       out.push('**Fortress ' + b.n + ' – ' + b.reward + '**' + (hd ? ' (' + hd + ')' : ''));
       COLS.forEach(function(c){
         out.push('', '__' + c + '__');
-        for(var s = 1; s <= SLOTS; s++){ var v = cellOf(phase, b.fac, c, s); out.push(s + '. ' + (v ? (v.name || v.id) : '–')); }
+        var any = false;
+        for(var s = 1; s <= SLOTS; s++){
+          var v = cellOf(phase, b.fac, c, s);
+          if(onlyMissing){ if(v && !v.done){ out.push(s + '. ' + (v.name || v.id)); any = true; } }
+          else out.push(s + '. ' + (v ? (v.name || v.id) : '–'));
+        }
+        if(onlyMissing && !any) out.push('–');
       });
       out.push('', '');
     });
@@ -1404,7 +1422,8 @@
           if(!v){ T('–', x + 12, y + RH / 2, '13px ' + FN, C.fa); return; }
           var tag = v.al && v.al !== col ? v.al : '', tw = 0; c.font = '11px ' + FN; if(tag) tw = c.measureText(tag).width + 8;
           c.font = '13px ' + FN; var nm = fit(c, v.name || v.id, CW - 24 - tw);
-          T(nm, x + 12, y + RH / 2, '13px ' + FN, C.tx);
+          T(nm, x + 12, y + RH / 2, '13px ' + FN, v.done ? C.fa : C.tx);
+          if(v.done){ c.font = '13px ' + FN; c.fillStyle = C.fa; c.fillRect(x + 12, y + RH / 2, c.measureText(nm).width, 1.2); }
           if(tag) T(tag, x + 12 + c.measureText(nm).width + 8, y + RH / 2, '11px ' + FN, C.fa);
         });
         y += RH;
@@ -1425,8 +1444,8 @@
   }
   function share(kind, list){
     if(!list || !list.length || !list[0]) return;
-    if(kind === 'txt'){
-      var t = textFor(list);
+    if(kind === 'txt' || kind === 'miss'){
+      var t = textFor(list, kind === 'miss');
       copyText(t).then(function(){ toast('Text copied' + (t.length > 2000 ? ' (' + t.length + ' characters – Discord allows 2000 per message, so send it in parts, or use the single-block buttons).' : ' – paste it into Discord.'), true); }).catch(function(){ toast('Could not copy the text.'); });
       return;
     }
