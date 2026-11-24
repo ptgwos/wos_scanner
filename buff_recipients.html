@@ -1091,6 +1091,8 @@
   .bk-t thead th.n{font-weight:600;}
   .th-in{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .cpb{font:inherit;font-size:10.5px;font-weight:600;letter-spacing:.03em;padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:var(--panel);color:var(--text-dim);cursor:pointer;white-space:nowrap;}
+  .th-b{display:flex;gap:5px;align-items:center;}
+  .cpb.tr{padding:3px 6px;display:inline-flex;align-items:center;} .cpb.tr:hover{color:#e0524e;border-color:#e0524e;} .cpb:disabled{opacity:.35;cursor:default;} .cpb:disabled:hover{color:var(--text-dim);border-color:var(--border);}
   .cpb:hover{color:var(--ice);border-color:var(--ice);}
   .bk-t td.sl{min-width:130px;height:31px;}
   .bk-t td.sl small{color:var(--text-faint);font-size:11px;margin-left:5px;}
@@ -1143,7 +1145,7 @@
   <div id="wkEdit"><button type="button" class="btn sm" id="wkLast" style="display:none">Copy from last week</button></div>
   <div id="blocks"></div>
   <p class="fs-note" id="fsNote">Everybody can look at the lists. Only people with the Fortress/SH Plan permission can change them. The alliance shown per fortress comes from the Fortress/SH plan.</p>
-  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf5</footer>
+  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf6</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel"><div class="modal-header"><h2 id="pkTitle">Pick player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p>
@@ -1289,7 +1291,7 @@
       h += '<section class="bk" data-i="' + bi + '"><div class="bk-h"><div class="bk-t1"><b>Week ' + phase + '</b><span class="dot">·</span>Fortress ' + b.n + '<span class="dot">·</span><span class="bk-r" style="background:' + BUFF[b.reward] + '">' + b.reward + '</span></div>' +
         '<div class="bk-al">Alliance: <b>' + (hd ? esc(hd) : '<span class="z">not assigned yet</span>') + '</b></div>' +
         '<div class="bk-acts"><button type="button" class="btn sm" data-a="pic" data-i="' + bi + '">Share pic</button><button type="button" class="btn sm" data-a="txt" data-i="' + bi + '">Share Text - total</button><button type="button" class="btn sm" data-a="miss" data-i="' + bi + '">Share Text - missing</button></div></div>' +
-        '<div class="bk-scroll"><table class="bk-t"><thead><tr><th class="n">#</th>' + COLS.map(function(c){ return '<th><span class="th-in">' + esc(c) + (V.canEdit ? '<button type="button" class="cpb" data-cf="' + b.fac + '" data-cc="' + c + '" title="Copy names into / from this column">Copy names</button>' : '') + '</span></th>'; }).join('') + '</tr></thead><tbody>';
+        '<div class="bk-scroll"><table class="bk-t"><thead><tr><th class="n">#</th>' + COLS.map(function(c){ return '<th><span class="th-in">' + esc(c) + (V.canEdit ? '<span class="th-b"><button type="button" class="cpb" data-cf="' + b.fac + '" data-cc="' + c + '" title="Copy names into / from this column">Copy names</button><button type="button" class="cpb tr" data-xf="' + b.fac + '" data-xc="' + c + '" title="Clear this column in this block" aria-label="Clear ' + esc(c) + ' in this block"' + (colHas(phase, b.fac, c) ? '' : ' disabled') + '><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button></span>' : '') + '</span></th>'; }).join('') + '</tr></thead><tbody>';
       for(var s = 1; s <= SLOTS; s++){
         h += '<tr><td class="n">' + s + '</td>';
         COLS.forEach(function(c){
@@ -1390,6 +1392,17 @@
     });
     runCopy(jobs, false);
   }
+  // empty one alliance column of one block (uses bf_save with an empty player, so no extra SQL is needed)
+  function clearCol(fac, col){
+    if(!V.canEdit) return;
+    var n = parseInt(fac.split('-')[1], 10), ph = phase, s = season(), slots = [];
+    for(var i = 1; i <= 15; i++) if(cellOf(ph, fac, col, i)) slots.push(i);
+    if(!slots.length) return;
+    if(!window.confirm('Clear all ' + slots.length + ' name' + (slots.length === 1 ? '' : 's') + ' of ' + col + ' in Fortress ' + n + ' (Week ' + ph + ')?')) return;
+    var chain = Promise.resolve(); V.busy++;
+    slots.forEach(function(sl){ chain = chain.then(function(){ return rpc('bf_save', {p_code: V.code, p_season: s, p_phase: ph, p_facility: fac, p_col: col, p_slot: sl, p_player_id: null, p_player_name: null, p_player_alliance: null}).then(function(){ delete D.slots[ph + '|' + fac + '|' + col + '|' + sl]; }); }); });
+    chain.then(function(){ toast(col + ' cleared.', true); }).catch(function(e){ toast(e.message); }).then(function(){ V.busy--; render(); return load(true); });
+  }
   var cpCol = '';
   function cpBlocks(sel){
     var ph = +$('cpW').value, h = '';
@@ -1441,6 +1454,8 @@
   // ---- clicks ----
   $('wkBar').addEventListener('click', function(e){ var b = e.target.closest ? e.target.closest('.wk') : null; if(!b) return; phase = +b.getAttribute('data-w'); render(); });
   $('blocks').addEventListener('click', function(e){
+    var xb = e.target.closest ? e.target.closest('.tr') : null;
+    if(xb){ if(!xb.disabled) clearCol(xb.getAttribute('data-xf'), xb.getAttribute('data-xc')); return; }
     var cb = e.target.closest ? e.target.closest('.cpb') : null;
     if(cb){ openCopy(cb.getAttribute('data-cf'), cb.getAttribute('data-cc')); return; }
     if(e.target.classList && e.target.classList.contains('ck')){ var td = e.target.parentNode; toggleDone(td.getAttribute('data-f'), td.getAttribute('data-c'), +td.getAttribute('data-s'), e.target.checked); return; }
