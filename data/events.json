@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-23",
- "fetched_at": "2026-11-23T07:52:52Z",
- "count": 21,
+ "api_date": "2026-11-24",
+ "fetched_at": "2026-11-24T10:04:35Z",
+ "count": 25,
  "events": [
   {
    "name": "Journey Treasures",
@@ -14,15 +14,6 @@
    "end_ts": 1796601600
   },
   {
-   "name": "King of Icefield",
-   "category": "Events",
-   "when": "16 Nov 00:00 – 22 Nov 24:00",
-   "begin": "2026-11-16T00:00:00Z",
-   "end": "2026-11-23T00:00:00Z",
-   "begin_ts": 1794787200,
-   "end_ts": 1795392000
-  },
-  {
    "name": "Hall of Heroism",
    "category": "Tundra Arms League",
    "when": "21 Nov 00:00 – 29 Nov 24:00",
@@ -30,15 +21,6 @@
    "end": "2026-11-30T00:00:00Z",
    "begin_ts": 1795219200,
    "end_ts": 1795996800
-  },
-  {
-   "name": "Wild Brawl",
-   "category": "Events",
-   "when": "21 Nov 00:00 – 22 Nov 24:00",
-   "begin": "2026-11-21T00:00:00Z",
-   "end": "2026-11-23T00:00:00Z",
-   "begin_ts": 1795219200,
-   "end_ts": 1795392000
   },
   {
    "name": "Hall of Heroes",
@@ -131,7 +113,43 @@
    "end_ts": 1795824000
   },
   {
+   "name": "Gourmet Quest",
+   "category": "Thanksgiving",
+   "when": "24 Nov 00:00 – 30 Nov 24:00",
+   "begin": "2026-11-24T00:00:00Z",
+   "end": "2026-12-01T00:00:00Z",
+   "begin_ts": 1795478400,
+   "end_ts": 1796083200
+  },
+  {
+   "name": "Gourmet Rally",
+   "category": "Thanksgiving",
+   "when": "24 Nov 00:00 – 30 Nov 24:00",
+   "begin": "2026-11-24T00:00:00Z",
+   "end": "2026-12-01T00:00:00Z",
+   "begin_ts": 1795478400,
+   "end_ts": 1796083200
+  },
+  {
+   "name": "King of the Meadows",
+   "category": "Thanksgiving",
+   "when": "24 Nov 00:00 – 30 Nov 24:00",
+   "begin": "2026-11-24T00:00:00Z",
+   "end": "2026-12-01T00:00:00Z",
+   "begin_ts": 1795478400,
+   "end_ts": 1796083200
+  },
+  {
    "name": "Thanksgiving Menu",
+   "category": "Thanksgiving",
+   "when": "24 Nov 00:00 – 30 Nov 24:00",
+   "begin": "2026-11-24T00:00:00Z",
+   "end": "2026-12-01T00:00:00Z",
+   "begin_ts": 1795478400,
+   "end_ts": 1796083200
+  },
+  {
+   "name": "Top-up Benefits",
    "category": "Thanksgiving",
    "when": "24 Nov 00:00 – 30 Nov 24:00",
    "begin": "2026-11-24T00:00:00Z",
@@ -192,6 +210,24 @@
    "end": "2026-12-04T00:00:00Z",
    "begin_ts": 1795737600,
    "end_ts": 1796342400
+  },
+  {
+   "name": "Mercenary Prestige",
+   "category": "Events",
+   "when": "28 Nov 00:00 – 30 Nov 24:00",
+   "begin": "2026-11-28T00:00:00Z",
+   "end": "2026-12-01T00:00:00Z",
+   "begin_ts": 1795824000,
+   "end_ts": 1796083200
+  },
+  {
+   "name": "State of Power",
+   "category": "Events",
+   "when": "28 Nov 00:00 – 29 Nov 24:00",
+   "begin": "2026-11-28T00:00:00Z",
+   "end": "2026-11-30T00:00:00Z",
+   "begin_ts": 1795824000,
+   "end_ts": 1795996800
   }
  ]
 }

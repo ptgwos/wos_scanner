@@ -1,12 +1,19 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-23",
- "count": 21,
+ "date": "2026-11-24",
+ "count": 25,
  "categories": [
   {
    "name": "Events",
    "events": [
+    {
+     "name": "Armament Competition",
+     "category": "Events",
+     "when": "23 Nov 00:00 – 24 Nov 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1795564800
+    },
     {
      "name": "Alliance Championship",
      "category": "Events",
@@ -20,13 +27,6 @@
      "when": "23 Nov 00:00 – 28 Nov 24:00",
      "begin_ts": 1795392000,
      "end_ts": 1795910400
-    },
-    {
-     "name": "Armament Competition",
-     "category": "Events",
-     "when": "23 Nov 00:00 – 24 Nov 24:00",
-     "begin_ts": 1795392000,
-     "end_ts": 1795564800
     },
     {
      "name": "Canyon Clash",
@@ -71,31 +71,24 @@
      "end_ts": 1795910400
     },
     {
-     "name": "King of Icefield",
+     "name": "Mercenary Prestige",
      "category": "Events",
-     "when": "16 Nov 00:00 – 22 Nov 24:00",
-     "begin_ts": 1794787200,
-     "end_ts": 1795392000
+     "when": "28 Nov 00:00 – 30 Nov 24:00",
+     "begin_ts": 1795824000,
+     "end_ts": 1796083200
     },
     {
-     "name": "Wild Brawl",
+     "name": "State of Power",
      "category": "Events",
-     "when": "21 Nov 00:00 – 22 Nov 24:00",
-     "begin_ts": 1795219200,
-     "end_ts": 1795392000
+     "when": "28 Nov 00:00 – 29 Nov 24:00",
+     "begin_ts": 1795824000,
+     "end_ts": 1795996800
     }
    ]
   },
   {
    "name": "Deals",
    "events": [
-    {
-     "name": "Journey Treasures",
-     "category": "Deals",
-     "when": "9 Nov 00:00 – 6 Dec 24:00",
-     "begin_ts": 1794182400,
-     "end_ts": 1796601600
-    },
     {
      "name": "Hall of Heroes",
      "category": "Deals",
@@ -104,18 +97,25 @@
      "end_ts": 1795564800
     },
     {
-     "name": "Hero Rally",
-     "category": "Deals",
-     "when": "23 Nov 00:00 – 6 Dec 24:00",
-     "begin_ts": 1795392000,
-     "end_ts": 1796601600
-    },
-    {
      "name": "Tundra Trading Station",
      "category": "Deals",
      "when": "23 Nov 00:00 – 24 Nov 24:00",
      "begin_ts": 1795392000,
      "end_ts": 1795564800
+    },
+    {
+     "name": "Journey Treasures",
+     "category": "Deals",
+     "when": "9 Nov 00:00 – 6 Dec 24:00",
+     "begin_ts": 1794182400,
+     "end_ts": 1796601600
+    },
+    {
+     "name": "Hero Rally",
+     "category": "Deals",
+     "when": "23 Nov 00:00 – 6 Dec 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1796601600
     }
    ]
   },
@@ -135,7 +135,35 @@
    "name": "Thanksgiving",
    "events": [
     {
+     "name": "Gourmet Quest",
+     "category": "Thanksgiving",
+     "when": "24 Nov 00:00 – 30 Nov 24:00",
+     "begin_ts": 1795478400,
+     "end_ts": 1796083200
+    },
+    {
+     "name": "Gourmet Rally",
+     "category": "Thanksgiving",
+     "when": "24 Nov 00:00 – 30 Nov 24:00",
+     "begin_ts": 1795478400,
+     "end_ts": 1796083200
+    },
+    {
+     "name": "King of the Meadows",
+     "category": "Thanksgiving",
+     "when": "24 Nov 00:00 – 30 Nov 24:00",
+     "begin_ts": 1795478400,
+     "end_ts": 1796083200
+    },
+    {
      "name": "Thanksgiving Menu",
+     "category": "Thanksgiving",
+     "when": "24 Nov 00:00 – 30 Nov 24:00",
+     "begin_ts": 1795478400,
+     "end_ts": 1796083200
+    },
+    {
+     "name": "Top-up Benefits",
      "category": "Thanksgiving",
      "when": "24 Nov 00:00 – 30 Nov 24:00",
      "begin_ts": 1795478400,
