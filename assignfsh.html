@@ -1048,6 +1048,24 @@
   .fs-legend span{display:inline-flex;align-items:center;gap:6px;} .fs-legend i{width:10px;height:10px;border-radius:2px;display:inline-block;}
   .fs-note{font-size:12.5px;color:var(--text-faint);margin-top:14px;line-height:1.5;}
   #fsModal .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px;}
+  /* season summary popup */
+  #sumModal .modal-panel{max-width:980px;}
+  .sum-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:0 22px 6px;}
+  .sum-body h3{font-size:13px;font-weight:700;color:var(--ice);margin:18px 0 8px;letter-spacing:.02em;}
+  .sum-body h3:first-child{margin-top:4px;}
+  .sum-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:8px;}
+  table.sum-t{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums;}
+  .sum-t th,.sum-t td{border:1px solid var(--border);padding:7px 10px;text-align:center;}
+  .sum-t thead th{background:var(--panel-2);color:var(--text-dim);font-weight:600;font-size:12px;}
+  .sum-t thead th.rw{color:#0c1a24;font-weight:700;line-height:1.15;min-width:72px;padding:6px 4px;}
+  .sum-t thead th.rw.buff{box-shadow:inset 0 0 0 2px #e0524e;}
+  .sum-t th:first-child,.sum-t td:first-child{text-align:left;font-weight:700;color:var(--strong);background:var(--panel-2);position:sticky;left:0;}
+  .sum-t .z{color:var(--text-faint);font-weight:400;}
+  .sum-miss{display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--text-dim);}
+  .sum-miss b{color:var(--strong);}
+  .sum-sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:8px;vertical-align:-1px;}
+  .sum-acts{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:14px 22px 18px;}
+  @media (max-width:640px){ .sum-body{padding:0 14px 6px;} .sum-acts{padding:12px 14px 16px;} }
   #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--panel-2);color:var(--text);border:1px solid var(--ice-dim,var(--border));border-radius:8px;padding:10px 16px;font-size:13px;display:none;z-index:9999;max-width:92vw;}
   #toast.ok{border-color:#5fbf7a;}
   @media (max-width:640px){ #fsBar .btn{width:auto;} }
@@ -1068,6 +1086,7 @@
     <div class="controls">
       <div class="field"><label for="season">Season</label><input type="number" id="season" min="1" max="999" value="1"></div>
       <span class="cur" id="curInfo"></span>
+      <button type="button" class="btn" id="fsSum">Summary</button>
       <span class="grow"></span>
       <span class="who" id="who"></span>
       <button type="button" class="btn" id="fsLogin">Log in to edit</button>
@@ -1079,9 +1098,10 @@
     <span><i style="background:#a9cfe0"></i>Hero Shards</span><span><i style="background:#e07fc0"></i>Health Buff</span><span><i style="background:#7fc45a"></i>Speedups / Pet Chests</span><span><i style="background:#a27fd6"></i>Adv. Teleport</span><span><i style="background:#eef3f4"></i>Wild Marks</span><span><i style="background:#c08a4e"></i>Damage Buff</span><span><i style="background:#e8d98a"></i>Deployment Buff</span><span><i style="background:#63b25a"></i>Hero Gear XP</span><span><i style="background:#e8d05a"></i>Hero Gear</span><span><i style="background:#d1583f"></i>Fire Crystal</span><span><i style="background:transparent;box-shadow:inset 0 0 0 2px #e0524e"></i>Buff (server-wide)</span>
   </div>
   <p class="fs-note" id="fsNote">Everybody can look at the plan. Only people with the Fortress/SH Plan permission can change it – the Discord bot reads exactly this data.</p>
-  <footer id="foot">State 646 · Fortress/SH Plan — data: Supabase · build 2026-10-26 · f4</footer>
+  <footer id="foot">State 646 · Fortress/SH Plan — data: Supabase · build 2026-11-24 · f5</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
+<div class="modal-overlay" id="sumModal" role="dialog" aria-modal="true" aria-labelledby="sumTitle"><div class="modal-panel"><div class="modal-header"><h2 id="sumTitle">Season summary</h2><button type="button" class="modal-close" id="sumClose" aria-label="Close">×</button></div><p class="modal-sub" id="sumSub"></p><div class="sum-body" id="sumBody"></div><div class="sum-acts"><button type="button" class="btn" id="sumShare">Share picture</button></div></div></div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1180,7 +1200,7 @@
       if(s !== season() || V.busy) return;
       var m = {}; rows.forEach(function(r){ m[r.facility + '|' + r.phase] = r.alliance; });
       selects.forEach(function(sel){ if(document.activeElement === sel) return; paint(sel, m[sel.getAttribute('data-f') + '|' + sel.getAttribute('data-p')]); });
-      markNow(); info();
+      markNow(); info(); refreshSum();
     }).catch(function(e){ stat('Load failed: ' + e.message, 'err'); });
   }
   function info(){
@@ -1202,6 +1222,137 @@
     }).then(function(){ V.busy--; sel.disabled = !V.canEdit; });
   });
   $('season').addEventListener('change', function(){ $('season').value = season(); load(false); });
+  // ---- season summary (popup + share picture) ----
+  var REW = ['Hero Shards','Health Buff','Speedups','Adv. Teleport','Wild Marks','Damage Buff','Deployment Buff','Hero Gear XP','Pet Chests','Hero Gear','Fire Crystal'];
+  var RCOL = {'Hero Shards':'#a9cfe0','Health Buff':'#e07fc0','Speedups':'#7fc45a','Adv. Teleport':'#a27fd6','Wild Marks':'#eef3f4','Damage Buff':'#c08a4e','Deployment Buff':'#e8d98a','Hero Gear XP':'#63b25a','Pet Chests':'#7fc45a','Hero Gear':'#e8d05a','Fire Crystal':'#d1583f'};
+  var sumBlob = null, sumSig = '';
+  // counts everything from the grid as it is shown (= the selected season)
+  function collect(){
+    var per = {}, slots = 0, assigned = 0;
+    selects.forEach(function(sel){
+      slots++;
+      var a = sel.value; if(!a) return;
+      var f = sel.getAttribute('data-f').split('-'), p = +sel.getAttribute('data-p'), isF = f[0] === 'fortress';
+      var rw = (isF ? FORT : STRONG)[+f[1]][p - 1];
+      var o = per[a] || (per[a] = {sh: 0, fo: 0, rw: {}});
+      if(isF) o.fo++; else o.sh++;
+      o.rw[rw] = (o.rw[rw] || 0) + 1; assigned++;
+    });
+    var names = ALLIANCES.filter(function(a){ return per[a]; }).concat(Object.keys(per).filter(function(a){ return ALLIANCES.indexOf(a) < 0; }).sort());
+    var miss = [];
+    REW.forEach(function(r){ var who = names.filter(function(a){ return !per[a].rw[r]; }); if(who.length) miss.push({r: r, who: who}); });
+    return {per: per, names: names, miss: miss, slots: slots, assigned: assigned};
+  }
+  function missText(m, d){ return m.who.length === d.names.length ? 'nobody gets it' : m.who.join(', '); }
+  function cssv(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function wrapTxt(c, text, maxW){
+    var words = text.split(' '), lines = [], cur = '';
+    words.forEach(function(w){ var t = cur ? cur + ' ' + w : w; if(cur && c.measureText(t).width > maxW){ lines.push(cur); cur = w; } else cur = t; });
+    if(cur) lines.push(cur); return lines;
+  }
+  // the share picture is drawn by hand on a canvas (no extra library), in the current dark/light colours
+  function drawPic(d){
+    var S = 2, W = 1100, P = 32, FN = 'Inter, "Segoe UI", system-ui, sans-serif';
+    var C = {bg: cssv('--bg'), pn: cssv('--panel'), p2: cssv('--panel-2'), ln: cssv('--border'), tx: cssv('--text'), dm: cssv('--text-dim'), fa: cssv('--text-faint'), ice: cssv('--ice'), st: cssv('--strong')};
+    var mc = document.createElement('canvas').getContext('2d'); mc.font = '13px ' + FN;
+    var TX = P + 200, AV = W - P - TX, n = d.names.length;
+    var rows = d.miss.map(function(m){ return {r: m.r, lines: wrapTxt(mc, missText(m, d), AV)}; });
+    var H = P + 96 + (34 + 32 + n * 30 + 28) + (34 + 46 + n * 30 + 28) + 34 + (rows.length ? rows.reduce(function(s, r){ return s + r.lines.length * 18 + 10; }, 0) : 26) + 50;
+    var cv = document.createElement('canvas'); cv.width = W * S; cv.height = H * S;
+    var c = cv.getContext('2d'); c.scale(S, S); c.textBaseline = 'middle';
+    function T(s, x, y, font, col, al){ c.font = font; c.fillStyle = col; c.textAlign = al || 'left'; c.fillText(s, x, y); }
+    function box(x, y, w, h, fill){ c.fillStyle = fill; c.fillRect(x, y, w, h); c.strokeStyle = C.ln; c.lineWidth = 1; c.strokeRect(x + .5, y + .5, w - 1, h - 1); }
+    c.fillStyle = C.bg; c.fillRect(0, 0, W, H);
+    var y = P, x;
+    T('State 646 — Season Plan', P, y + 6, '13px ' + FN, C.ice);
+    T('Season ' + season() + ' — Strongholds & Fortresses', P, y + 36, '700 26px ' + FN, C.st);
+    T('Counted over all 8 phases · ' + d.assigned + ' of ' + d.slots + ' slots assigned', P, y + 66, '13px ' + FN, C.dm);
+    y += 96;
+    // 1) facilities per alliance
+    T('Facilities per alliance', P, y + 12, '700 15px ' + FN, C.ice); y += 34;
+    var w1 = [200, 140, 140, 140];
+    x = P; ['Alliance', 'Strongholds', 'Fortresses', 'Total'].forEach(function(h, k){ box(x, y, w1[k], 32, C.p2); T(h, k ? x + w1[k] / 2 : x + 12, y + 16, '600 12px ' + FN, C.dm, k ? 'center' : 'left'); x += w1[k]; });
+    y += 32;
+    d.names.forEach(function(a){
+      var o = d.per[a], vals = [a, o.sh, o.fo, o.sh + o.fo]; x = P;
+      vals.forEach(function(v, k){
+        box(x, y, w1[k], 30, k ? C.pn : C.p2);
+        if(k === 0) T(String(v), x + 12, y + 15, '700 13px ' + FN, C.st);
+        else T(v ? String(v) : '–', x + w1[k] / 2, y + 15, (k === 3 ? '700 ' : '') + '13px ' + FN, v ? (k === 3 ? C.st : C.tx) : C.fa, 'center');
+        x += w1[k];
+      });
+      y += 30;
+    });
+    y += 28;
+    // 2) rewards per alliance
+    T('Rewards per alliance', P, y + 12, '700 15px ' + FN, C.ice); y += 34;
+    var cw0 = 101, cw = 85;
+    box(P, y, cw0, 46, C.p2); T('Alliance', P + 12, y + 23, '600 12px ' + FN, C.dm);
+    REW.forEach(function(r, k){
+      var hx = P + cw0 + k * cw; box(hx, y, cw, 46, RCOL[r]);
+      c.font = '700 11px ' + FN; var ls = wrapTxt(c, r, cw - 10);
+      ls.forEach(function(l, li){ T(l, hx + cw / 2, y + 23 + (li - (ls.length - 1) / 2) * 13, '700 11px ' + FN, '#0c1a24', 'center'); });
+      if(BUFF[r]){ c.strokeStyle = '#e0524e'; c.lineWidth = 2; c.strokeRect(hx + 1, y + 1, cw - 2, 44); }
+    });
+    y += 46;
+    d.names.forEach(function(a){
+      var o = d.per[a]; box(P, y, cw0, 30, C.p2); T(a, P + 12, y + 15, '700 13px ' + FN, C.st);
+      REW.forEach(function(r, k){ var v = o.rw[r] || 0; box(P + cw0 + k * cw, y, cw, 30, C.pn); T(v ? String(v) : '–', P + cw0 + k * cw + cw / 2, y + 15, '13px ' + FN, v ? C.tx : C.fa, 'center'); });
+      y += 30;
+    });
+    y += 28;
+    // 3) rewards some alliances never get
+    T('Rewards an alliance never gets', P, y + 12, '700 15px ' + FN, C.ice); y += 34;
+    if(!rows.length){ T('Every alliance gets every reward at least once.', P, y + 8, '13px ' + FN, C.dm); y += 26; }
+    rows.forEach(function(r){
+      c.fillStyle = RCOL[r.r]; c.fillRect(P, y + 3, 11, 11);
+      T(r.r, P + 20, y + 9, '700 13px ' + FN, C.st);
+      r.lines.forEach(function(l, li){ T(l, TX, y + 9 + li * 18, '13px ' + FN, C.dm); });
+      y += r.lines.length * 18 + 10;
+    });
+    T('State 646 · Fortress/SH Plan', P, H - 22, '11px ' + FN, C.fa);
+    return cv;
+  }
+  function renderSum(force){
+    var d = collect(), s = season(), sig = s + JSON.stringify(d.per);
+    if(!force && sig === sumSig) return;
+    sumSig = sig; sumBlob = null;
+    $('sumTitle').textContent = 'Season ' + s + ' summary';
+    $('sumSub').textContent = 'Counted over all 8 phases · ' + d.assigned + ' of ' + d.slots + ' slots assigned';
+    if(!d.names.length){ $('sumBody').innerHTML = '<p class="fs-note" style="margin:6px 0 14px">No assignments for this season yet.</p>'; $('sumShare').disabled = true; return; }
+    $('sumShare').disabled = false;
+    var h = '<h3>Facilities per alliance</h3><div class="sum-wrap"><table class="sum-t"><thead><tr><th>Alliance</th><th>Strongholds</th><th>Fortresses</th><th>Total</th></tr></thead><tbody>';
+    d.names.forEach(function(a){ var o = d.per[a]; h += '<tr><td>' + esc(a) + '</td><td>' + (o.sh || '<span class="z">–</span>') + '</td><td>' + (o.fo || '<span class="z">–</span>') + '</td><td><b>' + (o.sh + o.fo) + '</b></td></tr>'; });
+    h += '</tbody></table></div><h3>Rewards per alliance</h3><div class="sum-wrap"><table class="sum-t"><thead><tr><th>Alliance</th>';
+    REW.forEach(function(r){ h += '<th class="rw' + (BUFF[r] ? ' buff' : '') + '" style="background:' + RCOL[r] + '">' + esc(r) + '</th>'; });
+    h += '</tr></thead><tbody>';
+    d.names.forEach(function(a){ var o = d.per[a]; h += '<tr><td>' + esc(a) + '</td>'; REW.forEach(function(r){ h += '<td>' + (o.rw[r] || '<span class="z">–</span>') + '</td>'; }); h += '</tr>'; });
+    h += '</tbody></table></div><h3>Rewards an alliance never gets</h3>';
+    if(!d.miss.length) h += '<p class="fs-note" style="margin:0 0 8px">Every alliance gets every reward at least once.</p>';
+    else { h += '<div class="sum-miss">'; d.miss.forEach(function(m){ h += '<div><span class="sum-sw" style="background:' + RCOL[m.r] + '"></span><b>' + esc(m.r) + '</b> — ' + esc(missText(m, d)) + '</div>'; }); h += '</div>'; }
+    $('sumBody').innerHTML = h;
+    // render the picture right away: sharing must start inside the tap (iOS refuses it after a delay)
+    try { drawPic(d).toBlob(function(b){ sumBlob = b; }, 'image/png'); } catch(e) {}
+  }
+  function refreshSum(){ if($('sumModal').classList.contains('open')) renderSum(false); }
+  function openSum(){ renderSum(true); $('sumModal').classList.add('open'); $('sumClose').focus(); }
+  function closeSum(){ $('sumModal').classList.remove('open'); }
+  function saveBlob(b, name){
+    var u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 1500); toast('Picture saved.', true);
+  }
+  $('fsSum').addEventListener('click', openSum);
+  $('sumClose').addEventListener('click', closeSum);
+  $('sumModal').addEventListener('click', function(e){ if(e.target === $('sumModal')) closeSum(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSum(); });
+  $('sumShare').addEventListener('click', function(){
+    var b = sumBlob, name = 'state646-fsh-season-' + season() + '-summary.png';
+    if(!b){ toast('The picture is not ready yet – please tap again.'); return; }
+    var file = null; try { file = new File([b], name, {type: 'image/png'}); } catch(e) {}
+    if(file && navigator.canShare && navigator.canShare({files: [file]})){
+      navigator.share({files: [file], title: 'Season ' + season() + ' summary'}).catch(function(e){ if(!e || e.name !== 'AbortError') saveBlob(b, name); });
+    } else saveBlob(b, name);
+  });
   // ---- login ----
   function bar(){ $('who').innerHTML = V.me ? 'Logged in: <b>' + esc(V.me.name || '') + '</b>' : ''; $('fsLogin').textContent = V.me ? 'Log out' : 'Log in to edit'; setEdit(); info(); }
   function login(code){ return rpc('sa_me', {p_code: code}).then(function(r){ if(!r) return false; V.code = code; V.me = r; V.canEdit = !!r.fsh; try { localStorage.setItem('ep_code', code); } catch(e) {} return true; }); }
