@@ -1097,7 +1097,11 @@
   .bk-t td.has .ck{float:right;margin:3px 0 0 8px;width:16px;height:16px;accent-color:#5fbf7a;cursor:pointer;}
   .bk-t td.has .ck:disabled{cursor:default;}
   .bk-t .nm.dn{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--text-faint);}
-  #wkShare{display:flex;gap:8px;margin-top:14px;}
+  #wkShare,#wkEdit{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  #wkEdit{margin-top:8px;}
+  #cpModal .modal-panel{max-width:460px;}
+  #cpTo .cp-r{justify-content:flex-start;text-align:left;text-transform:none;letter-spacing:0;font-weight:400;font-size:13px;} #cpTo .cp-r input{width:auto;flex:0 0 auto;margin:0;}
+  .cp-r{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);padding:5px 0;cursor:pointer;} .cp-r.off{color:var(--text-faint);cursor:default;} .cp-r input{width:auto;accent-color:var(--ice);}
   #pkModal .modal-panel{max-width:460px;}
   .pk-body{padding:0 22px 6px;display:flex;flex-direction:column;gap:12px;}
   .pk-body select,.pk-body input{width:100%;box-sizing:border-box;}
@@ -1131,15 +1135,20 @@
     <div id="fsStat"></div>
   </div>
   <div id="wkBar"></div>
-  <div id="wkShare"><button type="button" class="btn sm" id="wkPic">Share pic (whole week)</button><button type="button" class="btn sm" id="wkTxt">Share Text - total (whole week)</button><button type="button" class="btn sm" id="wkMiss">Share Text - missing (whole week)</button></div>
+  <div id="wkShare"><button type="button" class="btn sm" id="wkPic">Share pic (whole week)</button><button type="button" class="btn sm" id="wkTxt">Share Text - total (whole week)</button><button type="button" class="btn sm" id="wkMiss">Share Text - missing (whole week)</button>
+  </div>
+  <div id="wkEdit"><button type="button" class="btn sm" id="wkLast" style="display:none">Copy from last week</button><button type="button" class="btn sm" id="wkCopy" style="display:none">Copy names …</button></div>
   <div id="blocks"></div>
   <p class="fs-note" id="fsNote">Everybody can look at the lists. Only people with the Fortress/SH Plan permission can change them. The alliance shown per fortress comes from the Fortress/SH plan.</p>
-  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf2</footer>
+  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf3</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel"><div class="modal-header"><h2 id="pkTitle">Pick player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p>
 <div class="pk-body"><div class="field"><label for="pkAl">Alliance</label><select id="pkAl"></select></div><div class="field"><label for="pkQ">Search</label><input type="text" id="pkQ" autocomplete="off" placeholder="Name or ID"></div><div class="field"><label for="pkPl">Player</label><select id="pkPl" size="8"></select><span id="pkCnt"></span></div></div>
 <div class="pk-acts"><button type="button" class="btn danger" id="pkClear">Clear slot</button><button type="button" class="btn" id="pkCancel">Cancel</button><button type="button" class="btn" id="pkOk" disabled>Save</button></div></div></div>
+<div class="modal-overlay" id="cpModal" role="dialog" aria-modal="true" aria-labelledby="cpTitle"><div class="modal-panel"><div class="modal-header"><h2 id="cpTitle">Copy names</h2><button type="button" class="modal-close" id="cpClose" aria-label="Close">×</button></div><p class="modal-sub" id="cpSub"></p>
+<div class="pk-body"><div class="field"><label for="cpW">From week</label><select id="cpW"></select></div><div class="field"><label for="cpB">From block</label><select id="cpB"></select></div><div class="field"><label>Into (this week)</label><div id="cpTo"></div></div><div class="field"><label for="cpM">If a cell already has a name</label><select id="cpM"><option value="fill">Keep it (only fill empty cells)</option><option value="replace">Replace it</option></select></div></div>
+<div class="pk-acts"><button type="button" class="btn" id="cpCancel">Cancel</button><button type="button" class="btn" id="cpOk">Copy</button></div></div></div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1209,6 +1218,13 @@
       var u = MU[args.p_code];
       if(fn === 'sa_me') return Promise.resolve(u || null);
       if(!u || !u.fsh) return Promise.reject(new Error('Not allowed (no Fortress/SH Plan permission).'));
+      if(fn === 'bf_copy'){
+        var cd = jget(MK), st = cd[args.p_season] = cd[args.p_season] || {}, cnt = 0, pre = args.p_from_phase + '|' + args.p_from_fac + '|';
+        if(args.p_replace) Object.keys(st).forEach(function(k){ if(k.indexOf(args.p_to_phase + '|' + args.p_to_fac + '|') === 0) delete st[k]; });
+        Object.keys(st).filter(function(k){ return k.indexOf(pre) === 0; }).forEach(function(k){ var nk = args.p_to_phase + '|' + args.p_to_fac + '|' + k.slice(pre.length); if(!st[nk]){ var o = st[k]; st[nk] = {id: o.id, name: o.name, al: o.al, done: false}; cnt++; } });
+        try { localStorage.setItem(MK, JSON.stringify(cd)); } catch(e) {}
+        return Promise.resolve(cnt);
+      }
       if(fn === 'bf_done'){ var dd = jget(MK), kk = args.p_phase + '|' + args.p_facility + '|' + args.p_col + '|' + args.p_slot; if(dd[args.p_season] && dd[args.p_season][kk]){ dd[args.p_season][kk].done = !!args.p_done; try { localStorage.setItem(MK, JSON.stringify(dd)); } catch(e) {} } return Promise.resolve(null); }
       var d = jget(MK); d[args.p_season] = d[args.p_season] || {};
       var key = args.p_phase + '|' + args.p_facility + '|' + args.p_col + '|' + args.p_slot;
@@ -1262,6 +1278,7 @@
     weekBar(); picCache = {};
     var bl = blocks(phase), h = '';
     $('wkShare').style.display = bl.length ? '' : 'none';
+    $('wkCopy').style.display = V.canEdit ? '' : 'none'; $('wkLast').style.display = V.canEdit && phase > 1 ? '' : 'none'; $('wkLast').textContent = 'Copy from last week (Week ' + (phase - 1) + ')';
     if(!bl.length) h = '<p class="fs-note">No buffs this week.</p>';
     bl.forEach(function(b, bi){
       var hd = holder(phase, b.fac);
@@ -1348,6 +1365,63 @@
   $('pkClose').addEventListener('click', closePick);
   $('pkModal').addEventListener('click', function(e){ if(e.target === $('pkModal')) closePick(); });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && pk) closePick(); });
+
+
+  // ---- copy names (between blocks / weeks) ----
+  function blockHas(ph, fac){ for(var i = 0; i < COLS.length; i++) for(var s = 1; s <= SLOTS; s++) if(cellOf(ph, fac, COLS[i], s)) return true; return false; }
+  function runCopy(jobs, replace){
+    if(!jobs.length){ toast('Nothing to copy.'); return; }
+    var total = 0, chain = Promise.resolve(); V.busy++;
+    jobs.forEach(function(j){ chain = chain.then(function(){ return rpc('bf_copy', {p_code: V.code, p_season: season(), p_from_phase: j.fp, p_from_fac: j.ff, p_to_phase: j.tp, p_to_fac: j.tf, p_replace: !!replace}).then(function(n){ total += (+n || 0); }); }); });
+    chain.then(function(){ toast(total ? total + ' name' + (total === 1 ? '' : 's') + ' copied.' : 'Nothing copied (the cells were already filled).', !!total); }).catch(function(e){ toast(e.message); }).then(function(){ V.busy--; return load(true); });
+  }
+  function copyLast(){
+    if(phase < 2) return;
+    var src = blocks(phase - 1).filter(function(b){ return blockHas(b.ph, b.fac); }), jobs = [];
+    if(!src.length){ toast('Week ' + (phase - 1) + ' has no names yet.'); return; }
+    blocks(phase).forEach(function(t){
+      var s = null; src.forEach(function(x){ if(!s && x.reward === t.reward) s = x; }); if(!s) s = src[0];
+      jobs.push({fp: phase - 1, ff: s.fac, tp: phase, tf: t.fac});
+    });
+    runCopy(jobs, false);
+  }
+  function cpBlocks(){
+    var ph = +$('cpW').value, h = '';
+    blocks(ph).forEach(function(b){ h += '<option value="' + b.fac + '">Fortress ' + b.n + ' – ' + b.reward + (blockHas(ph, b.fac) ? '' : ' (empty)') + '</option>'; });
+    $('cpB').innerHTML = h;
+    var first = null; blocks(ph).forEach(function(b){ if(first === null && blockHas(ph, b.fac)) first = b.fac; }); if(first) $('cpB').value = first;
+    cpTo();
+  }
+  function cpTo(){
+    var ph = +$('cpW').value, fac = $('cpB').value, h = '';
+    blocks(phase).forEach(function(b){
+      var same = (ph === phase && b.fac === fac);
+      h += '<label class="cp-r' + (same ? ' off' : '') + '"><input type="checkbox" data-f="' + b.fac + '"' + (same ? ' disabled' : ' checked') + '> Fortress ' + b.n + ' – ' + b.reward + (same ? ' (source)' : '') + '</label>';
+    });
+    $('cpTo').innerHTML = h;
+  }
+  function openCopy(){
+    if(!V.canEdit) return;
+    var h = ''; for(var i = 1; i <= 8; i++) h += '<option value="' + i + '">Week ' + i + '</option>';
+    $('cpW').innerHTML = h; $('cpW').value = phase > 1 ? phase - 1 : 1; cpBlocks();
+    $('cpTitle').textContent = 'Copy names into Week ' + phase;
+    $('cpSub').textContent = 'Copies the names (not the "got it" ticks) of one block into the blocks you tick. You can change every name afterwards.';
+    $('cpModal').classList.add('open');
+  }
+  function closeCopy(){ $('cpModal').classList.remove('open'); }
+  $('cpW').addEventListener('change', cpBlocks);
+  $('cpB').addEventListener('change', cpTo);
+  $('cpClose').addEventListener('click', closeCopy); $('cpCancel').addEventListener('click', closeCopy);
+  $('cpModal').addEventListener('click', function(e){ if(e.target === $('cpModal')) closeCopy(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCopy(); });
+  $('cpOk').addEventListener('click', function(){
+    var fp = +$('cpW').value, ff = $('cpB').value, jobs = [];
+    if(!blockHas(fp, ff)){ toast('The source block is empty.'); return; }
+    Array.prototype.forEach.call($('cpTo').querySelectorAll('input:checked'), function(i){ jobs.push({fp: fp, ff: ff, tp: phase, tf: i.getAttribute('data-f')}); });
+    closeCopy(); runCopy(jobs, $('cpM').value === 'replace');
+  });
+  $('wkCopy').addEventListener('click', openCopy);
+  $('wkLast').addEventListener('click', copyLast);
 
   // ---- clicks ----
   $('wkBar').addEventListener('click', function(e){ var b = e.target.closest ? e.target.closest('.wk') : null; if(!b) return; phase = +b.getAttribute('data-w'); render(); });
