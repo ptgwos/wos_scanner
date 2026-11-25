@@ -1052,10 +1052,29 @@
   /* no line breaks inside chips, tiles and labels: the picture export uses a different (wider) fallback font and would wrap them */
   .sp-mc,.sp-meds small,.sp-kp small,.sp-kp b,.sp-kp .sp-d,.sp-rt,.sp-chh,.sp-rv,.sp-rv small{white-space:nowrap;}
   .sp-mc{flex:none;}
+  /* compare popup */
+  .cp-pick{display:flex;flex-wrap:wrap;gap:8px 10px;margin:2px 0 10px;}
+  .cp-pick label{display:flex;flex-direction:column;gap:4px;flex:1 1 200px;min-width:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+  .cp-pick select{width:100%;min-width:0;}
+  #cpShot{box-sizing:border-box;}
+  .cp-grid{display:grid;column-gap:12px;row-gap:0;grid-template-rows:repeat(5,auto);}
+  .cp-col{min-width:0;display:grid;grid-row:span 5;grid-template-rows:subgrid;align-content:start;}
+  .cp-col .sp-meds:empty{margin:0;}
+  .cp-col .sp-meds{align-items:flex-start;align-content:flex-start;}
+  .cp-col .sp-hero{flex-wrap:wrap;padding:12px;} .cp-col .sp-hero .av{width:52px;height:52px;font-size:22px;} .cp-col .sp-hnm{font-size:18px;}
+  .cp-col .sp-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .cp-col .sp-card{padding:10px 10px;}
+  .cp-col table.sp-pt th,.cp-col table.sp-pt td{padding:7px 5px;}
+  .cp-col .sp-pt td.l{white-space:nowrap;font-size:12.5px;}
+  .cp-col .sp-pt tbody td{height:46px;}
+  .cp-col .cp-ch{min-height:268px;display:flex;flex-direction:column;} .cp-col .cp-ch .sp-empty{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal;}
+  .cp-best{color:var(--good);font-weight:700;}
+  #cpShot.sp-rps .tag,#cpShot .sp-hnm .tag{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:18px;padding:0 7px;line-height:1;}
 </style>
 </head>
 <body>
 <div class="modal-overlay" id="colModal" role="dialog" aria-modal="true" aria-labelledby="colTitle"><div class="modal-panel" style="max-width:460px"><div class="modal-header"><h2 id="colTitle">Columns</h2><button type="button" class="modal-close" id="colClose" aria-label="Close">×</button></div><div style="padding:6px 18px 18px"><div id="colList"></div><div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button type="button" class="btn" id="colReset">Default</button></div></div></div></div>
+<div class="modal-overlay" id="cpModal" role="dialog" aria-modal="true" aria-labelledby="cpTitle"><div class="modal-panel" style="max-width:1180px"><div class="modal-header"><h2 id="cpTitle">Compare players</h2><button type="button" class="modal-close" id="cpClose" aria-label="Close">×</button></div><div id="cpBody" style="padding:10px 18px 18px;overflow:auto"></div></div></div>
 <div class="modal-overlay" id="plModal" role="dialog" aria-modal="true" aria-labelledby="plTitle"><div class="modal-panel" style="max-width:760px"><div class="modal-header"><h2 id="plTitle">Player history</h2><button type="button" class="modal-close" id="plClose" aria-label="Close">×</button></div><div id="plBody" style="padding:10px 18px 18px;overflow:auto"></div></div></div>
 <div class="modal-overlay" id="rpModal" role="dialog" aria-modal="true" aria-labelledby="rpTitle"><div class="modal-panel" style="max-width:1020px"><div class="modal-header"><h2 id="rpTitle">Report</h2><button type="button" class="modal-close" id="rpClose" aria-label="Close">×</button></div><div style="padding:10px 18px 18px;overflow:auto"><div class="sp-rpbar"><div class="seg"><button type="button" id="rpAbs" class="active">Absolute gain</button><button type="button" id="rpPct">Percent gain</button></div><span class="sp-rpsp"></span><button type="button" class="btn" id="rpTxt">Copy as text</button><button type="button" class="btn" id="rpImg">Copy as picture</button></div><div id="rpShot" class="sp-rps"></div></div></div></div>
 <div class="sp-toast" id="spToast" role="status"></div>
@@ -1086,6 +1105,7 @@
       <div class="field" id="spDdBox" style="display:none"><label for="spDd" id="spDdL">Date</label><select id="spDd"></select></div>
       <div class="field" id="spDeBox" style="display:none"><label for="spDe">To</label><select id="spDe"></select></div>
       <button type="button" class="btn" id="rpBtn" title="Report: the five biggest gains per category in the chosen period">Report …</button>
+      <button type="button" class="btn" id="cpBtn" title="Compare up to three players side by side">Compare …</button>
       <label class="switch" id="spDsBox" style="display:none" title="Sort the table by the change of the chosen column"><input type="checkbox" id="spDs"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Sort by change</span></label>
       <label class="switch av-sw" title="Show the profile pictures (avatars) of the players"><input type="checkbox" id="avSw"><span class="switch-track"><span class="switch-thumb"></span></span><span class="switch-label">Avatars</span></label>
     </div>
@@ -1094,7 +1114,7 @@
     <div class="sp-note" id="note" style="margin-top:12px;font-size:12px;color:var(--text-faint)">Top 100 of each category. A dash means the player is not among the top 100 of that column. Tap a column header to sort. Tap a player name to see the history of that player.</div>
   </div>
 
-  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-13 · sp17</footer>
+  <footer id="foot">State 646 · State Power — data: Whiteout Stats API · build 2026-11-25 · sp18</footer>
 </div>
 
 <script>
@@ -1288,6 +1308,7 @@
     $('spDdL').textContent = st.dm === 'range' ? 'From' : 'Date';
     $('spDsBox').style.display = own && st.dm !== 'off' ? '' : 'none';
     $('rpBtn').style.display = own ? '' : 'none';
+    $('cpBtn').style.display = own ? '' : 'none';
     $('spTr').style.display = own ? '' : 'none';
     dinfo();
   }
@@ -1323,10 +1344,10 @@
   // ---- charts (plain SVG) ----
   function sgn(d){ return (d > 0 ? '+' : d < 0 ? '−' : '±') + dots(Math.abs(Math.round(d))); }
   function axB(v){ return v >= 1e9 ? (v / 1e9).toFixed(3) + 'B' : dots(Math.round(v)); }
-  function chartSvg(pts, axf, full){
+  function chartSvg(pts, axf, full, small){
     var ok = pts.filter(function(p){ return p[1] != null; });
     if(ok.length < 2) return '<div class="sp-empty">Not enough data for a curve yet: ' + plural(ok.length, 'day') + ' so far. The history grows by one day every morning.</div>';
-    var sm = window.innerWidth <= 640, W = sm ? 340 : 640, H = sm ? 210 : 240, L = 70, R = 18, T = 22, B = 30;
+    var sm = small || window.innerWidth <= 640, W = sm ? 340 : 640, H = sm ? 210 : 240, L = 70, R = 18, T = 22, B = 30;
     var t0 = Date.parse(pts[0][0] + 'T00:00:00Z'), t1 = Date.parse(pts[pts.length - 1][0] + 'T00:00:00Z'); if(t1 === t0) t1 = t0 + 86400000;
     var vs = ok.map(function(p){ return p[1]; }), mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs), lo = mn, hi = mx;
     if(hi === lo){ hi += 1; lo -= 1; }
@@ -1401,7 +1422,7 @@
     var cus = plRg === 'c';
     var ctl = '<div class="sp-plc"><select id="plRange" aria-label="Period">' + ro(14, 'Last 14 days') + ro(30, 'Last 30 days') + ro(90, 'Last 90 days') + ro(0, 'All days') + ro('c', 'Range (from – to) …') + '</select>' +
       (cus ? '<label>From <select id="plFrom">' + so(plIdx.filter(function(d){ return d < plTo; }).reverse(), plFrom) + '</select></label><label>To <select id="plTo">' + so(plIdx.filter(function(d){ return d > plFrom; }).reverse(), plTo) + '</select></label>' : '') +
-      '<span class="sp-rpsp"></span><button type="button" class="btn" data-act="copy" title="Copy the player card as a picture">Copy picture</button><button type="button" class="btn" data-act="save" title="Download the player card as a picture">Save picture</button></div>';
+      '<span class="sp-rpsp"></span><button type="button" class="btn" data-act="cmp" title="Compare this player with up to two others">Compare …</button><button type="button" class="btn" data-act="copy" title="Copy the player card as a picture">Copy picture</button><button type="button" class="btn" data-act="save" title="Download the player card as a picture">Save picture</button></div>';
     $('plBody').innerHTML = ctl + '<div id="plShot" class="sp-rps">' +
       '<div class="sp-hero">' + avatar(r) + '<div class="sp-hn"><div class="sp-hnm">' + esc(r.n) + ' ' + tagChip(r.a) + '</div><div class="sp-hsub">State ' + esc(ownLabel()) + (r.rk.state_transfer ? ' · #' + r.rk.state_transfer + ' by Real Power' : '') + ' · ' + plural(plDs.length, 'day') + ' of data' + (plDs.length > 1 ? ' (' + esc(first) + ' – ' + esc(lastD) + ')' : '') + '</div></div></div>' +
       '<div class="sp-kpis">' + kp + '</div>' +
@@ -1434,6 +1455,85 @@
   }
   function openPl(id){ plId = id; $('plModal').classList.add('open'); plLoad(); loadLib().catch(function(){}); }
   function closePl(){ plId = ''; $('plModal').classList.remove('open'); }
+
+  // ---- compare: up to three players side by side, same cards as the player popup ----
+  var cpIds = ['', '', ''], cpDs = [], cpRg = 30, cpFrom = '', cpTo = '', cpK = 'state_transfer', cpTok = 0;
+  function cpSeries(id, c){
+    return cpDs.map(function(d){ var s = snapOf(d), m = s && bmap(s)[c.k], v = m ? m[id] : null; return [d, v == null ? null : (c.g ? v % 10000 : v)]; });
+  }
+  function cpRowOf(id){ return ROWS.filter(function(x){ return String(x.id) === String(id); })[0] || {id: id, n: String(id), a: '', v: '', val: {}, rk: {}}; }
+  function cpOptions(cur){
+    var list = ROWS.slice().sort(function(a, b){ return String(a.n).toLowerCase().localeCompare(String(b.n).toLowerCase()); });
+    return '<option value="">– choose a player –</option>' + list.map(function(r){ return '<option value="' + esc(r.id) + '"' + (String(r.id) === String(cur) ? ' selected' : '') + '>' + esc(r.n) + (r.a ? ' [' + esc(r.a) + ']' : '') + '</option>'; }).join('');
+  }
+  function cpRender(){
+    var ids = cpIds.filter(function(x, i){ return x && cpIds.indexOf(x) === i; });
+    var first = cpDs[0] || '', lastD = cpDs[cpDs.length - 1] || '', span = cpDs.length > 1 ? dayDiff(first, lastD) : 0;
+    var ro = function(v, t){ return '<option value="' + v + '"' + (String(cpRg) === String(v) ? ' selected' : '') + '>' + t + '</option>'; };
+    var so = function(a, cur){ return a.map(function(d){ return '<option value="' + d + '"' + (d === cur ? ' selected' : '') + '>' + d + '</option>'; }).join('') || '<option value="">–</option>'; };
+    var cus = cpRg === 'c';
+    var pick = '<div class="cp-pick">' + [0, 1, 2].map(function(i){ return '<label>Player ' + (i + 1) + '<select class="cp-sel" data-i="' + i + '" aria-label="Player ' + (i + 1) + '">' + cpOptions(cpIds[i]) + '</select></label>'; }).join('') + '</div>';
+    var ctl = '<div class="sp-plc"><select id="cpRange" aria-label="Period">' + ro(14, 'Last 14 days') + ro(30, 'Last 30 days') + ro(90, 'Last 90 days') + ro(0, 'All days') + ro('c', 'Range (from – to) …') + '</select>' +
+      (cus ? '<label>From <select id="cpFrom">' + so(cpIdxList().filter(function(d){ return d < cpTo; }).reverse(), cpFrom) + '</select></label><label>To <select id="cpTo">' + so(cpIdxList().filter(function(d){ return d > cpFrom; }).reverse(), cpTo) + '</select></label>' : '') +
+      '<span class="sp-rpsp"></span>' + (ids.length ? '<button type="button" class="btn" data-act="copy" title="Copy the comparison as a picture">Copy picture</button><button type="button" class="btn" data-act="save" title="Download the comparison as a picture">Save picture</button>' : '') + '</div>';
+    if(!ids.length){ $('cpBody').innerHTML = pick + ctl + '<div class="sp-empty">Choose up to three players above.</div>'; return; }
+    var cols = COLS.filter(function(c){ return ids.some(function(id){ return lastIdx(cpSeries(id, c)) >= 0; }); });
+    var info = ids.map(function(id){ var ser = {}; cols.forEach(function(c){ ser[c.k] = cpSeries(id, c); }); return {id: id, r: cpRowOf(id), ser: ser}; });
+    var best = {};
+    cols.forEach(function(c){
+      var vs = info.map(function(o){ var a = o.ser[c.k], li = lastIdx(a); return li >= 0 ? a[li][1] : null; }).filter(function(v){ return v != null; });
+      if(vs.length >= 2){ var mx = Math.max.apply(null, vs), mn = Math.min.apply(null, vs); if(mx > mn) best[c.k] = mx; }
+    });
+    var c0 = colOf(cpK) || COLS[0];
+    var grid = info.map(function(o){
+      var r = o.r, id = o.id, med = '', kp = '', rows = '';
+      COLS.forEach(function(c){ var k = r.rk[c.k]; if(k >= 1 && k <= 3) med += '<span class="sp-mc">' + medal(k, lab(c) + ' · place ' + k) + esc(lab(c)) + '</span>'; });
+      KPI.forEach(function(t){
+        var c = colOf(t[0]), a = cpSeries(id, c), li = lastIdx(a), fi = firstIdx(a);
+        var now = li >= 0 ? a[li][1] : null, dr = li >= 0 && fi < li ? now - a[fi][1] : null;
+        kp += '<div class="sp-kp"><small>' + esc(t[1]) + '</small><b>' + (now == null ? '–' : (c.g ? stg : fmt)(now)) + '</b>' + (r.rk[t[0]] ? '<em>#' + r.rk[t[0]] + '</em>' : '') + (dr == null ? '' : dspan(dr, c)) + '</div>';
+      });
+      cols.forEach(function(c){
+        var a = o.ser[c.k], li = lastIdx(a), f = c.g ? stg : fmt, trc = '<tr data-k="' + c.k + '" class="' + (c.k === cpK ? 'sel' : '') + (c.g ? ' kid' : '') + '"><td class="l">' + esc(lab(c)) + (r.rk[c.k] ? '<small class="sp-rkn">#' + r.rk[c.k] + '</small>' : '') + '</td>';
+        if(li < 0){ rows += trc + '<td><span class="sp-d z">–</span></td><td><span class="sp-d z">–</span></td></tr>'; return; }
+        var fi = firstIdx(a), now = a[li][1], d1 = li > 0 && a[li - 1][1] != null ? now - a[li - 1][1] : null, dr = fi < li ? now - a[fi][1] : null;
+        rows += trc + '<td' + (best[c.k] === now ? ' class="cp-best"' : '') + '>' + f(now) + dspan(d1, c) + '</td><td>' + (dr == null ? '<span class="sp-d z">–</span>' : dspan(dr, c)) + '</td></tr>';
+      });
+      return '<div class="cp-col"><div class="sp-hero">' + avatar(r) + '<div class="sp-hn"><div class="sp-hnm">' + esc(r.n) + ' ' + tagChip(r.a) + '</div><div class="sp-hsub">State ' + esc(ownLabel()) + (r.rk.state_transfer ? ' · #' + r.rk.state_transfer + ' by Real Power' : '') + '</div></div></div>' +
+        '<div class="sp-kpis">' + kp + '</div>' +
+        '<div class="sp-meds">' + (med ? '<small>Top 3 places</small>' + med : '') + '</div>' +
+        '<div class="sp-card cp-ch"><div class="sp-chh">' + esc(lab(c0)) + '</div>' + chartSvg(cpSeries(id, c0), c0.g ? stg : axB, c0.g ? stg : function(v){ return dots(Math.round(v)); }, true) + '</div>' +
+        '<div class="sp-card"><table class="sp-pt"><thead><tr><th class="l">Value</th><th>Now</th><th>Change</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+    }).join('');
+    $('cpBody').innerHTML = pick + ctl + '<div id="cpShot" class="sp-rps" style="min-width:' + (ids.length * 310 + (ids.length - 1) * 12 + 28) + 'px"><div class="cp-grid" style="grid-template-columns:repeat(' + ids.length + ',minmax(310px,1fr))">' + grid + '</div>' +
+      '<div class="sp-note-s">Tap a row to show its curve. Green = the highest value of the compared players. “Change” = now compared with the oldest day shown' + (span ? ' (' + plural(span, 'day') + ' ago)' : '') + '. A dash means the player was not in the top 100 of that column.</div>' +
+      '<div class="sp-shf">state646.com · State Power · ' + esc(first) + (cpDs.length > 1 ? ' – ' + esc(lastD) : '') + '</div></div>';
+  }
+  var cpIdx = [];
+  function cpIdxList(){ return cpIdx; }
+  function cpLoad(){
+    var tok = ++cpTok;
+    $('cpBody').innerHTML = '<div class="sp-empty">Loading …</div>';
+    loadIndex().then(function(ds){
+      if(tok !== cpTok) return;
+      cpIdx = ds;
+      var use;
+      if(cpRg === 'c'){
+        if(ds.indexOf(cpTo) < 0) cpTo = LATEST;
+        if(ds.indexOf(cpFrom) < 0 || cpFrom >= cpTo) cpFrom = ds.filter(function(d){ return d < cpTo; })[0] || cpTo;
+        use = ds.filter(function(d){ return d >= cpFrom && d <= cpTo; });
+      } else {
+        var from = cpRg ? addDays(LATEST, -cpRg) : '';
+        use = ds.filter(function(d){ return !from || d >= from; });
+      }
+      return Promise.all(use.map(fetchDay)).then(function(r){
+        if(tok !== cpTok) return;
+        cpDs = use.filter(function(d, i){ return r[i]; }); cpRender();
+      });
+    });
+  }
+  function openCp(id){ if(id) cpIds = [id, '', '']; $('cpModal').classList.add('open'); cpLoad(); loadLib().catch(function(){}); }
+  function closeCp(){ cpTok++; $('cpModal').classList.remove('open'); }
   function setRg(v){
     RG = v; $('spTrRg').value = String(v);
     if($('spTr').open) renderTrend();
@@ -1605,6 +1705,22 @@
     $('spTrSel').addEventListener('change', renderTrend);
     $('spTrRg').addEventListener('change', function(){ setRg(+this.value); });
     $('plClose').addEventListener('click', closePl);
+    $('cpBtn').addEventListener('click', function(){ openCp(''); });
+    $('cpClose').addEventListener('click', closeCp);
+    $('cpModal').addEventListener('click', function(e){ if(e.target === $('cpModal')) closeCp(); });
+    $('cpBody').addEventListener('change', function(e){
+      var t = e.target; if(!t) return;
+      if(t.classList && t.classList.contains('cp-sel')){ cpIds[+t.getAttribute('data-i')] = t.value; cpRender(); }
+      else if(t.id === 'cpRange'){ cpRg = t.value === 'c' ? 'c' : +t.value; if(cpRg === 'c'){ cpFrom = ''; cpTo = LATEST; } cpLoad(); }
+      else if(t.id === 'cpFrom'){ cpFrom = t.value; cpLoad(); }
+      else if(t.id === 'cpTo'){ cpTo = t.value; cpLoad(); }
+    });
+    $('cpBody').addEventListener('click', function(e){
+      var bt = e.target.closest ? e.target.closest('button[data-act]') : null;
+      if(bt){ copyImage(bt, $('cpShot'), 'state646-compare.png', bt.getAttribute('data-act')); return; }
+      var tr = e.target.closest ? e.target.closest('tr[data-k]') : null; if(!tr) return;
+      cpK = tr.getAttribute('data-k'); cpRender();
+    });
     $('plModal').addEventListener('click', function(e){ if(e.target === $('plModal')) closePl(); });
     $('plBody').addEventListener('change', function(e){
       var t = e.target; if(!t) return;
@@ -1615,6 +1731,7 @@
     $('plBody').addEventListener('click', function(e){
       var bt = e.target.closest ? e.target.closest('button[data-act]') : null;
       if(bt){
+        if(bt.getAttribute('data-act') === 'cmp'){ var pid0 = plId; closePl(); openCp(pid0); return; }
         var rr = ROWS.filter(function(x){ return x.id === plId; })[0], nm = ((rr && rr.n) || '').replace(/[^A-Za-z0-9_-]+/g, '') || ('player-' + plId);
         copyImage(bt, $('plShot'), 'state646-' + nm + '.png', bt.getAttribute('data-act')); return;
       }
@@ -1778,7 +1895,7 @@
     st.cols = k; persist(); render();
   });
   $('colReset').addEventListener('click', function(){ st.cols = null; st.exp = {}; persist(); colOpen(); render(); });
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ $('colModal').classList.remove('open'); closePl(); closeReport(); } });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ $('colModal').classList.remove('open'); closePl(); closeCp(); closeReport(); } });
 
   $('spTbl').addEventListener('click', function(e){
     var pn = e.target.closest ? e.target.closest('.sp-pn') : null;
