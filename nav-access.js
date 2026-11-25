@@ -70,6 +70,7 @@
     shield: '<path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/>',
     stopwatch: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M9.5 2.5h5M12 2.5V6M18.2 7.2l1.6-1.6"/>',
     buff: '<circle cx="12" cy="12" r="8.5"/><path d="M12 16.5V8M8.5 11.5L12 8l3.5 3.5"/>',
+    manage: '<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/>',
     gift: '<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-3-5 0M12 9c2-4 6-3 5 0"/>'
   };
   // items: [page, label, icon, short description, badge]  badge f = open to everyone (you may need a login to edit), m = members of state 646 with access only
@@ -90,6 +91,7 @@
       ['assignfsh.html', 'Fortress/SH Plan', 'castle', 'Fortress and stronghold assignments', 'f'],
       ['buff_recipients.html', 'Buff Recipients', 'buff', 'Who gets the fortress buffs', 'f'],
       ['appointments.html', 'Appointments', 'clock', 'Sign up for minister office slots', 'f'],
+      ['manageappt.html', 'Manage Appointments', 'manage', 'Sign-up overview, auto-fill and final assignment', 'm'],
       ['foundryplaner.html', 'Foundry/TAL Planner', 'grid', 'Team plan for the Foundry and TAL', 'f']]},
     {k: 'tool', l: 'Tools', s: 'Tools', items: [
       ['formations.html', 'Formations', 'shield', 'Hero formations for garrison and rally', 'f'],
@@ -105,6 +107,7 @@
   }
   function allowed(f, mm){
     if(f === 'rallyleads.html') return !!(mm && mm.rallyleads);
+    if(f === 'manageappt.html') return !!(mm && (mm.role === 'super' || (mm.pages || []).indexOf('appointments') >= 0));
     if(f === 'access.html') return !!(mm && mm.role === 'super');
     return true;
   }
