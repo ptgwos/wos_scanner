@@ -1186,7 +1186,7 @@
     <div class="ap-p" id="apEv"><div class="ap-gate">Loading …</div></div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma2</footer>
+  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma3</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
@@ -1269,6 +1269,9 @@
           return Promise.resolve(cp(d.assign.filter(function(a){ return a.event_id === ev; }))); },
         asClear: function(c, ev, day, slot){ var n = need(c, 'view'); if(n) return n; var d = load(); d.assign = (d.assign || []).filter(function(a){ return !(a.event_id === ev && a.day === day && a.slot === slot); }); save(d);
           return Promise.resolve(cp(d.assign.filter(function(a){ return a.event_id === ev; }))); },
+        sentList: function(c, ev){ var n = need(c, 'view'); if(n) return n; var d = load(), o = (d.sent && d.sent[ev]) || {}; return Promise.resolve(Object.keys(o).map(function(k){ return {pid: k, sig: o[k].sig, by: o[k].by, at: o[k].at}; })); },
+        sentSet: function(c, ev, pid, sig){ var n = need(c, 'view'); if(n) return n; var d = load(); d.sent = d.sent || {}; d.sent[ev] = d.sent[ev] || {};
+          if(sig) d.sent[ev][pid] = {sig: sig, by: can(c).name, at: new Date().toISOString()}; else delete d.sent[ev][pid]; save(d); return Promise.resolve(); },
         get: function(ev, pid){ var e = load().entries.filter(function(x){ return x.event_id === ev && x.pid === pid; })[0]; return Promise.resolve(e ? cp(e) : null); },
         save: function(a){
           var d = load(), ev = d.events.filter(function(x){ return x.id === a.p_event; })[0];
@@ -1305,6 +1308,8 @@
       asList: function(c, ev){ return rpc('ap_assign_list', {p_code: c, p_event: ev}); },
       asSet: function(c, ev, day, slot, pid){ return rpc('ap_assign_set', {p_code: c, p_event: ev, p_day: day, p_slot: slot, p_pid: pid}); },
       asClear: function(c, ev, day, slot){ return rpc('ap_assign_clear', {p_code: c, p_event: ev, p_day: day, p_slot: slot}); },
+      sentList: function(c, ev){ return rpc('ap_sent_list', {p_code: c, p_event: ev}); },
+      sentSet: function(c, ev, pid, sig){ return rpc('ap_sent_set', {p_code: c, p_event: ev, p_pid: pid, p_sig: sig}); },
       save: function(a){ return rpc('ap_save', a); },
       evList: function(c){ return rpc('ap_events_list', {p_code: c}); },
       list: function(c, ev){ return rpc('ap_list', {p_code: c, p_event: ev}); },
@@ -1425,7 +1430,7 @@
   function openAs(){
     if(!O.evId){ toast('There is no week yet.'); return; }
     A.slot = null; $('apAs').classList.add('open'); $('apAsp').innerHTML = '<div class="ap-gate">Loading …</div>';
-    Promise.all([api.list(code, O.evId), api.asList(code, O.evId)]).then(function(r){ O.rows = r[0] || []; A.asg = r[1] || []; asShell(); }).catch(function(e){ $('apAsp').innerHTML = '<div class="ap-gate">' + esc(e.message) + '</div><div class="ap-ma"><button type="button" class="btn btn-secondary" id="asX">Close</button></div>'; $('asX').addEventListener('click', function(){ $('apAs').classList.remove('open'); }); });
+    Promise.all([api.list(code, O.evId), api.asList(code, O.evId), api.sentList(code, O.evId)]).then(function(r){ O.rows = r[0] || []; A.asg = r[1] || []; sentLoad(r[2]); asShell(); startPoll(); }).catch(function(e){ $('apAsp').innerHTML = '<div class="ap-gate">' + esc(e.message) + '</div><div class="ap-ma"><button type="button" class="btn btn-secondary" id="asX">Close</button></div>'; $('asX').addEventListener('click', function(){ $('apAs').classList.remove('open'); }); });
   }
   function asShell(){
     $('apAsp').innerHTML = '<div class="as-top"><h3>Assign slots</h3>' + DAYS.map(function(d){ return '<button type="button" class="as-dt" data-day="' + d.k + '">' + d.s + ' · ' + d.w + '</button>'; }).join('') + '<span class="sp"></span><button type="button" class="btn" id="asAf" title="Fills the free slots automatically (existing assignments stay)">Auto-fill this day</button><button type="button" class="btn" id="asAfA" title="Fills the free slots of all three days">Auto-fill all days</button><button type="button" class="btn btn-secondary" id="asCl" title="Removes all assignments of this day">Clear day</button><button type="button" class="btn btn-secondary" id="asCd">Copy this day</button><button type="button" class="btn btn-secondary" id="asCa">Copy all days</button><button type="button" class="btn btn-secondary" id="asX">Close</button></div>' +
@@ -1563,25 +1568,40 @@
     DAYS.forEach(function(d){ var a = A.asg.filter(function(x){ return x.day === d.k && x.pid === pid; })[0]; if(a) L.push(d.n + ': ' + tl(a.slot) + ' UTC'); });
     return L.join('\n');
   }
-  // "sent" marks live in this browser only; a mark disappears by itself when the player's times change afterwards
-  function sentKey(){ return 'ap_sent_' + O.evId; }
-  function sentGet(){ try { return JSON.parse(localStorage.getItem(sentKey()) || '{}') || {}; } catch(e) { return {}; } }
-  function isSent(pid){ return sentGet()[pid] === msgText(pid); }
-  function setSent(pid, on){ var o = sentGet(); if(on) o[pid] = msgText(pid); else delete o[pid]; try { localStorage.setItem(sentKey(), JSON.stringify(o)); } catch(e) { toast('This browser cannot remember the mark.'); } }
+  // "sent" marks are stored in the database (everybody who manages sees them); a mark disappears by itself when the player's times change afterwards
+  var S = {};
+  function sentLoad(l){ S = {}; (l || []).forEach(function(x){ S[x.pid] = x; }); }
+  function isSent(pid){ return !!(S[pid] && S[pid].sig === msgText(pid)); }
+  function sentInfo(pid){ var x = S[pid]; return x && x.sig === msgText(pid) ? 'Sent by ' + (x.by || '?') + ' · ' + fdate(x.at) + ' UTC' : ''; }
+  function setSent(pid, on){
+    var old = S[pid], sig = on ? msgText(pid) : null;
+    if(on) S[pid] = {pid: pid, sig: sig, by: (CAN.name || 'you'), at: new Date().toISOString()}; else delete S[pid];
+    asDraw();
+    api.sentSet(code, O.evId, pid, sig).catch(function(e){ if(old) S[pid] = old; else delete S[pid]; asDraw(); toast(e.message); });
+  }
+  // other people work on the same list: refresh it every 20 seconds while the window is open (never while somebody is typing, dragging or reading a message)
+  function startPoll(){
+    if(A.poll) return;
+    A.poll = setInterval(function(){
+      if(!$('apAs').classList.contains('open') || $('apMsg').classList.contains('open') || A.drag) return;
+      var ae = document.activeElement; if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) && ae.type !== 'checkbox') return;
+      asReload();
+    }, 20000);
+  }
   function msgCtl(pid){
     var off = pid ? '' : ' disabled';
     return '<span class="mc"><button type="button" class="env" data-env="' + esc(pid || '') + '"' + off + ' title="' + (pid ? 'Message for this player' : 'Assign a player first') + '" aria-label="Message">✉️</button>' +
-      '<input type="checkbox" class="snt" data-snt="' + esc(pid || '') + '"' + off + (pid && isSent(pid) ? ' checked' : '') + ' title="' + (pid ? 'Message sent' : 'Assign a player first') + '" aria-label="Message sent"></span>';
+      '<input type="checkbox" class="snt" data-snt="' + esc(pid || '') + '"' + off + (pid && isSent(pid) ? ' checked' : '') + ' title="' + (pid ? (sentInfo(pid) || 'Message sent') : 'Assign a player first') + '" aria-label="Message sent"></span>';
   }
   function openMsg(pid){
     var r = byPid()[pid], m = $('apMsg'), mp = $('apMsgP');
     mp.innerHTML = '<h3>Message for ' + esc(r ? r.name : pid) + (r && r.tag ? ' (' + esc(r.tag) + ')' : '') + '</h3>' +
       '<textarea class="ap-in" id="msT" rows="7" readonly style="width:100%;resize:vertical;font-family:inherit;line-height:1.5"></textarea>' +
-      '<label class="ap-chk" style="margin-top:10px"><input type="checkbox" id="msS"> Message sent</label>' +
+      '<label class="ap-chk" style="margin-top:10px"><input type="checkbox" id="msS"> Message sent</label><p class="ap-note" id="msI" style="margin:4px 0 0"></p>' +
       '<div class="ap-ma"><button type="button" class="btn btn-secondary" id="msX">Close</button><button type="button" class="btn" id="msC">Copy</button></div>';
-    $('msT').value = msgText(pid); $('msS').checked = isSent(pid);
+    $('msT').value = msgText(pid); $('msS').checked = isSent(pid); $('msI').textContent = sentInfo(pid);
     $('msC').addEventListener('click', function(){ clipText($('msT').value, 'Copied. Paste it into the game.'); });
-    $('msS').addEventListener('change', function(){ setSent(pid, this.checked); asDraw(); });
+    $('msS').addEventListener('change', function(){ setSent(pid, this.checked); $('msI').textContent = sentInfo(pid); });
     $('msX').addEventListener('click', function(){ m.classList.remove('open'); });
     m.classList.add('open'); $('msT').focus(); $('msT').select();
   }
@@ -1640,7 +1660,7 @@
     toast('Saving … ' + Math.min(i + 6, ops.length) + ' of ' + ops.length);
     Promise.all(chunk.map(function(f){ return f(); })).then(function(){ runOps(ops, i + 6, done); }).catch(function(e){ toast(e.message); asReload(); });
   }
-  function asReload(){ return api.asList(code, O.evId).then(function(l){ A.asg = l || []; asDraw(); }).catch(function(e){ toast(e.message); }); }
+  function asReload(){ return Promise.all([api.asList(code, O.evId), api.sentList(code, O.evId)]).then(function(r){ A.asg = r[0] || []; sentLoad(r[1]); asDraw(); }).catch(function(e){ toast(e.message); }); }
   function afRun(days){
     if(!O.evId){ toast('There is no week yet.'); return; }
     var plans = days.map(function(d){ return {d: d, p: afPlan(d, dayAsg(d))}; }), tot = 0, msg = '';
