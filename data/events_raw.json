@@ -1,19 +1,12 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-24",
- "count": 25,
+ "date": "2026-11-25",
+ "count": 24,
  "categories": [
   {
    "name": "Events",
    "events": [
-    {
-     "name": "Armament Competition",
-     "category": "Events",
-     "when": "23 Nov 00:00 – 24 Nov 24:00",
-     "begin_ts": 1795392000,
-     "end_ts": 1795564800
-    },
     {
      "name": "Alliance Championship",
      "category": "Events",
@@ -83,26 +76,19 @@
      "when": "28 Nov 00:00 – 29 Nov 24:00",
      "begin_ts": 1795824000,
      "end_ts": 1795996800
+    },
+    {
+     "name": "Officer Project",
+     "category": "Events",
+     "when": "29 Nov 00:00 – 30 Nov 24:00",
+     "begin_ts": 1795910400,
+     "end_ts": 1796083200
     }
    ]
   },
   {
    "name": "Deals",
    "events": [
-    {
-     "name": "Hall of Heroes",
-     "category": "Deals",
-     "when": "22 Nov 00:00 – 24 Nov 24:00",
-     "begin_ts": 1795305600,
-     "end_ts": 1795564800
-    },
-    {
-     "name": "Tundra Trading Station",
-     "category": "Deals",
-     "when": "23 Nov 00:00 – 24 Nov 24:00",
-     "begin_ts": 1795392000,
-     "end_ts": 1795564800
-    },
     {
      "name": "Journey Treasures",
      "category": "Deals",
@@ -116,6 +102,13 @@
      "when": "23 Nov 00:00 – 6 Dec 24:00",
      "begin_ts": 1795392000,
      "end_ts": 1796601600
+    },
+    {
+     "name": "Hall of Heroes",
+     "category": "Deals",
+     "when": "29 Nov 00:00 – 1 Dec 24:00",
+     "begin_ts": 1795910400,
+     "end_ts": 1796169600
     }
    ]
   },

@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-24",
- "fetched_at": "2026-11-24T10:04:35Z",
- "count": 25,
+ "api_date": "2026-11-25",
+ "fetched_at": "2026-11-25T08:50:05Z",
+ "count": 24,
  "events": [
   {
    "name": "Journey Treasures",
@@ -23,15 +23,6 @@
    "end_ts": 1795996800
   },
   {
-   "name": "Hall of Heroes",
-   "category": "Deals",
-   "when": "22 Nov 00:00 – 24 Nov 24:00",
-   "begin": "2026-11-22T00:00:00Z",
-   "end": "2026-11-25T00:00:00Z",
-   "begin_ts": 1795305600,
-   "end_ts": 1795564800
-  },
-  {
    "name": "Alliance Championship",
    "category": "Events",
    "when": "23 Nov 00:00 – 29 Nov 24:00",
@@ -48,15 +39,6 @@
    "end": "2026-11-29T00:00:00Z",
    "begin_ts": 1795392000,
    "end_ts": 1795910400
-  },
-  {
-   "name": "Armament Competition",
-   "category": "Events",
-   "when": "23 Nov 00:00 – 24 Nov 24:00",
-   "begin": "2026-11-23T00:00:00Z",
-   "end": "2026-11-25T00:00:00Z",
-   "begin_ts": 1795392000,
-   "end_ts": 1795564800
   },
   {
    "name": "Canyon Clash",
@@ -84,15 +66,6 @@
    "end": "2026-12-07T00:00:00Z",
    "begin_ts": 1795392000,
    "end_ts": 1796601600
-  },
-  {
-   "name": "Tundra Trading Station",
-   "category": "Deals",
-   "when": "23 Nov 00:00 – 24 Nov 24:00",
-   "begin": "2026-11-23T00:00:00Z",
-   "end": "2026-11-25T00:00:00Z",
-   "begin_ts": 1795392000,
-   "end_ts": 1795564800
   },
   {
    "name": "Fishing Tournament",
@@ -228,6 +201,24 @@
    "end": "2026-11-30T00:00:00Z",
    "begin_ts": 1795824000,
    "end_ts": 1795996800
+  },
+  {
+   "name": "Hall of Heroes",
+   "category": "Deals",
+   "when": "29 Nov 00:00 – 1 Dec 24:00",
+   "begin": "2026-11-29T00:00:00Z",
+   "end": "2026-12-02T00:00:00Z",
+   "begin_ts": 1795910400,
+   "end_ts": 1796169600
+  },
+  {
+   "name": "Officer Project",
+   "category": "Events",
+   "when": "29 Nov 00:00 – 30 Nov 24:00",
+   "begin": "2026-11-29T00:00:00Z",
+   "end": "2026-12-01T00:00:00Z",
+   "begin_ts": 1795910400,
+   "end_ts": 1796083200
   }
  ]
 }
