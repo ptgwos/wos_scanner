@@ -1076,6 +1076,7 @@
   /* users table: compact so that it fits without sideways scrolling; cards on narrow screens */
   table.ad-users th{padding:8px 6px;font-size:10.5px;letter-spacing:.04em;} table.ad-users td{padding:8px 6px;}
   table.ad-users .ad-nm{min-width:0;} table.ad-users td:first-child{width:17%;}
+  @media (min-width:1081px){ table.ad-users td:first-child{min-width:190px;} table.ad-users .ad-nm{min-width:170px;} }
   table.ad-users .dq-id{display:inline-block;margin-top:2px;font-size:10.5px;} table.ad-users .ad-ll{display:block;margin-top:2px;font-size:11px;color:var(--text-faint);}
   table.ad-users .dq-set{display:inline-flex;gap:4px;} table.ad-users .dq-set input{width:120px;min-width:0;}
   table.ad-users select.ad-sel{max-width:100%;}
@@ -1114,7 +1115,7 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-25 · a22</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-25 · a23</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
