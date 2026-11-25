@@ -1223,7 +1223,7 @@
       </div>
       <div class="ap-p">
         <h2><span class="n">3</span> Your times</h2>
-        <p class="ap-sub">Pick <b>at least 3 times</b> per day (UTC). Your <b>first tap is your first choice</b> (gold), every further tap is an alternative (numbered in the order you tap). Tap a selected time again to remove it. Use the arrows below the tiles to change the order.</p>
+        <p class="ap-sub">Choose the day(s) you want – <b>you do not have to sign up for all three</b>. For every day you choose, pick <b>at least 3 times</b> (UTC); leave a day empty if you do not need it. Your <b>first tap is your first choice</b> (gold), every further tap is an alternative (numbered in the order you tap). Tap a selected time again to remove it. Use the arrows below the tiles to change the order.</p>
         <p class="ap-heat"><b>Heat map:</b> the number on a tile shows how many players already picked it, and the redder it is, the more crowded. Try to avoid the red times if you can.
           <span class="sw" style="background:rgba(255,160,60,.15)"></span>few <span class="sw" style="background:rgba(255,110,50,.4)"></span>some <span class="sw" style="background:rgba(255,50,60,.66)"></span>many</p>
         <div class="ap-days" id="apDays"></div>
@@ -1234,7 +1234,7 @@
       </div>
     </div>
   </div>
-  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-11-25 · ap6</footer>
+  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-11-25 · ap7</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1311,7 +1311,7 @@
           var d = load(), ev = d.events.filter(function(x){ return x.id === a.p_event; })[0];
           if(!ev) return Promise.reject(new Error('This week does not exist.')); if(ev.closed) return Promise.reject(new Error('Sign-up for this week is closed.'));
           if(!/^[0-9]{1,20}$/.test(a.p_pid)) return Promise.reject(new Error('Invalid player ID.'));
-          for(var i = 1; i <= 3; i++){ var s = a.p_slots[String(i)]; if(!s || s.length < 3) return Promise.reject(new Error('Pick at least 3 times for every day.')); }
+          var any = false; for(var i = 1; i <= 3; i++){ var s = a.p_slots[String(i)] || []; if(!s.length) continue; any = true; if(s.length < 3) return Promise.reject(new Error('Pick at least 3 times for every day you sign up for.')); } if(!any) return Promise.reject(new Error('Pick at least one day.'));
           var e = d.entries.filter(function(x){ return x.event_id === a.p_event && x.pid === a.p_pid; })[0];
           if(e){ e.prev = {vals: e.vals, slots: e.slots, at: e.updated_at}; e.name = a.p_name; e.tag = a.p_tag; e.vals = a.p_vals; e.slots = a.p_slots; e.version++; e.updated_at = new Date().toISOString(); }
           else d.entries.push({id: 'm' + Date.now(), event_id: a.p_event, pid: a.p_pid, name: a.p_name, tag: a.p_tag, vals: a.p_vals, slots: a.p_slots, version: 1, updated_at: new Date().toISOString()});
@@ -1586,7 +1586,7 @@
     var h = '';
     DAYS.forEach(function(dy){
       var s = F.slots[dy.k], n = s.length, dt = dateOf(dy.k);
-      h += '<div class="ap-day" data-d="' + dy.k + '"><div class="ap-dh"><b>' + dy.n + (dt ? ' · ' + dt : '') + ' · <span>' + dy.w + '</span></b><span class="ap-cnt ' + (n >= 3 ? 'ok' : 'low') + '">' + n + ' selected' + (n < 3 ? ' · at least 3 needed' : '') + '</span></div><div class="ap-tiles">';
+      h += '<div class="ap-day" data-d="' + dy.k + '"><div class="ap-dh"><b>' + dy.n + (dt ? ' · ' + dt : '') + ' · <span>' + dy.w + '</span></b><span class="ap-cnt ' + (n >= 3 ? 'ok' : n ? 'low' : 'off') + '">' + (n ? n + ' selected' + (n < 3 ? ' · at least 3 needed' : '') : 'not signing up for this day') + '</span></div><div class="ap-tiles">';
       var cc = C[dy.k] || [], mx = 0, i;
       cc.forEach(function(x){ if(x[1] > mx) mx = x[1]; });
       for(i = 0; i < 48; i++){ var p = s.indexOf(i), ct = cc[i] || [0, 0], lv = ct[1] > 0 && mx ? Math.max(1, Math.ceil(5 * ct[1] / mx)) : 0;
@@ -1639,7 +1639,8 @@
     if(!who.pid){ s.className = 'ap-st bad'; s.textContent = 'Please choose your name or enter your player ID.'; return; }
     var name = who.name || cleanName($('apNm').value); if(!name){ s.className = 'ap-st bad'; s.textContent = 'Please enter your in-game name.'; $('apNm').focus(); return; }
     var rv = readVals(); if(rv.bad){ s.className = 'ap-st bad'; s.textContent = 'Please enter whole numbers for "' + rv.bad + '" (or e.g. 250d15h43m for speedups).'; return; }
-    for(var i = 0; i < 3; i++){ if(F.slots[DAYS[i].k].length < 3){ s.className = 'ap-st bad'; s.textContent = 'Please pick at least 3 times on ' + DAYS[i].n + '.'; return; } }
+    var days = 0; for(var i = 0; i < 3; i++){ var cn = F.slots[DAYS[i].k].length; if(cn) days++; if(cn && cn < 3){ s.className = 'ap-st bad'; s.textContent = 'Please pick at least 3 times on ' + DAYS[i].n + ' (or clear that day if you do not need it).'; return; } }
+    if(!days){ s.className = 'ap-st bad'; s.textContent = 'Please pick at least one day with at least 3 times.'; return; }
     var b = $('apSave'); b.disabled = true; s.textContent = 'Saving …';
     api.save({p_event: EV.id, p_pid: who.pid, p_name: name, p_tag: who.tag || '', p_vals: rv.vals, p_slots: F.slots}).then(function(){
       var nm = name;
@@ -1654,7 +1655,7 @@
     var h = $('apEv');
     if(!EV){ h.innerHTML = '<div class="ap-gate"><b>No Prep Week is open for sign-up yet.</b><br>An admin will create it shortly. Please come back later.</div>'; $('apForm').style.display = 'none'; return; }
     var ds = DAYS.map(function(d){ var t = dateOf(d.k); return d.s + (t ? ' ' + t : '') + ' → ' + d.w; }).join(' · ');
-    h.innerHTML = '<h2>' + esc(EV.title) + (EV.closed ? ' <span class="ap-badge">Sign-up closed</span>' : '') + '</h2><p class="ap-sub" style="margin:0">' + esc(ds) + '. Sign up for the minister office you want on each day. There are more sign-ups than slots, so please choose several times.</p>';
+    h.innerHTML = '<h2>' + esc(EV.title) + (EV.closed ? ' <span class="ap-badge">Sign-up closed</span>' : '') + '</h2><p class="ap-sub" style="margin:0">' + esc(ds) + '. Sign up for the minister office on the day(s) you need. There are more sign-ups than slots, so please choose several times.</p>';
     $('apForm').style.display = EV.closed ? 'none' : '';
   }
   function loadCounts(){ if(!EV) return Promise.resolve(); return api.counts(EV.id).then(function(c){ C = c || {}; drawDays(); }).catch(function(){}); }

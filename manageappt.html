@@ -1186,7 +1186,7 @@
     <div class="ap-p" id="apEv"><div class="ap-gate">Loading …</div></div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma3</footer>
+  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma4</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
@@ -1291,6 +1291,16 @@
           else d.events.push({id: 'e' + Date.now(), title: a.p_title, d1: a.p_d1, d2: a.p_d2, d3: a.p_d3, closed: !!a.p_closed, t: Date.now()});
           save(d); return Promise.resolve(); },
         evDel: function(c, id){ if(!can(c).super) return Promise.reject(new Error('Not allowed (super admin only).')); var d = load(); d.events = d.events.filter(function(x){ return x.id !== id; }); d.entries = d.entries.filter(function(x){ return x.event_id !== id; }); save(d); return Promise.resolve(); }
+        ,imp: function(c, ev, list, ow){ var n = need(c, 'manage'); if(n) return n; var d = load(), r = {inserted: 0, updated: 0, skipped: 0, invalid: 0, errors: []};
+          list.forEach(function(x){
+            if(!/^[0-9]{1,20}$/.test(x.pid) || !x.name){ r.invalid++; r.errors.push({pid: x.pid, error: 'Invalid player ID.'}); return; }
+            var has = false, bad = false; ['1', '2', '3'].forEach(function(k){ var a = (x.slots || {})[k] || []; if(a.length) has = true; if(a.some(function(v){ return v < 0 || v > 47; })) bad = true; });
+            if(!has || bad){ r.invalid++; r.errors.push({pid: x.pid, error: has ? 'Invalid time.' : 'No times.'}); return; }
+            var e = d.entries.filter(function(y){ return y.event_id === ev && y.pid === x.pid; })[0];
+            if(!e){ d.entries.push({id: 'i' + Date.now() + x.pid, event_id: ev, pid: x.pid, name: x.name, tag: x.tag || null, vals: x.vals || {}, slots: x.slots, note: x.note || null, version: 1, updated_at: new Date().toISOString()}); r.inserted++; }
+            else if(ow){ e.prev = {vals: e.vals, slots: e.slots, at: e.updated_at}; e.name = x.name; e.tag = x.tag || e.tag; e.vals = x.vals || {}; e.slots = x.slots; e.note = x.note || e.note; e.version++; e.updated_at = new Date().toISOString(); r.updated++; }
+            else r.skipped++;
+          }); save(d); return Promise.resolve(r); }
       };
     }
     var H = {apikey: CFG.key, 'Content-Type': 'application/json'}; if(/^eyJ/.test(CFG.key)) H.Authorization = 'Bearer ' + CFG.key;
@@ -1315,7 +1325,8 @@
       list: function(c, ev){ return rpc('ap_list', {p_code: c, p_event: ev}); },
       del: function(c, id){ return rpc('ap_entry_delete', {p_code: c, p_id: id}); },
       evSave: function(c, a){ a.p_code = c; return rpc('ap_event_save', a); },
-      evDel: function(c, id){ return rpc('ap_event_delete', {p_code: c, p_id: id}); }
+      evDel: function(c, id){ return rpc('ap_event_delete', {p_code: c, p_id: id}); },
+      imp: function(c, ev, list, ow){ return rpc('ap_import', {p_code: c, p_event: ev, p_entries: list, p_overwrite: !!ow}); }
     };
   })();
 
@@ -1326,13 +1337,14 @@
   function ovShell(){
     var ov = $('apOv'); ov.style.display = '';
     ov.innerHTML = '<h2>Overview <span class="ap-tag">authorised only</span></h2><p class="ap-sub">Everything people signed up with. Click a column to sort, click a row for all chosen times.</p>' +
-      '<div class="ap-bar"><select class="ap-in" id="oEv" style="min-width:200px"></select>' + '<button type="button" class="btn" id="oAs" style="width:auto;padding:7px 16px">Assign slots</button>' + (CAN.manage ? '<button type="button" class="btn btn-secondary" id="oMg">Manage weeks</button>' : '') + '<button type="button" class="btn btn-secondary" id="oCp">Copy table</button><button type="button" class="btn btn-secondary" id="oRl">Reload</button><span class="ap-st" id="oCnt"></span></div>' +
+      '<div class="ap-bar"><select class="ap-in" id="oEv" style="min-width:200px"></select>' + '<button type="button" class="btn" id="oAs" style="width:auto;padding:7px 16px">Assign slots</button>' + (CAN.manage ? '<button type="button" class="btn btn-secondary" id="oMg">Manage weeks</button>' : '') + (CAN.manage ? '<button type="button" class="btn btn-secondary" id="oIm">Import</button>' : '') + '<button type="button" class="btn btn-secondary" id="oCp">Copy table</button><button type="button" class="btn btn-secondary" id="oRl">Reload</button><span class="ap-st" id="oCnt"></span></div>' +
       '<div class="ap-tabs"><button type="button" class="ap-tab" data-t="p">Players</button><button type="button" class="ap-tab" data-t="s">Time slots</button></div>' +
       '<div class="ap-bar" id="oFl"></div><div id="oBody"></div>';
     $('oEv').addEventListener('change', function(){ O.evId = this.value; ovLoad(); });
     $('oRl').addEventListener('click', function(){ ovLoad(true); });
     $('oCp').addEventListener('click', copyTable);
     if($('oMg')) $('oMg').addEventListener('click', openMg);
+    if($('oIm')) $('oIm').addEventListener('click', openIm);
     $('oAs').addEventListener('click', openAs);
     ov.querySelectorAll('.ap-tab').forEach(function(t){ t.addEventListener('click', function(){ O.tab = t.getAttribute('data-t'); ovFilters(); ovDraw(); }); });
   }
@@ -1391,7 +1403,7 @@
           TK.map(function(k){ var v = r.vals ? r.vals[k] : null; return '<td class="' + GC[k] + '"' + (k.charAt(0) === 's' && v != null ? ' title="' + mins(v) + '"' : '') + '>' + fmt(v) + '</td>'; }).join('') +
           [1, 2, 3].map(function(d){ var f = (r.slots[d] || [])[0]; return '<td>' + (f == null ? '–' : tl(f)) + '</td>'; }).join('') + '<td class="l">' + fdate(r.updated_at) + '</td>' +
           '<td><button type="button" class="ap-x' + (O.arm === r.id ? ' arm' : '') + '" data-del="' + esc(r.id) + '">' + (O.arm === r.id ? 'Really?' : 'Delete') + '</button></td></tr>';
-        if(O.open[r.id]) h += '<tr class="dt"><td colspan="' + (COLS.length + 1) + '"><div class="ap-dg">' + DAYS.map(function(d){ return '<div><b>' + d.n + ' · ' + d.w + '</b><span>' + (chips(r, d.k) || '–') + '</span></div>'; }).join('') + '</div><div class="ap-note">Player ID ' + esc(r.pid) + ' · version ' + r.version + ' · Learning ' + (r.vals && r.vals.sl != null ? fmt(r.vals.sl) : '–') + ' · Healing ' + (r.vals && r.vals.sh != null ? fmt(r.vals.sh) : '–') + '</div></td></tr>';
+        if(O.open[r.id]) h += '<tr class="dt"><td colspan="' + (COLS.length + 1) + '"><div class="ap-dg">' + DAYS.map(function(d){ return '<div><b>' + d.n + ' · ' + d.w + '</b><span>' + (chips(r, d.k) || '–') + '</span></div>'; }).join('') + '</div><div class="ap-note">Player ID ' + esc(r.pid) + ' · version ' + r.version + ' · Learning ' + (r.vals && r.vals.sl != null ? fmt(r.vals.sl) : '–') + ' · Healing ' + (r.vals && r.vals.sh != null ? fmt(r.vals.sh) : '–') + '</div>' + (r.note ? '<div class="ap-note"><b>Note:</b> ' + esc(r.note) + '</div>' : '') + '</td></tr>';
       });
       b.innerHTML = h + '</tbody></table></div>' + (rows.length ? '' : '<div class="ap-gate">No sign-ups match.</div>');
       b.querySelectorAll('th[data-k]').forEach(function(th){ th.addEventListener('click', function(){ var k = th.getAttribute('data-k'); if(O.sk === k) O.sd = -O.sd; else { O.sk = k; O.sd = (k === 'name' || k === 'tag' || k.charAt(0) === 'd' && k.length === 2 || k === 'upd') ? 1 : -1; if(k === 'upd') O.sd = -1; } ovDraw(); }); });
@@ -1535,6 +1547,82 @@
   }
   function dateOf2(d){ if(!d) return ''; var x = new Date(d + 'T00:00:00Z'); return isNaN(x) ? '' : x.toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'}); }
   $('apAs').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
+
+
+  /* ---------- import (backup file of the old portal) ---------- */
+  // The file is read and converted in the browser; the server only receives the converted list (ap_import re-checks everything).
+  function imClean(t){ return String(t == null ? '' : t).replace(/[  -​ 　﻿]/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function imNum(v){ return typeof v === 'number' && isFinite(v) && v >= 0 && v % 1 === 0 && v <= 1e12 ? v : null; }
+  function imConvert(txt, pl){
+    var j = JSON.parse(txt), src = Array.isArray(j) ? j : (j && j.submissions);
+    if(!Array.isArray(src)) throw new Error('This file does not contain a list of sign-ups ("submissions").');
+    var MAP = {fire_crystals: 'fc', refined_fc: 'fcr', fc_shards: 'fcs', sp_general: 'sg', sp_troops: 'st', sp_construction: 'sc', sp_research: 'sr'};
+    var DM = [['1', 'construction'], ['2', 'research'], ['3', 'troops']], out = [], bad = [];
+    src.forEach(function(x){
+      var pid = String(x && x.fid != null ? x.fid : '').trim(), name = imClean(x && x.name);
+      if(!/^[0-9]{1,20}$/.test(pid) || !name){ bad.push(name || pid || '?'); return; }
+      var pk = x.picks || {}, pr = x.primary || {}, sl = {}, vals = {};
+      DM.forEach(function(m){
+        var a = (Array.isArray(pk[m[1]]) ? pk[m[1]] : []).map(Number).filter(function(v, i, ar){ return v >= 0 && v < 48 && v % 1 === 0 && ar.indexOf(v) === i; }).sort(function(p, q){ return p - q; });
+        var f = pr[m[1]]; if(f != null && a.indexOf(+f) > 0){ a.splice(a.indexOf(+f), 1); a.unshift(+f); }   // first choice first, the others ascending
+        sl[m[0]] = a;
+      });
+      Object.keys(MAP).forEach(function(k){ var v = imNum(x[k]); if(v != null) vals[MAP[k]] = v; });
+      var u = pl && pl.players && pl.players[pid];
+      out.push({pid: pid, name: name, tag: u && u.a ? u.a : '', vals: vals, slots: sl, note: imClean(x.notes).slice(0, 300), none: !sl['1'].length && !sl['2'].length && !sl['3'].length});
+    });
+    return {list: out, bad: bad, label: j && j.config && j.config.round_label || ''};
+  }
+  function openIm(){
+    var m = $('apM'), mp = $('apMp'), P = null, cur = [];
+    mp.innerHTML = '<h3>Import sign-ups</h3>' +
+      '<p class="ap-note" style="margin-top:0">Choose the backup file (.json) of the old portal. Nothing is saved before you confirm.</p>' +
+      '<div class="ap-fr"><label for="imF">Backup file</label><input type="file" class="ap-in" id="imF" accept=".json,application/json"></div>' +
+      '<div class="ap-fr"><label for="imW">Import into week</label><select class="ap-in" id="imW">' + O.events.map(function(e){ return '<option value="' + esc(e.id) + '"' + (e.id === O.evId ? ' selected' : '') + '>' + esc(e.title) + '</option>'; }).join('') + '</select></div>' +
+      '<div id="imP"></div>' +
+      '<label class="ap-chk" id="imOwL" style="display:none"><input type="checkbox" id="imOw"> Overwrite players who already signed up (their old data is kept as “previous”)</label>' +
+      '<div class="ap-ma"><button type="button" class="btn btn-secondary" id="imX">Close</button><button type="button" class="btn" id="imGo" disabled>Import</button></div>';
+    m.classList.add('open');
+    $('imX').addEventListener('click', function(){ m.classList.remove('open'); });
+    function rate(){
+      if(!P) return;
+      var have = {}; cur.forEach(function(r){ have[r.pid] = 1; });
+      var ok = P.list.filter(function(r){ return !r.none; }), nw = ok.filter(function(r){ return !have[r.pid]; }), ex = ok.filter(function(r){ return have[r.pid]; });
+      var no = P.list.filter(function(r){ return r.none; }), ow = $('imOw').checked;
+      $('imOwL').style.display = ex.length ? '' : 'none';
+      var h = '<div class="ap-note" style="margin:8px 0">' + (P.label ? '<b>' + esc(P.label) + '</b> · ' : '') + P.list.length + ' sign-ups in the file</div><ul class="ap-note" style="margin:0 0 8px;padding-left:20px;line-height:1.6">' +
+        '<li><b>' + nw.length + '</b> new – will be added</li>' +
+        '<li><b>' + ex.length + '</b> already in this week – ' + (ow ? 'will be <b>overwritten</b>' : 'will be skipped') + '</li>' +
+        (no.length ? '<li><b>' + no.length + '</b> without any chosen time – will not be imported: ' + esc(no.map(function(r){ return r.name; }).join(', ')) + '</li>' : '') +
+        (P.bad.length ? '<li><b>' + P.bad.length + '</b> unreadable (no valid ID or name)</li>' : '') + '</ul>';
+      $('imP').innerHTML = h; $('imGo').disabled = !(nw.length || (ow && ex.length)); $('imGo').textContent = 'Import ' + (nw.length + (ow ? ex.length : 0)) + ' players';
+    }
+    function loadWeek(){ return api.list(code, $('imW').value).then(function(r){ cur = r || []; rate(); }).catch(function(e){ cur = []; toast(e.message); }); }
+    $('imW').addEventListener('change', loadWeek); $('imOw').addEventListener('change', rate);
+    $('imF').addEventListener('change', function(){
+      var f = this.files && this.files[0]; if(!f) return; P = null; $('imGo').disabled = true; $('imP').innerHTML = '<div class="ap-gate">Reading …</div>';
+      var rd = new FileReader();
+      rd.onerror = function(){ $('imP').innerHTML = '<div class="ap-gate">The file could not be read.</div>'; };
+      rd.onload = function(){
+        var txt = String(rd.result || '');
+        fetch('data/players.json', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }, function(){ return null; }).then(function(pl){
+          try { P = imConvert(txt, pl); } catch(e){ $('imP').innerHTML = '<div class="ap-gate">' + esc(e instanceof SyntaxError ? 'This is not a valid JSON file.' : e.message) + '</div>'; return; }
+          return loadWeek();
+        });
+      };
+      rd.readAsText(f);
+    });
+    $('imGo').addEventListener('click', function(){
+      if(!P) return; var w = $('imW').value, ow = $('imOw').checked, btn = this;
+      var send = P.list.filter(function(r){ return !r.none; }).map(function(r){ return {pid: r.pid, name: r.name, tag: r.tag, vals: r.vals, slots: r.slots, note: r.note}; });
+      btn.disabled = true; btn.textContent = 'Importing …';
+      api.imp(code, w, send, ow).then(function(r){
+        var t = (r.inserted || 0) + ' added' + (r.updated ? ', ' + r.updated + ' overwritten' : '') + (r.skipped ? ', ' + r.skipped + ' skipped' : '') + (r.invalid ? ', ' + r.invalid + ' invalid' : '');
+        if(r.invalid && r.errors && r.errors.length) t += ' (' + r.errors.slice(0, 3).map(function(x){ return x.pid + ': ' + x.error; }).join('; ') + ')';
+        toast('Import done: ' + t, !r.invalid); m.classList.remove('open'); O.evId = w; return ovEvents().then(function(){ ovLoad(); });
+      }).catch(function(e){ btn.disabled = false; toast(e.message); rate(); });
+    });
+  }
 
   /* ---------- manage weeks ---------- */
   function openMg(){
