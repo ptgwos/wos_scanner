@@ -41,6 +41,14 @@ if not (SB_URL and SB_KEY):
     except Exception:
         pass
 SIZE = 64          # px, square
+API_ORIGIN = '{0.scheme}://{0.netloc}'.format(urllib.parse.urlsplit(API))   # default in-game avatars come as a path like /assets/icons/hero_headpic_50019.png on the API host
+
+def avatar_url(u):
+    """Absolute picture URL from the API value: a path starting with / lives on the API host (default avatars); anything else that is not http(s) is ignored."""
+    u = (u or '').strip() if isinstance(u, str) else ''
+    if u.startswith('//'): return 'https:' + u
+    if u.startswith('/'): return API_ORIGIN + u
+    return u if u.lower().startswith(('http://', 'https://')) else ''
 MISS_LIMIT = 3     # days in a row without a picture before the stored one is removed
 PAUSE = float(os.environ.get('WOS_PAUSE', '1.2'))   # seconds between API requests (limit is 60 per minute)
 # The API sometimes sends a roster without part of its members (and a moving player is seen by the old alliance before the new one lists him).
@@ -200,8 +208,9 @@ for n, tag in enumerate(TAGS):
         p.pop('gs', None)                    # seen again: no longer "missing since"
         p.update({'n': m.get('nick_name', p.get('n', '')), 'a': tag, 'r': m.get('alliance_rank_label', ''),
                   'p': m.get('power'), 'f': m.get('furnace_level'), 's': now})
-        if m.get('avatar_url'):
-            p['u'] = m['avatar_url']; p.pop('nm', None); p.pop('nd', None)
+        au_new = avatar_url(m.get('avatar_url'))
+        if au_new:
+            p['u'] = au_new; p.pop('nm', None); p.pop('nd', None)
         elif p.get('u'):
             # the API sends no picture (default in-game avatar): keep the old one for 2 days, drop it on the 3rd day in a row
             if p.get('nd') != now:          # count each missing picture once per day, however often the script runs
@@ -237,20 +246,25 @@ if ok:
         Image = None; print('Pillow missing, pictures skipped')
     if Image:
         AV.mkdir(parents=True, exist_ok=True)
+        raw = {}; bad = []      # default avatars are shared by many players: download every URL only once per run
         for cid, p in players.items():
-            u = p.get('u')
+            u = avatar_url(p.get('u'))
             if not u: continue
+            if p.get('u') != u: p['u'] = u      # old entries that still hold a bare path
             f = AV / f'{cid}.webp'
             if p.get('au') == u and f.exists(): continue
             try:
-                im = Image.open(io.BytesIO(get(u))).convert('RGBA')
+                if u not in raw: raw[u] = get(u, tries=2)
+                im = Image.open(io.BytesIO(raw[u])).convert('RGBA')
                 w, h = im.size; s = min(w, h)
                 im = im.crop(((w - s) // 2, (h - s) // 2, (w - s) // 2 + s, (h - s) // 2 + s)).resize((SIZE, SIZE), Image.LANCZOS)
                 im.save(f, 'WEBP', quality=80, method=6)
                 p['au'] = u; dl += 1
             except Exception as e:
-                print(f'  picture {cid} failed: {e}', flush=True)
+                bad.append(cid)
+                if len(bad) <= 5: print(f'  picture {cid} failed: {e}', flush=True)
             time.sleep(0.05)
+        if len(bad) > 5: print(f'  ... {len(bad)} pictures failed in total', flush=True)
 
 new = {'alliances': alliances, 'players': players}
 
