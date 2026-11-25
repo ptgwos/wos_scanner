@@ -69,6 +69,7 @@
     grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
     shield: '<path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/>',
     stopwatch: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M9.5 2.5h5M12 2.5V6M18.2 7.2l1.6-1.6"/>',
+    buff: '<circle cx="12" cy="12" r="8.5"/><path d="M12 16.5V8M8.5 11.5L12 8l3.5 3.5"/>',
     gift: '<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-3-5 0M12 9c2-4 6-3 5 0"/>'
   };
   // items: [page, label, icon, short description, badge]  badge f = open to everyone (you may need a login to edit), m = members of state 646 with access only
@@ -87,6 +88,7 @@
       ['rallytimer.html', 'Rally Timer', 'stopwatch', 'Countdown so all rallies land together (PIN)', 'f'],
       ['pool.html', 'Rally Pool', 'waves', 'Pool of players for rallies', 'f'],
       ['assignfsh.html', 'Fortress/SH Plan', 'castle', 'Fortress and stronghold assignments', 'f'],
+      ['buff_recipients.html', 'Buff Recipients', 'buff', 'Who gets the fortress buffs', 'f'],
       ['appointments.html', 'Appointments', 'clock', 'Sign up for minister office slots', 'f'],
       ['foundryplaner.html', 'Foundry/TAL Planner', 'grid', 'Team plan for the Foundry and TAL', 'f']]},
     {k: 'tool', l: 'Tools', s: 'Tools', items: [

@@ -1144,8 +1144,8 @@
   </div>
   <div id="wkEdit"><button type="button" class="btn sm" id="wkLast" style="display:none">Copy from last week</button></div>
   <div id="blocks"></div>
-  <p class="fs-note" id="fsNote">Everybody can look at the lists. Only people with the Fortress/SH Plan permission can change them. The alliance shown per fortress comes from the Fortress/SH plan.</p>
-  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf6</footer>
+  <p class="fs-note" id="fsNote">Everybody can look at the lists. Only people with the Buff Recipients permission can change them. The alliance shown per fortress comes from the Fortress/SH plan.</p>
+  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf7</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel"><div class="modal-header"><h2 id="pkTitle">Pick player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p>
@@ -1200,7 +1200,7 @@
   // ---- API ----
   var MK = 'bf_mock', MKF = 'fsh_mock';
   function jget(k){ try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch(e) { return {}; } }
-  var MU = {admin: {role: 'super', name: 'Peter', fsh: true}, ed: {role: 'editor', name: 'Editor', fsh: true}, viewer: {role: 'editor', name: 'Viewer', fsh: false}};
+  var MU = {admin: {role: 'super', name: 'Peter', buffs: true}, ed: {role: 'editor', name: 'Editor', buffs: true}, viewer: {role: 'editor', name: 'Viewer', buffs: false}};
   function hdr(){ var H = {apikey: CFG.key, 'Content-Type': 'application/json'}; if(/^eyJ/.test(CFG.key)) H.Authorization = 'Bearer ' + CFG.key; return H; }
   function rest(path){
     return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/' + path, {headers: hdr(), cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
@@ -1222,7 +1222,7 @@
     if(MOCK){
       var u = MU[args.p_code];
       if(fn === 'sa_me') return Promise.resolve(u || null);
-      if(!u || !u.fsh) return Promise.reject(new Error('Not allowed (no Fortress/SH Plan permission).'));
+      if(!u || !u.buffs) return Promise.reject(new Error('Not allowed (no Buff Recipients permission).'));
       if(fn === 'bf_copy'){
         var cd = jget(MK), st = cd[args.p_season] = cd[args.p_season] || {}, cnt = 0, pre = args.p_from_phase + '|' + args.p_from_fac + '|';
         var cc = args.p_col; if(args.p_replace) Object.keys(st).forEach(function(k){ var q = k.split('|'); if(q[0] == args.p_to_phase && q[1] === args.p_to_fac && (!cc || q[2] === cc)) delete st[k]; });
@@ -1573,7 +1573,7 @@
 
   // ---- login ----
   function bar(){ $('who').innerHTML = V.me ? 'Logged in: <b>' + esc(V.me.name || '') + '</b>' : ''; $('fsLogin').textContent = V.me ? 'Log out' : 'Log in to edit'; $('fsNote').style.display = V.canEdit ? 'none' : ''; render(); }
-  function login(code){ return rpc('sa_me', {p_code: code}).then(function(r){ if(!r) return false; V.code = code; V.me = r; V.canEdit = !!r.fsh; try { localStorage.setItem('ep_code', code); } catch(e) {} return true; }); }
+  function login(code){ return rpc('sa_me', {p_code: code}).then(function(r){ if(!r) return false; V.code = code; V.me = r; V.canEdit = !!r.buffs; try { localStorage.setItem('ep_code', code); } catch(e) {} return true; }); }
   function closeM(){ $('fsModal').classList.remove('open'); }
   $('fsClose').addEventListener('click', closeM);
   $('fsModal').addEventListener('click', function(e){ if(e.target === $('fsModal')) closeM(); });
