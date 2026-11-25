@@ -1186,14 +1186,19 @@
     <div class="ap-p" id="apEv"><div class="ap-gate">Loading …</div></div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma1</footer>
+  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma2</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
 <div class="ap-m" id="apAs"><div class="ap-mp ap-big" id="apAsp"></div></div>
+<div class="ap-m" id="apMsg" style="z-index:120"><div class="ap-mp" id="apMsgP"></div></div>
 <style>
   .as-s .rkb{font-size:10px;color:var(--text-faint);flex:none;white-space:nowrap;} .as-s .rkb.f{color:var(--gold);font-weight:700;}
   .as-top .btn{white-space:nowrap;}
+  .as-s .mc{display:inline-flex;align-items:center;gap:7px;flex:none;}
+  .as-s .env{background:none;border:0;cursor:pointer;font-size:15px;padding:0 1px;line-height:1;}
+  .as-s .snt{width:15px;height:15px;margin:0;accent-color:#5fbf7a;cursor:pointer;}
+  .as-s .env:disabled,.as-s .snt:disabled{opacity:.28;filter:grayscale(1);cursor:default;}
 </style>
 <script src="eventplan-config.js"></script>
 <script>
@@ -1433,6 +1438,8 @@
     $('asCd').addEventListener('click', function(){ clipText(asText([A.day]), 'Copied. Paste it into Discord.'); });
     $('asCa').addEventListener('click', function(){ clipText(asText(['1', '2', '3']), 'Copied. Paste it into Discord.'); });
     $('asSl').addEventListener('click', function(e){
+      var ev = e.target.closest('[data-env]'); if(ev){ e.stopPropagation(); if(!ev.disabled) openMsg(ev.getAttribute('data-env')); return; }
+      var sn = e.target.closest('[data-snt]'); if(sn){ e.stopPropagation(); setSent(sn.getAttribute('data-snt'), sn.checked); asDraw(); return; }
       var x = e.target.closest('[data-clr]'); if(x){ e.stopPropagation(); asDo(api.asClear(code, O.evId, A.day, +x.getAttribute('data-clr'))); return; }
       var s = e.target.closest('[data-slot]'); if(s){ A.slot = +s.getAttribute('data-slot'); asDraw(); }
     });
@@ -1458,7 +1465,7 @@
     $('apAsp').querySelectorAll('.as-dt').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-day') === d); });
     for(var i = 0; i < 48; i++){
       var pid = m.s[i], r = pid ? pm[pid] : null, cs = pid ? [] : cands(d, i, m), f = cs.filter(function(c){ return c.pos === 0; }).length;
-      h += '<div class="as-s' + (A.slot === i ? ' sel' : '') + '" data-slot="' + i + '"><span class="t">' + tl(i) + '</span>' +
+      h += '<div class="as-s' + (A.slot === i ? ' sel' : '') + '" data-slot="' + i + '"><span class="t">' + tl(i) + '</span>' + msgCtl(pid) +
         (pid ? '<span class="n"><b draggable="true" data-pid="' + esc(pid) + '" title="Drag to another slot to move">' + esc(r ? r.name : pid) + '</b>' + (r && r.tag ? ' <span class="ap-tag">' + esc(r.tag) + '</span>' : '') + '</span>' + rkTag(r, d, i) + '<button type="button" class="x" data-clr="' + i + '" title="Remove" aria-label="Remove">×</button>'
              : '<span class="n free">free</span><span class="k">' + (cs.length ? '<b>' + f + '</b> first · ' + cs.length + ' total' : '–') + '</span>') + '</div>';
     }
@@ -1548,6 +1555,37 @@
   }
   $('apM').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
 
+
+  /* ---------- message to a player (envelope) ---------- */
+  // Text for the in-game mail. Only days on which the player has a slot are listed.
+  function msgText(pid){
+    var L = ['Happy Prep Week!', 'Your appointments next week:'];
+    DAYS.forEach(function(d){ var a = A.asg.filter(function(x){ return x.day === d.k && x.pid === pid; })[0]; if(a) L.push(d.n + ': ' + tl(a.slot) + ' UTC'); });
+    return L.join('\n');
+  }
+  // "sent" marks live in this browser only; a mark disappears by itself when the player's times change afterwards
+  function sentKey(){ return 'ap_sent_' + O.evId; }
+  function sentGet(){ try { return JSON.parse(localStorage.getItem(sentKey()) || '{}') || {}; } catch(e) { return {}; } }
+  function isSent(pid){ return sentGet()[pid] === msgText(pid); }
+  function setSent(pid, on){ var o = sentGet(); if(on) o[pid] = msgText(pid); else delete o[pid]; try { localStorage.setItem(sentKey(), JSON.stringify(o)); } catch(e) { toast('This browser cannot remember the mark.'); } }
+  function msgCtl(pid){
+    var off = pid ? '' : ' disabled';
+    return '<span class="mc"><button type="button" class="env" data-env="' + esc(pid || '') + '"' + off + ' title="' + (pid ? 'Message for this player' : 'Assign a player first') + '" aria-label="Message">✉️</button>' +
+      '<input type="checkbox" class="snt" data-snt="' + esc(pid || '') + '"' + off + (pid && isSent(pid) ? ' checked' : '') + ' title="' + (pid ? 'Message sent' : 'Assign a player first') + '" aria-label="Message sent"></span>';
+  }
+  function openMsg(pid){
+    var r = byPid()[pid], m = $('apMsg'), mp = $('apMsgP');
+    mp.innerHTML = '<h3>Message for ' + esc(r ? r.name : pid) + (r && r.tag ? ' (' + esc(r.tag) + ')' : '') + '</h3>' +
+      '<textarea class="ap-in" id="msT" rows="7" readonly style="width:100%;resize:vertical;font-family:inherit;line-height:1.5"></textarea>' +
+      '<label class="ap-chk" style="margin-top:10px"><input type="checkbox" id="msS"> Message sent</label>' +
+      '<div class="ap-ma"><button type="button" class="btn btn-secondary" id="msX">Close</button><button type="button" class="btn" id="msC">Copy</button></div>';
+    $('msT').value = msgText(pid); $('msS').checked = isSent(pid);
+    $('msC').addEventListener('click', function(){ clipText($('msT').value, 'Copied. Paste it into the game.'); });
+    $('msS').addEventListener('change', function(){ setSent(pid, this.checked); asDraw(); });
+    $('msX').addEventListener('click', function(){ m.classList.remove('open'); });
+    m.classList.add('open'); $('msT').focus(); $('msT').select();
+  }
+  $('apMsg').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
 
   /* ---------- auto-fill ---------- */
   // Rule of thumb behind it: everybody who gets his 1st choice is best; the fewer times a player offered (3 is the minimum), the more his
