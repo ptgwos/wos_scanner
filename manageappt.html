@@ -1186,7 +1186,7 @@
     <div class="ap-p" id="apEv"><div class="ap-gate">Loading …</div></div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma4</footer>
+  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma5</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
@@ -1719,7 +1719,10 @@
   var RC = [0, 10, 25], RX = 45, BIG = 1e6;   // "disappointment" of a 1st, 2nd, 3rd choice and of any further time
   function weight(len){ return 1 + 4 / Math.max(1, len - 2); }   // 3 times -> 5, 4 -> 3, 6 -> 2, 10 -> 1.5, 20 -> 1.2
   // plan for one day: keep = existing assignments that stay, returns {pairs:[{pid,slot,rank}], unplaced:[rows]}
-  function afPlan(day, keep){
+  // anch = {pid: {slot: number of OTHER days on which this player has exactly this time}}: the same time on several days is worth a bonus (AB per day),
+  // so he gets it ahead of players with many alternatives, but never ahead of players who have hardly any alternative (their weight is higher than the bonus).
+  var AB = 10;
+  function afPlan(day, keep, anch){
     var m = {}, placed = {};
     (keep || []).forEach(function(a){ m[a.slot] = a.pid; placed[a.pid] = 1; });
     var free = []; for(var i = 0; i < 48; i++) if(m[i] == null) free.push(i);
@@ -1730,7 +1733,8 @@
     var cols = F + n, cost = [], idx = {}; free.forEach(function(s, c){ idx[s] = c; });
     pl.forEach(function(r){
       var row = mk(cols, BIG), sl = r.slots[day] || [], w = weight(sl.length), D = 1000 + 100 * w;
-      sl.forEach(function(s, k){ if(idx[s] != null) row[idx[s]] = (k < RC.length ? RC[k] : RX) * w; });
+      var an = (anch && anch[r.pid]) || {};
+      sl.forEach(function(s, k){ if(idx[s] != null) row[idx[s]] = (k < RC.length ? RC[k] : RX) * w - AB * (an[s] || 0); });
       for(var c = F; c < cols; c++) row[c] = D;
       cost.push(row);
     });
@@ -1751,7 +1755,15 @@
   function asReload(){ return Promise.all([api.asList(code, O.evId), api.sentList(code, O.evId)]).then(function(r){ A.asg = r[0] || []; sentLoad(r[1]); asDraw(); }).catch(function(e){ toast(e.message); }); }
   function afRun(days){
     if(!O.evId){ toast('There is no week yet.'); return; }
+    // pass 1: every day on its own; pass 2: again, now knowing which times each player has on the other days (existing assignments + pass 1)
+    function anchors(d, pl){
+      var a = {}; function add(x){ if(x.day === d) return; var o = a[x.pid] = a[x.pid] || {}; o[x.slot] = (o[x.slot] || 0) + 1; }
+      A.asg.forEach(add);
+      pl.forEach(function(x){ x.p.pairs.forEach(function(q){ add({day: x.d, pid: q.pid, slot: q.slot}); }); });
+      return a;
+    }
     var plans = days.map(function(d){ return {d: d, p: afPlan(d, dayAsg(d))}; }), tot = 0, msg = '';
+    if(DAYS.length > 1){ var p1 = plans; plans = p1.map(function(x){ var o = p1.filter(function(y){ return y.d !== x.d; }); return {d: x.d, p: afPlan(x.d, dayAsg(x.d), anchors(x.d, o))}; }); }
     plans.forEach(function(x){
       var rk = [0, 0, 0, 0]; x.p.pairs.forEach(function(q){ rk[q.rank < 0 ? 3 : Math.min(q.rank, 3)]++; }); tot += x.p.pairs.length;
       msg += DAYS.filter(function(y){ return y.k === x.d; })[0].n + ': ' + x.p.pairs.length + ' placed (1st choice ' + rk[0] + ', 2nd ' + rk[1] + ', 3rd ' + rk[2] + ', later ' + rk[3] + '), ' + x.p.unplaced.length + ' without a slot\n';
