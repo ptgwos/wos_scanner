@@ -1145,7 +1145,7 @@
   <div id="wkEdit"><button type="button" class="btn sm" id="wkLast" style="display:none">Copy from last week</button></div>
   <div id="blocks"></div>
   <p class="fs-note" id="fsNote">Everybody can look at the lists. Only people with the Buff Recipients permission can change them. The alliance shown per fortress comes from the Fortress/SH plan.</p>
-  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-24 · bf7</footer>
+  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-26 · bf8</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel"><div class="modal-header"><h2 id="pkTitle">Pick player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p>
@@ -1539,11 +1539,13 @@
     T('State 646 · Buff recipients', P0, H - 18, '11px ' + FN, C.fa);
     return cv;
   }
-  function picKey(list){ return list.length === 1 ? list[0].fac : 'all'; }
+  function picKey(list){ return (document.documentElement.getAttribute('data-theme') === 'light' ? 'l' : 'd') + (list.length === 1 ? list[0].fac : 'all'); }   // the picture uses the theme colours, so cache per theme
   function prerender(){
     var list = blocks(phase), todo = [list].concat(list.length > 1 ? list.map(function(b){ return [b]; }) : []);
     todo.forEach(function(l){ if(!l.length) return; var k = picKey(l); try { drawPic(l).toBlob(function(b){ if(b) picCache[k] = b; }, 'image/png'); } catch(e) {} });
   }
+  // theme switched: the ready-made pictures have the old colours, so drop them and draw them again
+  try { new MutationObserver(function(){ picCache = {}; setTimeout(prerender, 30); }).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']}); } catch(e) {}
   function saveBlob(b, name){
     var u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click();
     setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 1500); toast('Picture saved.', true);
