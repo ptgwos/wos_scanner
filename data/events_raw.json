@@ -1,12 +1,19 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-25",
- "count": 24,
+ "date": "2026-11-26",
+ "count": 27,
  "categories": [
   {
    "name": "Events",
    "events": [
+    {
+     "name": "Officer Project",
+     "category": "Events",
+     "when": "25 Nov 00:00 – 26 Nov 24:00",
+     "begin_ts": 1795564800,
+     "end_ts": 1795737600
+    },
     {
      "name": "Alliance Championship",
      "category": "Events",
@@ -50,13 +57,6 @@
      "end_ts": 1795824000
     },
     {
-     "name": "Officer Project",
-     "category": "Events",
-     "when": "25 Nov 00:00 – 26 Nov 24:00",
-     "begin_ts": 1795564800,
-     "end_ts": 1795737600
-    },
-    {
      "name": "Armament Competition",
      "category": "Events",
      "when": "27 Nov 00:00 – 28 Nov 24:00",
@@ -83,6 +83,20 @@
      "when": "29 Nov 00:00 – 30 Nov 24:00",
      "begin_ts": 1795910400,
      "end_ts": 1796083200
+    },
+    {
+     "name": "Alliance Championship",
+     "category": "Events",
+     "when": "30 Nov 00:00 – 6 Dec 24:00",
+     "begin_ts": 1795996800,
+     "end_ts": 1796601600
+    },
+    {
+     "name": "Flame and Fangs",
+     "category": "Events",
+     "when": "30 Nov 00:00 – 1 Dec 24:00",
+     "begin_ts": 1795996800,
+     "end_ts": 1796169600
     }
    ]
   },
@@ -187,6 +201,18 @@
      "when": "27 Nov 00:00 – 3 Dec 24:00",
      "begin_ts": 1795737600,
      "end_ts": 1796342400
+    }
+   ]
+  },
+  {
+   "name": "Icefire Warhymn League",
+   "events": [
+    {
+     "name": "Icefire Warhymn League",
+     "category": "Icefire Warhymn League",
+     "when": "30 Nov 00:00 – 6 Dec 24:00",
+     "begin_ts": 1795996800,
+     "end_ts": 1796601600
     }
    ]
   },
