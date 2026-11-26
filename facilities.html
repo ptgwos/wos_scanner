@@ -811,6 +811,20 @@
   #fmPop{position:fixed;z-index:70;display:none;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 12px 12px;box-shadow:0 14px 40px rgba(0,0,0,.45);width:min(260px,92vw);max-height:70vh;overflow:auto;}
   #fmPop h4{margin:0 0 6px;font-size:13px;color:var(--strong);} #fmPop label{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;cursor:pointer;} #fmPop input{accent-color:var(--ice);}
   #fmPop .acts{display:flex;justify-content:space-between;gap:8px;margin-top:8px;} #fmPop .acts .btn{width:auto;padding:5px 14px;}
+  .fm-fb{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font:inherit;font-size:13px;cursor:pointer;max-width:100%;}
+  .fm-fb:hover{border-color:var(--ice);} .fm-fb.on{border-color:var(--gold);color:var(--gold);} .fm-fb:disabled{opacity:.6;cursor:wait;}
+  .fm-ac{display:inline-flex;gap:8px;flex-wrap:wrap;}
+  #fmFp{position:fixed;z-index:70;display:none;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 12px 12px;box-shadow:0 14px 40px rgba(0,0,0,.45);width:min(270px,92vw);max-height:70vh;overflow:auto;}
+  #fmFp h4{margin:0 0 6px;font-size:13px;color:var(--strong);} #fmFp label{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;cursor:pointer;} #fmFp input{accent-color:var(--ice);}
+  #fmFp .fp-a{font-size:12px;margin:0 0 4px;} #fmFp .fp-a a{color:var(--ice);}
+  #fmFp .fp-i{display:block;width:100%;text-align:left;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;margin:5px 0 0;font:inherit;font-size:13px;cursor:pointer;} #fmFp .fp-i:hover{border-color:var(--ice);}
+  #fmShot{position:absolute;left:-12000px;top:0;width:1100px;box-sizing:border-box;background:var(--panel);color:var(--text);padding:20px 22px 16px;z-index:-1;font-family:Inter,sans-serif;}
+  #fmShot .sh-h{display:flex;justify-content:space-between;align-items:baseline;} #fmShot .sh-h b{font-size:24px;color:var(--strong);} #fmShot .sh-h span{font-size:13px;color:var(--text-faint);}
+  #fmShot .sh-f{font-size:14px;color:var(--text-dim);margin:2px 0 12px;} #fmShot .sh-map{border-radius:8px;overflow:hidden;}
+  #fmShot .sh-leg{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:12px 0;} #fmShot .sh-n{font-size:12px;color:var(--text-faint);}
+  #fmShot .sh-two{display:flex;gap:14px;align-items:flex-start;} #fmShot .sh-two>div{flex:1;min-width:0;}
+  #fmShot table.fm-t{min-width:0;font-size:13px;} #fmShot .fm-t th{position:static;cursor:default;} #fmShot .fm-t tbody tr:hover{background:none;} #fmShot .fm-t td{padding:4px 8px;}
+  #fmShot .fm-t{border:1px solid var(--border);}
   .fm-st{font-size:12.5px;color:var(--text-dim);margin:0 0 8px;} .fm-st b{color:var(--strong);}
 </style>
 </head>
@@ -837,10 +851,11 @@
     <div class="fm-fl" id="fmFl"></div>
     <div class="fm-tw"><table class="fm-t"><thead><tr id="fmHd"></tr></thead><tbody id="fmRows"></tbody></table></div>
   </div>
-  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa4</footer>
+  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa5</footer>
 </div>
 <div id="fmTip"></div>
 <div id="fmPop"></div>
+<div id="fmFp"></div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
 <script>
@@ -878,7 +893,7 @@
   ITEMS.forEach(function(f){ TY[f.t].n++; });
   var TAGS = [], COL = {}, CAN = {edit: false, name: ''}, DBOK = false;
   var code = ''; try { code = localStorage.getItem('ep_code') || ''; } catch(e) {}
-  var F = {al: '', cn: false, ty: '', lv: '', sk: 'ty', sd: 1};     // filters and sorting
+  var F = {al: [], cn: false, ty: [], lv: [], sk: 'ty', sd: 1};     // filters and sorting
 
   /* ---------- backend ---------- */
   var api = (function(){
@@ -925,7 +940,7 @@
   var ax = pt(600, 0); svg.appendChild(el('text', {x: ax[0] + 150, y: ax[1] + 120, 'class': 'fm-ax', 'text-anchor': 'start'}, 'X →'));
   var ay = pt(0, 600); svg.appendChild(el('text', {x: ay[0] - 150, y: ay[1] + 120, 'class': 'fm-ax', 'text-anchor': 'end'}, '← Y'));
   ITEMS.slice().sort(function(a, b){ return (b.x + b.y) - (a.x + a.y); }).forEach(function(f){
-    var t = TY[f.t], p = pt(f.x, f.y), g = el('g', {'class': 'fm-mk', transform: 'translate(' + p[0] + ',' + p[1] + ')'});
+    var t = TY[f.t], p = pt(f.x, f.y), g = el('g', {'class': 'fm-mk', 'data-id': f.id, transform: 'translate(' + p[0] + ',' + p[1] + ')'});
     g.appendChild(el('circle', {r: R + 20, 'class': 'fm-al'}));
     g.appendChild(el('circle', {r: R + 22, 'class': 'fm-rg'}));
     g.appendChild(el('path', {d: shape(t.s, R), fill: t.c}));
@@ -984,22 +999,55 @@
   var COLS = [{k: 'l', l: 'Lvl', c: 'n'}, {k: 'ty', l: 'Type'}, {k: 'x', l: 'X', c: 'n'}, {k: 'y', l: 'Y', c: 'n'}, {k: 'al', l: 'Alliance'}, {k: 'cn', l: 'Connected'}];
   function sv(f, k){ return k === 'ty' ? TYPES.indexOf(TY[f.t]) : k === 'al' ? (f.al || '￿').toLowerCase() : k === 'cn' ? f.cn.join(',').toLowerCase() || '￿' : f[k]; }
   function visible(f){
-    if(F.ty && f.t !== F.ty) return false; if(F.lv && String(f.l) !== F.lv) return false;
-    if(F.al === '-') return !f.al;
-    if(F.al) return f.al === F.al || (F.cn && f.cn.indexOf(F.al) >= 0);
-    return true;
+    if(F.ty.length && F.ty.indexOf(f.t) < 0) return false; if(F.lv.length && F.lv.indexOf(String(f.l)) < 0) return false;
+    if(!F.al.length) return true;
+    return F.al.some(function(a){ return a === '-' ? !f.al : (f.al === a || (F.cn && f.cn.indexOf(a) >= 0)); });
   }
   function tagList(){ var s = {}; TAGS.forEach(function(t){ s[t] = 1; }); ITEMS.forEach(function(f){ if(f.al) s[f.al] = 1; f.cn.forEach(function(t){ s[t] = 1; }); }); var a = TAGS.slice(); Object.keys(s).forEach(function(t){ if(a.indexOf(t) < 0) a.push(t); }); return a; }
-  function drawFilters(){
-    var tg = tagList();
-    $('fmFl').innerHTML = '<select id="fAl" aria-label="Alliance"><option value="">All alliances</option><option value="-"' + (F.al === '-' ? ' selected' : '') + '>– not assigned –</option>' + tg.map(function(t){ return '<option' + (t === F.al ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') + '</select>' +
-      '<label class="chk"><input type="checkbox" id="fCn"' + (F.cn ? ' checked' : '') + '> also where connected</label>' +
-      '<select id="fTy" aria-label="Type"><option value="">All types</option>' + TYPES.map(function(t){ return '<option' + (t.k === F.ty ? ' selected' : '') + '>' + t.k + '</option>'; }).join('') + '</select>' +
-      '<select id="fLv" aria-label="Level"><option value="">All levels</option>' + [1, 2, 3, 4].map(function(n){ return '<option value="' + n + '"' + (String(n) === F.lv ? ' selected' : '') + '>Level ' + n + '</option>'; }).join('') + '</select>' +
-      '<span class="cnt" id="fmCnt"></span>';
-    $('fAl').addEventListener('change', function(){ F.al = this.value; drawRows(); }); $('fCn').addEventListener('change', function(){ F.cn = this.checked; drawRows(); });
-    $('fTy').addEventListener('change', function(){ F.ty = this.value; drawRows(); }); $('fLv').addEventListener('change', function(){ F.lv = this.value; drawRows(); });
+  var NM = {al: 'alliances', ty: 'types', lv: 'levels'};
+  function fvals(k){ return k === 'al' ? ['-'].concat(tagList()) : k === 'ty' ? TYPES.map(function(t){ return t.k; }) : ['1', '2', '3', '4']; }
+  function flab(k, v){ return k === 'al' ? (v === '-' ? '– not assigned –' : v) : k === 'lv' ? 'Level ' + v : v; }
+  function fsum(k){ var a = F[k]; return !a.length ? 'All ' + NM[k] : a.length === 1 ? flab(k, a[0]) : a.length + ' ' + NM[k]; }
+  function fact(){ return !!(F.al.length || F.ty.length || F.lv.length); }
+  function fbtn(){
+    ['al', 'ty', 'lv'].forEach(function(k){ var b = document.querySelector('button[data-fp="' + k + '"]'); if(b){ b.textContent = fsum(k) + ' ▾'; b.classList.toggle('on', F[k].length > 0); } });
+    var r = $('fmRs'); if(r) r.style.display = fact() ? '' : 'none';
+    var c = $('fCnW'); if(c) c.style.display = F.al.some(function(a){ return a !== '-'; }) ? '' : 'none';
   }
+  function drawFilters(){
+    $('fmFl').innerHTML = ['al', 'ty', 'lv'].map(function(k){ return '<button type="button" class="fm-fb" data-fp="' + k + '"></button>'; }).join('') +
+      '<label class="chk" id="fCnW"><input type="checkbox" id="fCn"' + (F.cn ? ' checked' : '') + '> also where connected</label>' +
+      '<button type="button" class="fm-fb" id="fmRs">Reset</button><span class="cnt" id="fmCnt"></span>' +
+      '<span class="fm-ac"><button type="button" class="fm-fb" id="fmEx">Export ▾</button><button type="button" class="fm-fb" id="fmSh">Share pic</button></span>';
+    $('fCn').addEventListener('change', function(){ F.cn = this.checked; drawRows(); });
+    $('fmRs').addEventListener('click', function(){ F.al = []; F.ty = []; F.lv = []; closeFp(); drawRows(); });
+    $('fmFl').querySelectorAll('button[data-fp]').forEach(function(b){ b.addEventListener('click', function(){ openFp(b.getAttribute('data-fp'), b); }); });
+    $('fmEx').addEventListener('click', function(){ openFp('ex', this); });
+    $('fmSh').addEventListener('click', function(){ sharePic(this, 'share'); });
+    fbtn();
+  }
+  /* filter / export popover (one element, content depends on the button) */
+  var FP = $('fmFp'), fpK = null;
+  function placeFp(anchor){
+    FP.style.display = 'block'; var r = anchor.getBoundingClientRect(), w = FP.offsetWidth, h = FP.offsetHeight;
+    FP.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px'; FP.style.top = Math.max(8, r.bottom + h + 12 > window.innerHeight ? Math.max(8, r.top - h - 6) : r.bottom + 6) + 'px';
+  }
+  function closeFp(){ FP.style.display = 'none'; fpK = null; }
+  function openFp(k, anchor){
+    if(fpK === k){ closeFp(); return; } fpK = k;
+    if(k === 'ex'){
+      FP.innerHTML = '<h4>Export the ' + curRows().length + ' listed facilities</h4><button type="button" class="fp-i" data-ex="xlsx">Excel (.xlsx)</button><button type="button" class="fp-i" data-ex="csv">CSV (comma)</button><button type="button" class="fp-i" data-ex="csv2">CSV (semicolon, for German Excel)</button><button type="button" class="fp-i" data-ex="txt">Copy as text (Discord)</button><button type="button" class="fp-i" data-ex="png">Save picture (PNG)</button>';
+      placeFp(anchor); return;
+    }
+    var h = '<h4>' + {al: 'Alliances', ty: 'Types', lv: 'Levels'}[k] + '</h4><div class="fp-a"><a href="#" data-all="1">Clear selection (= all)</a></div>' + fvals(k).map(function(v){
+      var t = TY[v], lab = k === 'al' ? (v === '-' ? esc(flab(k, v)) : chip(v)) : k === 'ty' ? '<svg viewBox="-34 -34 68 68" style="width:15px;height:15px"><path d="' + shape(t.s, 26) + '" fill="' + t.c + '" stroke="rgba(0,0,0,.5)" stroke-width="3"/></svg> ' + v : esc(flab(k, v));
+      return '<label><input type="checkbox" value="' + esc(v) + '"' + (F[k].indexOf(v) >= 0 ? ' checked' : '') + '>' + lab + '</label>'; }).join('');
+    FP.innerHTML = h; placeFp(anchor);
+    FP.querySelectorAll('input').forEach(function(i){ i.addEventListener('change', function(){ var a = []; FP.querySelectorAll('input:checked').forEach(function(x){ a.push(x.value); }); F[k] = a; drawRows(); }); });
+    FP.querySelector('[data-all]').addEventListener('click', function(e){ e.preventDefault(); F[k] = []; FP.querySelectorAll('input').forEach(function(i){ i.checked = false; }); drawRows(); });
+  }
+  document.addEventListener('mousedown', function(e){ if(FP.style.display === 'block' && !e.target.closest('#fmFp') && !e.target.closest('[data-fp],#fmEx')) closeFp(); });
+  FP.addEventListener('click', function(e){ var b = e.target.closest('[data-ex]'); if(!b) return; var k = b.getAttribute('data-ex'); closeFp(); if(k === 'png') sharePic($('fmSh'), 'save'); else doExport(k); });
   function drawHead(){
     $('fmHd').innerHTML = COLS.map(function(c){ return '<th class="' + (c.c || '') + (F.sk === c.k ? ' on' : '') + '" data-k="' + c.k + '">' + c.l + (F.sk === c.k ? (F.sd > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('');
     $('fmHd').querySelectorAll('th').forEach(function(th){ th.addEventListener('click', function(){ var k = th.getAttribute('data-k'); if(F.sk === k) F.sd = -F.sd; else { F.sk = k; F.sd = 1; } drawHead(); drawRows(); }); });
@@ -1007,8 +1055,9 @@
   function selHtml(f){
     var tg = tagList(); return '<select data-al="' + f.id + '" aria-label="Alliance"><option value="">–</option>' + tg.map(function(t){ return '<option' + (t === f.al ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') + '</select>';
   }
+  function curRows(){ return ITEMS.filter(visible).sort(function(a, b){ var p = sv(a, F.sk), q = sv(b, F.sk), r = p < q ? -1 : p > q ? 1 : 0; return (r || a.l - b.l || a.x - b.x || a.y - b.y) * F.sd; }); }
   function drawRows(){
-    var rows = ITEMS.filter(visible).sort(function(a, b){ var p = sv(a, F.sk), q = sv(b, F.sk), r = p < q ? -1 : p > q ? 1 : 0; return (r || a.l - b.l || a.x - b.x || a.y - b.y) * F.sd; });
+    var rows = curRows();
     var h = ''; rows.forEach(function(f){
       var t = TY[f.t];
       h += '<tr data-id="' + f.id + '"><td class="n"><span class="lv">' + f.l + '</span></td><td><span class="ty"><svg viewBox="-34 -34 68 68"><path d="' + shape(t.s, 26) + '" fill="' + t.c + '" stroke="rgba(0,0,0,.5)" stroke-width="3"/></svg>' + f.t + '</span></td><td class="n">' + f.x + '</td><td class="n">' + f.y + '</td>' +
@@ -1017,7 +1066,7 @@
     });
     $('fmRows').innerHTML = h || '<tr><td colspan="6" style="padding:18px;text-align:center;color:var(--text-faint)">No facilities match.</td></tr>';
     $('fmCnt').textContent = rows.length + ' of ' + ITEMS.length + ' facilities';
-    var on = {}; rows.forEach(function(f){ on[f.id] = 1; }); var filt = !!(F.al || F.ty || F.lv);
+    var on = {}; rows.forEach(function(f){ on[f.id] = 1; }); var filt = fact(); fbtn();
     ITEMS.forEach(function(f){ MG[f.id].classList.toggle('dim', filt && !on[f.id]); var g = MG[f.id], s = g.querySelector('.fm-al'); g.classList.toggle('al', !!f.al); if(f.al) s.setAttribute('stroke', tagCol(f.al)); });
     if(HI != null){ var r = $('fmRows').querySelector('tr[data-id="' + HI + '"]'); if(r) r.classList.add('hi'); }
   }
@@ -1056,6 +1105,141 @@
       .catch(function(e){ f.al = old.al; f.cn = old.cn; drawRows(); toast(e.message); });
   }
 
+
+  /* ---------- export (Excel / CSV / text) and share picture ---------- */
+  function descr(){
+    var p = [];
+    if(F.al.length) p.push('Alliance: ' + F.al.map(function(a){ return a === '-' ? 'not assigned' : a; }).join(', ') + (F.cn && F.al.some(function(a){ return a !== '-'; }) ? ' (incl. connected)' : ''));
+    if(F.ty.length) p.push('Type: ' + F.ty.join(', ')); if(F.lv.length) p.push('Level: ' + F.lv.join(', '));
+    return p.length ? p.join(' · ') : 'All facilities';
+  }
+  var XH = ['Level', 'Type', 'Bonus', 'Bonus %', 'X', 'Y', 'Alliance', 'Connected'];
+  function xrows(){ return curRows().map(function(f){ return [f.l, f.t, f.b, Math.round(f.v * 100), f.x, f.y, f.al, f.cn.join(', ')]; }); }
+  function dl(blob, name){ var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 800); }
+  var CT = null;
+  function crc(u){ if(!CT){ CT = []; for(var n = 0; n < 256; n++){ var c = n; for(var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CT[n] = c >>> 0; } } var c2 = 0xFFFFFFFF; for(var i = 0; i < u.length; i++) c2 = CT[(c2 ^ u[i]) & 255] ^ (c2 >>> 8); return (c2 ^ 0xFFFFFFFF) >>> 0; }
+  function u16(v){ return [v & 255, (v >>> 8) & 255]; } function u32(v){ return [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]; }
+  function zip(files, type){            // store-only zip writer (no compression, no library needed)
+    var parts = [], cen = [], off = 0, enc = new TextEncoder();
+    files.forEach(function(f){
+      var nm = enc.encode(f.n), d = enc.encode(f.d), c = crc(d), sz = d.length;
+      var lh = [].concat(u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(c), u32(sz), u32(sz), u16(nm.length), u16(0));
+      parts.push(new Uint8Array(lh), nm, d);
+      cen.push({h: [].concat(u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(c), u32(sz), u32(sz), u16(nm.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(off)), nm: nm});
+      off += lh.length + nm.length + sz;
+    });
+    var cs = 0; cen.forEach(function(e){ parts.push(new Uint8Array(e.h), e.nm); cs += e.h.length + e.nm.length; });
+    parts.push(new Uint8Array([].concat(u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(cs), u32(off), u16(0))));
+    return new Blob(parts, {type: type});
+  }
+  function xe(v){ return String(v).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function xlsx(head, rows){
+    var W = [7, 14, 22, 9, 7, 7, 11, 24];
+    function cell(v, r, c, st){ var ref = String.fromCharCode(65 + c) + r, s = st ? ' s="1"' : ''; return typeof v === 'number' ? '<c r="' + ref + '"' + s + '><v>' + v + '</v></c>' : '<c r="' + ref + '" t="inlineStr"' + s + '><is><t xml:space="preserve">' + xe(v) + '</t></is></c>'; }
+    var sd = '<row r="1">' + head.map(function(v, c){ return cell(v, 1, c, 1); }).join('') + '</row>' + rows.map(function(r, i){ return '<row r="' + (i + 2) + '">' + r.map(function(v, c){ return cell(v, i + 2, c, 0); }).join('') + '</row>'; }).join('');
+    var H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+    return zip([
+      {n: '[Content_Types].xml', d: H + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'},
+      {n: '_rels/.rels', d: H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+      {n: 'xl/workbook.xml', d: H + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Facilities" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+      {n: 'xl/_rels/workbook.xml.rels', d: H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+      {n: 'xl/styles.xml', d: H + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>'},
+      {n: 'xl/worksheets/sheet1.xml', d: H + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>' + W.map(function(w, i){ return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>'; }).join('') + '</cols><sheetData>' + sd + '</sheetData></worksheet>'}
+    ], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  }
+  function csvq(v, sep){ v = String(v); return v.indexOf(sep) >= 0 || /["\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  function copyText(text){
+    var done = function(ok){ toast(ok ? 'Text copied' : 'Copy failed', ok); };
+    function fb(){ try { var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0;'; document.body.appendChild(ta); ta.select(); var ok = document.execCommand('copy'); ta.remove(); done(ok); } catch(e) { done(false); } }
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ done(true); }, fb); else fb();
+  }
+  function doExport(k){
+    var rows = xrows(); if(!rows.length){ toast('No facilities match the filter.'); return; }
+    var base = 'state646-facilities';
+    if(k === 'xlsx'){ dl(xlsx(XH, rows), base + '.xlsx'); toast('Excel file created', true); }
+    else if(k === 'csv' || k === 'csv2'){
+      var sep = k === 'csv' ? ',' : ';', txt = [XH].concat(rows).map(function(r){ return r.map(function(v){ return csvq(v, sep); }).join(sep); }).join('\r\n');
+      dl(new Blob([(k === 'csv2' ? '﻿' : '') + txt], {type: 'text/csv;charset=utf-8'}), base + (k === 'csv2' ? '-semicolon' : '') + '.csv'); toast('CSV file created', true);
+    } else {
+      copyText('Facility Map – ' + descr() + ' (' + rows.length + ')\n' + curRows().map(function(f){ return 'L' + f.l + ' ' + f.t + ' (' + f.x + '/' + f.y + ')' + (f.al ? ' – ' + f.al : '') + (f.cn.length ? ' (connected: ' + f.cn.join(', ') + ')' : ''); }).join('\n'));
+    }
+  }
+
+  var LIBU = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+  function loadLib(){
+    if(window.htmlToImage) return Promise.resolve();
+    return new Promise(function(res, rej){ var s = document.createElement('script'); s.src = window.__rpLib || LIBU; s.onload = res; s.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(s); });
+  }
+  function tyIc(t){ return '<svg viewBox="-34 -34 68 68" style="width:15px;height:15px;flex:none"><path d="' + shape(t.s, 26) + '" fill="' + t.c + '" stroke="rgba(0,0,0,.5)" stroke-width="3"/></svg>'; }
+  function shotEl(){
+    var rows = curRows(), filt = fact(), on = {}; rows.forEach(function(f){ on[f.id] = 1; });
+    var box = document.createElement('div'); box.id = 'fmShot';
+    var sv2 = svg.cloneNode(true); sv2.removeAttribute('id'); sv2.removeAttribute('style'); sv2.setAttribute('class', '');
+    sv2.querySelectorAll('.off,.hi,.sel').forEach(function(n){ n.classList.remove('off'); n.classList.remove('hi'); n.classList.remove('sel'); });
+    var lab = rows.length <= 40;
+    sv2.querySelectorAll('.fm-mk').forEach(function(g){
+      var id = +g.getAttribute('data-id'), f = BY[id]; g.classList.toggle('dim', filt && !on[id]);
+      if(lab && on[id] && f.al){ var t = el('text', {x: 0, y: R + 42, 'text-anchor': 'middle', style: 'fill:' + tagCol(f.al) + ';font-size:36px;font-weight:800'}, f.al); g.appendChild(t); }
+    });
+    var vb = [-250, -110, 2900, 2620];
+    if(filt && rows.length){
+      var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; rows.forEach(function(f){ var p = pt(f.x, f.y); x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+      var pad = 170, w = Math.max(x1 - x0 + 2 * pad, 760), h = Math.max(y1 - y0 + 2 * pad, 620), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      if(w / h < 1) w = h; else if(w / h > 1.9) h = w / 1.9;
+      if(w * h <= .55 * 2900 * 2620 && w <= 2300) vb = [cx - w / 2, cy - h / 2, w, h];
+    }
+    sv2.setAttribute('viewBox', vb.map(function(n){ return Math.round(n); }).join(' '));
+    var MW = 1056, MH = Math.min(Math.round(MW * vb[3] / vb[2]), 780);
+    sv2.style.cssText = 'display:block;width:100%;height:' + MH + 'px';
+    var tc = {}, ac = {}; rows.forEach(function(f){ tc[f.t] = (tc[f.t] || 0) + 1; if(f.al) ac[f.al] = (ac[f.al] || 0) + 1; });
+    var leg = TYPES.filter(function(t){ return tc[t.k]; }).map(function(t){ return '<span class="fm-lg">' + tyIc(t) + '<span>' + t.k + '</span><small>' + tc[t.k] + '</small></span>'; }).join('') +
+      Object.keys(ac).sort(function(a, b){ return TAGS.indexOf(a) - TAGS.indexOf(b); }).map(function(a){ return chip(a) + '<small class="sh-n">' + ac[a] + '</small>'; }).join('');
+    function tbl(l){
+      return '<table class="fm-t"><thead><tr><th class="n">Lvl</th><th>Type</th><th class="n">X</th><th class="n">Y</th><th>Alliance</th><th>Connected</th></tr></thead><tbody>' + l.map(function(f){
+        return '<tr><td class="n"><span class="lv">' + f.l + '</span></td><td><span class="ty">' + tyIc(TY[f.t]) + f.t + '</span></td><td class="n">' + f.x + '</td><td class="n">' + f.y + '</td><td>' + (f.al ? chip(f.al) : '') + '</td><td>' + f.cn.map(chip).join('') + '</td></tr>'; }).join('') + '</tbody></table>';
+    }
+    var half = Math.ceil(rows.length / 2), tb = rows.length > 24 ? '<div class="sh-two"><div>' + tbl(rows.slice(0, half)) + '</div><div>' + tbl(rows.slice(half)) + '</div></div>' : tbl(rows);
+    var d = new Date(), ds = d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+    box.innerHTML = '<div class="sh-h"><b>State 646 · Facility Map</b><span>' + ds + ' (UTC)</span></div><div class="sh-f">' + esc(descr()) + ' · ' + rows.length + ' of ' + ITEMS.length + ' facilities</div>';
+    var mp = document.createElement('div'); mp.className = 'sh-map'; mp.appendChild(sv2); box.appendChild(mp);
+    var lg = document.createElement('div'); lg.className = 'sh-leg'; lg.innerHTML = leg + '<span class="sh-n" style="margin-left:auto">number = level · ring = alliance</span>'; box.appendChild(lg);
+    var tw = document.createElement('div'); tw.innerHTML = tb; box.appendChild(tw);
+    return box;
+  }
+  function shotBlob(el2){
+    return loadLib().then(function(){
+      var bg = getComputedStyle(el2).backgroundColor || '#0f1626', px = el2.offsetWidth * el2.offsetHeight * 4 > 13e6 ? 1.5 : 2;
+      var opt = {pixelRatio: px, backgroundColor: bg, cacheBust: false, skipFonts: true};
+      var safari = /iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent);
+      var run = function(){ return window.htmlToImage.toBlob(el2, opt); };
+      return (safari ? run().catch(function(){}) : Promise.resolve()).then(run);
+    }).then(function(b){ if(!b) throw new Error('empty'); return b; });
+  }
+  var picCache = {}, picBusy = false;
+  function picKey(){ return JSON.stringify([F, document.documentElement.getAttribute('data-theme'), ITEMS.map(function(f){ return f.al + ':' + f.cn.join('.'); }).join('|')]); }
+  function sharePic(btn, mode){
+    if(picBusy) return;
+    if(!curRows().length){ toast('No facilities match the filter.'); return; }
+    var key = picKey(), fname = 'state646-facilities.png', cached = picCache[key];
+    function make(){ var box = shotEl(); document.body.appendChild(box); box.style.left = '0'; return shotBlob(box).then(function(b){ box.remove(); if(Object.keys(picCache).length > 3) picCache = {}; picCache[key] = b; return b; }, function(e){ box.remove(); throw e; }); }
+    function save(b, msg){ dl(b, fname); toast(msg, true); }
+    function end(){ picBusy = false; btn.disabled = false; }
+    function fail(){ toast('Could not create the picture'); }
+    picBusy = true; btn.disabled = true;
+    if(mode === 'save'){ (cached ? Promise.resolve(cached) : make()).then(function(b){ save(b, 'Picture saved'); }).catch(fail).then(end); return; }
+    var phone = window.matchMedia && matchMedia('(pointer:coarse)').matches && navigator.canShare;
+    if(phone){
+      if(!cached){ make().then(function(){ toast('Picture is ready – tap “Share pic” again.', true); }).catch(fail).then(end); return; }
+      var file = new File([cached], fname, {type: 'image/png'});
+      if(navigator.canShare({files: [file]})){ navigator.share({files: [file]}).catch(function(e){ if(e && e.name !== 'AbortError') save(cached, 'Sharing not possible – picture saved'); }).then(end); return; }
+    }
+    var p = cached ? Promise.resolve(cached) : make();
+    if(navigator.clipboard && window.ClipboardItem){
+      navigator.clipboard.write([new ClipboardItem({'image/png': p})]).then(function(){ toast('Picture copied – paste it into Discord', true); end(); },
+        function(){ p.then(function(b){ save(b, 'Clipboard not available – picture saved'); }).catch(fail).then(end); });
+    } else p.then(function(b){ save(b, 'Picture saved'); }).catch(fail).then(end);
+  }
+
   /* ---------- loading ---------- */
   function status(){
     $('fmSt').innerHTML = !DBOK ? 'The assignment list could not be loaded (the table shows the facilities only).' :
@@ -1075,7 +1259,7 @@
   var lastT = Date.now();
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && Date.now() - lastT > 120000){ lastT = Date.now(); api.list().then(function(l){ merge(l); drawRows(); }).catch(function(){}); } });
   window.epSettingsApply = function(){};
-  window.__fm = {ITEMS: ITEMS, pt: pt};
+  window.__fm = {ITEMS: ITEMS, pt: pt, shotEl: shotEl, curRows: curRows};
 })();
 </script>
 
