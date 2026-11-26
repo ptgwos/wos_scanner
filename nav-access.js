@@ -71,6 +71,7 @@
     stopwatch: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M9.5 2.5h5M12 2.5V6M18.2 7.2l1.6-1.6"/>',
     buff: '<circle cx="12" cy="12" r="8.5"/><path d="M12 16.5V8M8.5 11.5L12 8l3.5 3.5"/>',
     manage: '<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/>',
+    map: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2V6z"/><path d="M9 4v14M15 6v14"/>',
     gift: '<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-3-5 0M12 9c2-4 6-3 5 0"/>'
   };
   // items: [page, label, icon, short description, badge]  badge f = open to everyone (you may need a login to edit), m = members of state 646 with access only
@@ -81,6 +82,7 @@
       ['svslb.html', 'SvS Leaderboards', 'trophy', 'Results of every SvS event', 'f'],
       ['statepower.html', 'State Power', 'bars', 'Power ranking of the whole state', 'f'],
       ['leading.html', 'Leading State', 'crown', 'Transfer scores of the states in the bracket', 'f'],
+      ['facilities.html', 'Facility Map', 'map', 'Where the facilities are and who holds them', 'f'],
       ['rallyleads.html', 'Rally Leads', 'flag', 'Rally leaders with heroes and stats', 'm']]},
     {k: 'plan', l: 'Planning', s: 'Plan', items: [
       ['eventplan.html', 'Event Planner', 'calcheck', 'Teams and hours for alliance events', 'f'],
