@@ -854,7 +854,7 @@
     <div class="fm-fl" id="fmFl"></div>
     <div class="fm-tw"><table class="fm-t"><thead><tr id="fmHd"></tr></thead><tbody id="fmRows"></tbody></table></div>
   </div>
-  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa7</footer>
+  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa8</footer>
 </div>
 <div id="fmTip"></div>
 <div id="fmPop"></div>
@@ -1079,7 +1079,7 @@
   function openFp(k, anchor){
     if(fpK === k){ closeFp(); return; } fpK = k;
     if(k === 'ex'){
-      FP.innerHTML = '<h4>Export the ' + curRows().length + ' listed facilities</h4><button type="button" class="fp-i" data-ex="xlsx">Excel (.xlsx)</button><button type="button" class="fp-i" data-ex="csv">CSV (comma)</button><button type="button" class="fp-i" data-ex="csv2">CSV (semicolon, for German Excel)</button><button type="button" class="fp-i" data-ex="txt">Copy as text (Discord)</button><button type="button" class="fp-i" data-ex="png">Save picture (PNG)</button><h4 style="margin-top:12px">Big map picture (map only)</h4><button type="button" class="fp-i" data-ex="big3000">Map, 3000 px wide</button><button type="button" class="fp-i" data-ex="big4000">Map, 4000 px wide</button>';
+      FP.innerHTML = '<h4>Export the ' + curRows().length + ' listed facilities</h4><button type="button" class="fp-i" data-ex="xlsx">Excel (.xlsx)</button><button type="button" class="fp-i" data-ex="csv">CSV (comma)</button><button type="button" class="fp-i" data-ex="csv2">CSV (semicolon, for German Excel)</button><button type="button" class="fp-i" data-ex="txt">Copy as text (Discord)</button><button type="button" class="fp-i" data-ex="png">Save picture (PNG)</button><h4 style="margin-top:12px">Big map picture (map and legend)</h4><button type="button" class="fp-i" data-ex="big3000">Map, 3000 px wide</button><button type="button" class="fp-i" data-ex="big4000">Map, 4000 px wide</button>';
       placeFp(anchor); return;
     }
     var h = '<h4>' + {al: 'Alliances', ty: 'Types', lv: 'Levels'}[k] + '</h4><div class="fp-a"><a href="#" data-all="1">Clear selection (= all)</a></div>' + fvals(k).map(function(v){
@@ -1261,11 +1261,30 @@
       return (safari ? run().catch(function(){}) : Promise.resolve()).then(run);
     }).then(function(b){ if(!b) throw new Error('empty'); return b; });
   }
+  function legendG(rows){      // legend drawn into the empty corners of the big map picture
+    var g = el('g', {'class': 'fm-bl'}), tc = {}, ac = {};
+    rows.forEach(function(f){ tc[f.t] = (tc[f.t] || 0) + 1; if(f.al) ac[f.al] = (ac[f.al] || 0) + 1; });
+    var T = TYPES.filter(function(t){ return tc[t.k]; }), A = Object.keys(ac).sort(function(a, b){ return TAGS.indexOf(a) - TAGS.indexOf(b); }), more = Math.max(0, A.length - 12); A = A.slice(0, 12);
+    function panel(x, y, w, h){ g.appendChild(el('rect', {x: x, y: y, width: w, height: h, rx: 22, style: 'fill:var(--panel);fill-opacity:.9;stroke:var(--border);stroke-width:3'})); }
+    function tx(x, y, t, sz, fill, anc, wt){ g.appendChild(el('text', {x: x, y: y, 'text-anchor': anc || 'start', style: 'font-family:Inter,sans-serif;font-size:' + sz + 'px;font-weight:' + (wt || 600) + ';fill:' + fill + ';stroke:none'}, t)); }
+    function sym(d, fill, x, y){ g.appendChild(el('path', {d: d, fill: fill, transform: 'translate(' + x + ',' + y + ')', style: 'stroke:rgba(0,0,0,.55);stroke-width:3'})); }
+    var x0 = -220, y0 = -90, w = 440;
+    panel(x0, y0, w, 100 + T.length * 58 + 12); tx(x0 + 28, y0 + 54, 'FACILITY TYPES', 28, 'var(--text-faint)', null, 700);
+    T.forEach(function(t, i){ var cy = y0 + 106 + i * 58; sym(shape(t.s, 22), t.c, x0 + 52, cy); tx(x0 + 96, cy + 12, t.k, 36, 'var(--text)'); tx(x0 + w - 28, cy + 12, String(tc[t.k]), 34, 'var(--text-faint)', 'end'); });
+    if(A.length){
+      var w2 = 380, x1 = 2650 - w2; panel(x1, y0, w2, 100 + A.length * 58 + (more ? 48 : 12)); tx(x1 + 28, y0 + 54, 'ALLIANCES (RING)', 28, 'var(--text-faint)', null, 700);
+      A.forEach(function(a, i){ var cy = y0 + 106 + i * 58; g.appendChild(el('rect', {x: x1 + 28, y: cy - 22, width: 150, height: 44, rx: 10, fill: tagCol(a)})); tx(x1 + 103, cy + 12, a, 32, '#fff', 'middle', 800); tx(x1 + w2 - 28, cy + 12, String(ac[a]), 34, 'var(--text-faint)', 'end'); });
+      if(more) tx(x1 + 28, y0 + 106 + A.length * 58 + 6, '+ ' + more + ' more', 28, 'var(--text-faint)');
+    }
+    panel(x0, 2330, 560, 150); tx(x0 + 28, 2392, 'Number in the marker = level', 32, 'var(--text)'); tx(x0 + 28, 2446, 'Coloured ring = alliance', 32, 'var(--text)');
+    if(HQON){ var x2 = 2650 - 400; panel(x2, 2330, 400, 150); sym(starP(26), '#f2b705', x2 + 50, 2386); tx(x2 + 96, 2398, 'Tundra HQ', 34, 'var(--text)'); sym(houseP(26), '#f2b705', x2 + 50, 2442); tx(x2 + 96, 2454, 'Icefield HQ', 34, 'var(--text)'); }
+    return g;
+  }
   function bigPic(btn, px){
     if(picBusy) return; picBusy = true; btn.disabled = true;
     var rows = curRows(), on = {}; rows.forEach(function(f){ on[f.id] = 1; });
     var box = document.createElement('div'); box.id = 'fmShot'; box.style.width = '1000px'; box.style.padding = '0';
-    var sv2 = mapClone(on, fact(), true); sv2.style.cssText = 'display:block;width:1000px;height:' + Math.round(1000 * 2620 / 2900) + 'px'; box.appendChild(sv2);
+    var sv2 = mapClone(on, fact(), true); sv2.appendChild(legendG(fact() ? rows : ITEMS)); sv2.style.cssText = 'display:block;width:1000px;height:' + Math.round(1000 * 2620 / 2900) + 'px'; box.appendChild(sv2);
     document.body.appendChild(box); box.style.left = '0';
     toast('Creating the picture …', true);
     var opt = null;
