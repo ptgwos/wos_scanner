@@ -1060,6 +1060,8 @@
   .al-bar label{font-size:13px;display:inline-flex;gap:5px;align-items:center;} .al-bar .btn{width:auto;font-size:12.5px;padding:6px 12px;}
   .al-sc{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:8px;} .al-sc table.ad th{position:sticky;top:0;background:var(--panel,#10162a);z-index:1;}
   .al-sc table.ad td,.al-sc table.ad th{padding:6px 10px;} .al-sc td.tg{font-weight:700;font-family:ui-monospace,Menlo,Consolas,monospace;}
+  input.al-hq{width:84px;padding:3px 6px;text-align:center;background:var(--surface-2,transparent);color:inherit;border:1px solid var(--border);border-radius:6px;font:inherit;}
+  input.al-hq.bad{border-color:#e5564f;}
   input.al-n{width:52px;padding:3px 4px;text-align:center;background:var(--surface-2,transparent);color:inherit;border:1px solid var(--border);border-radius:6px;font:inherit;}
   .al-chip{display:inline-block;padding:1px 8px;border-radius:5px;border:1px solid var(--border);background:rgba(120,140,190,.12);}
   input.al-col{width:34px;height:26px;padding:0;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;vertical-align:middle;}
@@ -1115,7 +1117,7 @@
   </header>
   <div class="divider"></div>
   <div class="panel" id="adm"><div class="rl-empty">Loading …</div></div>
-  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-26 · a25</footer>
+  <footer id="foot">State 646 · Admin — data: Supabase · build 2026-11-27 · a26</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1158,6 +1160,7 @@
     if(MOCK){
       var users = [{id: 'u1', name: 'Peter', role: 'super', alliances: [], active: true, pages: []}, {id: 'u2', name: 'Ed (admin)', role: 'admin', alliances: [], active: true, pages: ['rallyleads']},
         {id: 'u3', name: 'Anna', role: 'editor', alliances: ['PKB', 'GYN'], active: true, pages: []}, {id: 'u4', name: 'Old user', role: 'editor', alliances: ['PKB'], active: false, pages: []}];
+      var hqDb = {PKB: {t: '600/600', i: '300/900'}};
       var alDb = [{tag: 'PKB', selected: true, manual: false, color: '#f2b705', battle: true, moons: 4, stars: 2}, {tag: 'AIR', selected: true, manual: false, color: '#2563eb', battle: false, moons: 0, stars: 0}, {tag: 'GYN', selected: true, manual: false, color: '#f2b705', battle: true, moons: 0, stars: 1}];
       var ldDb = {first_kid: 536, last_kid: 803, updated_by: 'Peter', updated_at: '2026-11-01T10:00:00Z'};
       var rq = [{discord_id: '123456789012345678', name: 'xX_frostwolf_Xx', nick: 'Frosty (PKB)', avatar: '', created_at: '2026-10-26T18:00:00Z', member: true}, {discord_id: '223456789012345678', name: 'Stranger', avatar: '', created_at: '2026-10-26T19:10:00Z', member: false}];
@@ -1167,6 +1170,8 @@
         save: function(a){ var u = users.filter(function(x){ return x.id === a.p_id; })[0]; if(u.role === 'super' && (a.p_role !== 'super' || !a.p_active)) return Promise.reject(new Error('There must be at least one active super admin')); u.name = a.p_name; u.role = a.p_role; u.active = a.p_active; return Promise.resolve({id: a.p_id}); },
         set: function(a){ users.filter(function(u){ return u.id === a.p_uid; })[0].pages = a.p_pages.slice(); return Promise.resolve(); },
         alsel: function(){ return Promise.resolve(JSON.parse(JSON.stringify(alDb))); },
+        hqsel: function(){ return Promise.resolve(Object.keys(hqDb).map(function(t){ var h = hqDb[t], a = /(\d+)\/(\d+)/.exec(h.t || ''), b = /(\d+)\/(\d+)/.exec(h.i || ''); return {tag: t, t_x: a ? +a[1] : null, t_y: a ? +a[2] : null, i_x: b ? +b[1] : null, i_y: b ? +b[2] : null}; })); },
+        hqset: function(a){ if(a.p_code !== 'admin') return Promise.reject(new Error('Not allowed (super admin only).')); a.p_items.forEach(function(it){ if(it.t || it.i) hqDb[it.tag] = {t: it.t, i: it.i}; else delete hqDb[it.tag]; }); return Promise.resolve(a.p_items.length); },
         ldget: function(){ return Promise.resolve(JSON.parse(JSON.stringify(ldDb))); },
         ldset: function(a){ if(a.p_first > a.p_last) return Promise.reject(new Error('Invalid bracket: from must be 1 or more and not above to.')); ldDb = {first_kid: a.p_first, last_kid: a.p_last, updated_by: 'Test admin', updated_at: new Date().toISOString()}; return Promise.resolve(); },
         alset: function(a){ a.p_items.forEach(function(it){ var r = alDb.filter(function(x){ return x.tag === it.tag; })[0]; if(r){ r.selected = it.selected; r.manual = r.manual || !!it.manual; if('color' in it) r.color = it.color || null; if('battle' in it) r.battle = !!it.battle; if('moons' in it) r.moons = it.moons; if('stars' in it) r.stars = it.stars; } else alDb.push({tag: it.tag, selected: it.selected, manual: !!it.manual, color: it.color || null, battle: !!it.battle, moons: it.moons || 0, stars: it.stars || 0}); }); return Promise.resolve(a.p_items.length); },
@@ -1189,10 +1194,13 @@
     function alsel(){
       return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/roster_alliances?select=tag,selected,manual,color,battle,moons,stars&order=tag', {headers: H, cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
     }
+    function hqsel(){
+      return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/alli_hq?select=tag,t_x,t_y,i_x,i_y', {headers: H, cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+    }
     function ldget(){
       return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/ld_settings?select=first_kid,last_kid,updated_at,updated_by&id=eq.1', {headers: H, cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(function(a){ return a && a[0] ? a[0] : null; });
     }
-    return {alsel: alsel, ldget: ldget, ldset: function(a){ return rpc('ld_range_set', a); }, alset: function(a){ return rpc('sa_alli_set', a); }, me: function(c){ return rpc('sa_me', {p_code: c}); }, list: function(c){ return rpc('sa_list', {p_code: c}); }, set: function(a){ return rpc('sa_set', a); }, save: function(a){ return rpc('ev_user_save', a); },
+    return {alsel: alsel, hqsel: hqsel, hqset: function(a){ return rpc('sa_hq_set', a); }, ldget: ldget, ldset: function(a){ return rpc('ld_range_set', a); }, alset: function(a){ return rpc('sa_alli_set', a); }, me: function(c){ return rpc('sa_me', {p_code: c}); }, list: function(c){ return rpc('sa_list', {p_code: c}); }, set: function(a){ return rpc('sa_set', a); }, save: function(a){ return rpc('ev_user_save', a); },
       reqs: function(c){ return rpc('sa_requests', {p_code: c}); }, link: function(a){ return rpc('sa_dc_link', a); }, mknew: function(a){ return rpc('sa_dc_new', a); }, reject: function(a){ return rpc('sa_dc_reject', a); }, unlink: function(a){ return rpc('sa_dc_unlink', a); },
       usernew: function(a){ return rpc('sa_user_new', a); }, userdc: function(a){ return rpc('sa_user_discord', a); }};
   })();
@@ -1252,24 +1260,29 @@
   }
   function getJson(u){ return fetch(u + '?t=' + Date.now(), {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
   function loadAl(){
-    return Promise.all([getJson('data/alliances_known.json'), getJson('data/alliances.json'), api.alsel().then(function(r){ return Array.isArray(r) ? r : null; }).catch(function(){ return null; })]).then(function(a){
+    return Promise.all([getJson('data/alliances_known.json'), getJson('data/alliances.json'), api.alsel().then(function(r){ return Array.isArray(r) ? r : null; }).catch(function(){ return null; }), api.hqsel().then(function(r){ return Array.isArray(r) ? r : null; }).catch(function(){ return null; })]).then(function(a){
       var o = {known: (a[0] && a[0].alliances) || {}, knownAt: a[0] && a[0].updated, feed: a[1] || {}, db: a[2]};
       st.alSel = {}; if(o.db) o.db.forEach(function(r){ st.alSel[r.tag] = {selected: !!r.selected, manual: !!r.manual, was: !!r.selected, inDb: true, color: r.color || '', wasColor: r.color || '', battle: !!r.battle, wasBattle: !!r.battle, moons: r.moons || 0, wasMoons: r.moons || 0, stars: r.stars || 0, wasStars: r.stars || 0}; });
+      st.hqOk = !!a[3]; st.hq = {}; (a[3] || []).forEach(function(h){ st.hq[h.tag] = {t: h.t_x != null ? h.t_x + '/' + h.t_y : '', i: h.i_x != null ? h.i_x + '/' + h.i_y : ''}; });
+      st.hqNew = {};
       return o;
     });
   }
+  function hqCur(t){ var n = st.hqNew && st.hqNew[t], o = (st.hq && st.hq[t]) || {t: '', i: ''}; return {t: n && 't' in n ? n.t : o.t, i: n && 'i' in n ? n.i : o.i, wt: o.t, wi: o.i}; }
   function alList(){
     var al = st.al || {known: {}, feed: {}, db: null}, tags = {};
     Object.keys(al.known).forEach(function(t){ tags[t] = 1; }); Object.keys(st.alSel).forEach(function(t){ tags[t] = 1; });
     return Object.keys(tags).map(function(t){ var k = al.known[t] || {}, f = (al.feed.alliances || {})[t] || {}, s = st.alSel[t] || {selected: false, was: false, color: '', wasColor: '', battle: false, wasBattle: false, moons: 0, wasMoons: 0, stars: 0, wasStars: 0};
-      return {tag: t, name: k.name || f.name || '', count: f.count != null ? f.count : k.count, power: f.power != null ? f.power : k.power, sel: !!s.selected, was: !!s.was, manual: !!s.manual, known: !!al.known[t], color: s.color || '', wasColor: s.wasColor || '', battle: !!s.battle, wasBattle: !!s.wasBattle, moons: s.moons || 0, wasMoons: s.wasMoons || 0, stars: s.stars || 0, wasStars: s.wasStars || 0}; })
+      return {tag: t, name: k.name || f.name || '', count: f.count != null ? f.count : k.count, power: f.power != null ? f.power : k.power, sel: !!s.selected, was: !!s.was, manual: !!s.manual, known: !!al.known[t], color: s.color || '', wasColor: s.wasColor || '', battle: !!s.battle, wasBattle: !!s.wasBattle, moons: s.moons || 0, wasMoons: s.wasMoons || 0, stars: s.stars || 0, wasStars: s.wasStars || 0, hq: hqCur(t)}; })
       .sort(function(a, b){ return (b.power || 0) - (a.power || 0) || a.tag.localeCompare(b.tag); });
   }
   function fmtP(n){ if(n == null) return '–'; return n >= 1e9 ? (n / 1e9).toFixed(2) + ' B' : n >= 1e6 ? Math.round(n / 1e6) + ' M' : String(n); }
-  function alChg(r){ return r.sel !== r.was || r.color !== r.wasColor || r.battle !== r.wasBattle || r.moons !== r.wasMoons || r.stars !== r.wasStars; }
+  function hqChg(r){ return r.hq.t !== r.hq.wt || r.hq.i !== r.hq.wi; }
+  function alChg(r){ return hqChg(r) || r.sel !== r.was || r.color !== r.wasColor || r.battle !== r.wasBattle || r.moons !== r.wasMoons || r.stars !== r.wasStars; }
   function alFg(hex){ var m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || ''); if(!m) return '#dfe6f2'; var l = (0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16)) / 255; return l > 0.58 ? '#1b1b1b' : '#ffffff'; }
   function alState(r){
     var f = (st.al && st.al.feed) || {}, inFeed = (f.tags || []).indexOf(r.tag) >= 0, miss = (f.missing || []).indexOf(r.tag) >= 0;
+    if(r.sel === r.was && hqChg(r) && r.color === r.wasColor && r.battle === r.wasBattle && r.moons === r.wasMoons && r.stars === r.wasStars) return '<span class="al-st-wait">HQ changed – press Save</span>';
     if(r.sel !== r.was) return '<span class="al-st-wait">' + (r.sel ? 'will be added – press Save' : 'will be removed – press Save') + '</span>';
     if(r.color !== r.wasColor || r.battle !== r.wasBattle || r.moons !== r.wasMoons || r.stars !== r.wasStars) return '<span class="al-st-wait">changed – press Save</span>';
     if(r.sel && miss) return '<span class="al-st-no">not found in the game – check the tag</span>';
@@ -1280,7 +1293,7 @@
   function alRows(){
     var tb = document.getElementById('alTb'); if(!tb) return;
     var q = (st.alQ || '').toLowerCase(), rows = alList().filter(function(r){ return (!st.alOnly || r.sel) && (!q || r.tag.toLowerCase().indexOf(q) >= 0 || r.name.toLowerCase().indexOf(q) >= 0); });
-    tb.innerHTML = rows.map(function(r){ return '<tr class="' + (alChg(r) ? 'al-chg' : '') + '"><td class="c"><input type="checkbox" data-al="' + esc(r.tag) + '"' + (r.sel ? ' checked' : '') + ' aria-label="Fetch ' + esc(r.tag) + '"></td><td class="tg"><span class="al-chip"' + (r.color ? ' style="background:' + esc(r.color) + ';color:' + alFg(r.color) + ';border-color:' + esc(r.color) + '"' : '') + '>' + esc(r.tag) + '</span>' + (r.manual ? ' <span class="ad-sh" title="added by hand">manual</span>' : '') + '</td><td>' + esc(r.name || (r.known ? '' : '–')) + '</td><td class="c">' + (r.count == null ? '–' : esc(r.count)) + '</td><td class="c">' + fmtP(r.power) + '</td><td class="c"><input type="color" class="al-col" data-alc="' + esc(r.tag) + '" value="' + esc(r.color || '#3a4357') + '" aria-label="Colour of ' + esc(r.tag) + '">' + (r.color ? '<button type="button" class="al-x" data-alcr="' + esc(r.tag) + '" title="Remove the colour (the pages use their default)" aria-label="Remove colour of ' + esc(r.tag) + '">×</button>' : '') + '</td><td class="c"><input type="checkbox" data-alb="' + esc(r.tag) + '"' + (r.battle ? ' checked' : '') + ' aria-label="Battle alliance ' + esc(r.tag) + '"></td><td class="c"><input type="number" class="al-n" min="0" max="20" data-alm="' + esc(r.tag) + '" value="' + r.moons + '" aria-label="Moons of ' + esc(r.tag) + '"></td><td class="c"><input type="number" class="al-n" min="0" max="20" data-als="' + esc(r.tag) + '" value="' + r.stars + '" aria-label="Stars of ' + esc(r.tag) + '"></td><td>' + alState(r) + '</td></tr>'; }).join('') || '<tr><td colspan="10" class="ad-note">Nothing found.</td></tr>';
+    tb.innerHTML = rows.map(function(r){ return '<tr class="' + (alChg(r) ? 'al-chg' : '') + '"><td class="c"><input type="checkbox" data-al="' + esc(r.tag) + '"' + (r.sel ? ' checked' : '') + ' aria-label="Fetch ' + esc(r.tag) + '"></td><td class="tg"><span class="al-chip"' + (r.color ? ' style="background:' + esc(r.color) + ';color:' + alFg(r.color) + ';border-color:' + esc(r.color) + '"' : '') + '>' + esc(r.tag) + '</span>' + (r.manual ? ' <span class="ad-sh" title="added by hand">manual</span>' : '') + '</td><td>' + esc(r.name || (r.known ? '' : '–')) + '</td><td class="c">' + (r.count == null ? '–' : esc(r.count)) + '</td><td class="c">' + fmtP(r.power) + '</td><td class="c"><input type="color" class="al-col" data-alc="' + esc(r.tag) + '" value="' + esc(r.color || '#3a4357') + '" aria-label="Colour of ' + esc(r.tag) + '">' + (r.color ? '<button type="button" class="al-x" data-alcr="' + esc(r.tag) + '" title="Remove the colour (the pages use their default)" aria-label="Remove colour of ' + esc(r.tag) + '">×</button>' : '') + '</td><td class="c"><input type="checkbox" data-alb="' + esc(r.tag) + '"' + (r.battle ? ' checked' : '') + ' aria-label="Battle alliance ' + esc(r.tag) + '"></td><td class="c"><input type="number" class="al-n" min="0" max="20" data-alm="' + esc(r.tag) + '" value="' + r.moons + '" aria-label="Moons of ' + esc(r.tag) + '"></td><td class="c"><input type="number" class="al-n" min="0" max="20" data-als="' + esc(r.tag) + '" value="' + r.stars + '" aria-label="Stars of ' + esc(r.tag) + '"></td><td class="c"><input type="text" class="al-hq" data-hqt="' + esc(r.tag) + '" value="' + esc(r.hq.t) + '" placeholder="X/Y" maxlength="9" aria-label="Tundra HQ of ' + esc(r.tag) + '"></td><td class="c"><input type="text" class="al-hq" data-hqi="' + esc(r.tag) + '" value="' + esc(r.hq.i) + '" placeholder="X/Y" maxlength="9" aria-label="Icefield HQ of ' + esc(r.tag) + '"></td><td>' + alState(r) + '</td></tr>'; }).join('') || '<tr><td colspan="12" class="ad-note">Nothing found.</td></tr>';
     var all = alList(), n = all.filter(function(r){ return r.sel; }).length, ch = all.filter(alChg).length;
     var sm = document.getElementById('alSum'); if(sm) sm.textContent = n + ' selected of ' + all.length;
     var sv = document.getElementById('alSave'); if(sv){ sv.disabled = !ch; sv.textContent = ch ? 'Save (' + ch + ' change' + (ch > 1 ? 's' : '') + ')' : 'Save'; }
@@ -1337,10 +1350,10 @@
     if(!st.al || !st.al.db) return '<div class="dq"><h3>Alliances of State 646</h3><p class="ad-note" style="margin:0">Not set up yet: please run alliances.sql in Supabase (see the instructions).</p></div>';
     var al = st.al, n = Object.keys(st.alSel).filter(function(t){ return st.alSel[t].selected; }).length;
     return '<details class="al" id="alBox" open><summary>Alliances of State 646 – roster and planners<span id="alSum">' + n + ' selected</span></summary>' +
-      '<p class="ad-note" style="margin:8px 0 0">Tick the alliances whose members are fetched every hour. The ticked ones appear in the Roster and in the planners. The list comes from the alliance rankings of the game (top 100 by power and by kills' + (al.knownAt ? ', as of ' + esc(al.knownAt) : '') + '), so small alliances can be missing: add them by tag. <b>Colour</b> is the tag colour on all pages (× = back to the page default), <b>Moons / Stars</b> are the banner symbols shown next to the alliance in the Roster and the SvS Leaderboards (enter them by hand after a won event). <b>Battle</b> marks the battle alliances (Roster and planners; the SvS Leaderboards keep the battle alliances of each event).</p>' +
+      '<p class="ad-note" style="margin:8px 0 0">Tick the alliances whose members are fetched every hour. The ticked ones appear in the Roster and in the planners. The list comes from the alliance rankings of the game (top 100 by power and by kills' + (al.knownAt ? ', as of ' + esc(al.knownAt) : '') + '), so small alliances can be missing: add them by tag. <b>Colour</b> is the tag colour on all pages (× = back to the page default), <b>Moons / Stars</b> are the banner symbols shown next to the alliance in the Roster and the SvS Leaderboards (enter them by hand after a won event). <b>Tundra HQ / Icefield HQ</b> are the HQ coordinates as X/Y (for example 612/448); the Facility Map can show them (label “HQ”). <b>Battle</b> marks the battle alliances (Roster and planners; the SvS Leaderboards keep the battle alliances of each event).</p>' +
       '<div class="al-bar"><input type="text" id="alQ" placeholder="Search tag or name" value="' + esc(st.alQ) + '"><label><input type="checkbox" id="alOnly"' + (st.alOnly ? ' checked' : '') + '> selected only</label>' +
       '<input type="text" id="alAddT" maxlength="16" placeholder="Tag (exact case)"><button type="button" class="btn" id="alAdd">Add by tag</button><button type="button" class="btn" id="alSave" disabled>Save</button></div>' +
-      '<div class="al-sc"><table class="ad"><thead><tr><th class="c">Fetch</th><th>Tag</th><th>Name</th><th class="c">Members</th><th class="c">Power</th><th class="c">Colour</th><th class="c" title="Shows the “Battle alliance” label in the Roster and the planners">Battle</th><th class="c" title="Gold moons on the alliance banner">Moons</th><th class="c" title="Blue stars on the alliance banner">Stars</th><th>Status</th></tr></thead><tbody id="alTb"></tbody></table></div>' +
+      '<div class="al-sc"><table class="ad"><thead><tr><th class="c">Fetch</th><th>Tag</th><th>Name</th><th class="c">Members</th><th class="c">Power</th><th class="c">Colour</th><th class="c" title="Shows the “Battle alliance” label in the Roster and the planners">Battle</th><th class="c" title="Gold moons on the alliance banner">Moons</th><th class="c" title="Blue stars on the alliance banner">Stars</th><th class="c" title="Coordinates of the Tundra HQ as X/Y (0 to 1200). Shown on the Facility Map.">Tundra HQ<br><span class="ad-sh">X/Y</span></th><th class="c" title="Coordinates of the Icefield HQ as X/Y (0 to 1200). Shown on the Facility Map.">Icefield HQ<br><span class="ad-sh">X/Y</span></th><th>Status</th></tr></thead><tbody id="alTb"></tbody></table></div>' +
       '<small class="hint" id="alEst"></small><small class="hint">Upper and lower case matter (TBR, TbR and tbr are three alliances). Changes take effect with the next update job; a new alliance has no “moves” in the history log. Players of removed alliances disappear from the Roster, their data is kept.</small></details>';
   }
   function getUsage(){
@@ -1400,9 +1413,13 @@
       return;
     }
     if(b.id === 'alSave'){
-      var items = alList().filter(alChg).map(function(r){ return {tag: r.tag, selected: r.sel, manual: r.manual, color: r.color, battle: r.battle, moons: r.moons, stars: r.stars}; });
-      if(!items.length) return; b.disabled = true;
-      api.alset({p_code: st.code, p_items: items}).then(function(){ toast('Saved: ' + items.length + ' change' + (items.length > 1 ? 's' : '') + ' – active with the next update job', true); return loadAl().then(function(o){ st.al = o; draw(); document.getElementById('alBox').open = true; }); })
+      var chg = alList().filter(alChg), items = chg.filter(function(r){ return r.sel !== r.was || r.color !== r.wasColor || r.battle !== r.wasBattle || r.moons !== r.wasMoons || r.stars !== r.wasStars; }).map(function(r){ return {tag: r.tag, selected: r.sel, manual: r.manual, color: r.color, battle: r.battle, moons: r.moons, stars: r.stars}; }),
+          hqs = chg.filter(hqChg).map(function(r){ return {tag: r.tag, t: r.hq.t, i: r.hq.i}; });
+      if(!chg.length) return;
+      if(hqs.length && !st.hqOk){ toast('HQ coordinates are not set up yet: please run alliance_hq.sql in Supabase first.'); return; }
+      b.disabled = true;
+      (items.length ? api.alset({p_code: st.code, p_items: items}) : Promise.resolve()).then(function(){ return hqs.length ? api.hqset({p_code: st.code, p_items: hqs}) : null; })
+        .then(function(){ toast('Saved: ' + chg.length + ' change' + (chg.length > 1 ? 's' : '') + (items.length ? ' – active with the next update job' : ''), true); return loadAl().then(function(o){ st.al = o; draw(); document.getElementById('alBox').open = true; }); })
         .catch(function(err){ toast(err.message); b.disabled = false; });
       return;
     }
@@ -1452,6 +1469,12 @@
     if(cc){ var o1 = st.alSel[cc] || (st.alSel[cc] = {selected: false, was: false, manual: false}); o1.color = e.target.value; alRows(); return; }
     var mc = e.target.getAttribute && e.target.getAttribute('data-alm'), sc = e.target.getAttribute && e.target.getAttribute('data-als');
     if(mc || sc){ var tg = mc || sc, o3 = st.alSel[tg] || (st.alSel[tg] = {selected: false, was: false, manual: false}), nv = Math.max(0, Math.min(20, parseInt(e.target.value, 10) || 0)); if(mc) o3.moons = nv; else o3.stars = nv; alRows(); return; }
+    var ht = e.target.getAttribute && (e.target.getAttribute('data-hqt') || e.target.getAttribute('data-hqi'));
+    if(ht){
+      var isT = !!e.target.getAttribute('data-hqt'), raw = e.target.value.trim(), mm = /^(\d{1,4})\s*[\/,; ]\s*(\d{1,4})$/.exec(raw);
+      if(raw && (!mm || +mm[1] > 1200 || +mm[2] > 1200)){ toast('Please enter the HQ as X/Y with numbers from 0 to 1200, for example 612/448.'); e.target.classList.add('bad'); return; }
+      (st.hqNew[ht] = st.hqNew[ht] || {})[isT ? 't' : 'i'] = raw ? +mm[1] + '/' + +mm[2] : ''; alRows(); return;
+    }
     var bc = e.target.getAttribute && e.target.getAttribute('data-alb');
     if(bc){ var o2 = st.alSel[bc] || (st.alSel[bc] = {selected: false, was: false, manual: false}); o2.battle = e.target.checked; alRows(); return; }
     var kc = e.target.closest('[data-k]');

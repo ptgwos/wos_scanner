@@ -782,6 +782,8 @@
   .fm-mk{cursor:pointer;} .fm-mk path{stroke:rgba(0,0,0,.55);stroke-width:3.5;transition:transform .12s;transform-box:fill-box;transform-origin:center;}
   .fm-mk:hover path,.fm-mk.sel path{stroke:#fff;stroke-width:5;} .fm-mk text{font-family:Inter,sans-serif;font-size:30px;font-weight:800;fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.65);stroke-width:5px;stroke-linejoin:round;pointer-events:none;}
   .fm-mk.off{display:none;}
+  .fm-hq{cursor:pointer;transition:opacity .15s;} .fm-hq path{stroke:#fff;stroke-width:5;} .fm-hq text{font-family:Inter,sans-serif;font-size:34px;font-weight:800;paint-order:stroke;stroke:rgba(0,0,0,.75);stroke-width:6px;stroke-linejoin:round;pointer-events:none;}
+  .fm-hq.dim{opacity:.2;} svg.hl .fm-hq{opacity:.14;}
   #fmTip{position:fixed;z-index:60;pointer-events:none;display:none;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:12.5px;line-height:1.5;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:260px;}
   #fmTip b{color:var(--strong);} #fmTip .c{color:var(--text-faint);}
   .fm-note{font-size:12px;color:var(--text-faint);margin:8px 2px 0;}
@@ -851,7 +853,7 @@
     <div class="fm-fl" id="fmFl"></div>
     <div class="fm-tw"><table class="fm-t"><thead><tr id="fmHd"></tr></thead><tbody id="fmRows"></tbody></table></div>
   </div>
-  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa5</footer>
+  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa6</footer>
 </div>
 <div id="fmTip"></div>
 <div id="fmPop"></div>
@@ -901,6 +903,7 @@
       var KEY = 'fac_mock_db';
       var ld = function(){ var d = {}; try { d = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e) {} return d; };
       return {
+        hq: function(){ return Promise.resolve([{tag: 'PKB', t_x: 300, t_y: 900, i_x: 700, i_y: 300}, {tag: 'GYN', t_x: 900, t_y: 300, i_x: 500, i_y: 100}, {tag: 'TBR', t_x: 150, t_y: 150, i_x: null, i_y: null}]); },
         can: function(c){ return Promise.resolve(c === 'admin' ? {edit: true, super: true, name: 'Test admin'} : c === 'fac' ? {edit: true, super: false, name: 'Test editor'} : {edit: false, super: false, name: c ? 'Test viewer' : null}); },
         list: function(){ var d = ld(); return Promise.resolve(ITEMS.map(function(f){ var a = d[f.id] || {}; return {id: f.id, al: a.al || null, cn: a.cn || []}; })); },
         set: function(c, id, al, cn){ if(c !== 'admin' && c !== 'fac') return Promise.reject(new Error('Not allowed (no Facilities permission).')); var d = ld(); d[id] = {al: al || null, cn: cn}; try { localStorage.setItem(KEY, JSON.stringify(d)); } catch(e) {} return Promise.resolve({id: id, al: al || null, cn: cn}); }
@@ -916,6 +919,7 @@
     return {
       can: function(c){ return c ? rpc('fac_can', {p_code: c}) : Promise.resolve({edit: false, super: false, name: null}); },
       list: function(){ return rpc('fac_list'); },
+      hq: function(){ return fetch(CFG.url.replace(/\/+$/, '') + '/rest/v1/alli_hq?select=tag,t_x,t_y,i_x,i_y', {headers: H, cache: 'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); },
       set: function(c, id, al, cn){ return rpc('fac_set', {p_code: c, p_id: id, p_alliance: al || '', p_connected: cn}); }
     };
   })();
@@ -948,6 +952,10 @@
     g._f = f; MG[f.id] = g; mk.appendChild(g);
   });
   svg.appendChild(mk);
+  function starP(r){ var a = []; for(var i = 0; i < 10; i++){ var t = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r * .5 : r; a.push((q * Math.cos(t)).toFixed(1) + ',' + (q * Math.sin(t)).toFixed(1)); } return 'M' + a.join('L') + 'Z'; }
+  function houseP(r){ return 'M0,' + (-r) + 'L' + r + ',' + (-r * .1) + 'L' + (r * .75) + ',' + (-r * .1) + 'L' + (r * .75) + ',' + (r * .85) + 'L' + (-r * .75) + ',' + (r * .85) + 'L' + (-r * .75) + ',' + (-r * .1) + 'L' + (-r) + ',' + (-r * .1) + 'Z'; }
+  var hqg = el('g', {'class': 'fm-hqs'}); hqg.style.display = 'none'; svg.appendChild(hqg);
+  var HQS = [], HQON = false;
 
   var leg = $('fmLeg');
   TYPES.forEach(function(t){
@@ -956,6 +964,24 @@
     b.addEventListener('click', function(){ t.on = !t.on; b.setAttribute('aria-pressed', t.on ? 'true' : 'false'); ITEMS.forEach(function(f){ if(f.t === t.k) MG[f.id].classList.toggle('off', !t.on); }); count(); });
     leg.appendChild(b);
   });
+  (function(){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'fm-lg'; b.id = 'fmHqB'; b.setAttribute('aria-pressed', 'false'); b.title = 'Alliance headquarters: star = Tundra HQ, house = Icefield HQ';
+    b.innerHTML = '<svg viewBox="-34 -34 68 68"><path d="' + starP(30) + '" fill="#f2b705" stroke="rgba(0,0,0,.5)" stroke-width="3"/></svg><span>HQ</span><small id="fmHqN">0</small>';
+    b.addEventListener('click', function(){ HQON = !HQON; b.setAttribute('aria-pressed', HQON ? 'true' : 'false'); hqg.style.display = HQON ? '' : 'none'; });
+    leg.appendChild(b);
+  })();
+  function drawHq(list){
+    while(hqg.firstChild) hqg.removeChild(hqg.firstChild); HQS = [];
+    (list || []).forEach(function(r){ [['t', r.t_x, r.t_y], ['i', r.i_x, r.i_y]].forEach(function(q){ if(q[1] != null && q[2] != null) HQS.push({tag: r.tag, k: q[0], x: q[1], y: q[2]}); }); });
+    HQS.forEach(function(h){
+      var p = pt(h.x, h.y), g = el('g', {'class': 'fm-hq', transform: 'translate(' + p[0] + ',' + p[1] + ')'}), c = tagCol(h.tag);
+      g.appendChild(el('path', {d: h.k === 't' ? starP(40) : houseP(38), fill: c}));
+      g.appendChild(el('text', {x: 0, y: 78, 'text-anchor': 'middle', style: 'fill:' + c}, h.tag));
+      g._h = h; hqg.appendChild(g);
+    });
+    $('fmHqN').textContent = HQS.length; hqDim();
+  }
+  function hqDim(){ var real = F.al.filter(function(a){ return a !== '-'; }); hqg.querySelectorAll('.fm-hq').forEach(function(g){ g.classList.toggle('dim', real.length > 0 && real.indexOf(g._h.tag) < 0); }); }
   function count(){ var n = 0; ITEMS.forEach(function(d){ if(TY[d.t].on) n++; }); $('fmNote').textContent = n + ' of ' + ITEMS.length + ' facilities shown · the number inside a marker is the level · the coloured ring is the alliance · tap or hover a marker for details'; }
   count();
   var zm = $('fmZm'), sc = $('fmSc');
@@ -972,8 +998,9 @@
   function tagCol(t){ return COL[t] || '#59688a'; }
   function chip(t){ return '<span class="fm-tag" style="background:' + esc(tagCol(t)) + '">' + esc(t) + '</span>'; }
   function show(g, x, y){
-    var f = g._f, pc = Math.round(f.v * 100);
-    tip.innerHTML = '<b>' + esc(f.t) + ' Facility</b> · Level ' + f.l + '<br>' + esc(f.b) + ': <b>+' + pc + '%</b><br><span class="c">X ' + f.x + ' / Y ' + f.y + '</span>' +
+    var f = g._f || {}, pc = Math.round((f.v || 0) * 100);
+    if(g._h) tip.innerHTML = chip(g._h.tag) + ' <b>' + (g._h.k === 't' ? 'Tundra' : 'Icefield') + ' HQ</b><br><span class="c">X ' + g._h.x + ' / Y ' + g._h.y + '</span>';
+    else tip.innerHTML = '<b>' + esc(f.t) + ' Facility</b> · Level ' + f.l + '<br>' + esc(f.b) + ': <b>+' + pc + '%</b><br><span class="c">X ' + f.x + ' / Y ' + f.y + '</span>' +
       (f.al || f.cn.length ? '<br>Alliance: ' + (f.al ? chip(f.al) : '–') + (f.cn.length ? '<br>Connected: ' + f.cn.map(chip).join('') : '') : '');
     tip.style.display = 'block'; var w = tip.offsetWidth, h = tip.offsetHeight, X = Math.min(x + 14, window.innerWidth - w - 8), Y = y + 16 + h > window.innerHeight ? y - h - 12 : y + 16;
     tip.style.left = Math.max(8, X) + 'px'; tip.style.top = Math.max(8, Y) + 'px';
@@ -981,8 +1008,11 @@
   function hide(){ tip.style.display = 'none'; if(selEl){ selEl.classList.remove('sel'); selEl = null; } }
   mk.addEventListener('pointermove', function(e){ if(e.pointerType === 'touch') return; var g = e.target.closest('.fm-mk'); if(g) show(g, e.clientX, e.clientY); else hide(); });
   mk.addEventListener('pointerleave', function(e){ if(e.pointerType !== 'touch') hide(); });
+  hqg.addEventListener('pointermove', function(e){ if(e.pointerType === 'touch') return; var g = e.target.closest('.fm-hq'); if(g) show(g, e.clientX, e.clientY); else hide(); });
+  hqg.addEventListener('pointerleave', function(e){ if(e.pointerType !== 'touch') hide(); });
+  hqg.addEventListener('click', function(e){ var g = e.target.closest('.fm-hq'); if(!g) return; e.stopPropagation(); show(g, e.clientX, e.clientY); });
   mk.addEventListener('click', function(e){ var g = e.target.closest('.fm-mk'); if(!g) return; e.stopPropagation(); if(selEl) selEl.classList.remove('sel'); selEl = g; g.classList.add('sel'); show(g, e.clientX, e.clientY); });
-  document.addEventListener('click', function(e){ if(!e.target.closest('.fm-mk')) hide(); });
+  document.addEventListener('click', function(e){ if(!e.target.closest('.fm-mk,.fm-hq')) hide(); });
   window.addEventListener('scroll', hide, {passive: true});
 
   /* ---------- highlight (table row <-> map) ---------- */
@@ -1036,7 +1066,7 @@
   function openFp(k, anchor){
     if(fpK === k){ closeFp(); return; } fpK = k;
     if(k === 'ex'){
-      FP.innerHTML = '<h4>Export the ' + curRows().length + ' listed facilities</h4><button type="button" class="fp-i" data-ex="xlsx">Excel (.xlsx)</button><button type="button" class="fp-i" data-ex="csv">CSV (comma)</button><button type="button" class="fp-i" data-ex="csv2">CSV (semicolon, for German Excel)</button><button type="button" class="fp-i" data-ex="txt">Copy as text (Discord)</button><button type="button" class="fp-i" data-ex="png">Save picture (PNG)</button>';
+      FP.innerHTML = '<h4>Export the ' + curRows().length + ' listed facilities</h4><button type="button" class="fp-i" data-ex="xlsx">Excel (.xlsx)</button><button type="button" class="fp-i" data-ex="csv">CSV (comma)</button><button type="button" class="fp-i" data-ex="csv2">CSV (semicolon, for German Excel)</button><button type="button" class="fp-i" data-ex="txt">Copy as text (Discord)</button><button type="button" class="fp-i" data-ex="png">Save picture (PNG)</button><h4 style="margin-top:12px">Big map picture (map only)</h4><button type="button" class="fp-i" data-ex="big3000">Map, 3000 px wide</button><button type="button" class="fp-i" data-ex="big4000">Map, 4000 px wide</button>';
       placeFp(anchor); return;
     }
     var h = '<h4>' + {al: 'Alliances', ty: 'Types', lv: 'Levels'}[k] + '</h4><div class="fp-a"><a href="#" data-all="1">Clear selection (= all)</a></div>' + fvals(k).map(function(v){
@@ -1047,7 +1077,7 @@
     FP.querySelector('[data-all]').addEventListener('click', function(e){ e.preventDefault(); F[k] = []; FP.querySelectorAll('input').forEach(function(i){ i.checked = false; }); drawRows(); });
   }
   document.addEventListener('mousedown', function(e){ if(FP.style.display === 'block' && !e.target.closest('#fmFp') && !e.target.closest('[data-fp],#fmEx')) closeFp(); });
-  FP.addEventListener('click', function(e){ var b = e.target.closest('[data-ex]'); if(!b) return; var k = b.getAttribute('data-ex'); closeFp(); if(k === 'png') sharePic($('fmSh'), 'save'); else doExport(k); });
+  FP.addEventListener('click', function(e){ var b = e.target.closest('[data-ex]'); if(!b) return; var k = b.getAttribute('data-ex'); closeFp(); if(k === 'png') sharePic($('fmSh'), 'save'); else if(k === 'big3000' || k === 'big4000') bigPic($('fmEx'), k === 'big3000' ? 3000 : 4000); else doExport(k); });
   function drawHead(){
     $('fmHd').innerHTML = COLS.map(function(c){ return '<th class="' + (c.c || '') + (F.sk === c.k ? ' on' : '') + '" data-k="' + c.k + '">' + c.l + (F.sk === c.k ? (F.sd > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('');
     $('fmHd').querySelectorAll('th').forEach(function(th){ th.addEventListener('click', function(){ var k = th.getAttribute('data-k'); if(F.sk === k) F.sd = -F.sd; else { F.sk = k; F.sd = 1; } drawHead(); drawRows(); }); });
@@ -1066,7 +1096,7 @@
     });
     $('fmRows').innerHTML = h || '<tr><td colspan="6" style="padding:18px;text-align:center;color:var(--text-faint)">No facilities match.</td></tr>';
     $('fmCnt').textContent = rows.length + ' of ' + ITEMS.length + ' facilities';
-    var on = {}; rows.forEach(function(f){ on[f.id] = 1; }); var filt = fact(); fbtn();
+    var on = {}; rows.forEach(function(f){ on[f.id] = 1; }); var filt = fact(); fbtn(); hqDim();
     ITEMS.forEach(function(f){ MG[f.id].classList.toggle('dim', filt && !on[f.id]); var g = MG[f.id], s = g.querySelector('.fm-al'); g.classList.toggle('al', !!f.al); if(f.al) s.setAttribute('stroke', tagCol(f.al)); });
     if(HI != null){ var r = $('fmRows').querySelector('tr[data-id="' + HI + '"]'); if(r) r.classList.add('hi'); }
   }
@@ -1171,19 +1201,22 @@
     return new Promise(function(res, rej){ var s = document.createElement('script'); s.src = window.__rpLib || LIBU; s.onload = res; s.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(s); });
   }
   function tyIc(t){ return '<svg viewBox="-34 -34 68 68" style="width:15px;height:15px;flex:none"><path d="' + shape(t.s, 26) + '" fill="' + t.c + '" stroke="rgba(0,0,0,.5)" stroke-width="3"/></svg>'; }
-  function shotEl(){
-    var rows = curRows(), filt = fact(), on = {}; rows.forEach(function(f){ on[f.id] = 1; });
-    var box = document.createElement('div'); box.id = 'fmShot';
+  function mapClone(on, filt, lab){
     var sv2 = svg.cloneNode(true); sv2.removeAttribute('id'); sv2.removeAttribute('style'); sv2.setAttribute('class', '');
     sv2.querySelectorAll('.off,.hi,.sel').forEach(function(n){ n.classList.remove('off'); n.classList.remove('hi'); n.classList.remove('sel'); });
-    var lab = rows.length <= 40;
     sv2.querySelectorAll('.fm-mk').forEach(function(g){
       var id = +g.getAttribute('data-id'), f = BY[id]; g.classList.toggle('dim', filt && !on[id]);
       if(lab && on[id] && f.al){ var t = el('text', {x: 0, y: R + 42, 'text-anchor': 'middle', style: 'fill:' + tagCol(f.al) + ';font-size:36px;font-weight:800'}, f.al); g.appendChild(t); }
     });
+    return sv2;
+  }
+  function shotEl(){
+    var rows = curRows(), filt = fact(), on = {}; rows.forEach(function(f){ on[f.id] = 1; });
+    var box = document.createElement('div'); box.id = 'fmShot';
+    var sv2 = mapClone(on, filt, rows.length <= 40);
     var vb = [-250, -110, 2900, 2620];
     if(filt && rows.length){
-      var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; rows.forEach(function(f){ var p = pt(f.x, f.y); x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+      var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; rows.concat(HQON ? HQS.filter(function(h){ return F.al.indexOf(h.tag) >= 0; }) : []).forEach(function(f){ var p = pt(f.x, f.y); x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
       var pad = 170, w = Math.max(x1 - x0 + 2 * pad, 760), h = Math.max(y1 - y0 + 2 * pad, 620), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
       if(w / h < 1) w = h; else if(w / h > 1.9) h = w / 1.9;
       if(w * h <= .55 * 2900 * 2620 && w <= 2300) vb = [cx - w / 2, cy - h / 2, w, h];
@@ -1214,6 +1247,22 @@
       var run = function(){ return window.htmlToImage.toBlob(el2, opt); };
       return (safari ? run().catch(function(){}) : Promise.resolve()).then(run);
     }).then(function(b){ if(!b) throw new Error('empty'); return b; });
+  }
+  function bigPic(btn, px){
+    if(picBusy) return; picBusy = true; btn.disabled = true;
+    var rows = curRows(), on = {}; rows.forEach(function(f){ on[f.id] = 1; });
+    var box = document.createElement('div'); box.id = 'fmShot'; box.style.width = '1000px'; box.style.padding = '0';
+    var sv2 = mapClone(on, fact(), true); sv2.style.cssText = 'display:block;width:1000px;height:' + Math.round(1000 * 2620 / 2900) + 'px'; box.appendChild(sv2);
+    document.body.appendChild(box); box.style.left = '0';
+    toast('Creating the picture …', true);
+    var opt = null;
+    loadLib().then(function(){
+      var bg = getComputedStyle(box).backgroundColor || '#0f1626', safari = /iP(hone|ad|od)|^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent);
+      opt = {pixelRatio: px / 1000, backgroundColor: bg, cacheBust: false, skipFonts: true};
+      var run = function(){ return window.htmlToImage.toBlob(box, opt); };
+      return (safari ? run().catch(function(){}) : Promise.resolve()).then(run);
+    }).then(function(b){ if(!b) throw new Error('empty'); dl(b, 'state646-facility-map-' + px + 'px.png'); toast('Picture saved (' + px + ' px)', true); })
+      .catch(function(){ toast('Could not create the picture. Please try the smaller size.'); }).then(function(){ box.remove(); picBusy = false; btn.disabled = false; });
   }
   var picCache = {}, picBusy = false;
   function picKey(){ return JSON.stringify([F, document.documentElement.getAttribute('data-theme'), ITEMS.map(function(f){ return f.al + ':' + f.cn.join('.'); }).join('|')]); }
@@ -1247,19 +1296,21 @@
       'Everybody can look at the list. Only people with the Facilities permission can change it' + (code ? '.' : ' – log in (menu) if you have it.');
   }
   function merge(l){ (l || []).forEach(function(r){ var f = BY[r.id]; if(f){ f.al = r.al || ''; f.cn = r.cn || []; } }); }
+  var HQL = [];
   function load(){
     var feed = fetch('data/alliances.json?_=' + Math.floor(Date.now() / 300000), {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }).then(function(j){
       if(!j) return; var al = j.alliances || {}; TAGS = (j.tags || Object.keys(al)).slice().sort(function(a, b){ return ((al[b] || {}).power || 0) - ((al[a] || {}).power || 0); }); COL = j.colors || {}; });
     var lst = api.list().then(function(l){ merge(l); DBOK = true; }).catch(function(e){ DBOK = false; toast(e.message); });
     var can = api.can(code).then(function(c){ CAN = {edit: !!(c && c.edit), name: (c && c.name) || ''}; }).catch(function(){ CAN = {edit: false, name: ''}; });
-    return Promise.all([feed, lst, can]).then(function(){ drawFilters(); drawHead(); drawRows(); status(); });
+    var hq = api.hq().then(function(l){ HQL = l || []; }).catch(function(){ HQL = []; });
+    return Promise.all([feed, lst, can, hq]).then(function(){ drawFilters(); drawHead(); drawRows(); drawHq(HQL); status(); });
   }
   drawFilters(); drawHead(); drawRows(); status();
   load();
   var lastT = Date.now();
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && Date.now() - lastT > 120000){ lastT = Date.now(); api.list().then(function(l){ merge(l); drawRows(); }).catch(function(){}); } });
   window.epSettingsApply = function(){};
-  window.__fm = {ITEMS: ITEMS, pt: pt, shotEl: shotEl, curRows: curRows};
+  window.__fm = {ITEMS: ITEMS, pt: pt, shotEl: shotEl, curRows: curRows, HQS: function(){ return HQS; }};
 })();
 </script>
 
