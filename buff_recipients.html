@@ -1145,7 +1145,7 @@
   <div id="wkEdit"><button type="button" class="btn sm" id="wkLast" style="display:none">Copy from last week</button></div>
   <div id="blocks"></div>
   <p class="fs-note" id="fsNote">Everybody can look at the lists. Only people with the Buff Recipients permission can change them. The alliance shown per fortress comes from the Fortress/SH plan.</p>
-  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-26 · bf8</footer>
+  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-27 · bf9</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel"><div class="modal-header"><h2 id="pkTitle">Pick player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p>
@@ -1472,22 +1472,29 @@
 
   // ---- share text ----
   function textFor(list, onlyMissing){
+    // one monospace code block per fortress with the alliances as columns: Discord shows it aligned, and it is much shorter than a list per alliance
     var out = [];
+    function ln(x){ return Array.from(x).length; }
+    function cut(x, n){ var a = Array.from(x); return a.length > n ? a.slice(0, n - 1).join('') + '…' : x; }
+    function pad(x, n){ var l = ln(x); return l >= n ? x : x + new Array(n - l + 1).join(' '); }
+    out.push('**Buff recipients' + (onlyMissing ? ' – still missing' : '') + ' · Season ' + season() + ' · Week ' + phase + '**', '');
     list.forEach(function(b){
       var hd = holder(phase, b.fac);
-      out.push('**Buff recipients' + (onlyMissing ? ' – still missing' : '') + ' · Season ' + season() + ' · Week ' + phase + '**');
       out.push('**Fortress ' + b.n + ' – ' + b.reward + '**' + (hd ? ' (' + hd + ')' : ''));
-      COLS.forEach(function(c){
-        out.push('', '__' + c + '__');
-        var any = false;
-        for(var s = 1; s <= SLOTS; s++){
-          var v = cellOf(phase, b.fac, c, s);
-          if(onlyMissing){ if(v && !v.done){ out.push(s + '. ' + (v.name || v.id)); any = true; } }
-          else out.push(s + '. ' + (v ? (v.name || v.id) : '–'));
-        }
-        if(onlyMissing && !any) out.push('–');
+      var grid = COLS.map(function(c){
+        var a = [];
+        for(var s = 1; s <= SLOTS; s++){ var v = cellOf(phase, b.fac, c, s); a.push(onlyMissing ? (v && !v.done ? (v.name || v.id) : null) : (v ? (v.name || v.id) : null)); }
+        if(onlyMissing) a = a.filter(function(x){ return x != null; });
+        return a.map(function(x){ return x == null ? null : cut(String(x).replace(/`/g, "'").replace(/\s+/g, ' ').trim(), 11); });
       });
-      out.push('', '');
+      var rows = 0; grid.forEach(function(a){ a.forEach(function(x, i){ if(x != null && i + 1 > rows) rows = i + 1; }); });
+      if(!rows){ out.push('–', '', ''); return; }
+      var w = grid.map(function(a, ci){ var m = ln(COLS[ci]); a.forEach(function(x){ if(x != null && ln(x) > m) m = ln(x); }); return m; });
+      var lines = ['   ' + COLS.map(function(c, ci){ return pad(c, w[ci]); }).join(' ').replace(/\s+$/, '')];
+      for(var i = 0; i < rows; i++){
+        lines.push((i < 9 ? ' ' : '') + (i + 1) + ' ' + grid.map(function(a, ci){ return pad(a[i] != null ? a[i] : (onlyMissing ? '' : '-'), w[ci]); }).join(' ').replace(/\s+$/, ''));
+      }
+      out.push('```', lines.join('\n'), '```', '');
     });
     return out.join('\n').replace(/\s+$/, '');
   }
