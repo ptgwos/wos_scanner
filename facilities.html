@@ -819,6 +819,7 @@
   .fm-ac{display:inline-flex;gap:8px;flex-wrap:wrap;}
   #fmFp{position:fixed;z-index:70;display:none;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 12px 12px;box-shadow:0 14px 40px rgba(0,0,0,.45);width:min(270px,92vw);max-height:70vh;overflow:auto;}
   #fmFp h4{margin:0 0 6px;font-size:13px;color:var(--strong);} #fmFp label{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;cursor:pointer;} #fmFp input{accent-color:var(--ice);}
+  #fmFp .fp-seg{font-size:12.5px;color:var(--text-dim);margin:8px 0 2px;} #fmFp .fp-seg label{display:inline-flex;margin-left:12px;padding:2px 0;}
   #fmFp .fp-a{font-size:12px;margin:0 0 4px;} #fmFp .fp-a a{color:var(--ice);}
   #fmFp .fp-i{display:block;width:100%;text-align:left;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;margin:5px 0 0;font:inherit;font-size:13px;cursor:pointer;} #fmFp .fp-i:hover{border-color:var(--ice);}
   #fmShot{position:absolute;left:-12000px;top:0;width:1100px;box-sizing:border-box;background:var(--panel);color:var(--text);padding:20px 22px 16px;z-index:-1;font-family:Inter,sans-serif;}
@@ -854,7 +855,7 @@
     <div class="fm-fl" id="fmFl"></div>
     <div class="fm-tw"><table class="fm-t"><thead><tr id="fmHd"></tr></thead><tbody id="fmRows"></tbody></table></div>
   </div>
-  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa9</footer>
+  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa10</footer>
 </div>
 <div id="fmTip"></div>
 <div id="fmPop"></div>
@@ -1079,7 +1080,7 @@
   function openFp(k, anchor){
     if(fpK === k){ closeFp(); return; } fpK = k;
     if(k === 'ex'){
-      FP.innerHTML = '<h4>Export the ' + curRows().length + ' listed facilities</h4><button type="button" class="fp-i" data-ex="xlsx">Excel (.xlsx)</button><button type="button" class="fp-i" data-ex="csv">CSV (comma)</button><button type="button" class="fp-i" data-ex="csv2">CSV (semicolon, for German Excel)</button><button type="button" class="fp-i" data-ex="txt">Copy as text (Discord)</button><button type="button" class="fp-i" data-ex="png">Save picture (PNG)</button><h4 style="margin-top:12px">Big map picture (map and legend)</h4><button type="button" class="fp-i" data-ex="big3000">Map, 3000 px wide</button><button type="button" class="fp-i" data-ex="big4000">Map, 4000 px wide</button>';
+      FP.innerHTML = '<h4>Export the ' + curRows().length + ' listed facilities</h4><button type="button" class="fp-i" data-ex="xlsx">Excel (.xlsx)</button><button type="button" class="fp-i" data-ex="csv">CSV (comma)</button><button type="button" class="fp-i" data-ex="csv2">CSV (semicolon, for German Excel)</button><button type="button" class="fp-i" data-ex="txt">Copy as text (Discord)</button><button type="button" class="fp-i" data-ex="png">Save picture (PNG)</button><h4 style="margin-top:12px">Big map picture (map and legend)</h4><div class="fp-seg">Facilities / HQs not in the filter:<label><input type="radio" name="bh" value="0"' + (BIGHIDE ? '' : ' checked') + '> dimmed</label><label><input type="radio" name="bh" value="1"' + (BIGHIDE ? ' checked' : '') + '> hidden</label></div><button type="button" class="fp-i" data-ex="big3000">Map, 3000 px wide</button><button type="button" class="fp-i" data-ex="big4000">Map, 4000 px wide</button>';
       placeFp(anchor); return;
     }
     var h = '<h4>' + {al: 'Alliances', ty: 'Types', lv: 'Levels'}[k] + '</h4><div class="fp-a"><a href="#" data-all="1">Clear selection (= all)</a></div>' + fvals(k).map(function(v){
@@ -1090,6 +1091,7 @@
     FP.querySelector('[data-all]').addEventListener('click', function(e){ e.preventDefault(); F[k] = []; FP.querySelectorAll('input').forEach(function(i){ i.checked = false; }); drawRows(); });
   }
   document.addEventListener('mousedown', function(e){ if(FP.style.display === 'block' && !e.target.closest('#fmFp') && !e.target.closest('[data-fp],#fmEx')) closeFp(); });
+  FP.addEventListener('change', function(e){ if(e.target.name === 'bh'){ BIGHIDE = e.target.value === '1'; try { localStorage.setItem('fac_bighide', BIGHIDE ? '1' : '0'); } catch(x) {} } });
   FP.addEventListener('click', function(e){ var b = e.target.closest('[data-ex]'); if(!b) return; var k = b.getAttribute('data-ex'); closeFp(); if(k === 'png') sharePic($('fmSh'), 'save'); else if(k === 'big3000' || k === 'big4000') bigPic($('fmEx'), k === 'big3000' ? 3000 : 4000); else doExport(k); });
   function drawHead(){
     $('fmHd').innerHTML = COLS.map(function(c){ return '<th class="' + (c.c || '') + (F.sk === c.k ? ' on' : '') + '" data-k="' + c.k + '">' + c.l + (F.sk === c.k ? (F.sd > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('');
@@ -1214,11 +1216,12 @@
     return new Promise(function(res, rej){ var s = document.createElement('script'); s.src = window.__rpLib || LIBU; s.onload = res; s.onerror = function(){ rej(new Error('lib')); }; document.head.appendChild(s); });
   }
   function tyIc(t){ return '<svg viewBox="-34 -34 68 68" style="width:15px;height:15px;flex:none"><path d="' + shape(t.s, 26) + '" fill="' + t.c + '" stroke="rgba(0,0,0,.5)" stroke-width="3"/></svg>'; }
-  function mapClone(on, filt, lab){
+  function mapClone(on, filt, lab, hide){
     var sv2 = svg.cloneNode(true); sv2.removeAttribute('id'); sv2.removeAttribute('style'); sv2.setAttribute('class', '');
     sv2.querySelectorAll('.off,.hi,.sel').forEach(function(n){ n.classList.remove('off'); n.classList.remove('hi'); n.classList.remove('sel'); });
     sv2.querySelectorAll('.fm-mk').forEach(function(g){
       var id = +g.getAttribute('data-id'), f = BY[id]; g.classList.toggle('dim', filt && !on[id]);
+      if(hide && filt && !on[id]){ g.parentNode.removeChild(g); return; }
       if(lab && on[id] && f.al){ var t = el('text', {x: 0, y: R + 42, 'text-anchor': 'middle', style: 'fill:' + tagCol(f.al) + ';font-size:36px;font-weight:800'}, f.al); g.appendChild(t); }
     });
     return sv2;
@@ -1280,11 +1283,12 @@
     if(HQON){ var x2 = 2620 - 400; panel(x2, 2330, 400, 150); sym(starP(26), '#f2b705', x2 + 50, 2386); tx(x2 + 96, 2398, 'Tundra HQ', 34, 'var(--text)'); sym(houseP(26), '#f2b705', x2 + 50, 2442); tx(x2 + 96, 2454, 'Icefield HQ', 34, 'var(--text)'); }
     return g;
   }
+  var BIGHIDE = false; try { BIGHIDE = localStorage.getItem('fac_bighide') === '1'; } catch(e) {}
   function bigPic(btn, px){
     if(picBusy) return; picBusy = true; btn.disabled = true;
     var rows = curRows(), on = {}; rows.forEach(function(f){ on[f.id] = 1; });
     var box = document.createElement('div'); box.id = 'fmShot'; box.style.width = '1000px'; box.style.padding = '0';
-    var sv2 = mapClone(on, fact(), true); sv2.appendChild(legendG(fact() ? rows : ITEMS)); sv2.style.cssText = 'display:block;width:1000px;height:' + Math.round(1000 * 2620 / 2900) + 'px'; box.appendChild(sv2);
+    var sv2 = mapClone(on, fact(), true, BIGHIDE); if(BIGHIDE) sv2.querySelectorAll('.fm-hq.dim').forEach(function(n){ n.parentNode.removeChild(n); }); sv2.appendChild(legendG(fact() ? rows : ITEMS)); sv2.style.cssText = 'display:block;width:1000px;height:' + Math.round(1000 * 2620 / 2900) + 'px'; box.appendChild(sv2);
     document.body.appendChild(box); box.style.left = '0';
     toast('Creating the picture …', true);
     var opt = null;
