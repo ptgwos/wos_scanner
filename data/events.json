@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-26",
- "fetched_at": "2026-11-26T08:36:22Z",
- "count": 27,
+ "api_date": "2026-11-27",
+ "fetched_at": "2026-11-27T08:47:46Z",
+ "count": 32,
  "events": [
   {
    "name": "Journey Treasures",
@@ -140,15 +140,6 @@
    "end_ts": 1795824000
   },
   {
-   "name": "Officer Project",
-   "category": "Events",
-   "when": "25 Nov 00:00 – 26 Nov 24:00",
-   "begin": "2026-11-25T00:00:00Z",
-   "end": "2026-11-27T00:00:00Z",
-   "begin_ts": 1795564800,
-   "end_ts": 1795737600
-  },
-  {
    "name": "Armament Competition",
    "category": "Events",
    "when": "27 Nov 00:00 – 28 Nov 24:00",
@@ -246,6 +237,60 @@
    "end": "2026-12-07T00:00:00Z",
    "begin_ts": 1795996800,
    "end_ts": 1796601600
+  },
+  {
+   "name": "Crazy Joe",
+   "category": "Events",
+   "when": "1 Dec 00:00 – 3 Dec 24:00",
+   "begin": "2026-12-01T00:00:00Z",
+   "end": "2026-12-04T00:00:00Z",
+   "begin_ts": 1796083200,
+   "end_ts": 1796342400
+  },
+  {
+   "name": "Defeat nearby beasts",
+   "category": "Events",
+   "when": "1 Dec 00:00 – 2 Dec 24:00",
+   "begin": "2026-12-01T00:00:00Z",
+   "end": "2026-12-03T00:00:00Z",
+   "begin_ts": 1796083200,
+   "end_ts": 1796256000
+  },
+  {
+   "name": "Fortress Battles",
+   "category": "Events",
+   "when": "1 Dec 00:00 – 4 Dec 24:00",
+   "begin": "2026-12-01T00:00:00Z",
+   "end": "2026-12-05T00:00:00Z",
+   "begin_ts": 1796083200,
+   "end_ts": 1796428800
+  },
+  {
+   "name": "Frostfire Mine",
+   "category": "Events",
+   "when": "1 Dec 2026 00:00 – 24:00",
+   "begin": "2026-12-01T00:00:00Z",
+   "end": "2026-12-02T00:00:00Z",
+   "begin_ts": 1796083200,
+   "end_ts": 1796169600
+  },
+  {
+   "name": "Lucky Wheel",
+   "category": "Events",
+   "when": "1 Dec 00:00 – 3 Dec 24:00",
+   "begin": "2026-12-01T00:00:00Z",
+   "end": "2026-12-04T00:00:00Z",
+   "begin_ts": 1796083200,
+   "end_ts": 1796342400
+  },
+  {
+   "name": "Thanksgiving Feast",
+   "category": "Thanksgiving",
+   "when": "1 Dec 00:01 – 2 Dec 00:01",
+   "begin": "2026-12-01T00:01:00Z",
+   "end": "2026-12-02T00:01:00Z",
+   "begin_ts": 1796083260,
+   "end_ts": 1796169660
   }
  ]
 }

@@ -1,18 +1,25 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-26",
- "count": 27,
+ "date": "2026-11-27",
+ "count": 32,
  "categories": [
   {
    "name": "Events",
    "events": [
     {
-     "name": "Officer Project",
+     "name": "Fortress Battles",
      "category": "Events",
-     "when": "25 Nov 00:00 – 26 Nov 24:00",
+     "when": "24 Nov 00:00 – 27 Nov 24:00",
+     "begin_ts": 1795478400,
+     "end_ts": 1795824000
+    },
+    {
+     "name": "Hero's Mission",
+     "category": "Events",
+     "when": "25 Nov 00:00 – 27 Nov 24:00",
      "begin_ts": 1795564800,
-     "end_ts": 1795737600
+     "end_ts": 1795824000
     },
     {
      "name": "Alliance Championship",
@@ -41,20 +48,6 @@
      "when": "23 Nov 00:00 – 29 Nov 24:00",
      "begin_ts": 1795392000,
      "end_ts": 1795996800
-    },
-    {
-     "name": "Fortress Battles",
-     "category": "Events",
-     "when": "24 Nov 00:00 – 27 Nov 24:00",
-     "begin_ts": 1795478400,
-     "end_ts": 1795824000
-    },
-    {
-     "name": "Hero's Mission",
-     "category": "Events",
-     "when": "25 Nov 00:00 – 27 Nov 24:00",
-     "begin_ts": 1795564800,
-     "end_ts": 1795824000
     },
     {
      "name": "Armament Competition",
@@ -97,6 +90,41 @@
      "when": "30 Nov 00:00 – 1 Dec 24:00",
      "begin_ts": 1795996800,
      "end_ts": 1796169600
+    },
+    {
+     "name": "Crazy Joe",
+     "category": "Events",
+     "when": "1 Dec 00:00 – 3 Dec 24:00",
+     "begin_ts": 1796083200,
+     "end_ts": 1796342400
+    },
+    {
+     "name": "Defeat nearby beasts",
+     "category": "Events",
+     "when": "1 Dec 00:00 – 2 Dec 24:00",
+     "begin_ts": 1796083200,
+     "end_ts": 1796256000
+    },
+    {
+     "name": "Fortress Battles",
+     "category": "Events",
+     "when": "1 Dec 00:00 – 4 Dec 24:00",
+     "begin_ts": 1796083200,
+     "end_ts": 1796428800
+    },
+    {
+     "name": "Frostfire Mine",
+     "category": "Events",
+     "when": "1 Dec 2026 00:00 – 24:00",
+     "begin_ts": 1796083200,
+     "end_ts": 1796169600
+    },
+    {
+     "name": "Lucky Wheel",
+     "category": "Events",
+     "when": "1 Dec 00:00 – 3 Dec 24:00",
+     "begin_ts": 1796083200,
+     "end_ts": 1796342400
     }
    ]
   },
@@ -175,6 +203,13 @@
      "when": "24 Nov 00:00 – 30 Nov 24:00",
      "begin_ts": 1795478400,
      "end_ts": 1796083200
+    },
+    {
+     "name": "Thanksgiving Feast",
+     "category": "Thanksgiving",
+     "when": "1 Dec 00:01 – 2 Dec 00:01",
+     "begin_ts": 1796083260,
+     "end_ts": 1796169660
     }
    ]
   },
