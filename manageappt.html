@@ -1186,7 +1186,7 @@
     <div class="ap-p" id="apEv"><div class="ap-gate">Loading …</div></div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-25 · ma5</footer>
+  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-27 · ma6</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
@@ -1534,13 +1534,15 @@
       '<div class="as-sec">Players without a slot on this day (' + un.length + ')</div>' +
       '<p class="as-hint">' + (un.length ? un.map(function(r){ return esc(r.name) + (r.tag ? ' (' + esc(r.tag) + ')' : '') + ' <span style="opacity:.6">· ' + (r.slots[d] || []).length + ' times</span>'; }).join(' &nbsp;|&nbsp; ') : 'nobody – everybody has a slot.') + '</p>';
   }
+  // Discord: time and ID as inline code; characters that Discord would read as formatting or mentions in names are made harmless
+  function dcEsc(t){ return String(t == null ? '' : t).replace(/[\\*_~|`<>]/g, '\\$&').replace(/@/g, '@\u200b'); }
   function asText(days){
     var pm = byPid(), out = [], ev = evInfo();
     days.forEach(function(k){
       var dy = DAYS.filter(function(x){ return x.k === k; })[0], m = {}; A.asg.forEach(function(a){ if(a.day === k) m[a.slot] = a.pid; });
       var dt = dateOf2(ev['d' + k]);
       out.push(dy.w.toUpperCase() + (dt ? ' (' + dt + ')' : ''), '');
-      for(var i = 0; i < 48; i++){ var r = m[i] ? pm[m[i]] : null; out.push(tl(i) + ' | ' + (r ? r.name + ' | ' + (r.tag || '–') + ' | ' + r.pid : (m[i] ? m[i] : '-'))); }
+      for(var i = 0; i < 48; i++){ var r = m[i] ? pm[m[i]] : null; out.push('`' + tl(i) + '` | ' + (r ? dcEsc(r.name) + ' | ' + dcEsc(r.tag || '–') + ' | `' + r.pid + '`' : (m[i] ? '`' + m[i] + '`' : '-'))); }
       out.push('');
     });
     return out.join('\n').replace(/\n+$/, '');
