@@ -1186,7 +1186,7 @@
     <div class="ap-p" id="apEv"><div class="ap-gate">Loading …</div></div>
     <div class="ap-p" id="apOv" style="display:none"></div>
   </div>
-  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-27 · ma6</footer>
+  <footer id="foot">State 646 · Manage Appointments — data: Supabase · build 2026-11-27 · ma7</footer>
 </div>
 <div id="toast"></div>
 <div class="ap-m" id="apM"><div class="ap-mp" id="apMp"></div></div>
@@ -1445,10 +1445,11 @@
     Promise.all([api.list(code, O.evId), api.asList(code, O.evId), api.sentList(code, O.evId)]).then(function(r){ O.rows = r[0] || []; A.asg = r[1] || []; sentLoad(r[2]); asShell(); startPoll(); }).catch(function(e){ $('apAsp').innerHTML = '<div class="ap-gate">' + esc(e.message) + '</div><div class="ap-ma"><button type="button" class="btn btn-secondary" id="asX">Close</button></div>'; $('asX').addEventListener('click', function(){ $('apAs').classList.remove('open'); }); });
   }
   function asShell(){
-    $('apAsp').innerHTML = '<div class="as-top"><h3>Assign slots</h3>' + DAYS.map(function(d){ return '<button type="button" class="as-dt" data-day="' + d.k + '">' + d.s + ' · ' + d.w + '</button>'; }).join('') + '<span class="sp"></span><button type="button" class="btn" id="asAf" title="Fills the free slots automatically (existing assignments stay)">Auto-fill this day</button><button type="button" class="btn" id="asAfA" title="Fills the free slots of all three days">Auto-fill all days</button><button type="button" class="btn btn-secondary" id="asCl" title="Removes all assignments of this day">Clear day</button><button type="button" class="btn btn-secondary" id="asCd">Copy this day</button><button type="button" class="btn btn-secondary" id="asCa">Copy all days</button><button type="button" class="btn btn-secondary" id="asX">Close</button></div>' +
+    $('apAsp').innerHTML = '<div class="as-top"><h3>Assign slots</h3>' + DAYS.map(function(d){ return '<button type="button" class="as-dt" data-day="' + d.k + '">' + d.s + ' · ' + d.w + '</button>'; }).join('') + '<span class="sp"></span><button type="button" class="btn btn-secondary" id="asRl" title="Choose which rules the auto-fill uses and in which order">Auto-fill rules</button><button type="button" class="btn" id="asAf" title="Fills the free slots automatically (existing assignments stay)">Auto-fill this day</button><button type="button" class="btn" id="asAfA" title="Fills the free slots of all three days">Auto-fill all days</button><button type="button" class="btn btn-secondary" id="asCl" title="Removes all assignments of this day">Clear day</button><button type="button" class="btn btn-secondary" id="asCd">Copy this day</button><button type="button" class="btn btn-secondary" id="asCa">Copy all days</button><button type="button" class="btn btn-secondary" id="asX">Close</button></div>' +
       '<div class="as-g"><div class="as-c" id="asSl"></div><div class="as-c" id="asPl"></div></div>';
     $('apAsp').querySelectorAll('.as-dt').forEach(function(b){ b.addEventListener('click', function(){ A.day = b.getAttribute('data-day'); A.slot = null; asDraw(); }); });
     $('asX').addEventListener('click', function(){ $('apAs').classList.remove('open'); });
+    $('asRl').addEventListener('click', openRules);
     $('asAf').addEventListener('click', function(){ afRun([A.day]); });
     $('asAfA').addEventListener('click', function(){ afRun(['1', '2', '3']); });
     $('asCl').addEventListener('click', clearDay);
@@ -1724,6 +1725,32 @@
   // anch = {pid: {slot: number of OTHER days on which this player has exactly this time}}: the same time on several days is worth a bonus (AB per day),
   // so he gets it ahead of players with many alternatives, but never ahead of players who have hardly any alternative (their weight is higher than the bonus).
   var AB = 10;
+  /* ---- auto-fill rules: order and on/off, kept in this browser. The position in the list sets the weight (top = 8, then 4, 2, 1). ---- */
+  var RULES = {
+    t: {n: 'Time wishes', d: '1st choice before 2nd before 3rd. Always on; its place in the list decides how strongly the wishes count compared with the other rules.'},
+    v: {n: 'Player value', d: 'Players who have more of what is needed on that day get the better times, compared with all other players of the week. Construction day: FCs, Refined FCs, FC Shards, Construction and General speedups. Research day: Research, Learning and General speedups. Troops day: Troop Training and General speedups.'},
+    a: {n: 'Few alternatives', d: 'Players who gave hardly any other times are placed first, otherwise they would end up without a slot.'},
+    s: {n: 'Same time on several days', d: 'Keeps a player at the same time on several days if he asked for it.'}
+  };
+  var AFV = {'1': ['fc', 'fcr', 'fcs', 'sc', 'sg'], '2': ['sr', 'sl', 'sg'], '3': ['st', 'sg']};
+  var PRESETS = {before: {order: ['t', 'a', 's', 'v'], on: {t: 1, a: 1, s: 1, v: 0}}, value: {order: ['v', 't', 'a', 's'], on: {t: 1, a: 1, s: 1, v: 1}}, balanced: {order: ['t', 'v', 'a', 's'], on: {t: 1, a: 1, s: 1, v: 1}}};
+  var AR = JSON.parse(JSON.stringify(PRESETS.before));
+  try { var sv0 = JSON.parse(localStorage.getItem('ap_afrules') || 'null'); if(sv0 && Array.isArray(sv0.order) && sv0.order.length === 4 && sv0.order.slice().sort().join('') === 'astv' && sv0.on){ AR = {order: sv0.order, on: {t: 1, a: !!sv0.on.a, s: !!sv0.on.s, v: !!sv0.on.v}}; } } catch(e) {}
+  function arSave(){ try { localStorage.setItem('ap_afrules', JSON.stringify(AR)); } catch(e) {} }
+  function arW(){ var w = {t: 0, v: 0, a: 0, s: 0}, p = 0; AR.order.forEach(function(k){ if(k === 't' || AR.on[k]){ w[k] = [8, 4, 2, 1][p]; p++; } }); return w; }
+  function arText(){ var p = 0; return AR.order.filter(function(k){ return k === 't' || AR.on[k]; }).map(function(k){ return RULES[k].n; }).join(' > '); }
+  // value of every player on one day, 0 to 1: average of his rank (percentile) in each relevant amount among all players who signed up for that day
+  function valScores(day){
+    var rows = O.rows.filter(function(r){ return (r.slots[day] || []).length; }), comps = AFV[day] || [], out = {}, n = rows.length;
+    rows.forEach(function(r){ out[r.pid] = 0; });
+    if(!n || !comps.length) return out;
+    comps.forEach(function(c){
+      var vs = rows.map(function(r){ var v = r.vals && r.vals[c]; return typeof v === 'number' && v > 0 ? v : 0; });
+      rows.forEach(function(r, i){ var lo = 0, eq = 0; vs.forEach(function(x){ if(x < vs[i]) lo++; else if(x === vs[i]) eq++; }); out[r.pid] += (lo + (eq - 1) / 2) / Math.max(1, n - 1); });
+    });
+    rows.forEach(function(r){ out[r.pid] = n > 1 ? Math.max(0, Math.min(1, out[r.pid] / comps.length)) : 0.5; });
+    return out;
+  }
   function afPlan(day, keep, anch){
     var m = {}, placed = {};
     (keep || []).forEach(function(a){ m[a.slot] = a.pid; placed[a.pid] = 1; });
@@ -1732,11 +1759,12 @@
     var n = pl.length, F = free.length, pairs = [], un = [];
     if(!n) return {pairs: pairs, unplaced: un};
     if(!F) return {pairs: pairs, unplaced: pl};
-    var cols = F + n, cost = [], idx = {}; free.forEach(function(s, c){ idx[s] = c; });
+    var cols = F + n, cost = [], idx = {}, SW = arW(), VS = SW.v ? valScores(day) : {}; free.forEach(function(s, c){ idx[s] = c; });
     pl.forEach(function(r){
-      var row = mk(cols, BIG), sl = r.slots[day] || [], w = weight(sl.length), D = 1000 + 100 * w;
+      var row = mk(cols, BIG), sl = r.slots[day] || [], fa = (weight(sl.length) - 1) / 4, V = VS[r.pid] || 0, M = SW.t + 8 * (SW.v * V + SW.a * fa), D = 1000 + 100 * M / 8;
       var an = (anch && anch[r.pid]) || {};
-      sl.forEach(function(s, k){ if(idx[s] != null) row[idx[s]] = (k < RC.length ? RC[k] : RX) * w - AB * (an[s] || 0); });
+      // with the default rules (time wishes, few alternatives, same time) this is exactly the old calculation: (RC or RX) * weight(len) - 10 per other day
+      sl.forEach(function(s, k){ if(idx[s] != null) row[idx[s]] = (k < RC.length ? RC[k] : RX) / 45 * M * (45 / 8) - 5 * SW.s * (an[s] || 0); });
       for(var c = F; c < cols; c++) row[c] = D;
       cost.push(row);
     });
@@ -1745,7 +1773,35 @@
       var c = res[ri];
       if(c >= 0 && c < F && cost[ri][c] < BIG){ var s = free[c]; pairs.push({pid: r.pid, slot: s, rank: (r.slots[day] || []).indexOf(s)}); } else un.push(r);
     });
-    return {pairs: pairs, unplaced: un};
+    return {pairs: pairs, unplaced: un, vs: SW.v ? VS : valScores(day)};
+  }
+  function openRules(){
+    var m = document.getElementById('apRl');
+    if(!m){ m = document.createElement('div'); m.id = 'apRl'; m.className = 'ap-m'; m.style.zIndex = '120'; m.innerHTML = '<div class="ap-mp" id="apRlP"></div>'; document.body.appendChild(m); m.addEventListener('click', function(e){ if(e.target === m) m.classList.remove('open'); }); }
+    function draw(){
+      var on = AR.order.filter(function(k){ return k === 't' || AR.on[k]; }), p = 0;
+      $('apRlP').innerHTML = '<h3>Auto-fill rules</h3><p class="ap-note" style="margin-top:0">The rule at the top counts most (about twice as much as the next one). Switch rules off with the tick. Your choice is kept in this browser. The assignment itself is only made when you start the auto-fill; you can change every slot afterwards.</p>' +
+        '<div class="ap-ma" style="justify-content:flex-start;margin:0 0 10px"><span class="ap-note" style="align-self:center;margin:0">Presets:</span><button type="button" class="btn btn-secondary" data-pre="before">Time wishes first (as before)</button><button type="button" class="btn btn-secondary" data-pre="balanced">Balanced</button><button type="button" class="btn btn-secondary" data-pre="value">Value first</button></div>' +
+        AR.order.map(function(k, i){
+          var act = k === 't' || AR.on[k], pos = act ? ++p : 0;
+          return '<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--border);' + (act ? '' : 'opacity:.55') + '">' +
+            '<div style="display:flex;flex-direction:column;gap:4px"><button type="button" class="ap-x" data-up="' + i + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Move up">▲</button><button type="button" class="ap-x" data-dn="' + i + '"' + (i === 3 ? ' disabled' : '') + ' aria-label="Move down">▼</button></div>' +
+            '<label style="display:flex;gap:10px;align-items:flex-start;flex:1;cursor:' + (k === 't' ? 'default' : 'pointer') + '"><input type="checkbox" data-on="' + k + '"' + (act ? ' checked' : '') + (k === 't' ? ' disabled' : '') + ' style="margin-top:3px;width:18px;height:18px;flex:none;accent-color:var(--good)">' +
+            '<span><b>' + (act ? pos + '. ' : '') + esc(RULES[k].n) + '</b><br><span class="ap-note" style="margin:0">' + esc(RULES[k].d) + '</span></span></label></div>';
+        }).join('') + '<div class="ap-ma" style="margin-top:12px"><button type="button" class="btn" id="arX">Close</button></div>';
+    }
+    draw(); m.classList.add('open');
+    $('apRlP').onclick = function(e){
+      var b = e.target.closest('button'); if(!b) return;
+      if(b.id === 'arX'){ m.classList.remove('open'); return; }
+      var i;
+      if(b.dataset.pre){ AR = JSON.parse(JSON.stringify(PRESETS[b.dataset.pre])); }
+      else if(b.dataset.up != null){ i = +b.dataset.up; if(i > 0){ var t = AR.order[i]; AR.order[i] = AR.order[i - 1]; AR.order[i - 1] = t; } }
+      else if(b.dataset.dn != null){ i = +b.dataset.dn; if(i < 3){ var t2 = AR.order[i]; AR.order[i] = AR.order[i + 1]; AR.order[i + 1] = t2; } }
+      else return;
+      arSave(); draw();
+    };
+    $('apRlP').onchange = function(e){ var k = e.target.getAttribute('data-on'); if(k && k !== 't'){ AR.on[k] = e.target.checked; arSave(); draw(); } };
   }
   function dayAsg(d){ return A.asg.filter(function(a){ return a.day === d; }); }
   function runOps(ops, i, done){
@@ -1768,10 +1824,10 @@
     if(DAYS.length > 1){ var p1 = plans; plans = p1.map(function(x){ var o = p1.filter(function(y){ return y.d !== x.d; }); return {d: x.d, p: afPlan(x.d, dayAsg(x.d), anchors(x.d, o))}; }); }
     plans.forEach(function(x){
       var rk = [0, 0, 0, 0]; x.p.pairs.forEach(function(q){ rk[q.rank < 0 ? 3 : Math.min(q.rank, 3)]++; }); tot += x.p.pairs.length;
-      msg += DAYS.filter(function(y){ return y.k === x.d; })[0].n + ': ' + x.p.pairs.length + ' placed (1st choice ' + rk[0] + ', 2nd ' + rk[1] + ', 3rd ' + rk[2] + ', later ' + rk[3] + '), ' + x.p.unplaced.length + ' without a slot\n';
+      msg += DAYS.filter(function(y){ return y.k === x.d; })[0].n + ': ' + x.p.pairs.length + ' placed (1st choice ' + rk[0] + ', 2nd ' + rk[1] + ', 3rd ' + rk[2] + ', later ' + rk[3] + '), ' + x.p.unplaced.length + ' without a slot' + (x.p.unplaced.length ? ' (average value ' + Math.round(100 * x.p.unplaced.reduce(function(a, r){ return a + ((x.p.vs || {})[r.pid] || 0); }, 0) / x.p.unplaced.length) + ' of 100)' : '') + '\n';
     });
     if(!tot){ toast('Nothing to fill: no free slot or nobody left who picked a free time.'); return; }
-    if(!window.confirm('Auto-fill (existing assignments stay, you can change everything afterwards):\n\n' + msg + '\nApply?')) return;
+    if(!window.confirm('Auto-fill (existing assignments stay, you can change everything afterwards):\nRules: ' + arText() + '\n\n' + msg + '\nApply?')) return;
     var ops = []; plans.forEach(function(x){ x.p.pairs.forEach(function(q){ ops.push(function(){ return api.asSet(code, O.evId, x.d, q.slot, q.pid); }); }); });
     runOps(ops, 0, function(){ toast('Auto-fill done: ' + tot + ' players placed.', true); asReload(); });
   }
