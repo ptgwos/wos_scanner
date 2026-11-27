@@ -772,6 +772,7 @@
   .fm-zm{display:flex;gap:4px;align-items:center;} .fm-zm .btn{width:auto;padding:5px 11px;min-width:38px;}
   .fm-zm .btn.on{border-color:var(--gold);color:var(--gold);}
   .fm-scroll{overflow:auto;border-radius:8px;-webkit-overflow-scrolling:touch;}
+  .fm-scroll.pan{cursor:grab;-webkit-user-select:none;user-select:none;} .fm-scroll.drag,.fm-scroll.drag *{cursor:grabbing !important;}
   .fm-scroll svg{display:block;width:100%;height:auto;}
   .fm-sq{fill:var(--bg-2);stroke:var(--ice-dim, var(--border));stroke-width:3;}
   .fm-gl{stroke:var(--border);stroke-width:1.4;opacity:.7;}
@@ -853,7 +854,7 @@
     <div class="fm-fl" id="fmFl"></div>
     <div class="fm-tw"><table class="fm-t"><thead><tr id="fmHd"></tr></thead><tbody id="fmRows"></tbody></table></div>
   </div>
-  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa6</footer>
+  <footer id="foot">State 646 · Facilities · build 2026-11-26 · fa7</footer>
 </div>
 <div id="fmTip"></div>
 <div id="fmPop"></div>
@@ -990,11 +991,23 @@
     b.addEventListener('click', function(){
       var cx = (sc.scrollLeft + sc.clientWidth / 2) / sc.scrollWidth, cy = (sc.scrollTop + sc.clientHeight / 2) / sc.scrollHeight;
       svg.style.width = (z * 100) + '%'; zm.querySelectorAll('.btn').forEach(function(x){ x.classList.toggle('on', x === b); });
+      sc.classList.toggle('pan', z > 1);
       sc.style.maxHeight = z === 1 ? '' : Math.round(Math.min(window.innerHeight * .8, 900)) + 'px';
       sc.scrollLeft = cx * sc.scrollWidth - sc.clientWidth / 2; sc.scrollTop = cy * sc.scrollHeight - sc.clientHeight / 2;
     });
     zm.appendChild(b);
   });
+  /* drag the zoomed map with the mouse (hand cursor); touch screens scroll natively */
+  var pan = null, moved = false;
+  sc.addEventListener('pointerdown', function(e){ if(e.pointerType !== 'mouse' || e.button !== 0 || (sc.scrollWidth <= sc.clientWidth + 2 && sc.scrollHeight <= sc.clientHeight + 2)) return; pan = {x: e.clientX, y: e.clientY, l: sc.scrollLeft, t: sc.scrollTop}; moved = false; });
+  document.addEventListener('pointermove', function(e){
+    if(!pan) return; var dx = e.clientX - pan.x, dy = e.clientY - pan.y; if(!moved && Math.abs(dx) + Math.abs(dy) < 4) return;
+    if(!moved){ moved = true; sc.classList.add('drag'); hide(); } sc.scrollLeft = pan.l - dx; sc.scrollTop = pan.t - dy; e.preventDefault();
+  });
+  function endPan(){ if(!pan) return; pan = null; sc.classList.remove('drag'); setTimeout(function(){ moved = false; }, 0); }
+  document.addEventListener('pointerup', endPan); document.addEventListener('pointercancel', endPan);
+  sc.addEventListener('click', function(e){ if(moved){ e.stopPropagation(); e.preventDefault(); } }, true);
+  sc.addEventListener('dragstart', function(e){ e.preventDefault(); });
   function tagCol(t){ return COL[t] || '#59688a'; }
   function chip(t){ return '<span class="fm-tag" style="background:' + esc(tagCol(t)) + '">' + esc(t) + '</span>'; }
   function show(g, x, y){
@@ -1006,7 +1019,7 @@
     tip.style.left = Math.max(8, X) + 'px'; tip.style.top = Math.max(8, Y) + 'px';
   }
   function hide(){ tip.style.display = 'none'; if(selEl){ selEl.classList.remove('sel'); selEl = null; } }
-  mk.addEventListener('pointermove', function(e){ if(e.pointerType === 'touch') return; var g = e.target.closest('.fm-mk'); if(g) show(g, e.clientX, e.clientY); else hide(); });
+  mk.addEventListener('pointermove', function(e){ if(e.pointerType === 'touch' || pan) return; var g = e.target.closest('.fm-mk'); if(g) show(g, e.clientX, e.clientY); else hide(); });
   mk.addEventListener('pointerleave', function(e){ if(e.pointerType !== 'touch') hide(); });
   hqg.addEventListener('pointermove', function(e){ if(e.pointerType === 'touch') return; var g = e.target.closest('.fm-hq'); if(g) show(g, e.clientX, e.clientY); else hide(); });
   hqg.addEventListener('pointerleave', function(e){ if(e.pointerType !== 'touch') hide(); });
