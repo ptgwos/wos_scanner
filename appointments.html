@@ -1234,7 +1234,7 @@
       </div>
     </div>
   </div>
-  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-11-25 · ap7</footer>
+  <footer id="foot">State 646 · Appointments — data: Supabase · build 2026-11-27 · ap8</footer>
 </div>
 <div id="toast"></div>
 <script src="eventplan-config.js"></script>
@@ -1668,8 +1668,7 @@
     Promise.all([dp, ev, cn]).then(function(){
       fillAlliances();
       if(CAN.view && $('apMg')) $('apMg').style.display = '';
-      var pid = null; try { pid = localStorage.getItem('ap_pid'); } catch(e) {}
-      if(pid && /^\d+$/.test(pid)){ $('apId').value = pid; if(D.players[pid] && D.players[pid].a && D.alliances[D.players[pid].a]){ $('apAl').value = D.players[pid].a; fillPlayers(D.players[pid].a, pid); } onId(); }
+      try { localStorage.removeItem('ap_pid'); } catch(e) {}   // old versions remembered the last player; the form now always starts empty
     });
     $('apAl').addEventListener('change', function(){ fillPlayers(this.value); $('apId').value = ''; onId(); });
     $('apPl').addEventListener('change', function(){ $('apId').value = this.value; onId(); });
