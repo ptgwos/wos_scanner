@@ -1082,6 +1082,17 @@
   .bk-r{display:inline-block;color:#0c1a24;font-weight:700;font-size:12.5px;padding:2px 9px;border-radius:5px;box-shadow:inset 0 0 0 2px #e0524e;}
   .bk-al{font-size:13px;color:var(--text-dim);} .bk-al b{color:var(--gold);}
   .bk-acts{margin-left:auto;display:flex;gap:8px;}
+  .bk-tm{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--text-dim);}
+  .bk-tm select{width:auto;min-width:0;flex:none;font:inherit;font-size:12.5px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);color-scheme:dark;}
+  :root[data-theme="light"] .bk-tm select{color-scheme:light;}
+  .bk-tm .tmx{font:inherit;font-size:14px;line-height:1;padding:3px 7px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-faint);cursor:pointer;}
+  .bk-tm .tmx:hover{color:var(--danger);border-color:var(--danger);}
+  .tmv{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;letter-spacing:.02em;padding:3px 10px;border-radius:7px;border:1px solid var(--border);color:var(--text-dim);white-space:nowrap;}
+  .tmv.run{color:var(--good);border-color:rgba(67,230,160,.45);}
+  .tmv.low{color:var(--gold);border-color:rgba(255,180,0,.55);}
+  .tmv.crit{color:var(--danger);border-color:rgba(255,93,115,.6);}
+  .tmv.end{color:var(--danger);background:rgba(255,93,115,.12);border-color:var(--danger);}
+  .tmv.wait{color:var(--ice);border-color:var(--ice-dim);}
   .btn.sm{padding:6px 12px;font-size:12px;width:auto;}
   .bk-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   table.bk-t{border-collapse:collapse;width:100%;font-size:13px;}
@@ -1145,7 +1156,7 @@
   <div id="wkEdit"><button type="button" class="btn sm" id="wkLast" style="display:none">Copy from last week</button></div>
   <div id="blocks"></div>
   <p class="fs-note" id="fsNote">Everybody can look at the lists. Only people with the Buff Recipients permission can change them. The alliance shown per fortress comes from the Fortress/SH plan.</p>
-  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-26 · bf8</footer>
+  <footer id="foot">State 646 · Buff Recipients — data: Supabase · build 2026-11-28 · bf11</footer>
 </div>
 <div class="modal-overlay" id="fsModal" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><div class="modal-panel"><div class="modal-header"><h2 id="fsTitle">Log in</h2><button type="button" class="modal-close" id="fsClose" aria-label="Close">×</button></div><div id="fsBody"></div></div></div>
 <div class="modal-overlay" id="pkModal" role="dialog" aria-modal="true" aria-labelledby="pkTitle"><div class="modal-panel"><div class="modal-header"><h2 id="pkTitle">Pick player</h2><button type="button" class="modal-close" id="pkClose" aria-label="Close">×</button></div><p class="modal-sub" id="pkSub"></p>
@@ -1186,7 +1197,7 @@
   };
   var CFG = window.EP_CONFIG || null, MOCK = /[?&]mock=1/.test(location.search);
   var V = {code: '', me: null, canEdit: false, busy: 0};
-  var D = {slots: {}, hold: {}};          // slots['phase|fac|col|slot'] = {id,name,al}; hold['phase|fac'] = alliance
+  var D = {slots: {}, hold: {}, tm: {}}, TMSEL = {};          // slots['phase|fac|col|slot'] = {id,name,al}; hold['phase|fac'] = alliance
   var P = {players: {}, alliances: {}, ok: false};
   var phase = 1, picCache = {}, pk = null;
   function $(id){ return document.getElementById(id); }
@@ -1198,7 +1209,7 @@
   function facNum(f){ return +f.split('-')[1]; }
 
   // ---- API ----
-  var MK = 'bf_mock', MKF = 'fsh_mock';
+  var MK = 'bf_mock', MKF = 'fsh_mock', MKT = 'bf_mock_tm';
   function jget(k){ try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch(e) { return {}; } }
   var MU = {admin: {role: 'super', name: 'Peter', buffs: true}, ed: {role: 'editor', name: 'Editor', buffs: true}, viewer: {role: 'editor', name: 'Viewer', buffs: false}};
   function hdr(){ var H = {apikey: CFG.key, 'Content-Type': 'application/json'}; if(/^eyJ/.test(CFG.key)) H.Authorization = 'Bearer ' + CFG.key; return H; }
@@ -1210,19 +1221,29 @@
       var m = jget(MK)[s] || {}, f = jget(MKF)[s] || {};
       var slots = Object.keys(m).map(function(k){ var p = k.split('|'), v = m[k]; return {phase: +p[0], facility: p[1], col: p[2], slot: +p[3], player_id: v.id, player_name: v.name, player_alliance: v.al, done: !!v.done}; });
       var hold = Object.keys(f).map(function(k){ var p = k.split('|'); return {facility: p[0], phase: +p[1], alliance: f[k]}; });
-      return Promise.resolve({slots: slots, hold: hold});
+      var tmm = jget(MKT)[s] || {}, tms = Object.keys(tmm).map(function(k){ var p = k.split('|'); return {phase: +p[0], facility: p[1], hh: tmm[k].hh, start_at: tmm[k].start_at}; });
+      return Promise.resolve({slots: slots, hold: hold, tm: tms});
     }
     if(!CFG) return Promise.reject(new Error('No configuration (eventplan-config.js).'));
     return Promise.all([
       rest('buff_slots?select=phase,facility,col,slot,player_id,player_name,player_alliance,done&season=eq.' + s),
-      rest('assignments?select=facility,phase,alliance&season=eq.' + s)
-    ]).then(function(r){ return {slots: r[0], hold: r[1]}; });
+      rest('assignments?select=facility,phase,alliance&season=eq.' + s),
+      rest('bf_timers?select=phase,facility,hh,start_at&season=eq.' + s).catch(function(){ return []; })   // table missing (SQL not run yet) = no timers, page still works
+    ]).then(function(r){ return {slots: r[0], hold: r[1], tm: r[2] || []}; });
   }
   function rpc(fn, args){
     if(MOCK){
       var u = MU[args.p_code];
+      if(fn === 'bf_now') return Promise.resolve(new Date(Date.now() + (+localStorage.getItem('bf_mock_skew') || 0)).toISOString());
       if(fn === 'sa_me') return Promise.resolve(u || null);
       if(!u || !u.buffs) return Promise.reject(new Error('Not allowed (no Buff Recipients permission).'));
+      if(fn === 'bf_time_set' || fn === 'bf_time_clear'){
+        var tt = jget(MKT), tk = args.p_phase + '|' + args.p_facility; tt[args.p_season] = tt[args.p_season] || {};
+        if(fn === 'bf_time_clear') delete tt[args.p_season][tk];
+        else { var d0 = new Date(); tt[args.p_season][tk] = {hh: args.p_hh, start_at: new Date(Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth(), d0.getUTCDate(), args.p_hh)).toISOString()}; }
+        try { localStorage.setItem(MKT, JSON.stringify(tt)); } catch(e) {}
+        return Promise.resolve(null);
+      }
       if(fn === 'bf_copy'){
         var cd = jget(MK), st = cd[args.p_season] = cd[args.p_season] || {}, cnt = 0, pre = args.p_from_phase + '|' + args.p_from_fac + '|';
         var cc = args.p_col; if(args.p_replace) Object.keys(st).forEach(function(k){ var q = k.split('|'); if(q[0] == args.p_to_phase && q[1] === args.p_to_fac && (!cc || q[2] === cc)) delete st[k]; });
@@ -1263,6 +1284,7 @@
     D.slots = {}; D.hold = {};
     d.slots.forEach(function(r){ if(r.player_id || r.player_name) D.slots[r.phase + '|' + r.facility + '|' + r.col + '|' + r.slot] = {id: r.player_id || '', name: r.player_name || '', al: r.player_alliance || '', done: !!r.done}; });
     d.hold.forEach(function(r){ if(r.alliance) D.hold[r.phase + '|' + r.facility] = r.alliance; });
+    D.tm = {}; (d.tm || []).forEach(function(r){ var t = Date.parse(r.start_at); if(t) D.tm[r.phase + '|' + r.facility] = {hh: r.hh, t: t}; });
   }
   function load(quiet){
     if(V.busy || pk) return Promise.resolve();
@@ -1272,6 +1294,53 @@
       ingest(d); render();
       stat(MOCK ? 'Test mode (data only in this browser).' : '', MOCK ? 'warn' : '');
     }).catch(function(e){ stat('Load failed: ' + e.message, 'err'); });
+  }
+
+  // ---- 24h countdown per block (start time = chosen hour of the UTC day on which OK was pressed) ----
+  // server clock: offset between this device and the database, refreshed once a minute (stays 0 if the SQL function is not there)
+  var SKEW = 0;
+  function nowMs(){ return Date.now() + SKEW; }
+  function syncClock(){
+    var t0 = Date.now();
+    return rpc('bf_now', {}).then(function(r){ var t1 = Date.now(), sv = Date.parse(r); if(sv){ SKEW = sv + (t1 - t0) / 2 - t1; tmTick(); } }).catch(function(){});
+  }
+  function p2(n){ return (n < 10 ? '0' : '') + n; }
+  function tmCalc(t){
+    var now = nowMs(), end = t + 24 * 3600 * 1000, r;
+    if(now < t){ r = Math.ceil((t - now) / 1000); return {c: 'wait', x: 'starts in ' + p2(Math.floor(r / 3600)) + ':' + p2(Math.floor(r % 3600 / 60)) + ':' + p2(r % 60)}; }
+    if(now >= end) return {c: 'end', x: "Time's up"};
+    r = Math.ceil((end - now) / 1000);
+    return {c: r <= 3600 ? 'crit' : r <= 6 * 3600 ? 'low' : 'run', x: p2(Math.floor(r / 3600)) + ':' + p2(Math.floor(r % 3600 / 60)) + ':' + p2(r % 60)};
+  }
+  function tmHtml(ph, fac){
+    var k = ph + '|' + fac, cur = D.tm[k], sel = TMSEL[k] || (cur ? cur.hh : 14), h = '<div class="bk-tm">';
+    if(V.canEdit){
+      h += '<select class="tmsel" data-tk="' + k + '" aria-label="Start time (UTC)">' + [13, 14, 17].map(function(x){ return '<option value="' + x + '"' + (x === sel ? ' selected' : '') + '>' + x + ':00</option>'; }).join('') + '</select>' +
+        '<button type="button" class="btn sm tmok" data-tf="' + fac + '">OK</button>';
+    }
+    if(cur) h += '<span class="tmv" data-tk="' + k + '" title="Countdown starts at ' + cur.hh + ':00 UTC and runs 24 h"></span>' + (V.canEdit ? '<button type="button" class="tmx" data-tc="' + fac + '" title="Remove timer" aria-label="Remove timer">×</button>' : '');
+    return h + '</div>';
+  }
+  function tmTick(){
+    var els = document.querySelectorAll('.tmv[data-tk]');
+    for(var i = 0; i < els.length; i++){
+      var c = D.tm[els[i].getAttribute('data-tk')]; if(!c) continue;
+      var r = tmCalc(c.t); if(els[i].textContent !== r.x) els[i].textContent = r.x; var cl = 'tmv ' + r.c; if(els[i].className !== cl) els[i].className = cl;
+    }
+  }
+  setInterval(tmTick, 1000);
+  syncClock(); setInterval(syncClock, 60000);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) syncClock(); });
+  function setTimer(fac){
+    var k = phase + '|' + fac, sel = document.querySelector('.tmsel[data-tk="' + k + '"]'); if(!sel) return;
+    var hh = +sel.value, s = season(), ph = phase; V.busy++;
+    rpc('bf_time_set', {p_code: V.code, p_season: s, p_phase: ph, p_facility: fac, p_hh: hh}).then(function(){
+      var d0 = new Date(nowMs()); D.tm[k] = {hh: hh, t: Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth(), d0.getUTCDate(), hh)}; delete TMSEL[k]; render(); toast('Timer set: ' + hh + ':00 UTC.', true);
+    }).catch(function(e){ toast(e.message); }).then(function(){ V.busy--; });
+  }
+  function clearTimer(fac){
+    var k = phase + '|' + fac, s = season(), ph = phase; V.busy++;
+    rpc('bf_time_clear', {p_code: V.code, p_season: s, p_phase: ph, p_facility: fac}).then(function(){ delete D.tm[k]; delete TMSEL[k]; render(); }).catch(function(e){ toast(e.message); }).then(function(){ V.busy--; });
   }
 
   // ---- render ----
@@ -1290,7 +1359,7 @@
       var hd = holder(phase, b.fac);
       h += '<section class="bk" data-i="' + bi + '"><div class="bk-h"><div class="bk-t1"><b>Week ' + phase + '</b><span class="dot">·</span>Fortress ' + b.n + '<span class="dot">·</span><span class="bk-r" style="background:' + BUFF[b.reward] + '">' + b.reward + '</span></div>' +
         '<div class="bk-al">Alliance: <b>' + (hd ? esc(hd) : '<span class="z">not assigned yet</span>') + '</b></div>' +
-        '<div class="bk-acts"><button type="button" class="btn sm" data-a="pic" data-i="' + bi + '">Share pic</button><button type="button" class="btn sm" data-a="txt" data-i="' + bi + '">Share Text - total</button><button type="button" class="btn sm" data-a="miss" data-i="' + bi + '">Share Text - missing</button></div></div>' +
+        tmHtml(phase, b.fac) + '<div class="bk-acts"><button type="button" class="btn sm" data-a="pic" data-i="' + bi + '">Share pic</button><button type="button" class="btn sm" data-a="txt" data-i="' + bi + '">Share Text - total</button><button type="button" class="btn sm" data-a="miss" data-i="' + bi + '">Share Text - missing</button></div></div>' +
         '<div class="bk-scroll"><table class="bk-t"><thead><tr><th class="n">#</th>' + COLS.map(function(c){ return '<th><span class="th-in">' + esc(c) + (V.canEdit ? '<span class="th-b"><button type="button" class="cpb" data-cf="' + b.fac + '" data-cc="' + c + '" title="Copy names into / from this column">Copy names</button><button type="button" class="cpb tr" data-xf="' + b.fac + '" data-xc="' + c + '" title="Clear this column in this block" aria-label="Clear ' + esc(c) + ' in this block"' + (colHas(phase, b.fac, c) ? '' : ' disabled') + '><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button></span>' : '') + '</span></th>'; }).join('') + '</tr></thead><tbody>';
       for(var s = 1; s <= SLOTS; s++){
         h += '<tr><td class="n">' + s + '</td>';
@@ -1303,6 +1372,7 @@
       h += '</tbody></table></div></section>';
     });
     $('blocks').innerHTML = h;
+    tmTick();
     setTimeout(prerender, 30);
   }
 
@@ -1453,7 +1523,11 @@
 
   // ---- clicks ----
   $('wkBar').addEventListener('click', function(e){ var b = e.target.closest ? e.target.closest('.wk') : null; if(!b) return; phase = +b.getAttribute('data-w'); render(); });
+  $('blocks').addEventListener('change', function(e){ var t = e.target; if(t.classList && t.classList.contains('tmsel')) TMSEL[t.getAttribute('data-tk')] = +t.value; });
   $('blocks').addEventListener('click', function(e){
+    var tk = e.target.closest ? e.target.closest('.tmok') : null; if(tk){ setTimer(tk.getAttribute('data-tf')); return; }
+    var tc = e.target.closest ? e.target.closest('.tmx') : null; if(tc){ clearTimer(tc.getAttribute('data-tc')); return; }
+    if(e.target.closest && e.target.closest('.bk-tm')) return;
     var xb = e.target.closest ? e.target.closest('.tr') : null;
     if(xb){ if(!xb.disabled) clearCol(xb.getAttribute('data-xf'), xb.getAttribute('data-xc')); return; }
     var cb = e.target.closest ? e.target.closest('.cpb') : null;
@@ -1472,22 +1546,29 @@
 
   // ---- share text ----
   function textFor(list, onlyMissing){
+    // one monospace code block per fortress with the alliances as columns: Discord shows it aligned, and it is much shorter than a list per alliance
     var out = [];
+    function ln(x){ return Array.from(x).length; }
+    function cut(x, n){ var a = Array.from(x); return a.length > n ? a.slice(0, n - 1).join('') + '…' : x; }
+    function pad(x, n){ var l = ln(x); return l >= n ? x : x + new Array(n - l + 1).join(' '); }
+    out.push('**Buff recipients' + (onlyMissing ? ' – still missing' : '') + ' · Season ' + season() + ' · Week ' + phase + '**', '');
     list.forEach(function(b){
       var hd = holder(phase, b.fac);
-      out.push('**Buff recipients' + (onlyMissing ? ' – still missing' : '') + ' · Season ' + season() + ' · Week ' + phase + '**');
       out.push('**Fortress ' + b.n + ' – ' + b.reward + '**' + (hd ? ' (' + hd + ')' : ''));
-      COLS.forEach(function(c){
-        out.push('', '__' + c + '__');
-        var any = false;
-        for(var s = 1; s <= SLOTS; s++){
-          var v = cellOf(phase, b.fac, c, s);
-          if(onlyMissing){ if(v && !v.done){ out.push(s + '. ' + (v.name || v.id)); any = true; } }
-          else out.push(s + '. ' + (v ? (v.name || v.id) : '–'));
-        }
-        if(onlyMissing && !any) out.push('–');
+      var grid = COLS.map(function(c){
+        var a = [];
+        for(var s = 1; s <= SLOTS; s++){ var v = cellOf(phase, b.fac, c, s); a.push(onlyMissing ? (v && !v.done ? (v.name || v.id) : null) : (v ? (v.name || v.id) : null)); }
+        if(onlyMissing) a = a.filter(function(x){ return x != null; });
+        return a.map(function(x){ return x == null ? null : cut(String(x).replace(/`/g, "'").replace(/\s+/g, ' ').trim(), 11); });
       });
-      out.push('', '');
+      var rows = 0; grid.forEach(function(a){ a.forEach(function(x, i){ if(x != null && i + 1 > rows) rows = i + 1; }); });
+      if(!rows){ out.push('–', '', ''); return; }
+      var w = grid.map(function(a, ci){ var m = ln(COLS[ci]); a.forEach(function(x){ if(x != null && ln(x) > m) m = ln(x); }); return m; });
+      var lines = ['   ' + COLS.map(function(c, ci){ return pad(c, w[ci]); }).join(' ').replace(/\s+$/, '')];
+      for(var i = 0; i < rows; i++){
+        lines.push((i < 9 ? ' ' : '') + (i + 1) + ' ' + grid.map(function(a, ci){ return pad(a[i] != null ? a[i] : (onlyMissing ? '' : '-'), w[ci]); }).join(' ').replace(/\s+$/, ''));
+      }
+      out.push('```', lines.join('\n'), '```', '');
     });
     return out.join('\n').replace(/\s+$/, '');
   }
