@@ -1,8 +1,8 @@
 {
  "kid": 646,
- "api_date": "2026-11-27",
- "fetched_at": "2026-11-27T08:47:46Z",
- "count": 32,
+ "api_date": "2026-11-28",
+ "fetched_at": "2026-11-28T08:02:27Z",
+ "count": 29,
  "events": [
   {
    "name": "Journey Treasures",
@@ -68,24 +68,6 @@
    "end_ts": 1796601600
   },
   {
-   "name": "Fishing Tournament",
-   "category": "Fishing Tournament",
-   "when": "24 Nov 00:00 – 26 Nov 24:00",
-   "begin": "2026-11-24T00:00:00Z",
-   "end": "2026-11-27T00:00:00Z",
-   "begin_ts": 1795478400,
-   "end_ts": 1795737600
-  },
-  {
-   "name": "Fortress Battles",
-   "category": "Events",
-   "when": "24 Nov 00:00 – 27 Nov 24:00",
-   "begin": "2026-11-24T00:00:00Z",
-   "end": "2026-11-28T00:00:00Z",
-   "begin_ts": 1795478400,
-   "end_ts": 1795824000
-  },
-  {
    "name": "Gourmet Quest",
    "category": "Thanksgiving",
    "when": "24 Nov 00:00 – 30 Nov 24:00",
@@ -129,15 +111,6 @@
    "end": "2026-12-01T00:00:00Z",
    "begin_ts": 1795478400,
    "end_ts": 1796083200
-  },
-  {
-   "name": "Hero's Mission",
-   "category": "Events",
-   "when": "25 Nov 00:00 – 27 Nov 24:00",
-   "begin": "2026-11-25T00:00:00Z",
-   "end": "2026-11-28T00:00:00Z",
-   "begin_ts": 1795564800,
-   "end_ts": 1795824000
   },
   {
    "name": "Armament Competition",

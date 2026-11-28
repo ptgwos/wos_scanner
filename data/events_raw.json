@@ -1,33 +1,12 @@
 {
  "ok": true,
  "kid": 646,
- "date": "2026-11-27",
- "count": 32,
+ "date": "2026-11-28",
+ "count": 29,
  "categories": [
   {
    "name": "Events",
    "events": [
-    {
-     "name": "Fortress Battles",
-     "category": "Events",
-     "when": "24 Nov 00:00 – 27 Nov 24:00",
-     "begin_ts": 1795478400,
-     "end_ts": 1795824000
-    },
-    {
-     "name": "Hero's Mission",
-     "category": "Events",
-     "when": "25 Nov 00:00 – 27 Nov 24:00",
-     "begin_ts": 1795564800,
-     "end_ts": 1795824000
-    },
-    {
-     "name": "Alliance Championship",
-     "category": "Events",
-     "when": "23 Nov 00:00 – 29 Nov 24:00",
-     "begin_ts": 1795392000,
-     "end_ts": 1795996800
-    },
     {
      "name": "Alliance Mobilization",
      "category": "Events",
@@ -43,18 +22,25 @@
      "end_ts": 1795910400
     },
     {
-     "name": "Foundry Battle",
+     "name": "Armament Competition",
+     "category": "Events",
+     "when": "27 Nov 00:00 – 28 Nov 24:00",
+     "begin_ts": 1795737600,
+     "end_ts": 1795910400
+    },
+    {
+     "name": "Alliance Championship",
      "category": "Events",
      "when": "23 Nov 00:00 – 29 Nov 24:00",
      "begin_ts": 1795392000,
      "end_ts": 1795996800
     },
     {
-     "name": "Armament Competition",
+     "name": "Foundry Battle",
      "category": "Events",
-     "when": "27 Nov 00:00 – 28 Nov 24:00",
-     "begin_ts": 1795737600,
-     "end_ts": 1795910400
+     "when": "23 Nov 00:00 – 29 Nov 24:00",
+     "begin_ts": 1795392000,
+     "end_ts": 1795996800
     },
     {
      "name": "Mercenary Prestige",
@@ -248,18 +234,6 @@
      "when": "30 Nov 00:00 – 6 Dec 24:00",
      "begin_ts": 1795996800,
      "end_ts": 1796601600
-    }
-   ]
-  },
-  {
-   "name": "Fishing Tournament",
-   "events": [
-    {
-     "name": "Fishing Tournament",
-     "category": "Fishing Tournament",
-     "when": "24 Nov 00:00 – 26 Nov 24:00",
-     "begin_ts": 1795478400,
-     "end_ts": 1795737600
     }
    ]
   }
